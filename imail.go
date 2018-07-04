@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/midoks/imail/cmd"
 	_ "github.com/urfave/cli"
-	_ "gopkg.in/macaron.v1"
 	_ "net/smtp"
 	_ "os"
 )
@@ -23,5 +22,5 @@ func main() {
 	// app.Flags = append(app.Flags, []cli.Flag{}...)
 	// app.Run(os.Args)
 
-	cmd.RunWebTest()
+	cmd.RunWebOk()
 }

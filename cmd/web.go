@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"github.com/midoks/imail/routes"
+	"github.com/astaxie/beego"
+	_ "github.com/midoks/imail/web/routers"
 	"github.com/urfave/cli"
 )
 
@@ -16,26 +17,11 @@ var Web = cli.Command{
 	},
 }
 
-func newMacaron() *macaron.Macaron {
-	m := macaron.New()
-	m.Use(macaron.Recovery())
-	m.Use(macaron.Renderer(macaron.RenderOptions{
-		Directory:  "templates",
-		Extensions: []string{".tmpl", ".html"},
-		Delims:     macaron.Delims{"{{", "}}"},
-	}))
-	return m
-}
-
 func runWeb(c *cli.Context) error {
-
-	m.Get("/", routes.Home)
-	m.Run()
+	RunWebOk()
 	return nil
 }
 
-func RunWebTest() {
-	m := newMacaron()
-	m.Get("/", routes.Home)
-	m.Run()
+func RunWebOk() {
+	beego.Run()
 }
