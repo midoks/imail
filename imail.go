@@ -1,16 +1,27 @@
 package main
 
 import (
-	"github.com/go-macaron/gzip"
-	"gopkg.in/macaron.v1"
+	"github.com/midoks/imail/cmd"
+	_ "github.com/urfave/cli"
+	_ "gopkg.in/macaron.v1"
+	_ "net/smtp"
+	_ "os"
 )
 
+const APP_VER = "0.0.0.0"
+
 func main() {
-	m := macaron.New()
-	m.Use(macaron.Logger())
-	m.Use(macaron.Recovery())
-	m.Use(gzip.Gziper())
-	m.Use(macaron.Static("public"))
-	// 注册路由
-	m.Run()
+
+	// app := cli.NewApp()
+	// app.Name = "imail"
+	// app.Usage = "Simple mail server"
+	// app.Version = APP_VER
+	// app.Commands = []cli.Command{
+	// 	cmd.Web,
+	// 	cmd.Send,
+	// }
+	// app.Flags = append(app.Flags, []cli.Flag{}...)
+	// app.Run(os.Args)
+
+	cmd.RunWebTest()
 }
