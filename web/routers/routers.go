@@ -11,5 +11,5 @@ func init() {
 	// 	ctx.Output.Body([]byte("hello world"))
 	// })
 
-	beego.Router("/", &controllers.CommonController{})
+	beego.Router("/", &controllers.Index{}, "*:Index")
 }
