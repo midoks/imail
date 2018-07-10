@@ -29,12 +29,14 @@ var stateList = map[int]string{
 }
 
 const (
+	INIT        = 222
 	OK          = 220
 	BYE         = 221
 	COMMAND_ERR = 502
 )
 
 var msgList = map[int]string{
+	INIT:        "Anti-spam GT for Coremail System(imail)",
 	OK:          "ok",
 	BYE:         "bye",
 	COMMAND_ERR: "Error: command not implemented",
@@ -107,7 +109,7 @@ func (c *smtpdServer) getString(conn net.Conn) (string, error) {
 }
 
 func (c *smtpdServer) handle(conn net.Conn) {
-
+	c.write(conn, INIT)
 	for {
 
 	GOHELO:
