@@ -5,11 +5,11 @@ import (
 	"fmt"
 	// "math/rand"
 	"bufio"
+	// "io/ioutil"
+	"log"
 	"net"
 	"strings"
 	"time"
-	// "io"
-	"log"
 )
 
 const (
@@ -57,7 +57,7 @@ func (c *smtpdServer) D(a ...interface{}) (n int, err error) {
 
 func (c *smtpdServer) write(conn net.Conn, code int) {
 
-	info := fmt.Sprintf("%d %s\n", code, msgList[code])
+	info := fmt.Sprintf("%d %s\r\n", code, msgList[code])
 	_, err := conn.Write([]byte(info))
 
 	if err != nil {
@@ -112,10 +112,19 @@ func (c *smtpdServer) handle(conn net.Conn) {
 	c.write(conn, INIT)
 	for {
 
-	GOHELO:
+		// data, err := ioutil.ReadAll(conn)
+		// if err != nil {
+
+		// 	log.Fatal(err)
+		// }
+		// fmt.Println(data)
+
+		c.D("------debug-------")
+		c.D(c.getString(conn))
+
 		if !c.guess(conn, HELO) {
 			c.write(conn, COMMAND_ERR)
-			goto GOHELO
+			continue
 		}
 		c.write(conn, OK)
 
