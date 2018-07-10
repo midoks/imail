@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+	"github.com/midoks/imail/lib/smtpd"
 	"github.com/urfave/cli"
 )
 
@@ -17,4 +19,15 @@ var Send = cli.Command{
 
 func runSend(c *cli.Context) error {
 	return nil
+}
+
+func RunSendTest() {
+	mxDomain, err := smtpd.DnsQuery("163.com")
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println(mxDomain)
+	smtpd.Start()
+	// smtpd.SendMail(mxDomain, "midoks@cachecha.com", "midoks@163.com", "Data: 24 May 2013 19:00:29\nFrom: <midoks@cachecha.com>\nSubject: Hello imail\nTo: <midoks@163.com>\n\nHi! yes is test. ok!")
 }

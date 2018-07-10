@@ -22,5 +22,6 @@ func main() {
 	// app.Flags = append(app.Flags, []cli.Flag{}...)
 	// app.Run(os.Args)
 
-	cmd.RunWebOk()
+	// cmd.RunWebOk()
+	cmd.RunSendTest()
 }
