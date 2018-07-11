@@ -14,13 +14,15 @@ import (
 )
 
 const (
-	CMD_READY      = iota
-	CMD_HELO       = iota
-	CMD_AUTH_LOGIN = iota
-	CMD_MAIL_FROM  = iota
-	CMD_RCPT_TO    = iota
-	CMD_DATA       = iota
-	CMD_QUIT       = iota
+	CMD_READY           = iota
+	CMD_HELO            = iota
+	CMD_AUTH_LOGIN      = iota
+	CMD_AUTH_LOGIN_USER = iota
+	CMD_AUTH_LOGIN_PWD  = iota
+	CMD_MAIL_FROM       = iota
+	CMD_RCPT_TO         = iota
+	CMD_DATA            = iota
+	CMD_QUIT            = iota
 )
 
 var stateList = map[int]string{
@@ -33,21 +35,25 @@ var stateList = map[int]string{
 }
 
 const (
-	MSG_INIT           = "220.0"
-	MSG_OK             = "220"
-	MSG_BYE            = "221"
-	MSG_BAD_SYNTAX     = "500"
-	MSG_COMMAND_ERR    = "502"
-	MSG_COMMAND_TM_ERR = "421"
+	MSG_INIT            = "220.0"
+	MSG_OK              = "220"
+	MSG_BYE             = "221"
+	MSG_BAD_SYNTAX      = "500"
+	MSG_COMMAND_ERR     = "502"
+	MSG_COMMAND_TM_ERR  = "421"
+	MSG_AUTH_LOGIN_USER = "334.user"
+	MSG_AUTH_LOGIN_PWD  = "334.passwd"
 )
 
 var msgList = map[string]string{
-	MSG_INIT:           "Anti-spam GT for Coremail System(imail)",
-	MSG_OK:             "ok",
-	MSG_BYE:            "bye",
-	MSG_COMMAND_ERR:    "Error: command not implemented",
-	MSG_COMMAND_TM_ERR: "Too many error commands",
-	MSG_BAD_SYNTAX:     "Error: bad syntax",
+	MSG_INIT:            "Anti-spam GT for Coremail System(imail)",
+	MSG_OK:              "ok",
+	MSG_BYE:             "bye",
+	MSG_COMMAND_ERR:     "Error: command not implemented",
+	MSG_COMMAND_TM_ERR:  "Too many error commands",
+	MSG_BAD_SYNTAX:      "Error: bad syntax",
+	MSG_AUTH_LOGIN_USER: "dXNlcm5hbWU6",
+	MSG_AUTH_LOGIN_PWD:  "UGFzc3dvcmQ6",
 }
 
 var GO_EOL = getGoEol()
@@ -85,21 +91,6 @@ func (this *smtpdServer) write(code string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func (this *smtpdServer) guess(state int) bool {
-	input, err := this.getString()
-	if err != nil {
-		log.Fatal(err)
-		return false
-	}
-
-	this.D(input, stateList[state], strings.EqualFold(input, stateList[state]))
-	if strings.EqualFold(input, stateList[state]) {
-		this.setState(state)
-		return true
-	}
-	return false
 }
 
 func (this *smtpdServer) getString0() (string, error) {
@@ -154,6 +145,41 @@ func (this *smtpdServer) cmdHelo(input string) bool {
 	return false
 }
 
+func (this *smtpdServer) cmdAuthLogin(input string) bool {
+
+	if this.cmdCompare(input, CMD_AUTH_LOGIN) {
+		this.setState(CMD_AUTH_LOGIN)
+		this.write(MSG_AUTH_LOGIN_USER)
+		return true
+	}
+	this.write(MSG_BAD_SYNTAX)
+	return false
+}
+
+func (this *smtpdServer) cmdAuthLoginUser(input string) bool {
+	this.setState(CMD_AUTH_LOGIN_USER)
+	this.write(MSG_AUTH_LOGIN_USER)
+	return true
+}
+
+func (this *smtpdServer) cmdAuthLoginPwd(input string) bool {
+
+	this.setState(CMD_AUTH_LOGIN_PWD)
+	this.write(MSG_AUTH_LOGIN_USER)
+	return true
+}
+
+func (this *smtpdServer) cmdMailFrom(input string) bool {
+
+	if this.cmdCompare(input, CMD_MAIL_FROM) {
+		this.setState(CMD_MAIL_FROM)
+		this.write(MSG_AUTH_LOGIN_USER)
+		return true
+	}
+	this.write(MSG_BAD_SYNTAX)
+	return false
+}
+
 func (this *smtpdServer) cmdQuit(input string) bool {
 	if this.cmdCompare(input, CMD_QUIT) {
 		this.write(MSG_BYE)
@@ -182,7 +208,19 @@ func (this *smtpdServer) handle() {
 
 		} else if CMD_HELO == state {
 
+			if this.cmdAuthLogin(cmd) {
+				continue
+			}
+
 		} else if CMD_AUTH_LOGIN == state {
+			if this.cmdAuthLoginUser(cmd) {
+				continue
+			}
+		} else if CMD_AUTH_LOGIN_USER == state {
+			if this.cmdAuthLoginPwd(cmd) {
+				continue
+			}
+		} else if CMD_AUTH_LOGIN_PWD == state {
 
 		} else if CMD_MAIL_FROM == state {
 
