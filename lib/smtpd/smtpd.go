@@ -35,7 +35,7 @@ var stateList = map[int]string{
 }
 
 const (
-	MSG_INIT            = "220.0"
+	MSG_INIT            = "220.init"
 	MSG_OK              = "220"
 	MSG_BYE             = "221"
 	MSG_BAD_SYNTAX      = "500"
@@ -93,7 +93,7 @@ func (this *smtpdServer) write(code string) {
 	}
 }
 
-func (this *smtpdServer) getString0() (string, error) {
+func (this *smtpdServer) getString() (string, error) {
 
 	input, err := bufio.NewReader(this.conn).ReadString('\n')
 	if err != nil {
@@ -103,7 +103,7 @@ func (this *smtpdServer) getString0() (string, error) {
 	return inputTrim, err
 }
 
-func (this *smtpdServer) getString() (string, error) {
+func (this *smtpdServer) getString0() (string, error) {
 	buffer := make([]byte, 2048)
 
 	n, err := this.conn.Read(buffer)
@@ -165,7 +165,7 @@ func (this *smtpdServer) cmdAuthLoginUser(input string) bool {
 func (this *smtpdServer) cmdAuthLoginPwd(input string) bool {
 
 	this.setState(CMD_AUTH_LOGIN_PWD)
-	this.write(MSG_AUTH_LOGIN_USER)
+	this.write(MSG_AUTH_LOGIN_PWD)
 	return true
 }
 
@@ -233,7 +233,7 @@ func (this *smtpdServer) handle() {
 		if this.cmdQuit(cmd) {
 			break
 		} else {
-			this.write(MSG_COMMAND_ERR)
+			//this.write(MSG_COMMAND_ERR)
 		}
 	}
 }
