@@ -228,12 +228,12 @@ func (this *smtpdServer) handle() {
 
 		} else if CMD_DATA == state {
 
+		} else {
+			this.write(MSG_COMMAND_ERR)
 		}
 
 		if this.cmdQuit(cmd) {
 			break
-		} else {
-			//this.write(MSG_COMMAND_ERR)
 		}
 	}
 }
