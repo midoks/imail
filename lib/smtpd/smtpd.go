@@ -8,140 +8,214 @@ import (
 	// "io/ioutil"
 	"log"
 	"net"
+	"runtime"
 	"strings"
 	"time"
 )
 
 const (
-	HELO      = 1
-	MAIL_FROM = 2
-	RCPT_TO   = 3
-	DATA      = 4
-	QUIT      = 5
+	CMD_READY      = iota
+	CMD_HELO       = iota
+	CMD_AUTH_LOGIN = iota
+	CMD_MAIL_FROM  = iota
+	CMD_RCPT_TO    = iota
+	CMD_DATA       = iota
+	CMD_QUIT       = iota
 )
 
 var stateList = map[int]string{
-	HELO:      "HELO",
-	MAIL_FROM: "MAIL_FROM",
-	RCPT_TO:   "RCPT_TO",
-	DATA:      "DATA",
-	QUIT:      "QUIT",
+	CMD_HELO:       "HELO",
+	CMD_AUTH_LOGIN: "AUTH LOGIN",
+	CMD_MAIL_FROM:  "MAIL_FROM",
+	CMD_RCPT_TO:    "RCPT_TO",
+	CMD_DATA:       "DATA",
+	CMD_QUIT:       "QUIT",
 }
 
 const (
-	INIT        = 222
-	OK          = 220
-	BYE         = 221
-	COMMAND_ERR = 502
+	MSG_INIT           = "220.0"
+	MSG_OK             = "220"
+	MSG_BYE            = "221"
+	MSG_BAD_SYNTAX     = "500"
+	MSG_COMMAND_ERR    = "502"
+	MSG_COMMAND_TM_ERR = "421"
 )
 
-var msgList = map[int]string{
-	INIT:        "Anti-spam GT for Coremail System(imail)",
-	OK:          "ok",
-	BYE:         "bye",
-	COMMAND_ERR: "Error: command not implemented",
+var msgList = map[string]string{
+	MSG_INIT:           "Anti-spam GT for Coremail System(imail)",
+	MSG_OK:             "ok",
+	MSG_BYE:            "bye",
+	MSG_COMMAND_ERR:    "Error: command not implemented",
+	MSG_COMMAND_TM_ERR: "Too many error commands",
+	MSG_BAD_SYNTAX:     "Error: bad syntax",
+}
+
+var GO_EOL = getGoEol()
+
+func getGoEol() string {
+	if "windows" == runtime.GOOS {
+		return "\r\n"
+	}
+	return "\n"
 }
 
 type smtpdServer struct {
+	conn      net.Conn
 	state     int
-	inputTime time.Time
+	startTime time.Time
+	errCount  int
+
+	//save cmd info
+	cmdHeloInfo string
 }
 
-func (c *smtpdServer) setState(state int) {
-	c.state = state
+func (this *smtpdServer) setState(state int) {
+	this.state = state
 }
 
-func (c *smtpdServer) D(a ...interface{}) (n int, err error) {
+func (this *smtpdServer) D(a ...interface{}) (n int, err error) {
 	return fmt.Println(a...)
 }
 
-func (c *smtpdServer) write(conn net.Conn, code int) {
+func (this *smtpdServer) write(code string) {
 
-	info := fmt.Sprintf("%d %s\r\n", code, msgList[code])
-	_, err := conn.Write([]byte(info))
-
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func (c *smtpdServer) writeString(conn net.Conn, code int, msg string) {
-
-	info := fmt.Sprintf("%d %s\n", code, msg)
-	_, err := conn.Write([]byte(info))
+	info := fmt.Sprintf("%.3s %s%s", code, msgList[code], GO_EOL)
+	_, err := this.conn.Write([]byte(info))
 
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func (c *smtpdServer) guess(conn net.Conn, state int) bool {
-
-	input, err := bufio.NewReader(conn).ReadString('\n')
-	input = strings.Trim(input, "\n")
-
+func (this *smtpdServer) guess(state int) bool {
+	input, err := this.getString()
 	if err != nil {
 		log.Fatal(err)
 		return false
 	}
 
-	c.D(input, stateList[state], strings.EqualFold(input, stateList[state]))
-
+	this.D(input, stateList[state], strings.EqualFold(input, stateList[state]))
 	if strings.EqualFold(input, stateList[state]) {
-		c.setState(state)
+		this.setState(state)
 		return true
 	}
 	return false
 }
 
-func (c *smtpdServer) getString(conn net.Conn) (string, error) {
+func (this *smtpdServer) getString0() (string, error) {
 
-	input, err := bufio.NewReader(conn).ReadString('\n')
-
+	input, err := bufio.NewReader(this.conn).ReadString('\n')
 	if err != nil {
 		return "", err
 	}
-
-	input = strings.Trim(input, "\n")
-	fmt.Println(input)
-
-	return input, err
+	inputTrim := strings.TrimSpace(input)
+	return inputTrim, err
 }
 
-func (c *smtpdServer) handle(conn net.Conn) {
-	c.write(conn, INIT)
-	for {
+func (this *smtpdServer) getString() (string, error) {
+	buffer := make([]byte, 2048)
 
-		// data, err := ioutil.ReadAll(conn)
-		// if err != nil {
+	n, err := this.conn.Read(buffer)
+	if err != nil {
+		log.Fatal(this.conn.RemoteAddr().String(), " connection error: ", err)
+		return "", err
+	}
 
-		// 	log.Fatal(err)
-		// }
-		// fmt.Println(data)
+	input := string(buffer[:n])
+	inputTrim := strings.TrimSpace(input)
+	return inputTrim, err
+}
 
-		c.D("------debug-------")
-		c.D(c.getString(conn))
+func (this *smtpdServer) close() {
+	this.conn.Close()
+}
 
-		if !c.guess(conn, HELO) {
-			c.write(conn, COMMAND_ERR)
-			continue
+func (this *smtpdServer) cmdCompare(input string, cmd int) bool {
+	if strings.EqualFold(input, stateList[cmd]) {
+		return true
+	}
+	return false
+}
+
+func (this *smtpdServer) cmdHelo(input string) bool {
+	inputN := strings.SplitN(input, " ", 2)
+
+	if this.cmdCompare(inputN[0], CMD_HELO) {
+		if len(inputN) < 2 {
+			this.write(MSG_BAD_SYNTAX)
+			return false
 		}
-		c.write(conn, OK)
 
-		if c.guess(conn, QUIT) {
-			defer conn.Close()
+		this.setState(CMD_HELO)
+		this.write(MSG_OK)
+		return true
+	}
+	this.write(MSG_COMMAND_ERR)
+	return false
+}
+
+func (this *smtpdServer) cmdQuit(input string) bool {
+	if this.cmdCompare(input, CMD_QUIT) {
+		this.write(MSG_BYE)
+		this.close()
+		return true
+	}
+	return false
+}
+
+func (this *smtpdServer) handle() {
+
+	for {
+		state := this.state
+		cmd, err := this.getString()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println(state, cmd)
+
+		if CMD_READY == state {
+
+			if this.cmdHelo(cmd) {
+				continue
+			}
+
+		} else if CMD_HELO == state {
+
+		} else if CMD_AUTH_LOGIN == state {
+
+		} else if CMD_MAIL_FROM == state {
+
+		} else if CMD_RCPT_TO == state {
+
+		} else if CMD_DATA == state {
+
+		}
+
+		if this.cmdQuit(cmd) {
 			break
+		} else {
+			this.write(MSG_COMMAND_ERR)
 		}
 	}
 }
 
-func (c *smtpdServer) start() {
+func (this *smtpdServer) start(conn net.Conn) {
+	this.conn = conn
+	this.startTime = time.Now()
+	this.setState(CMD_READY)
+	this.write(MSG_INIT)
+	this.handle()
+}
+
+func Start() {
 
 	ln, err := net.Listen("tcp", ":1025")
 	if err != nil {
 		panic(err)
 		return
 	}
+	defer ln.Close()
 
 	for {
 		conn, err := ln.Accept()
@@ -149,12 +223,7 @@ func (c *smtpdServer) start() {
 		if err != nil {
 			continue
 		}
-		go c.handle(conn)
+		srv := smtpdServer{}
+		go srv.start(conn)
 	}
-}
-
-func Start() {
-	s := smtpdServer{}
-	s.start()
-	fmt.Println("start!!!")
 }
