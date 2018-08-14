@@ -68,13 +68,39 @@ var msgList = map[string]string{
 	MSG_DATA:            "End data with <CR><LF>.<CR><LF>",
 }
 
-var GO_EOL = getGoEol()
+var GO_EOL = GetGoEol()
 
-func getGoEol() string {
+func GetGoEol() string {
 	if "windows" == runtime.GOOS {
 		return "\r\n"
 	}
 	return "\n"
+}
+
+var (
+	CMD_READY_FS = FSMState("ready")
+	CMD_READY_FE = FSMEvent("ready")
+	CMD_READY_FH = FSMHandler(func() FSMState {
+		fmt.Println("ready")
+		return FSMState("ready")
+	})
+
+	CMD_HELO_FS = FSMState("CMD_HELO")
+	CMD_HELO_FE = FSMEvent("CMD_HELO")
+	CMD_HELO_FH = FSMHandler(func() FSMState {
+		fmt.Println("helo")
+		return FSMState("CMD_HELO")
+	})
+)
+
+type SmtpService struct {
+	*FSM
+}
+
+func NewSmtpd(initState FSMState) *SmtpService {
+	return &SmtpService{
+		FSM: NewFSM(initState),
+	}
 }
 
 type smtpdServer struct {
@@ -83,6 +109,7 @@ type smtpdServer struct {
 	state     int
 	startTime time.Time
 	errCount  int
+	srv       *SmtpService
 
 	//save cmd info
 	cmdHeloInfo string
@@ -250,51 +277,53 @@ func (this *smtpdServer) handle() {
 
 		fmt.Println(state, cmd)
 
-		if CMD_READY == state {
+		this.srv.Call(CMD_HELO_FE)
 
-			if this.cmdHelo(cmd) {
-				continue
-			}
+		// if CMD_READY == state {
 
-		} else if CMD_HELO == state {
+		// 	if this.cmdHelo(cmd) {
+		// 		continue
+		// 	}
 
-			if this.cmdAuthLogin(cmd) {
-				continue
-			}
-		} else if CMD_AUTH_LOGIN == state {
+		// } else if CMD_HELO == state {
 
-			if this.cmdAuthLoginUser(cmd) {
-				continue
-			}
-		} else if CMD_AUTH_LOGIN_USER == state {
+		// 	if this.cmdAuthLogin(cmd) {
+		// 		continue
+		// 	}
+		// } else if CMD_AUTH_LOGIN == state {
 
-			if this.cmdAuthLoginPwd(cmd) {
-				continue
-			}
-		} else if CMD_AUTH_LOGIN_PWD == state {
+		// 	if this.cmdAuthLoginUser(cmd) {
+		// 		continue
+		// 	}
+		// } else if CMD_AUTH_LOGIN_USER == state {
 
-			if this.cmdMailFrom(cmd) {
-				continue
-			}
-		} else if CMD_MAIL_FROM == state {
-			if this.cmdRcptTo(cmd) {
-				continue
-			}
-		} else if CMD_RCPT_TO == state {
-			if this.cmdData(cmd) {
-				continue
-			}
-		} else if CMD_DATA == state {
-			if this.cmdDataEnd(cmd) {
-				continue
-			}
-		} else {
-			this.write(MSG_COMMAND_ERR)
-		}
+		// 	if this.cmdAuthLoginPwd(cmd) {
+		// 		continue
+		// 	}
+		// } else if CMD_AUTH_LOGIN_PWD == state {
 
-		if this.cmdQuit(cmd) {
-			continue
-		}
+		// 	if this.cmdMailFrom(cmd) {
+		// 		continue
+		// 	}
+		// } else if CMD_MAIL_FROM == state {
+		// 	if this.cmdRcptTo(cmd) {
+		// 		continue
+		// 	}
+		// } else if CMD_RCPT_TO == state {
+		// 	if this.cmdData(cmd) {
+		// 		continue
+		// 	}
+		// } else if CMD_DATA == state {
+		// 	if this.cmdDataEnd(cmd) {
+		// 		continue
+		// 	}
+		// } else {
+		// 	this.write(MSG_COMMAND_ERR)
+		// }
+
+		// if this.cmdQuit(cmd) {
+		// 	continue
+		// }
 	}
 }
 
@@ -304,6 +333,12 @@ func (this *smtpdServer) start(conn net.Conn) {
 	this.connClose = false
 	this.setState(CMD_READY)
 	this.write(MSG_INIT)
+
+	this.srv = NewSmtpd(CMD_READY_FS)
+	this.srv.AddHandler(CMD_READY_FS, CMD_READY_FE, CMD_READY_FH)
+	this.srv.AddHandler(CMD_READY_FS, CMD_HELO_FE, CMD_HELO_FH)
+	// this.srv.AddHandler(CMD_READY_FS, CMD_HELO_FE, CMD_HELO_FH)
+
 	this.handle()
 }
 
