@@ -2,10 +2,8 @@ package smtpd
 
 import (
 	// "errors"
-	"fmt"
-	// "math/rand"
 	"bufio"
-	// "io/ioutil"
+	"fmt"
 	"log"
 	"net"
 	"runtime"
@@ -28,6 +26,7 @@ const (
 )
 
 var stateList = map[int]string{
+	CMD_READY:      "READY",
 	CMD_HELO:       "HELO",
 	CMD_EHLO:       "EHLO",
 	CMD_AUTH_LOGIN: "AUTH LOGIN",
@@ -77,6 +76,8 @@ func GetGoEol() string {
 	return "\n"
 }
 
+var stateS = map[int]interface{}{}
+
 var (
 	CMD_READY_FS = FSMState("ready")
 	CMD_READY_FE = FSMEvent("ready")
@@ -103,27 +104,30 @@ func NewSmtpd(initState FSMState) *SmtpService {
 	}
 }
 
-type smtpdServer struct {
-	conn      net.Conn
-	connClose bool
-	state     int
-	startTime time.Time
-	errCount  int
-	srv       *SmtpService
-
-	//save cmd info
+type SmtpdServer struct {
+	debug       bool
+	conn        net.Conn
+	connClose   bool
+	state       int
+	startTime   time.Time
+	errCount    int
+	srv         *SmtpService
 	cmdHeloInfo string
 }
 
-func (this *smtpdServer) setState(state int) {
+func (this *SmtpdServer) setState(state int) {
 	this.state = state
 }
 
-func (this *smtpdServer) D(a ...interface{}) (n int, err error) {
+func (this *SmtpdServer) D(a ...interface{}) (n int, err error) {
 	return fmt.Println(a...)
 }
 
-func (this *smtpdServer) write(code string) {
+func (this *SmtpdServer) Debug(d bool) {
+	this.debug = d
+}
+
+func (this *SmtpdServer) write(code string) {
 
 	info := fmt.Sprintf("%.3s %s%s", code, msgList[code], GO_EOL)
 	_, err := this.conn.Write([]byte(info))
@@ -133,7 +137,7 @@ func (this *smtpdServer) write(code string) {
 	}
 }
 
-func (this *smtpdServer) getString() (string, error) {
+func (this *SmtpdServer) getString() (string, error) {
 
 	input, err := bufio.NewReader(this.conn).ReadString('\n')
 	if err != nil {
@@ -143,7 +147,7 @@ func (this *smtpdServer) getString() (string, error) {
 	return inputTrim, err
 }
 
-func (this *smtpdServer) getString0() (string, error) {
+func (this *SmtpdServer) getString0() (string, error) {
 	buffer := make([]byte, 2048)
 
 	n, err := this.conn.Read(buffer)
@@ -157,18 +161,18 @@ func (this *smtpdServer) getString0() (string, error) {
 	return inputTrim, err
 }
 
-func (this *smtpdServer) close() {
+func (this *SmtpdServer) close() {
 	this.conn.Close()
 }
 
-func (this *smtpdServer) cmdCompare(input string, cmd int) bool {
+func (this *SmtpdServer) cmdCompare(input string, cmd int) bool {
 	if strings.EqualFold(input, stateList[cmd]) {
 		return true
 	}
 	return false
 }
 
-func (this *smtpdServer) cmdHelo(input string) bool {
+func (this *SmtpdServer) cmdHelo(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
 	if this.cmdCompare(inputN[0], CMD_HELO) {
@@ -185,7 +189,7 @@ func (this *smtpdServer) cmdHelo(input string) bool {
 	return false
 }
 
-func (this *smtpdServer) cmdAuthLogin(input string) bool {
+func (this *SmtpdServer) cmdAuthLogin(input string) bool {
 
 	if this.cmdCompare(input, CMD_AUTH_LOGIN) {
 		this.setState(CMD_AUTH_LOGIN)
@@ -196,20 +200,20 @@ func (this *smtpdServer) cmdAuthLogin(input string) bool {
 	return false
 }
 
-func (this *smtpdServer) cmdAuthLoginUser(input string) bool {
+func (this *SmtpdServer) cmdAuthLoginUser(input string) bool {
 	this.setState(CMD_AUTH_LOGIN_USER)
 	this.write(MSG_AUTH_LOGIN_PWD)
 	return true
 }
 
-func (this *smtpdServer) cmdAuthLoginPwd(input string) bool {
+func (this *SmtpdServer) cmdAuthLoginPwd(input string) bool {
 
 	this.setState(CMD_AUTH_LOGIN_PWD)
 	this.write(MSG_AUTH_OK)
 	return true
 }
 
-func (this *smtpdServer) cmdMailFrom(input string) bool {
+func (this *SmtpdServer) cmdMailFrom(input string) bool {
 	inputN := strings.SplitN(input, ":", 2)
 	if this.cmdCompare(inputN[0], CMD_MAIL_FROM) {
 		this.setState(CMD_MAIL_FROM)
@@ -220,7 +224,7 @@ func (this *smtpdServer) cmdMailFrom(input string) bool {
 	return false
 }
 
-func (this *smtpdServer) cmdRcptTo(input string) bool {
+func (this *SmtpdServer) cmdRcptTo(input string) bool {
 	inputN := strings.SplitN(input, ":", 2)
 	if this.cmdCompare(inputN[0], CMD_RCPT_TO) {
 		this.setState(CMD_RCPT_TO)
@@ -231,7 +235,7 @@ func (this *smtpdServer) cmdRcptTo(input string) bool {
 	return false
 }
 
-func (this *smtpdServer) cmdData(input string) bool {
+func (this *SmtpdServer) cmdData(input string) bool {
 	if this.cmdCompare(input, CMD_DATA) {
 		this.setState(CMD_DATA)
 		this.write(MSG_DATA)
@@ -241,7 +245,7 @@ func (this *smtpdServer) cmdData(input string) bool {
 	return false
 }
 
-func (this *smtpdServer) cmdDataEnd(input string) bool {
+func (this *SmtpdServer) cmdDataEnd(input string) bool {
 	if this.cmdCompare(input, CMD_DATA_END) {
 		this.setState(CMD_DATA_END)
 		this.write(MSG_DATA)
@@ -251,7 +255,7 @@ func (this *smtpdServer) cmdDataEnd(input string) bool {
 	return false
 }
 
-func (this *smtpdServer) cmdQuit(input string) bool {
+func (this *SmtpdServer) cmdQuit(input string) bool {
 	if this.cmdCompare(input, CMD_QUIT) {
 		this.write(MSG_BYE)
 		this.close()
@@ -261,7 +265,11 @@ func (this *smtpdServer) cmdQuit(input string) bool {
 	return false
 }
 
-func (this *smtpdServer) handle() {
+func (this *SmtpdServer) Call(state int, cmd string) {
+	this.srv.Call(CMD_HELO_FE)
+}
+
+func (this *SmtpdServer) handle() {
 
 	for {
 
@@ -276,68 +284,20 @@ func (this *smtpdServer) handle() {
 		}
 
 		fmt.Println(state, cmd)
-
-		this.srv.Call(CMD_HELO_FE)
-
-		// if CMD_READY == state {
-
-		// 	if this.cmdHelo(cmd) {
-		// 		continue
-		// 	}
-
-		// } else if CMD_HELO == state {
-
-		// 	if this.cmdAuthLogin(cmd) {
-		// 		continue
-		// 	}
-		// } else if CMD_AUTH_LOGIN == state {
-
-		// 	if this.cmdAuthLoginUser(cmd) {
-		// 		continue
-		// 	}
-		// } else if CMD_AUTH_LOGIN_USER == state {
-
-		// 	if this.cmdAuthLoginPwd(cmd) {
-		// 		continue
-		// 	}
-		// } else if CMD_AUTH_LOGIN_PWD == state {
-
-		// 	if this.cmdMailFrom(cmd) {
-		// 		continue
-		// 	}
-		// } else if CMD_MAIL_FROM == state {
-		// 	if this.cmdRcptTo(cmd) {
-		// 		continue
-		// 	}
-		// } else if CMD_RCPT_TO == state {
-		// 	if this.cmdData(cmd) {
-		// 		continue
-		// 	}
-		// } else if CMD_DATA == state {
-		// 	if this.cmdDataEnd(cmd) {
-		// 		continue
-		// 	}
-		// } else {
-		// 	this.write(MSG_COMMAND_ERR)
-		// }
-
-		// if this.cmdQuit(cmd) {
-		// 	continue
-		// }
+		this.Call(state, cmd)
 	}
 }
 
-func (this *smtpdServer) start(conn net.Conn) {
+func (this *SmtpdServer) start(conn net.Conn) {
 	this.conn = conn
 	this.startTime = time.Now()
 	this.connClose = false
-	this.setState(CMD_READY)
 	this.write(MSG_INIT)
+	this.setState(CMD_READY)
 
 	this.srv = NewSmtpd(CMD_READY_FS)
 	this.srv.AddHandler(CMD_READY_FS, CMD_READY_FE, CMD_READY_FH)
 	this.srv.AddHandler(CMD_READY_FS, CMD_HELO_FE, CMD_HELO_FH)
-	// this.srv.AddHandler(CMD_READY_FS, CMD_HELO_FE, CMD_HELO_FH)
 
 	this.handle()
 }
@@ -357,7 +317,8 @@ func Start() {
 		if err != nil {
 			continue
 		}
-		srv := smtpdServer{}
+
+		srv := SmtpdServer{}
 		go srv.start(conn)
 	}
 }
