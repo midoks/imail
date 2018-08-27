@@ -25,6 +25,19 @@ const (
 	CMD_QUIT            = iota
 )
 
+var mailFlow = []int{
+	CMD_READY,
+	CMD_HELO,
+	CMD_AUTH_LOGIN,
+	CMD_AUTH_LOGIN_USER,
+	CMD_AUTH_LOGIN_PWD,
+	CMD_MAIL_FROM,
+	CMD_RCPT_TO,
+	CMD_DATA,
+	CMD_DATA_END,
+	CMD_QUIT,
+}
+
 var stateList = map[int]string{
 	CMD_READY:      "READY",
 	CMD_HELO:       "HELO",
@@ -265,26 +278,46 @@ func (this *SmtpdServer) cmdQuit(input string) bool {
 	return false
 }
 
-func (this *SmtpdServer) Call(state int, cmd string) {
-	this.srv.Call(CMD_HELO_FE)
+func (this *SmtpdServer) GetStateIndex(state int) {
+	for i := 0; i < len(); i++ {
+
+	}
+}
+
+func (this *SmtpdServer) cmdCommon(input string) bool {
+
+	inputN := strings.SplitN(input, " ", 2)
+
+	state := this.state
+	fmt.Println(state)
+
+	if this.cmdCompare(inputN[0], CMD_HELO) {
+
+		this.setState(CMD_HELO)
+		this.write(MSG_OK)
+		return true
+	}
+	this.write(MSG_COMMAND_ERR)
+	return false
+}
+
+func (this *SmtpdServer) Call(input string) {
+
+	this.cmdCommon(input)
+
+	// this.srv.Call(CMD_HELO_FE)
 }
 
 func (this *SmtpdServer) handle() {
 
 	for {
-
 		if this.connClose {
 			break
 		}
 
-		state := this.state
-		cmd, err := this.getString()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		fmt.Println(state, cmd)
-		this.Call(state, cmd)
+		input, _ := this.getString()
+		fmt.Println(input)
+		this.cmdCommon(input)
 	}
 }
 
