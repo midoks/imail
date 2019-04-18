@@ -28,6 +28,6 @@ func RunSendTest() {
 		return
 	}
 	fmt.Println(mxDomain)
-	smtpd.Start()
-	// smtpd.SendMail(mxDomain, "midoks@cachecha.com", "midoks@163.com", "Data: 24 May 2013 19:00:29\nFrom: <midoks@cachecha.com>\nSubject: Hello imail\nTo: <midoks@163.com>\n\nHi! yes is test. ok!")
+	// smtpd.Start()
+	smtpd.SendMail(mxDomain, "midoks@cachecha.com", "midoks@163.com", "Data: 24 May 2013 19:00:29\nFrom: <midoks@cachecha.com>\nSubject: Hello imail\nTo: <midoks@163.com>\n\nHi! yes is test. ok!")
 }
