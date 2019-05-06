@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net"
 	"strings"
+	"time"
 )
 
 func DnsQuery(domain string) (string, error) {
@@ -17,7 +18,8 @@ func DnsQuery(domain string) (string, error) {
 		return "", errors.New("not find mx record")
 	}
 
-	rand := rand.Int() % mxLen
+	rand.Seed(time.Now().UnixNano())
+	rand := rand.Intn(mxLen)
 	mxSelect := mx[rand]
 
 	mxHost := fmt.Sprintf("%s", mxSelect.Host)
