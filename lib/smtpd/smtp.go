@@ -33,30 +33,30 @@ func SendMail(domain string, from string, to string, content string) {
 	mailfrom := fmt.Sprintf("MAIL FROM:<%s>\n", from)
 	fmt.Println(mailfrom)
 
-	mailfrom_data, err := conn.Write([]byte(mailfrom)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
-	if err != nil {
-		log.Fatal(err, mailfrom_data)
-		return
-	}
-
+	conn.Write([]byte(mailfrom))
+	fmt.Println("123123123:mailfrom22")
 	data2, err2 := bufio.NewReader(conn).ReadString('\n')
 	if err2 != nil {
+		fmt.Println("123123123:mailfrom")
 		log.Fatal(err2)
+		return
 	}
-	fmt.Println(data2)
+	fmt.Println("ddd:", data2)
 
 	rcpt_to := fmt.Sprintf("RCPT TO:<%s>\n", to)
 	fmt.Println(rcpt_to)
 
-	_, err = conn.Write([]byte(rcpt_to)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
+	rcpt_to_data, err := conn.Write([]byte(rcpt_to)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
+	fmt.Println(rcpt_to_data)
 
 	data3, err3 := bufio.NewReader(conn).ReadString('\n')
 	if err3 != nil {
 		log.Fatal(err3)
+		return
 	}
 	fmt.Println(data3)
 
@@ -97,6 +97,7 @@ func SendMail(domain string, from string, to string, content string) {
 	data6, err6 := bufio.NewReader(conn).ReadString('\n')
 	if err6 != nil {
 		log.Fatal(err6)
+		return
 	}
 	fmt.Println(data6)
 
