@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/midoks/imail/lib/smtpd"
 	"github.com/urfave/cli"
+	"strings"
 )
 
 var Send = cli.Command{
@@ -22,12 +23,20 @@ func runSend(c *cli.Context) error {
 }
 
 func RunSendTest() {
-	mxDomain, err := smtpd.DnsQuery("163.com")
+	//124565124@qq.com
+	toEmail := "627293072@qq.com"
+	// toEmail := "midoks@163.com"
+	te := strings.Split(toEmail, "@")
+	fmt.Println(te[1])
+	mxDomain, err := smtpd.DnsQuery(te[1])
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 	fmt.Println(mxDomain)
-	smtpd.Start()
+
+	content := fmt.Sprintf("Data: 24 May 2013 19:00:29\nFrom: <midoks@cachecha.com>\nSubject: Hello imail\nTo: <%s>\n\nHi! yes is test. liuxiaoming ok?!", toEmail)
+	// smtpd.Start()
 	// smtpd.SendMail(mxDomain, "midoks@cachecha.com", "midoks@163.com", "Data: 24 May 2013 19:00:29\nFrom: <midoks@cachecha.com>\nSubject: Hello imail\nTo: <midoks@163.com>\n\nHi! yes is test. ok!")
+	smtpd.SendMail(mxDomain, "midoks@cachecha.com", toEmail, content)
 }

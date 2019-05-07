@@ -278,11 +278,11 @@ func (this *SmtpdServer) cmdQuit(input string) bool {
 	return false
 }
 
-func (this *SmtpdServer) GetStateIndex(state int) {
-	for i := 0; i < len(); i++ {
+// func (this *SmtpdServer) GetStateIndex(state int) {
+// 	for i := 0; i < len(); i++ {
 
-	}
-}
+// 	}
+// }
 
 func (this *SmtpdServer) cmdCommon(input string) bool {
 

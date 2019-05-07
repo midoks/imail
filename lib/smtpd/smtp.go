@@ -22,12 +22,7 @@ func SendMail(domain string, from string, to string, content string) {
 		return
 	}
 
-	conn.Write([]byte("EHLO 163.com\n")) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
-
-	// if err != nil {
-	// 	log.Fatal(err)
-	// 	return
-	// }
+	conn.Write([]byte("EHLO IMAIL\n")) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
 
 	data, err := bufio.NewReader(conn).ReadString('\n')
 	if err != nil {
@@ -38,9 +33,9 @@ func SendMail(domain string, from string, to string, content string) {
 	mailfrom := fmt.Sprintf("MAIL FROM:<%s>\n", from)
 	fmt.Println(mailfrom)
 
-	_, err = conn.Write([]byte(mailfrom)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
+	mailfrom_data, err := conn.Write([]byte(mailfrom)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err, mailfrom_data)
 		return
 	}
 
@@ -50,10 +45,10 @@ func SendMail(domain string, from string, to string, content string) {
 	}
 	fmt.Println(data2)
 
-	mailto := fmt.Sprintf("RCPT TO:<%s>\n", to)
-	fmt.Println(to)
+	rcpt_to := fmt.Sprintf("RCPT TO:<%s>\n", to)
+	fmt.Println(rcpt_to)
 
-	_, err = conn.Write([]byte(mailto)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
+	_, err = conn.Write([]byte(rcpt_to)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
 	if err != nil {
 		log.Fatal(err)
 		return
