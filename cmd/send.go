@@ -25,18 +25,18 @@ func runSend(c *cli.Context) error {
 func RunSendTest() {
 	//124565124@qq.com
 	toEmail := "627293072@qq.com"
+	fromEmail := "midoks@cachecha.com"
 	// toEmail := "midoks@163.com"
-	te := strings.Split(toEmail, "@")
-	fmt.Println(te[1])
-	mxDomain, err := smtpd.DnsQuery(te[1])
+	toInfo := strings.Split(toEmail, "@")
+	mxDomain, err := smtpd.DnsQuery(toInfo[1])
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 	fmt.Println(mxDomain)
 
-	content := fmt.Sprintf("Data: 24 May 2013 19:00:29\nFrom: <midoks@cachecha.com>\nSubject: Hello imail\nTo: <%s>\n\nHi! yes is test. liuxiaoming ok?!", toEmail)
+	content := fmt.Sprintf("Data: 24 May 2013 19:00:29\nFrom: <%s>\nSubject: Hello imail\nTo: <%s>\n\nHi! yes is test. liuxiaoming ok?!", fromEmail, toEmail)
 	// smtpd.Start()
 	// smtpd.SendMail(mxDomain, "midoks@cachecha.com", "midoks@163.com", "Data: 24 May 2013 19:00:29\nFrom: <midoks@cachecha.com>\nSubject: Hello imail\nTo: <midoks@163.com>\n\nHi! yes is test. ok!")
-	smtpd.SendMail(mxDomain, "midoks@cachecha.com", toEmail, content)
+	smtpd.SendMail(mxDomain, fromEmail, toEmail, content)
 }
