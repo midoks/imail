@@ -38,3 +38,7 @@ func RunSendTest() {
 	content := fmt.Sprintf("Data: 24 May 2013 19:00:29\nFrom: <%s>\nSubject: Hello imail\nTo: <%s>\n\nHi! yes is test. liuxiaoming ok?!", fromEmail, toEmail)
 	smtpd.SendMail(mxDomain, fromEmail, toEmail, content)
 }
+
+func RunSendTest2() {
+	smtpd.Start()
+}

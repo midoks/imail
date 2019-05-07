@@ -286,6 +286,8 @@ func (this *SmtpdServer) cmdQuit(input string) bool {
 
 func (this *SmtpdServer) cmdCommon(input string) bool {
 
+	fmt.Println(input)
+
 	inputN := strings.SplitN(input, " ", 2)
 
 	state := this.state

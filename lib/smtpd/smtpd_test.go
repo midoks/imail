@@ -16,10 +16,8 @@ func TestHelo_1(t *testing.T) {
 }
 
 func TestRunSend(t *testing.T) {
-	//124565124@qq.com
 	toEmail := "627293072@qq.com"
 	fromEmail := "midoks@cachecha.com"
-	// toEmail := "midoks@163.com"
 	toInfo := strings.Split(toEmail, "@")
 	mxDomain, err := DnsQuery(toInfo[1])
 	if err != nil {
@@ -30,4 +28,7 @@ func TestRunSend(t *testing.T) {
 
 	content := fmt.Sprintf("Data: 24 May 2013 19:00:29\nFrom: <%s>\nSubject: Hello imail\nTo: <%s>\n\nHi! yes is test. liuxiaoming ok?!", fromEmail, toEmail)
 	SendMail(mxDomain, fromEmail, toEmail, content)
+}
+
+func TestRunSend2(t *testing.T) {
 }

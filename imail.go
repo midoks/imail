@@ -23,5 +23,5 @@ func main() {
 	// app.Run(os.Args)
 
 	// cmd.RunWebOk()
-	cmd.RunSendTest()
+	cmd.RunSendTest2()
 }
