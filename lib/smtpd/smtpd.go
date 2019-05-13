@@ -151,7 +151,6 @@ func (this *SmtpdServer) write(code string) {
 }
 
 func (this *SmtpdServer) getString() (string, error) {
-
 	input, err := bufio.NewReader(this.conn).ReadString('\n')
 	if err != nil {
 		return "", err
@@ -304,10 +303,7 @@ func (this *SmtpdServer) cmdCommon(input string) bool {
 }
 
 func (this *SmtpdServer) Call(input string) {
-
 	this.cmdCommon(input)
-
-	// this.srv.Call(CMD_HELO_FE)
 }
 
 func (this *SmtpdServer) handle() {
@@ -318,6 +314,10 @@ func (this *SmtpdServer) handle() {
 		}
 
 		input, _ := this.getString()
+		if strings.EqualFold(input, "quit") {
+			this.close()
+		}
+
 		fmt.Println(input)
 		this.cmdCommon(input)
 	}
@@ -330,10 +330,6 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	this.write(MSG_INIT)
 	this.setState(CMD_READY)
 
-	this.srv = NewSmtpd(CMD_READY_FS)
-	this.srv.AddHandler(CMD_READY_FS, CMD_READY_FE, CMD_READY_FH)
-	this.srv.AddHandler(CMD_READY_FS, CMD_HELO_FE, CMD_HELO_FH)
-
 	this.handle()
 }
 
@@ -344,11 +340,10 @@ func Start() {
 		panic(err)
 		return
 	}
-	defer ln.Close()
+	// defer ln.Close()
 
 	for {
 		conn, err := ln.Accept()
-
 		if err != nil {
 			continue
 		}
