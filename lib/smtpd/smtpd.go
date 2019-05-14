@@ -270,7 +270,6 @@ func (this *SmtpdServer) cmdDataEnd(input string) bool {
 func (this *SmtpdServer) cmdQuit(input string) bool {
 	if this.cmdCompare(input, CMD_QUIT) {
 		this.write(MSG_BYE)
-		this.close()
 		this.connClose = true
 		return true
 	}
@@ -314,9 +313,11 @@ func (this *SmtpdServer) handle() {
 		}
 
 		input, _ := this.getString()
-		if strings.EqualFold(input, "quit") {
-			this.close()
+		if this.cmdQuit(input) {
+
 		}
+
+		fmt.Println("%s", this.conn)
 
 		fmt.Println(input)
 		this.cmdCommon(input)
@@ -324,12 +325,12 @@ func (this *SmtpdServer) handle() {
 }
 
 func (this *SmtpdServer) start(conn net.Conn) {
+
 	this.conn = conn
 	this.startTime = time.Now()
 	this.connClose = false
 	this.write(MSG_INIT)
 	this.setState(CMD_READY)
-
 	this.handle()
 }
 
@@ -340,10 +341,12 @@ func Start() {
 		panic(err)
 		return
 	}
-	// defer ln.Close()
+	defer ln.Close()
 
 	for {
 		conn, err := ln.Accept()
+		defer conn.Close()
+		conn.SetReadDeadline(time.Now().Add(time.Minute * 180))
 		if err != nil {
 			continue
 		}
