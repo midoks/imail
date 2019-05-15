@@ -284,12 +284,8 @@ func (this *SmtpdServer) cmdQuit(input string) bool {
 
 func (this *SmtpdServer) cmdCommon(input string) bool {
 
-	fmt.Println(input)
-
 	inputN := strings.SplitN(input, " ", 2)
-
-	state := this.state
-	fmt.Println(state)
+	// state := this.state
 
 	if this.cmdCompare(inputN[0], CMD_HELO) {
 
@@ -314,7 +310,7 @@ func (this *SmtpdServer) handle() {
 
 		input, _ := this.getString()
 		if this.cmdQuit(input) {
-
+			this.write(MSG_BYE)
 		}
 
 		fmt.Println("%s", this.conn)
@@ -325,7 +321,8 @@ func (this *SmtpdServer) handle() {
 }
 
 func (this *SmtpdServer) start(conn net.Conn) {
-
+	conn.SetReadDeadline(time.Now().Add(time.Minute * 180))
+	defer conn.Close()
 	this.conn = conn
 	this.startTime = time.Now()
 	this.connClose = false
@@ -345,8 +342,6 @@ func Start() {
 
 	for {
 		conn, err := ln.Accept()
-		defer conn.Close()
-		conn.SetReadDeadline(time.Now().Add(time.Minute * 180))
 		if err != nil {
 			continue
 		}
