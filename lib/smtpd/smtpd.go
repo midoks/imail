@@ -334,6 +334,7 @@ func (this *SmtpdServer) start(conn net.Conn) {
 func Start() {
 
 	ln, err := net.Listen("tcp", ":1025")
+	defer ln.Close()
 	if err != nil {
 		panic(err)
 		return
