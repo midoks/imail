@@ -89,22 +89,6 @@ func GetGoEol() string {
 	return "\n"
 }
 
-var (
-	CMD_READY_FS = FSMState("ready")
-	CMD_READY_FE = FSMEvent("ready")
-	CMD_READY_FH = FSMHandler(func() FSMState {
-		fmt.Println("ready")
-		return FSMState("ready")
-	})
-
-	CMD_HELO_FS = FSMState("CMD_HELO")
-	CMD_HELO_FE = FSMEvent("CMD_HELO")
-	CMD_HELO_FH = FSMHandler(func() FSMState {
-		fmt.Println("helo")
-		return FSMState("CMD_HELO")
-	})
-)
-
 type SmtpService struct {
 	*FSM
 }
@@ -309,12 +293,37 @@ func (this *SmtpdServer) handle() {
 		if this.cmdQuit(input) {
 			this.write(MSG_BYE)
 		}
-
-		fmt.Println("%s", this.conn)
-
-		fmt.Println(input)
 		this.cmdCommon(input)
 	}
+}
+
+var (
+	CMD_READY_FS = FSMState("ready")
+	CMD_READY_FE = FSMEvent("ready")
+
+	CMD_HELO_FS = FSMState("CMD_HELO")
+	CMD_HELO_FE = FSMEvent("CMD_HELO")
+)
+
+func (this *SmtpdServer) register() {
+	var (
+		CMD_READY_FH = FSMHandler(func() FSMState {
+
+			input, _ := this.getString()
+			fmt.Println(input)
+
+			return FSMState("ready")
+		})
+
+		CMD_HELO_FH = FSMHandler(func() FSMState {
+			fmt.Println("helo")
+			return FSMState("CMD_HELO")
+		})
+	)
+
+	this.srv = NewSmtpd(CMD_READY_FS)
+	this.srv.AddHandler(CMD_READY_FS, CMD_READY_FE, CMD_READY_FH)
+	this.srv.AddHandler(CMD_READY_FS, CMD_HELO_FE, CMD_HELO_FH)
 }
 
 func (this *SmtpdServer) start(conn net.Conn) {
@@ -326,9 +335,7 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	this.write(MSG_INIT)
 	this.setState(CMD_READY)
 
-	this.srv = NewSmtpd(CMD_READY_FS)
-	this.srv.AddHandler(CMD_READY_FS, CMD_READY_FE, CMD_READY_FH)
-	this.srv.AddHandler(CMD_READY_FS, CMD_HELO_FE, CMD_HELO_FH)
+	this.register()
 
 	this.handle()
 }
