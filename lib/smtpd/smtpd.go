@@ -89,8 +89,6 @@ func GetGoEol() string {
 	return "\n"
 }
 
-var stateS = map[int]interface{}{}
-
 var (
 	CMD_READY_FS = FSMState("ready")
 	CMD_READY_FE = FSMEvent("ready")
@@ -304,9 +302,8 @@ func (this *SmtpdServer) Call(input string) {
 func (this *SmtpdServer) handle() {
 
 	for {
-		if this.connClose {
-			break
-		}
+
+		this.srv.Call(CMD_READY_FE)
 
 		input, _ := this.getString()
 		if this.cmdQuit(input) {
@@ -328,6 +325,11 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	this.connClose = false
 	this.write(MSG_INIT)
 	this.setState(CMD_READY)
+
+	this.srv = NewSmtpd(CMD_READY_FS)
+	this.srv.AddHandler(CMD_READY_FS, CMD_READY_FE, CMD_READY_FH)
+	this.srv.AddHandler(CMD_READY_FS, CMD_HELO_FE, CMD_HELO_FH)
+
 	this.handle()
 }
 
