@@ -304,6 +304,9 @@ var (
 
 	CMD_HELO_FS = FSMState(stateList[CMD_HELO])
 	CMD_HELO_FE = FSMEvent(stateList[CMD_HELO])
+
+	CMD_EHLO_FS = FSMState(stateList[CMD_EHLO])
+	CMD_EHLO_FE = FSMEvent(stateList[CMD_EHLO])
 )
 
 func (this *SmtpdServer) register() {
