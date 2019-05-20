@@ -107,7 +107,6 @@ func NewSmtpd(initState FSMState) *SmtpService {
 type SmtpdServer struct {
 	debug       bool
 	conn        net.Conn
-	connClose   bool
 	state       int
 	startTime   time.Time
 	errCount    int
@@ -257,7 +256,6 @@ func (this *SmtpdServer) cmdDataEnd(input string) bool {
 func (this *SmtpdServer) cmdQuit(input string) bool {
 	if this.cmdCompare(input, CMD_QUIT) {
 		this.write(MSG_BYE)
-		this.connClose = true
 		return true
 	}
 	return false
@@ -284,24 +282,28 @@ func (this *SmtpdServer) Call(input string) {
 
 func (this *SmtpdServer) handle() {
 
-	for {
+	// for {
 
+	state := string(this.srv.getState())
+	if strings.EqualFold(state, stateList[CMD_READY]) {
 		this.srv.Call(CMD_READY_FE)
-
-		input, _ := this.getString()
-		if this.cmdQuit(input) {
-			this.write(MSG_BYE)
-		}
-		this.cmdCommon(input)
 	}
+
+	if strings.EqualFold(state, stateList[CMD_HELO]) {
+		this.srv.Call(CMD_HELO_FE)
+	}
+
+	input, _ := this.getString()
+	fmt.Println(input)
+	// }
 }
 
 var (
-	CMD_READY_FS = FSMState("ready")
-	CMD_READY_FE = FSMEvent("ready")
+	CMD_READY_FS = FSMState(stateList[CMD_READY])
+	CMD_READY_FE = FSMEvent(stateList[CMD_READY])
 
-	CMD_HELO_FS = FSMState("CMD_HELO")
-	CMD_HELO_FE = FSMEvent("CMD_HELO")
+	CMD_HELO_FS = FSMState(stateList[CMD_HELO])
+	CMD_HELO_FE = FSMEvent(stateList[CMD_HELO])
 )
 
 func (this *SmtpdServer) register() {
@@ -309,9 +311,14 @@ func (this *SmtpdServer) register() {
 		CMD_READY_FH = FSMHandler(func() FSMState {
 
 			input, _ := this.getString()
-			fmt.Println(input)
 
-			return FSMState("ready")
+			if strings.EqualFold(input, stateList[CMD_HELO]) {
+				return FSMState(stateList[CMD_HELO])
+			} else if strings.EqualFold(input, stateList[CMD_EHLO]) {
+				return FSMState(stateList[CMD_EHLO])
+			}
+
+			return FSMState(stateList[CMD_READY])
 		})
 
 		CMD_HELO_FH = FSMHandler(func() FSMState {
@@ -326,16 +333,18 @@ func (this *SmtpdServer) register() {
 }
 
 func (this *SmtpdServer) start(conn net.Conn) {
+	this.conn = conn
 	conn.SetReadDeadline(time.Now().Add(time.Minute * 180))
 	defer conn.Close()
-	this.conn = conn
+
 	this.startTime = time.Now()
-	this.connClose = false
+
 	this.write(MSG_INIT)
+
+	fmt.Println(stateList[CMD_READY])
 	this.setState(CMD_READY)
 
 	this.register()
-
 	this.handle()
 }
 
