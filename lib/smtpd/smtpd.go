@@ -293,8 +293,12 @@ func (this *SmtpdServer) handle() {
 		this.srv.Call(CMD_HELO_FE)
 	}
 
-	input, _ := this.getString()
-	fmt.Println(input)
+	if strings.EqualFold(state, stateList[CMD_EHLO]) {
+		this.srv.Call(CMD_EHLO_FE)
+	}
+
+	// input, _ := this.getString()
+	// fmt.Println(input)
 	// }
 }
 
@@ -325,7 +329,9 @@ func (this *SmtpdServer) register() {
 		})
 
 		CMD_HELO_FH = FSMHandler(func() FSMState {
-			fmt.Println("helo")
+			input, _ := this.getString()
+
+			fmt.Println(input)
 			return FSMState("CMD_HELO")
 		})
 	)
