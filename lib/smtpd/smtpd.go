@@ -164,6 +164,7 @@ func (this *SmtpdServer) close() {
 }
 
 func (this *SmtpdServer) cmdCompare(input string, cmd int) bool {
+	fmt.Println(input, stateList[cmd])
 	if strings.EqualFold(input, stateList[cmd]) {
 		return true
 	}
@@ -256,6 +257,7 @@ func (this *SmtpdServer) cmdDataEnd(input string) bool {
 func (this *SmtpdServer) cmdQuit(input string) bool {
 	if this.cmdCompare(input, CMD_QUIT) {
 		this.write(MSG_BYE)
+		this.close()
 		return true
 	}
 	return false
@@ -282,24 +284,27 @@ func (this *SmtpdServer) Call(input string) {
 
 func (this *SmtpdServer) handle() {
 
-	// for {
+	for {
 
-	state := string(this.srv.getState())
-	if strings.EqualFold(state, stateList[CMD_READY]) {
-		this.srv.Call(CMD_READY_FE)
+		state := string(this.srv.getState())
+		input, _ := this.getString()
+
+		if this.cmdQuit(input) {
+
+		}
+
+		if strings.EqualFold(state, stateList[CMD_READY]) {
+			this.srv.Call(CMD_READY_FE)
+		}
+
+		if strings.EqualFold(state, stateList[CMD_HELO]) {
+			this.srv.Call(CMD_HELO_FE)
+		}
+
+		if strings.EqualFold(state, stateList[CMD_EHLO]) {
+			this.srv.Call(CMD_EHLO_FE)
+		}
 	}
-
-	if strings.EqualFold(state, stateList[CMD_HELO]) {
-		this.srv.Call(CMD_HELO_FE)
-	}
-
-	if strings.EqualFold(state, stateList[CMD_EHLO]) {
-		this.srv.Call(CMD_EHLO_FE)
-	}
-
-	// input, _ := this.getString()
-	// fmt.Println(input)
-	// }
 }
 
 var (
@@ -349,8 +354,6 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	this.startTime = time.Now()
 
 	this.write(MSG_INIT)
-
-	fmt.Println(stateList[CMD_READY])
 	this.setState(CMD_READY)
 
 	this.register()
