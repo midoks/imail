@@ -94,16 +94,6 @@ func GetGoEol() string {
 	return "\n"
 }
 
-type SmtpService struct {
-	*FSM
-}
-
-func NewSmtpd(initState FSMState) *SmtpService {
-	return &SmtpService{
-		FSM: NewFSM(initState),
-	}
-}
-
 type SmtpdServer struct {
 	debug       bool
 	conn        net.Conn
@@ -332,68 +322,30 @@ func (this *SmtpdServer) handle() {
 				break
 			}
 
-			if this.cmdCompare(input, CMD_AUTH_LOGIN) {
+			if this.cmdAuthLogin(input) {
 				this.setState(CMD_AUTH_LOGIN)
 			}
 		}
 
 		//CMD_EHLO
 		if this.stateCompare(state, CMD_EHLO) {
+
 			if this.cmdQuit(input) {
-				break
+			}
+
+			if this.cmdMailFrom(input) {
+				this.setState(CMD_MAIL_FROM)
+			}
+		}
+
+		//CMD_AUTH_LOGIN
+		if this.stateCompare(state, CMD_AUTH_LOGIN) {
+			if this.cmdAuthLoginUser(input) {
+				this.setState(CMD_AUTH_LOGIN_USER)
 			}
 		}
 	}
 }
-
-// var (
-// 	CMD_READY_FS = FSMState(stateList[CMD_READY])
-// 	CMD_READY_FE = FSMEvent(stateList[CMD_READY])
-
-// 	CMD_HELO_FS = FSMState(stateList[CMD_HELO])
-// 	CMD_HELO_FE = FSMEvent(stateList[CMD_HELO])
-
-// 	CMD_EHLO_FS = FSMState(stateList[CMD_EHLO])
-// 	CMD_EHLO_FE = FSMEvent(stateList[CMD_EHLO])
-// )
-
-// func (this *SmtpdServer) register() {
-// 	var (
-// 		CMD_READY_FH = FSMHandler(func() FSMState {
-
-// 			input, _ := this.getString()
-
-// 			this.cmdQuit(input)
-
-// 			if strings.EqualFold(input, stateList[CMD_HELO]) {
-// 				return FSMState(stateList[CMD_HELO])
-// 			} else if strings.EqualFold(input, stateList[CMD_EHLO]) {
-// 				return FSMState(stateList[CMD_EHLO])
-// 			}
-
-// 			return FSMState(stateList[CMD_READY])
-// 		})
-
-// 		CMD_HELO_FH = FSMHandler(func() FSMState {
-// 			input, _ := this.getString()
-
-// 			fmt.Println(input)
-// 			return FSMState("CMD_HELO")
-// 		})
-
-// 		CMD_EHLO_FH = FSMHandler(func() FSMState {
-// 			input, _ := this.getString()
-
-// 			fmt.Println(input)
-// 			return FSMState("CMD_HELOs")
-// 		})
-// 	)
-
-// 	this.srv = NewSmtpd(CMD_READY_FS)
-// 	this.srv.AddHandler(CMD_READY_FS, CMD_READY_FE, CMD_READY_FH)
-// 	this.srv.AddHandler(CMD_READY_FS, CMD_HELO_FE, CMD_HELO_FH)
-// 	this.srv.AddHandler(CMD_READY_FS, CMD_EHLO_FE, CMD_EHLO_FH)
-// }
 
 func (this *SmtpdServer) start(conn net.Conn) {
 	conn.SetReadDeadline(time.Now().Add(time.Minute * 180))
@@ -405,7 +357,6 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	this.write(MSG_INIT)
 	this.setState(CMD_READY)
 
-	// this.register()
 	this.handle()
 }
 
