@@ -284,22 +284,24 @@ func (this *SmtpdServer) Call(input string) {
 
 func (this *SmtpdServer) handle() {
 
-	// for {
+	for {
 
-	state := string(this.srv.getState())
+		state := string(this.srv.getState())
+		input, _ := this.getString()
+		fmt.Println(input)
 
-	if strings.EqualFold(state, stateList[CMD_READY]) {
-		this.srv.Call(CMD_READY_FE)
+		if strings.EqualFold(state, stateList[CMD_READY]) {
+			this.srv.Call(CMD_READY_FE)
+		}
+
+		if strings.EqualFold(state, stateList[CMD_HELO]) {
+			this.srv.Call(CMD_HELO_FE)
+		}
+
+		if strings.EqualFold(state, stateList[CMD_EHLO]) {
+			this.srv.Call(CMD_EHLO_FE)
+		}
 	}
-
-	if strings.EqualFold(state, stateList[CMD_HELO]) {
-		this.srv.Call(CMD_HELO_FE)
-	}
-
-	if strings.EqualFold(state, stateList[CMD_EHLO]) {
-		this.srv.Call(CMD_EHLO_FE)
-	}
-	// }
 }
 
 var (
@@ -352,9 +354,9 @@ func (this *SmtpdServer) register() {
 }
 
 func (this *SmtpdServer) start(conn net.Conn) {
-	this.conn = conn
 	conn.SetReadDeadline(time.Now().Add(time.Minute * 180))
 	defer conn.Close()
+	this.conn = conn
 
 	this.startTime = time.Now()
 
