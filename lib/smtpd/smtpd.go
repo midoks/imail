@@ -284,27 +284,22 @@ func (this *SmtpdServer) Call(input string) {
 
 func (this *SmtpdServer) handle() {
 
-	for {
+	// for {
 
-		state := string(this.srv.getState())
-		input, _ := this.getString()
+	state := string(this.srv.getState())
 
-		if this.cmdQuit(input) {
-
-		}
-
-		if strings.EqualFold(state, stateList[CMD_READY]) {
-			this.srv.Call(CMD_READY_FE)
-		}
-
-		if strings.EqualFold(state, stateList[CMD_HELO]) {
-			this.srv.Call(CMD_HELO_FE)
-		}
-
-		if strings.EqualFold(state, stateList[CMD_EHLO]) {
-			this.srv.Call(CMD_EHLO_FE)
-		}
+	if strings.EqualFold(state, stateList[CMD_READY]) {
+		this.srv.Call(CMD_READY_FE)
 	}
+
+	if strings.EqualFold(state, stateList[CMD_HELO]) {
+		this.srv.Call(CMD_HELO_FE)
+	}
+
+	if strings.EqualFold(state, stateList[CMD_EHLO]) {
+		this.srv.Call(CMD_EHLO_FE)
+	}
+	// }
 }
 
 var (
@@ -324,6 +319,8 @@ func (this *SmtpdServer) register() {
 
 			input, _ := this.getString()
 
+			this.cmdQuit(input)
+
 			if strings.EqualFold(input, stateList[CMD_HELO]) {
 				return FSMState(stateList[CMD_HELO])
 			} else if strings.EqualFold(input, stateList[CMD_EHLO]) {
@@ -339,11 +336,19 @@ func (this *SmtpdServer) register() {
 			fmt.Println(input)
 			return FSMState("CMD_HELO")
 		})
+
+		CMD_EHLO_FH = FSMHandler(func() FSMState {
+			input, _ := this.getString()
+
+			fmt.Println(input)
+			return FSMState("CMD_HELOs")
+		})
 	)
 
 	this.srv = NewSmtpd(CMD_READY_FS)
 	this.srv.AddHandler(CMD_READY_FS, CMD_READY_FE, CMD_READY_FH)
 	this.srv.AddHandler(CMD_READY_FS, CMD_HELO_FE, CMD_HELO_FH)
+	this.srv.AddHandler(CMD_READY_FS, CMD_EHLO_FE, CMD_EHLO_FH)
 }
 
 func (this *SmtpdServer) start(conn net.Conn) {
