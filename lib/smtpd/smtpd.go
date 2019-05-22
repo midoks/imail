@@ -118,6 +118,10 @@ func (this *SmtpdServer) setState(state int) {
 	this.state = state
 }
 
+func (this *SmtpdServer) getState() int {
+	return this.state
+}
+
 func (this *SmtpdServer) D(a ...interface{}) (n int, err error) {
 	return fmt.Println(a...)
 }
@@ -164,8 +168,14 @@ func (this *SmtpdServer) close() {
 }
 
 func (this *SmtpdServer) cmdCompare(input string, cmd int) bool {
-	fmt.Println(input, stateList[cmd])
 	if strings.EqualFold(input, stateList[cmd]) {
+		return true
+	}
+	return false
+}
+
+func (this *SmtpdServer) stateCompare(input int, cmd int) bool {
+	if input == cmd {
 		return true
 	}
 	return false
@@ -188,8 +198,24 @@ func (this *SmtpdServer) cmdHelo(input string) bool {
 	return false
 }
 
-func (this *SmtpdServer) cmdAuthLogin(input string) bool {
+func (this *SmtpdServer) cmdEhlo(input string) bool {
+	inputN := strings.SplitN(input, " ", 2)
 
+	if this.cmdCompare(inputN[0], CMD_EHLO) {
+		if len(inputN) < 2 {
+			this.write(MSG_BAD_SYNTAX)
+			return false
+		}
+
+		this.setState(CMD_EHLO)
+		this.write(MSG_OK)
+		return true
+	}
+	this.write(MSG_COMMAND_ERR)
+	return false
+}
+
+func (this *SmtpdServer) cmdAuthLogin(input string) bool {
 	if this.cmdCompare(input, CMD_AUTH_LOGIN) {
 		this.setState(CMD_AUTH_LOGIN)
 		this.write(MSG_AUTH_LOGIN_USER)
@@ -266,7 +292,6 @@ func (this *SmtpdServer) cmdQuit(input string) bool {
 func (this *SmtpdServer) cmdCommon(input string) bool {
 
 	inputN := strings.SplitN(input, " ", 2)
-	// state := this.state
 
 	if this.cmdCompare(inputN[0], CMD_HELO) {
 
@@ -274,84 +299,101 @@ func (this *SmtpdServer) cmdCommon(input string) bool {
 		this.write(MSG_OK)
 		return true
 	}
+
 	this.write(MSG_COMMAND_ERR)
 	return false
 }
 
-func (this *SmtpdServer) Call(input string) {
-	this.cmdCommon(input)
-}
-
 func (this *SmtpdServer) handle() {
-
 	for {
-
-		state := string(this.srv.getState())
+		state := this.getState()
 		input, _ := this.getString()
-		fmt.Println(input)
 
-		if strings.EqualFold(state, stateList[CMD_READY]) {
-			this.srv.Call(CMD_READY_FE)
+		//CMD_READY
+		if this.stateCompare(state, CMD_READY) {
+
+			if this.cmdQuit(input) {
+				break
+			}
+
+			if this.cmdHelo(input) {
+				this.setState(CMD_HELO)
+			} else if this.cmdEhlo(input) {
+				this.setState(CMD_EHLO)
+			} else {
+				this.write(MSG_COMMAND_ERR)
+			}
 		}
 
-		if strings.EqualFold(state, stateList[CMD_HELO]) {
-			this.srv.Call(CMD_HELO_FE)
+		//CMD_HELO
+		if this.stateCompare(state, CMD_HELO) {
+
+			if this.cmdQuit(input) {
+				break
+			}
+
+			if this.cmdCompare(input, CMD_AUTH_LOGIN) {
+				this.setState(CMD_AUTH_LOGIN)
+			}
 		}
 
-		if strings.EqualFold(state, stateList[CMD_EHLO]) {
-			this.srv.Call(CMD_EHLO_FE)
+		//CMD_EHLO
+		if this.stateCompare(state, CMD_EHLO) {
+			if this.cmdQuit(input) {
+				break
+			}
 		}
 	}
 }
 
-var (
-	CMD_READY_FS = FSMState(stateList[CMD_READY])
-	CMD_READY_FE = FSMEvent(stateList[CMD_READY])
+// var (
+// 	CMD_READY_FS = FSMState(stateList[CMD_READY])
+// 	CMD_READY_FE = FSMEvent(stateList[CMD_READY])
 
-	CMD_HELO_FS = FSMState(stateList[CMD_HELO])
-	CMD_HELO_FE = FSMEvent(stateList[CMD_HELO])
+// 	CMD_HELO_FS = FSMState(stateList[CMD_HELO])
+// 	CMD_HELO_FE = FSMEvent(stateList[CMD_HELO])
 
-	CMD_EHLO_FS = FSMState(stateList[CMD_EHLO])
-	CMD_EHLO_FE = FSMEvent(stateList[CMD_EHLO])
-)
+// 	CMD_EHLO_FS = FSMState(stateList[CMD_EHLO])
+// 	CMD_EHLO_FE = FSMEvent(stateList[CMD_EHLO])
+// )
 
-func (this *SmtpdServer) register() {
-	var (
-		CMD_READY_FH = FSMHandler(func() FSMState {
+// func (this *SmtpdServer) register() {
+// 	var (
+// 		CMD_READY_FH = FSMHandler(func() FSMState {
 
-			input, _ := this.getString()
+// 			input, _ := this.getString()
 
-			this.cmdQuit(input)
+// 			this.cmdQuit(input)
 
-			if strings.EqualFold(input, stateList[CMD_HELO]) {
-				return FSMState(stateList[CMD_HELO])
-			} else if strings.EqualFold(input, stateList[CMD_EHLO]) {
-				return FSMState(stateList[CMD_EHLO])
-			}
+// 			if strings.EqualFold(input, stateList[CMD_HELO]) {
+// 				return FSMState(stateList[CMD_HELO])
+// 			} else if strings.EqualFold(input, stateList[CMD_EHLO]) {
+// 				return FSMState(stateList[CMD_EHLO])
+// 			}
 
-			return FSMState(stateList[CMD_READY])
-		})
+// 			return FSMState(stateList[CMD_READY])
+// 		})
 
-		CMD_HELO_FH = FSMHandler(func() FSMState {
-			input, _ := this.getString()
+// 		CMD_HELO_FH = FSMHandler(func() FSMState {
+// 			input, _ := this.getString()
 
-			fmt.Println(input)
-			return FSMState("CMD_HELO")
-		})
+// 			fmt.Println(input)
+// 			return FSMState("CMD_HELO")
+// 		})
 
-		CMD_EHLO_FH = FSMHandler(func() FSMState {
-			input, _ := this.getString()
+// 		CMD_EHLO_FH = FSMHandler(func() FSMState {
+// 			input, _ := this.getString()
 
-			fmt.Println(input)
-			return FSMState("CMD_HELOs")
-		})
-	)
+// 			fmt.Println(input)
+// 			return FSMState("CMD_HELOs")
+// 		})
+// 	)
 
-	this.srv = NewSmtpd(CMD_READY_FS)
-	this.srv.AddHandler(CMD_READY_FS, CMD_READY_FE, CMD_READY_FH)
-	this.srv.AddHandler(CMD_READY_FS, CMD_HELO_FE, CMD_HELO_FH)
-	this.srv.AddHandler(CMD_READY_FS, CMD_EHLO_FE, CMD_EHLO_FH)
-}
+// 	this.srv = NewSmtpd(CMD_READY_FS)
+// 	this.srv.AddHandler(CMD_READY_FS, CMD_READY_FE, CMD_READY_FH)
+// 	this.srv.AddHandler(CMD_READY_FS, CMD_HELO_FE, CMD_HELO_FH)
+// 	this.srv.AddHandler(CMD_READY_FS, CMD_EHLO_FE, CMD_EHLO_FH)
+// }
 
 func (this *SmtpdServer) start(conn net.Conn) {
 	conn.SetReadDeadline(time.Now().Add(time.Minute * 180))
@@ -363,7 +405,7 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	this.write(MSG_INIT)
 	this.setState(CMD_READY)
 
-	this.register()
+	// this.register()
 	this.handle()
 }
 
