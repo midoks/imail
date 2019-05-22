@@ -95,12 +95,12 @@ func GetGoEol() string {
 }
 
 type SmtpdServer struct {
-	debug       bool
-	conn        net.Conn
-	state       int
-	startTime   time.Time
-	errCount    int
-	srv         *SmtpService
+	debug     bool
+	conn      net.Conn
+	state     int
+	startTime time.Time
+	errCount  int
+	// srv         *SmtpService
 	cmdHeloInfo string
 }
 
