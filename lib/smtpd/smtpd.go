@@ -299,9 +299,8 @@ func (this *SmtpdServer) handle() {
 		state := this.getState()
 		input, _ := this.getString()
 
-		//CMD_READY
-		if this.stateCompare(state, CMD_READY) {
-
+		switch state {
+		case CMD_READY:
 			if this.cmdQuit(input) {
 				break
 			}
@@ -313,11 +312,7 @@ func (this *SmtpdServer) handle() {
 			} else {
 				this.write(MSG_COMMAND_ERR)
 			}
-		}
-
-		//CMD_HELO
-		if this.stateCompare(state, CMD_HELO) {
-
+		case CMD_HELO:
 			if this.cmdQuit(input) {
 				break
 			}
@@ -325,30 +320,58 @@ func (this *SmtpdServer) handle() {
 			if this.cmdAuthLogin(input) {
 				this.setState(CMD_AUTH_LOGIN)
 			}
-		}
-
-		//CMD_EHLO
-		if this.stateCompare(state, CMD_EHLO) {
-
+		case CMD_EHLO:
 			if this.cmdQuit(input) {
 			}
 
 			if this.cmdMailFrom(input) {
 				this.setState(CMD_MAIL_FROM)
 			}
-		}
-
-		//CMD_AUTH_LOGIN
-		if this.stateCompare(state, CMD_AUTH_LOGIN) {
+		case CMD_AUTH_LOGIN:
 			if this.cmdAuthLoginUser(input) {
 				this.setState(CMD_AUTH_LOGIN_USER)
+			}
+		case CMD_AUTH_LOGIN_USER:
+			if this.cmdAuthLoginPwd(input) {
+				this.setState(CMD_AUTH_LOGIN_PWD)
+			}
+		case CMD_AUTH_LOGIN_PWD:
+			if this.cmdMailFrom(input) {
+				this.setState(CMD_MAIL_FROM)
+			}
+		case CMD_MAIL_FROM:
+			if this.cmdQuit(input) {
+				break
+			}
+			if this.cmdRcptTo(input) {
+				this.setState(CMD_RCPT_TO)
+			}
+
+		case CMD_RCPT_TO:
+			if this.cmdQuit(input) {
+				break
+			}
+			if this.cmdRcptTo(input) {
+				this.setState(CMD_DATA)
+			}
+		case CMD_DATA:
+			if this.cmdData(input) {
+				this.setState(CMD_DATA_END)
+			}
+
+		case CMD_DATA_END:
+			if this.cmdQuit(input) {
+				break
+			}
+			if this.cmdDataEnd(input) {
+				this.setState(CMD_READY)
 			}
 		}
 	}
 }
 
 func (this *SmtpdServer) start(conn net.Conn) {
-	conn.SetReadDeadline(time.Now().Add(time.Minute * 180))
+	conn.SetReadDeadline(time.Now().Add(time.Minute * 3))
 	defer conn.Close()
 	this.conn = conn
 
