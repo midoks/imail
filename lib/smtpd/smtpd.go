@@ -3,6 +3,7 @@ package smtpd
 import (
 	// "errors"
 	"bufio"
+	"encoding/base64"
 	"fmt"
 	"log"
 	"net"
@@ -89,6 +90,22 @@ type SmtpdServer struct {
 	errCount  int
 	// srv         *SmtpService
 	cmdHeloInfo string
+}
+
+func (this *SmtpdServer) base64Encode(en string) string {
+	src := []byte(en)
+	maxLen := base64.StdEncoding.EncodedLen(len(src))
+	dst := make([]byte, maxLen)
+	base64.StdEncoding.Encode(dst, src)
+	return string(dst)
+}
+
+func (this *SmtpdServer) base64Decode(de string) string {
+	dst, err := base64.StdEncoding.DecodeString(de)
+	if err != nil {
+		return ""
+	}
+	return string(dst)
 }
 
 func (this *SmtpdServer) setState(state int) {
@@ -198,6 +215,10 @@ func (this *SmtpdServer) cmdAuthLogin(input string) bool {
 }
 
 func (this *SmtpdServer) cmdAuthLoginUser(input string) bool {
+
+	s := this.base64Decode(input)
+	fmt.Println(s)
+
 	this.write(MSG_AUTH_LOGIN_PWD)
 	return true
 }
@@ -309,6 +330,9 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_AUTH_LOGIN_USER
 		if this.stateCompare(state, CMD_AUTH_LOGIN_USER) {
+			if this.cmdQuit(input) {
+				break
+			}
 			if this.cmdAuthLoginPwd(input) {
 				this.setState(CMD_AUTH_LOGIN_PWD)
 			}
@@ -316,6 +340,10 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_AUTH_LOGIN_PWD
 		if this.stateCompare(state, CMD_AUTH_LOGIN_PWD) {
+			if this.cmdQuit(input) {
+				break
+			}
+
 			if this.cmdMailFrom(input) {
 				this.setState(CMD_MAIL_FROM)
 			}
@@ -323,6 +351,9 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_MAIL_FROM
 		if this.stateCompare(state, CMD_MAIL_FROM) {
+			if this.cmdQuit(input) {
+				break
+			}
 			if this.cmdRcptTo(input) {
 				this.setState(CMD_RCPT_TO)
 			}
@@ -330,6 +361,9 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_RCPT_TO
 		if this.stateCompare(state, CMD_RCPT_TO) {
+			if this.cmdQuit(input) {
+				break
+			}
 			if this.cmdData(input) {
 				this.setState(CMD_DATA)
 			}
