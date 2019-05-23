@@ -344,6 +344,48 @@ func (this *SmtpdServer) handle() {
 				this.setState(CMD_AUTH_LOGIN_USER)
 			}
 		}
+
+		//CMD_AUTH_LOGIN_USER
+		if this.stateCompare(state, CMD_AUTH_LOGIN_USER) {
+			if this.cmdAuthLoginPwd(input) {
+				this.setState(CMD_AUTH_LOGIN_PWD)
+			}
+		}
+
+		//CMD_AUTH_LOGIN_PWD
+		if this.stateCompare(state, CMD_AUTH_LOGIN_PWD) {
+			if this.cmdMailFrom(input) {
+				this.setState(CMD_MAIL_FROM)
+			}
+		}
+
+		//CMD_MAIL_FROM
+		if this.stateCompare(state, CMD_MAIL_FROM) {
+			if this.cmdRcptTo(input) {
+				this.setState(CMD_RCPT_TO)
+			}
+		}
+
+		//CMD_RCPT_TO
+		if this.stateCompare(state, CMD_RCPT_TO) {
+			if this.cmdData(input) {
+				this.setState(CMD_DATA)
+			}
+		}
+
+		//CMD_DATA
+		if this.stateCompare(state, CMD_DATA) {
+			if this.cmdDataEnd(input) {
+				this.setState(CMD_DATA_END)
+			}
+		}
+
+		//CMD_DATA_END
+		if this.stateCompare(state, CMD_DATA_END) {
+			if this.cmdDataEnd(input) {
+				this.setState(CMD_READY)
+			}
+		}
 	}
 }
 
