@@ -30,19 +30,6 @@ const (
 	CMD_QUIT            = iota
 )
 
-var mailFlow = []int{
-	CMD_READY,
-	CMD_HELO,
-	CMD_AUTH_LOGIN,
-	CMD_AUTH_LOGIN_USER,
-	CMD_AUTH_LOGIN_PWD,
-	CMD_MAIL_FROM,
-	CMD_RCPT_TO,
-	CMD_DATA,
-	CMD_DATA_END,
-	CMD_QUIT,
-}
-
 var stateList = map[int]string{
 	CMD_READY:      "READY",
 	CMD_HELO:       "HELO",
@@ -179,8 +166,6 @@ func (this *SmtpdServer) cmdHelo(input string) bool {
 			this.write(MSG_BAD_SYNTAX)
 			return false
 		}
-
-		this.setState(CMD_HELO)
 		this.write(MSG_OK)
 		return true
 	}
@@ -196,8 +181,6 @@ func (this *SmtpdServer) cmdEhlo(input string) bool {
 			this.write(MSG_BAD_SYNTAX)
 			return false
 		}
-
-		this.setState(CMD_EHLO)
 		this.write(MSG_OK)
 		return true
 	}
@@ -207,7 +190,6 @@ func (this *SmtpdServer) cmdEhlo(input string) bool {
 
 func (this *SmtpdServer) cmdAuthLogin(input string) bool {
 	if this.cmdCompare(input, CMD_AUTH_LOGIN) {
-		this.setState(CMD_AUTH_LOGIN)
 		this.write(MSG_AUTH_LOGIN_USER)
 		return true
 	}
@@ -216,14 +198,12 @@ func (this *SmtpdServer) cmdAuthLogin(input string) bool {
 }
 
 func (this *SmtpdServer) cmdAuthLoginUser(input string) bool {
-	this.setState(CMD_AUTH_LOGIN_USER)
 	this.write(MSG_AUTH_LOGIN_PWD)
 	return true
 }
 
 func (this *SmtpdServer) cmdAuthLoginPwd(input string) bool {
 
-	this.setState(CMD_AUTH_LOGIN_PWD)
 	this.write(MSG_AUTH_OK)
 	return true
 }
@@ -231,7 +211,6 @@ func (this *SmtpdServer) cmdAuthLoginPwd(input string) bool {
 func (this *SmtpdServer) cmdMailFrom(input string) bool {
 	inputN := strings.SplitN(input, ":", 2)
 	if this.cmdCompare(inputN[0], CMD_MAIL_FROM) {
-		this.setState(CMD_MAIL_FROM)
 		this.write(MSG_MAIL_OK)
 		return true
 	}
@@ -242,7 +221,6 @@ func (this *SmtpdServer) cmdMailFrom(input string) bool {
 func (this *SmtpdServer) cmdRcptTo(input string) bool {
 	inputN := strings.SplitN(input, ":", 2)
 	if this.cmdCompare(inputN[0], CMD_RCPT_TO) {
-		this.setState(CMD_RCPT_TO)
 		this.write(MSG_MAIL_OK)
 		return true
 	}
@@ -252,7 +230,6 @@ func (this *SmtpdServer) cmdRcptTo(input string) bool {
 
 func (this *SmtpdServer) cmdData(input string) bool {
 	if this.cmdCompare(input, CMD_DATA) {
-		this.setState(CMD_DATA)
 		this.write(MSG_DATA)
 		return true
 	}
@@ -262,7 +239,6 @@ func (this *SmtpdServer) cmdData(input string) bool {
 
 func (this *SmtpdServer) cmdDataEnd(input string) bool {
 	if this.cmdCompare(input, CMD_DATA_END) {
-		this.setState(CMD_DATA_END)
 		this.write(MSG_DATA)
 		return true
 	}
@@ -276,21 +252,6 @@ func (this *SmtpdServer) cmdQuit(input string) bool {
 		this.close()
 		return true
 	}
-	return false
-}
-
-func (this *SmtpdServer) cmdCommon(input string) bool {
-
-	inputN := strings.SplitN(input, " ", 2)
-
-	if this.cmdCompare(inputN[0], CMD_HELO) {
-
-		this.setState(CMD_HELO)
-		this.write(MSG_OK)
-		return true
-	}
-
-	this.write(MSG_COMMAND_ERR)
 	return false
 }
 
@@ -331,6 +292,7 @@ func (this *SmtpdServer) handle() {
 		if this.stateCompare(state, CMD_EHLO) {
 
 			if this.cmdQuit(input) {
+				break
 			}
 
 			if this.cmdMailFrom(input) {
