@@ -1,7 +1,16 @@
-package app
+package controllers
 
-// import "github.com/gin-gonic/gin"
+import (
+// "github.com/astaxie/beego"
+// "strconv"
+// "strings"
+// "time"
+)
 
-func UserLogin() {
+type UserController struct {
+	BaseController
+}
 
+func (this *UserController) login() {
+	this.retOk("ok")
 }
