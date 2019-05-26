@@ -398,9 +398,9 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	this.handle()
 }
 
-func Start() {
-
-	ln, err := net.Listen("tcp", ":1025")
+func Start(port int) {
+	smtpd_port := fmt.Sprintf(":%d", port)
+	ln, err := net.Listen("tcp", smtpd_port)
 	defer ln.Close()
 	if err != nil {
 		panic(err)
