@@ -2,8 +2,7 @@ package controllers
 
 import (
 	"fmt"
-
-	"github.com/midoks/novelsearch/app/models"
+	"github.com/midoks/imail/app/models"
 )
 
 // "github.com/astaxie/beego"

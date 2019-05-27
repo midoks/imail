@@ -2,15 +2,14 @@ package models
 
 import (
 	_ "fmt"
-	"time"
-
 	"github.com/astaxie/beego/orm"
+	"time"
 )
 
 type ImUser struct {
 	Id         int
-	Username   string
-	Password   string
+	Name       string `orm:"unique;size(50);comment(用户明)"`
+	Password   string `orm:"unique;size(50);comment(用户密码)"`
 	UpdateTime int64
 	CreateTime int64
 }
@@ -40,16 +39,16 @@ func UserGetById(id int) (*ImUser, error) {
 	return u, nil
 }
 
-func UserGetByName(username string) (*ImUser, error) {
+// func UserGetByName(username string) (*ImUser, error) {
 
-	u := new(ImUser)
-	err := orm.NewOrm().QueryTable(getTnByUser()).Filter("username", username).One(u)
-	if err != nil {
-		return nil, err
-	}
-	return u, nil
-}
+// 	u := new(ImUser)
+// 	err := orm.NewOrm().QueryTable(getTnByUser()).Filter("username", username).One(u)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return u, nil
+// }
 
-func UserDelById(id int) (int64, error) {
-	return orm.NewOrm().Delete(&ImUser{Id: id})
-}
+// func UserDelById(id int) (int64, error) {
+// 	return orm.NewOrm().Delete(&ImUser{Id: id})
+// }
