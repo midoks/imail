@@ -12,6 +12,10 @@ const (
 	MSG_ERR = -1
 )
 
+/**
+ * BaseController ...
+ * base struct ...
+ */
 type BaseController struct {
 	beego.Controller
 	controllerName string
@@ -24,14 +28,14 @@ type BaseController struct {
 	EnableXSRF bool
 }
 
-// 输出json
-func (this *BaseController) retJson(out interface{}) {
-	this.Data["json"] = out
-	this.ServeJSON()
-	this.StopRun()
+// 输出json ...
+func (t *BaseController) retJson(out interface{}) {
+	t.Data["json"] = out
+	t.ServeJSON()
+	t.StopRun()
 }
 
-func (this *BaseController) retResult(code int, msg interface{}, data ...interface{}) {
+func (t *BaseController) retResult(code int, msg interface{}, data ...interface{}) {
 	out := make(map[string]interface{})
 	out["code"] = code
 	out["msg"] = msg
@@ -40,13 +44,18 @@ func (this *BaseController) retResult(code int, msg interface{}, data ...interfa
 		out["data"] = data
 	}
 
-	this.retJson(out)
+	t.retJson(out)
 }
 
-func (this *BaseController) retOk(msg interface{}, data ...interface{}) {
-	this.retResult(MSG_OK, msg, data...)
+func (t *BaseController) retOk(msg interface{}, data ...interface{}) {
+	t.retResult(MSG_OK, msg, data...)
 }
 
-func (this *BaseController) retFail(msg interface{}, data ...interface{}) {
-	this.retResult(MSG_ERR, msg, data...)
+func (t *BaseController) retFail(msg interface{}, data ...interface{}) {
+	t.retResult(MSG_ERR, msg, data...)
+}
+
+// 是否POST提交 ...
+func (t *BaseController) isPost() bool {
+	return t.Ctx.Request.Method == "POST"
 }
