@@ -31,5 +31,5 @@ func (t *UserController) Info() {
 	fmt.Println(id)
 	row, _ := models.UserGetById(id)
 	fmt.Println(row)
-	t.retOk("ok")
+	t.retOk(row)
 }
