@@ -8,8 +8,8 @@ import (
 
 type ImUser struct {
 	Id         int
-	Name       string `orm:"unique;size(50);comment(用户明)"`
-	Password   string `orm:"unique;size(50);comment(用户密码)"`
+	Name       string `json:"name";orm:"unique;size(50);comment(用户名)"`
+	Password   string `json:"password";orm:"unique;size(50);comment(用户密码)"`
 	UpdateTime int64
 	CreateTime int64
 }
