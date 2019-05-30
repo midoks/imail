@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type ImUser struct {
+type User struct {
 	Id         int
 	Name       string `json:"name";orm:"unique;size(50);comment(用户名)"`
 	Password   string `json:"password";orm:"unique;size(50);comment(用户密码)"`
@@ -18,11 +18,11 @@ func getTnByUser() string {
 	return "im_users"
 }
 
-func (u *ImUser) TableName() string {
+func (u *User) TableName() string {
 	return getTnByUser()
 }
 
-func (u *ImUser) Update(fields ...string) error {
+func (u *User) Update(fields ...string) error {
 	u.UpdateTime = time.Now().Unix()
 	if _, err := orm.NewOrm().Update(u, fields...); err != nil {
 		return err
@@ -30,8 +30,8 @@ func (u *ImUser) Update(fields ...string) error {
 	return nil
 }
 
-func UserGetById(id int) (*ImUser, error) {
-	u := new(ImUser)
+func UserGetById(id int) (*User, error) {
+	u := new(User)
 	err := orm.NewOrm().QueryTable(getTnByUser()).Filter("id", id).One(u)
 	if err != nil {
 		return nil, err
