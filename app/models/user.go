@@ -14,12 +14,8 @@ type User struct {
 	CreateTime int64
 }
 
-func getTnByUser() string {
-	return "im_users"
-}
-
 func (u *User) TableName() string {
-	return getTnByUser()
+	return "im_users"
 }
 
 func (u *User) Update(fields ...string) error {
@@ -32,7 +28,7 @@ func (u *User) Update(fields ...string) error {
 
 func UserGetById(id int) (*User, error) {
 	u := new(User)
-	err := orm.NewOrm().QueryTable(getTnByUser()).Filter("id", id).One(u)
+	err := orm.NewOrm().QueryTable(u.TableName()).Filter("id", id).One(u)
 	if err != nil {
 		return nil, err
 	}

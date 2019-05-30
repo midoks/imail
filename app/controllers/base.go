@@ -35,6 +35,14 @@ func (t *BaseController) retJson(out interface{}) {
 	t.StopRun()
 }
 
+func (t *BaseController) makeJwt(userid string, username string) string {
+	return ""
+}
+
+func (t *BaseController) wailJwt(userid string, username string) string {
+	return ""
+}
+
 func (t *BaseController) retResult(code int, msg interface{}, data ...interface{}) {
 	out := make(map[string]interface{})
 	out["code"] = code

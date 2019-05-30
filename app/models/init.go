@@ -9,6 +9,10 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+const (
+	SecretKey = "imail"
+)
+
 func Init() {
 	fmt.Println("db init")
 
