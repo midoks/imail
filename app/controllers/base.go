@@ -1,15 +1,19 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/astaxie/beego"
-	// "strconv"
-	// "strings"
-	// "time"
+	"github.com/dgrijalva/jwt-go"
+	"time"
 )
 
 const (
 	MSG_OK  = 0
 	MSG_ERR = -1
+)
+
+const (
+	SecretKey = "imail"
 )
 
 /**
@@ -36,10 +40,22 @@ func (t *BaseController) retJson(out interface{}) {
 }
 
 func (t *BaseController) makeJwt(userid string, username string) string {
-	return ""
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := make(jwt.MapClaims)
+	claims["exp"] = time.Now().Add(time.Hour * time.Duration(1)).Unix()
+	claims["iat"] = time.Now().Unix()
+	claims["id"] = userid
+	claims["username"] = username
+	token.Claims = claims
+	tokenString, err := token.SignedString([]byte(SecretKey))
+	if err != nil {
+		fmt.Println("Error extracting the key")
+		return ""
+	}
+	return tokenString
 }
 
-func (t *BaseController) wailJwt(userid string, username string) string {
+func (t *BaseController) wailJwt(token string) string {
 	return ""
 }
 

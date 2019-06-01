@@ -13,10 +13,6 @@ import (
 // "strconv"
 // "strings"
 
-const (
-	SecretKey = "imail"
-)
-
 //UserController ...
 type UserController struct {
 	BaseController
@@ -24,6 +20,10 @@ type UserController struct {
 
 //Login ...
 func (t *UserController) In() {
+
+	username := t.GetString("username")
+	fmt.Println(username)
+
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := make(jwt.MapClaims)
 	claims["exp"] = time.Now().Add(time.Hour * time.Duration(1)).Unix()
@@ -42,15 +42,15 @@ func (t *UserController) In() {
 
 	// fmt.Println(tokenString)
 
-	claims2, err := jwt.Parse(tokenString, func(*jwt.Token) (interface{}, error) {
-		return []byte(SecretKey), nil
-	})
+	// claims2, err := jwt.Parse(tokenString, func(*jwt.Token) (interface{}, error) {
+	// 	return []byte(SecretKey), nil
+	// })
 
-	if err != nil {
-		fmt.Println("转换为jwt claims失败.", err)
-	}
+	// if err != nil {
+	// 	fmt.Println("转换为jwt claims失败.", err)
+	// }
 
-	fmt.Println(claims2)
+	// fmt.Println(claims2)
 
 	t.retOk(tokenString)
 }
