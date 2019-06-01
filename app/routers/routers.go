@@ -18,7 +18,6 @@ func page_not_found(rw http.ResponseWriter, r *http.Request) {
 	// this.Redirect(url, 302)
 	rw.Write([]byte("page not found"))
 	// t.Execute(rw, data)
-
 }
 
 func init() {
