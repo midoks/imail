@@ -16,7 +16,8 @@ type UserController struct {
 func (t *UserController) In() {
 
 	username := t.GetString("username")
-	fmt.Println(username)
+	password := t.GetString("password")
+	fmt.Println(username, password)
 
 	tokenString := t.makeJwt("d", username)
 
