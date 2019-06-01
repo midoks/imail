@@ -21,18 +21,6 @@ func (t *UserController) In() {
 
 	tokenString := t.makeJwt("d", username)
 
-	// fmt.Println(tokenString)
-
-	// claims2, err := jwt.Parse(tokenString, func(*jwt.Token) (interface{}, error) {
-	// 	return []byte(SecretKey), nil
-	// })
-
-	// if err != nil {
-	// 	fmt.Println("转换为jwt claims失败.", err)
-	// }
-
-	// fmt.Println(claims2)
-
 	t.retOk(tokenString)
 }
 
