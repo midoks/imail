@@ -11,11 +11,38 @@
  Target Server Version : 50562
  File Encoding         : 65001
 
- Date: 01/06/2019 18:35:51
+ Date: 01/06/2019 19:54:28
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for im_mail
+-- ----------------------------
+DROP TABLE IF EXISTS `im_mail`;
+CREATE TABLE `im_mail` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `mail` varchar(255) DEFAULT NULL,
+  `content` text,
+  `status` tinyint(4) DEFAULT NULL,
+  `created_time` bigint(20) DEFAULT NULL,
+  `updated_time` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Table structure for im_user_box
+-- ----------------------------
+DROP TABLE IF EXISTS `im_user_box`;
+CREATE TABLE `im_user_box` (
+  `id` bigint(255) unsigned NOT NULL AUTO_INCREMENT,
+  `uid` bigint(20) NOT NULL DEFAULT '0' COMMENT '用户ID',
+  `mid` bigint(20) NOT NULL DEFAULT '0' COMMENT '邮件ID',
+  `create_time` bigint(20) DEFAULT NULL,
+  `updated_time` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Table structure for im_users
