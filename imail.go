@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"runtime/debug"
 	"runtime/trace"
+	"strconv"
 )
 
 func main() {
@@ -101,6 +102,10 @@ func pprof() {
 	go func() {
 		//关闭GC
 		debug.SetGCPercent(-1)
+		http.HandleFunc("/go_nums", func(w http.ResponseWriter, r *http.Request) {
+			num := strconv.FormatInt(int64(runtime.NumGoroutine()), 10)
+			w.Write([]byte(num))
+		})
 		//运行trace
 		http.HandleFunc("/start", traceStart)
 		//停止trace
