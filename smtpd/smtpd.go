@@ -434,7 +434,6 @@ func Start(port int) {
 		panic(err)
 		return
 	}
-	// defer ln.Close()
 
 	for {
 		conn, err := ln.Accept()
