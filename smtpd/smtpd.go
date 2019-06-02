@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"encoding/base64"
 	"fmt"
+	"github.com/midoks/imail/app/models"
+	"github.com/midoks/imail/libs"
 	"log"
 	"net"
 	"runtime"
@@ -77,12 +79,13 @@ func GetGoEol() string {
 }
 
 type SmtpdServer struct {
-	debug     bool
-	conn      net.Conn
-	state     int
-	startTime time.Time
-	errCount  int
-	// srv         *SmtpService
+	debug       bool
+	conn        net.Conn
+	state       int
+	startTime   time.Time
+	errCount    int
+	loginUser   string
+	loginPwd    string
 	cmdHeloInfo string
 }
 
@@ -97,6 +100,7 @@ func (this *SmtpdServer) base64Encode(en string) string {
 func (this *SmtpdServer) base64Decode(de string) string {
 	dst, err := base64.StdEncoding.DecodeString(de)
 	if err != nil {
+		fmt.Println(err)
 		return ""
 	}
 	return string(dst)
@@ -180,7 +184,6 @@ func (this *SmtpdServer) cmdHelo(input string) bool {
 		this.write(MSG_OK)
 		return true
 	}
-	this.write(MSG_COMMAND_ERR)
 	return false
 }
 
@@ -195,7 +198,6 @@ func (this *SmtpdServer) cmdEhlo(input string) bool {
 		this.write(MSG_OK)
 		return true
 	}
-	this.write(MSG_COMMAND_ERR)
 	return false
 }
 
@@ -210,16 +212,39 @@ func (this *SmtpdServer) cmdAuthLogin(input string) bool {
 
 func (this *SmtpdServer) cmdAuthLoginUser(input string) bool {
 
-	s := this.base64Decode(input)
-	fmt.Println(s)
-
+	user := this.base64Decode(input)
+	this.loginUser = user
 	this.write(MSG_AUTH_LOGIN_PWD)
 	return true
 }
 
 func (this *SmtpdServer) cmdAuthLoginPwd(input string) bool {
+	pwd := this.base64Decode(input)
+	this.loginPwd = pwd
 
-	this.write(MSG_AUTH_OK)
+	if this.checkUserLogin() {
+		this.write(MSG_AUTH_OK)
+		return true
+	}
+	this.write(MSG_AUTH_FAIL)
+	return false
+}
+
+func (this *SmtpdServer) checkUserLogin() bool {
+	name := this.loginUser
+	pwd := this.loginPwd
+
+	info, err := models.UserGetByName(name)
+
+	pwdStr := libs.Md5str(pwd)
+	if pwdStr != info.Password {
+		return false
+	}
+
+	if err != nil {
+		return false
+	}
+
 	return true
 }
 
@@ -253,11 +278,13 @@ func (this *SmtpdServer) cmdData(input string) bool {
 }
 
 func (this *SmtpdServer) cmdDataEnd(input string) bool {
+
+	s, _ := this.getString0()
+	fmt.Println(s)
 	if this.cmdCompare(input, CMD_DATA_END) {
 		this.write(MSG_DATA)
 		return true
 	}
-	this.write(MSG_BAD_SYNTAX)
 	return false
 }
 
@@ -274,6 +301,12 @@ func (this *SmtpdServer) handle() {
 	for {
 		state := this.getState()
 		input, _ := this.getString()
+
+		fmt.Println(input, stateList[state])
+
+		// if strings.EqualFold(input, "\r\n") {
+		// 	continue
+		// }
 
 		//CMD_READY
 		if this.stateCompare(state, CMD_READY) {
@@ -372,16 +405,17 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_DATA_END
 		if this.stateCompare(state, CMD_DATA_END) {
-			if this.cmdDataEnd(input) {
-				this.setState(CMD_READY)
+			if this.cmdQuit(input) {
+				break
 			}
 		}
 	}
 }
 
 func (this *SmtpdServer) start(conn net.Conn) {
-	conn.SetReadDeadline(time.Now().Add(time.Minute * 180))
 	defer conn.Close()
+	conn.SetReadDeadline(time.Now().Add(time.Minute * 6))
+
 	this.conn = conn
 
 	this.startTime = time.Now()
@@ -400,7 +434,7 @@ func Start(port int) {
 		panic(err)
 		return
 	}
-	defer ln.Close()
+	// defer ln.Close()
 
 	for {
 		conn, err := ln.Accept()

@@ -1,14 +1,12 @@
 package smtpd
 
 import (
-	// "errors"
-	"fmt"
-	// "math/rand"
 	"bufio"
+	"fmt"
+	"log"
 	"net"
 	"strings"
-	// "io"
-	"log"
+	"time"
 )
 
 func chkError(err error) {
@@ -17,10 +15,9 @@ func chkError(err error) {
 	}
 }
 
-func SendMail(domain string, from string, to string, content string) {
+func Delivery(domain string, port string, from string, to string, content string) {
 
-	addr := fmt.Sprintf("%s:25", domain)
-
+	addr := fmt.Sprintf("%s:%s", domain, port)
 	conn, err := net.Dial("tcp", addr) //拨号操作，需要指定协议。
 
 	if err != nil {
@@ -44,7 +41,7 @@ func SendMail(domain string, from string, to string, content string) {
 	}
 	fmt.Println("ehlo info", data)
 
-	mailfrom := fmt.Sprintf("MAIL FROM:<%s>\r\n", from)
+	mailfrom := fmt.Sprintf("MAIL FROM: <%s>\r\n", from)
 	fmt.Println(mailfrom)
 
 	conn.Write([]byte(mailfrom))
@@ -58,7 +55,7 @@ func SendMail(domain string, from string, to string, content string) {
 		return
 	}
 
-	rcpt_to := fmt.Sprintf("RCPT TO:<%s>\r\n", to)
+	rcpt_to := fmt.Sprintf("RCPT TO: <%s>\r\n", to)
 	fmt.Println(rcpt_to)
 
 	rcpt_to_data, err := conn.Write([]byte(rcpt_to)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
@@ -75,8 +72,8 @@ func SendMail(domain string, from string, to string, content string) {
 	}
 	fmt.Println(data3)
 
-	content = fmt.Sprintf("DATA\r\n%s", content)
-	content = fmt.Sprintf("%s\r\n.\r\n", content)
+	content = fmt.Sprintf("DATA\r\n%s\r\n\r\n", content)
+	fmt.Println("---------------------------------------")
 	fmt.Println(content)
 
 	_, err = conn.Write([]byte(content)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
@@ -85,29 +82,23 @@ func SendMail(domain string, from string, to string, content string) {
 		return
 	}
 
-	// data4, err4 := bufio.NewReader(conn).ReadString('\n')
-	// if err4 != nil {
-	// 	log.Fatal(err4)
-	// }
-	// fmt.Println(data4)
-
-	// _, err = conn.Write([]byte(content)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
-	// if err != nil {
-	// 	log.Fatal(err)
-	// 	return
-	// }
-
 	data5, err5 := bufio.NewReader(conn).ReadString('\n')
 	if err5 != nil {
 		log.Fatal(err5)
 	}
 	fmt.Println(data5)
 
-	_, err = conn.Write([]byte("quit\r\n"))
+	conn.Write([]byte(".\r\n"))
+
+	time.Sleep(time.Duration(1) * time.Second)
+	_, err = conn.Write([]byte("QUIT\r\n"))
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
+
+	// conn.Close()
+	fmt.Println("---------------------------------------")
 
 	data6, err6 := bufio.NewReader(conn).ReadString('\n')
 	if err6 != nil {
@@ -115,5 +106,5 @@ func SendMail(domain string, from string, to string, content string) {
 		return
 	}
 	fmt.Println(data6)
-
+	fmt.Println("***************************************")
 }
