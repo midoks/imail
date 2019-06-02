@@ -1,27 +1,59 @@
 package main
 
 import (
-	"github.com/midoks/imail/cmd"
-	_ "github.com/urfave/cli"
-	_ "net/smtp"
-	_ "os"
+	"fmt"
+	"github.com/astaxie/beego/config"
+	"github.com/midoks/imail/app"
+	"github.com/midoks/imail/pop3"
+	"github.com/midoks/imail/smtpd"
 )
-
-const APP_VER = "0.0.0.0"
 
 func main() {
 
-	// app := cli.NewApp()
-	// app.Name = "imail"
-	// app.Usage = "Simple mail server"
-	// app.Version = APP_VER
-	// app.Commands = []cli.Command{
-	// 	cmd.Web,
-	// 	cmd.Send,
-	// }
-	// app.Flags = append(app.Flags, []cli.Flag{}...)
-	// app.Run(os.Args)
+	conf, err := config.NewConfig("ini", "conf/app.conf")
+	if err != nil {
+		fmt.Println("app config failed, err:", err)
+		return
+	}
 
-	// cmd.RunWebOk()
-	cmd.RunSendTest()
+	smptd_enable, err := conf.Bool("smtpd::enable")
+	if err != nil {
+		fmt.Println("read smptd:port failed, err:", err)
+		return
+	}
+
+	if smptd_enable {
+		smptd_port, err := conf.Int("smtpd::port")
+		if err != nil {
+			fmt.Println("read smptd:port failed, err:", err)
+			return
+		}
+
+		go smtpd.Start(smptd_port)
+	}
+
+	pop3_enable, err := conf.Bool("pop3::enable")
+	if err != nil {
+		fmt.Println("read pop3:port failed, err:", err)
+		return
+	}
+
+	if pop3_enable {
+		pop3_port, err := conf.Int("pop3::port")
+		if err != nil {
+			fmt.Println("read pop3:port failed, err:", err)
+			return
+		}
+		go pop3.Start(pop3_port)
+	}
+
+	api_enable, err := conf.Bool("smtpd::enable")
+	if err != nil {
+		fmt.Println("read api:port enable, err:", err)
+		return
+	}
+
+	if api_enable {
+		app.Start()
+	}
 }

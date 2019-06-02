@@ -12,3 +12,4 @@
 *.out
 imail
 lib/.DS_Store
+.DS_Store
