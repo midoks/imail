@@ -17,7 +17,7 @@ type User struct {
 }
 
 func (u *User) TableName() string {
-	return "im_users"
+	return "im_user"
 }
 
 func (u *User) Update(fields ...string) error {
@@ -45,17 +45,3 @@ func UserGetByName(name string) (*User, error) {
 	}
 	return u, nil
 }
-
-// func UserGetByName(username string) (*ImUser, error) {
-
-// 	u := new(ImUser)
-// 	err := orm.NewOrm().QueryTable(getTnByUser()).Filter("username", username).One(u)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return u, nil
-// }
-
-// func UserDelById(id int) (int64, error) {
-// 	return orm.NewOrm().Delete(&ImUser{Id: id})
-// }
