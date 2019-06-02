@@ -2,9 +2,8 @@ package controllers
 
 import (
 	"fmt"
-	// "github.com/astaxie/beego"
-	// "github.com/dgrijalva/jwt-go/request"
 	"github.com/midoks/imail/app/models"
+	"github.com/midoks/imail/libs"
 )
 
 //UserController ...
@@ -19,9 +18,22 @@ func (t *UserController) In() {
 	password := t.GetString("password")
 	fmt.Println(username, password)
 
-	tokenString := t.makeJwt("d", username)
+	info, err := models.UserGetByName(username)
+	if err != nil {
+		errInfo := fmt.Sprintf("username %s does not exist!", username)
+		t.retFail(errInfo)
+	}
 
-	t.retOk(tokenString)
+	loginPasswd := libs.Md5str(password)
+	if loginPasswd != info.Password {
+		t.retFail("landing failed!")
+	}
+
+	tokenString := t.makeJwt(info.Id, info.Name)
+
+	data := make(map[string]interface{})
+	data["token"] = tokenString
+	t.retOk("landing success!", data)
 }
 
 //Login ...

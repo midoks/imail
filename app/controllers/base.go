@@ -39,7 +39,7 @@ func (t *BaseController) retJson(out interface{}) {
 	t.StopRun()
 }
 
-func (t *BaseController) makeJwt(userid string, username string) string {
+func (t *BaseController) makeJwt(userid int64, username string) string {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := make(jwt.MapClaims)
 	claims["exp"] = time.Now().Add(time.Hour * time.Duration(1)).Unix()
