@@ -6,12 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"net/http"
 	_ "net/http/pprof"
-	"os"
 	"runtime"
-	"runtime/debug"
-	"runtime/trace"
 	"strings"
 	"time"
 )
@@ -121,7 +117,7 @@ func (this *Pop3Server) Debug(d bool) {
 	this.debug = d
 }
 
-func (this *SmtpdServer) write(code string) {
+func (this *Pop3Server) write(code string) {
 
 	info := fmt.Sprintf("%.3s %s%s", code, msgList[code], GO_EOL)
 	_, err := this.conn.Write([]byte(info))
@@ -154,7 +150,7 @@ func (this *Pop3Server) getString0() (string, error) {
 	return inputTrim, err
 }
 
-func (this *SmtpdServer) close() {
+func (this *Pop3Server) close() {
 	this.conn.Close()
 }
 
@@ -202,7 +198,7 @@ func (this *Pop3Server) cmdEhlo(input string) bool {
 	return false
 }
 
-func (this *SmtpdServer) cmdQuit(input string) bool {
+func (this *Pop3Server) cmdQuit(input string) bool {
 	if this.cmdCompare(input, CMD_QUIT) {
 		this.write(MSG_BYE)
 		this.close()
@@ -211,7 +207,7 @@ func (this *SmtpdServer) cmdQuit(input string) bool {
 	return false
 }
 
-func (this *SmtpdServer) handle() {
+func (this *Pop3Server) handle() {
 	for {
 		state := this.getState()
 		input, _ := this.getString()
@@ -220,7 +216,7 @@ func (this *SmtpdServer) handle() {
 	}
 }
 
-func (this *SmtpdServer) start(conn net.Conn) {
+func (this *Pop3Server) start(conn net.Conn) {
 	conn.SetReadDeadline(time.Now().Add(time.Minute * 180))
 	defer conn.Close()
 	this.conn = conn
