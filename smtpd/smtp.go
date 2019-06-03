@@ -102,13 +102,10 @@ func Delivery(domain string, port string, from string, to string, content string
 		return
 	}
 
-	fmt.Println("---------------------------------------")
-
 	data6, err6 := bufio.NewReader(conn).ReadString('\n')
 	if err6 != nil {
 		log.Fatal(err6)
 		return
 	}
 	fmt.Println(data6)
-	fmt.Println("***************************************")
 }
