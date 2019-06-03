@@ -2,18 +2,18 @@ package smtpd
 
 import (
 	"fmt"
-	"strings"
+	// "strings"
 	"testing"
 )
 
-func TestHelo_1(t *testing.T) {
-	d, err := DnsQuery("qq.com")
-	if err == nil {
-		t.Log("dns.Query ok:" + d)
-	} else {
-		t.Error("dns.Query fail:" + err.Error())
-	}
-}
+// func TestHelo_1(t *testing.T) {
+// 	d, err := DnsQuery("qq.com")
+// 	if err == nil {
+// 		t.Log("dns.Query ok:" + d)
+// 	} else {
+// 		t.Error("dns.Query fail:" + err.Error())
+// 	}
+// }
 
 // func TestRunSendFunc(t *testing.T) {
 // 	toEmail := "627293072@qq.com"
@@ -34,14 +34,6 @@ func TestHelo_1(t *testing.T) {
 func TestRunSendLocal(t *testing.T) {
 	toEmail := "midoks@imail.com"
 	fromEmail := "midoks@cachecha.com"
-	toInfo := strings.Split(toEmail, "@")
-	mxDomain, err := DnsQuery(toInfo[1])
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-	fmt.Println(mxDomain)
-
 	content := fmt.Sprintf("Data: 24 May 2013 19:00:29\r\nFrom: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. liuxiaoming ok?!", fromEmail, toEmail)
 	Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
 }

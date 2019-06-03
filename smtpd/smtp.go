@@ -6,7 +6,6 @@ import (
 	"log"
 	"net"
 	"strings"
-	"time"
 )
 
 func chkError(err error) {
@@ -90,14 +89,19 @@ func Delivery(domain string, port string, from string, to string, content string
 
 	conn.Write([]byte(".\r\n"))
 
-	time.Sleep(time.Duration(1) * time.Second)
+	data7, err7 := bufio.NewReader(conn).ReadString('\n')
+	if err7 != nil {
+		log.Fatal(err7)
+		return
+	}
+	fmt.Println(data7)
+
 	_, err = conn.Write([]byte("QUIT\r\n"))
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
-	// conn.Close()
 	fmt.Println("---------------------------------------")
 
 	data6, err6 := bufio.NewReader(conn).ReadString('\n')

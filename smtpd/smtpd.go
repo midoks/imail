@@ -10,6 +10,7 @@ import (
 	"net"
 	"runtime"
 	"strings"
+	// "sync"
 	"time"
 )
 
@@ -87,6 +88,7 @@ type SmtpdServer struct {
 	loginUser   string
 	loginPwd    string
 	cmdHeloInfo string
+	channel     int
 }
 
 func (this *SmtpdServer) base64Encode(en string) string {
@@ -156,6 +158,7 @@ func (this *SmtpdServer) getString0() (string, error) {
 }
 
 func (this *SmtpdServer) close() {
+	this.setState(CMD_QUIT)
 	this.conn.Close()
 }
 
@@ -278,9 +281,6 @@ func (this *SmtpdServer) cmdData(input string) bool {
 }
 
 func (this *SmtpdServer) cmdDataEnd(input string) bool {
-
-	s, _ := this.getString0()
-	fmt.Println(s)
 	if this.cmdCompare(input, CMD_DATA_END) {
 		this.write(MSG_DATA)
 		return true
@@ -304,9 +304,9 @@ func (this *SmtpdServer) handle() {
 
 		fmt.Println(input, stateList[state])
 
-		// if strings.EqualFold(input, "\r\n") {
-		// 	continue
-		// }
+		if this.stateCompare(state, CMD_QUIT) {
+			break
+		}
 
 		//CMD_READY
 		if this.stateCompare(state, CMD_READY) {
@@ -408,6 +408,11 @@ func (this *SmtpdServer) handle() {
 			if this.cmdQuit(input) {
 				break
 			}
+
+			if strings.EqualFold(input, "") {
+				break
+			}
+
 		}
 	}
 }
@@ -426,6 +431,10 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	this.handle()
 }
 
+// func (this *SmtpdServer) setChan(int c) {
+// 	this.channel = c
+// }
+
 func Start(port int) {
 	smtpd_port := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp", smtpd_port)
@@ -435,13 +444,31 @@ func Start(port int) {
 		return
 	}
 
+	// var mut sync.Mutex
+	// var wg sync.WaitGroup
+
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
 			continue
 		}
 
+		fmt.Println("hello world")
+		// wg.Add(1)
+		// sem := make(chan int, 1)
 		srv := SmtpdServer{}
+		// srv.setChan(sem)
+
+		// go func() {
+		// 	defer func(conn) {
+		// 		srv.start(conn)
+		// 		mut.Unlock()
+		// 	}(conn)
+		// 	mut.Lock()
+		// 	wg.Done()
+		// }
+		// wg.Wait()
+
 		go srv.start(conn)
 	}
 }
