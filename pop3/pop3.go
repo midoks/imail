@@ -49,7 +49,7 @@ const (
 	MSG_MAIL_OK         = "250"
 	MSG_BYE             = "221"
 	MSG_BAD_SYNTAX      = "500"
-	MSG_COMMAND_ERR     = "502"
+	MSG_LOGIN_INFO      = "502"
 	MSG_COMMAND_TM_ERR  = "421"
 	MSG_AUTH_LOGIN_USER = "334.user"
 	MSG_AUTH_LOGIN_PWD  = "334.passwd"
@@ -59,10 +59,10 @@ const (
 )
 
 var msgList = map[string]string{
-	MSG_INIT:            "Anti-spam GT for Coremail System(imail)",
-	MSG_OK:              "ok",
+	MSG_INIT:            "+OK Welcome to coremail Mail Pop3 Server (imail)",
+	MSG_OK:              "+OK core mail",
 	MSG_BYE:             "bye",
-	MSG_COMMAND_ERR:     "Error: command not implemented",
+	MSG_LOGIN_INFO:      "+OK 2542 message(s) [100298482 byte(s)]",
 	MSG_COMMAND_TM_ERR:  "Too many error commands",
 	MSG_BAD_SYNTAX:      "Error: bad syntax",
 	MSG_AUTH_LOGIN_USER: "dXNlcm5hbWU6",
@@ -124,7 +124,7 @@ func (this *Pop3Server) Debug(d bool) {
 
 func (this *Pop3Server) write(code string) {
 
-	info := fmt.Sprintf("%.3s %s%s", code, msgList[code], GO_EOL)
+	info := fmt.Sprintf("%s%s", msgList[code], GO_EOL)
 	_, err := this.conn.Write([]byte(info))
 
 	if err != nil {
@@ -173,6 +173,34 @@ func (this *Pop3Server) stateCompare(input int, cmd int) bool {
 	return false
 }
 
+func (this *Pop3Server) cmdUser(input string) bool {
+	inputN := strings.SplitN(input, " ", 2)
+
+	if this.cmdCompare(inputN[0], CMD_USER) {
+		if len(inputN) < 2 {
+			this.write(MSG_BAD_SYNTAX)
+			return false
+		}
+		this.write(MSG_OK)
+		return true
+	}
+	return false
+}
+
+func (this *Pop3Server) cmdPass(input string) bool {
+	inputN := strings.SplitN(input, " ", 2)
+
+	if this.cmdCompare(inputN[0], CMD_PASS) {
+		if len(inputN) < 2 {
+			this.write(MSG_BAD_SYNTAX)
+			return false
+		}
+		this.write(MSG_LOGIN_INFO)
+		return true
+	}
+	return false
+}
+
 func (this *Pop3Server) cmdQuit(input string) bool {
 	if this.cmdCompare(input, CMD_QUIT) {
 		this.write(MSG_BYE)
@@ -186,9 +214,24 @@ func (this *Pop3Server) handle() {
 	for {
 		state := this.getState()
 		input, _ := this.getString()
-
 		fmt.Printf(input, state)
-		break
+
+		if this.cmdQuit(input) {
+			break
+		}
+
+		if this.stateCompare(state, CMD_READY) {
+			if this.cmdUser(input) {
+				this.setState(CMD_USER)
+			}
+		}
+
+		if this.stateCompare(state, CMD_USER) {
+			if this.cmdPass(input) {
+				this.setState(CMD_PASS)
+			}
+		}
+
 	}
 }
 

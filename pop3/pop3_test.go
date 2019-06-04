@@ -86,7 +86,7 @@ func PopList(domain string, port string, name string, password string) {
 			log.Println("SS:directive error:", err2)
 			break
 		}
-		fmt.Println("S--|~:", string(b[:n]))
+		// fmt.Println("S--|~:", string(b[:n]))
 
 		v := strings.TrimSpace(string(b[:n]))
 		v_len := len(v)
@@ -101,6 +101,12 @@ func PopList(domain string, port string, name string, password string) {
 	}
 
 	conn.Write([]byte("QUIT\r\n"))
+
+	data, err2 = bufio.NewReader(conn).ReadString('\n')
+	if err2 != nil {
+		log.Println("ehlo directive error:", err2)
+	}
+	fmt.Println("S:", data)
 }
 
 func TestRunPop3(t *testing.T) {
@@ -108,5 +114,6 @@ func TestRunPop3(t *testing.T) {
 }
 
 func TestRunLocalPop3(t *testing.T) {
+	fmt.Println("---------------------------------")
 	PopList("127.0.0.1", "10110", "midoks", "123123")
 }
