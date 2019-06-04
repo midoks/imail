@@ -75,60 +75,6 @@ func PopList(domain string, port string, name string, password string) {
 
 	_, err1 = conn.Write([]byte("RETR 1\r\n"))
 	chkError(err1)
-	// data, err2 = bufio.NewReader(conn).ReadString('\n')
-	// if err2 != nil {
-	// 	log.Println("ehlo directive error:", err2)
-	// }
-	// fmt.Println("S:", data)
-
-	// data, err2 = bufio.NewReader(conn).ReadString('\n')
-	// if err2 != nil {
-	// 	log.Println("ehlo directive error:", err2)
-	// }
-	// fmt.Println("S:", data)
-
-	// time.Sleep(time.Duration(2) * time.Second)
-
-	//func 1
-	// data2, err_2 := ioutil.ReadAll(conn)
-	// chkError(err_2)
-	// fmt.Println("ALL:", string(data2))
-
-	//func 22
-	// for {
-	// 	data, err2 = bufio.NewReader(conn).ReadString('\n')
-	// 	if err2 != nil {
-	// 		log.Println("directive error:", err2)
-	// 		break
-	// 	}
-	// 	fmt.Println("S--|:", data, err2)
-	// }
-
-	// data, err2 = bufio.NewReader(conn).ReadString('\n')
-	// if err2 != nil {
-	// 	log.Println("ehlo directive error:", err2)
-	// }
-	// fmt.Println("S:", data)
-
-	// buf := make([]byte, 0, 4096)
-	// var slen int
-
-	// for {
-	// 	n, err := conn.Read(buf)
-	// 	// n, err := bufio.NewReader(conn).Read(buf)
-	// 	fmt.Println(n, err)
-	// 	if n > 0 {
-	// 		slen += n
-	// 	}
-
-	// 	break
-	// 	if err != nil {
-	// 		if err == io.EOF {
-	// 			break
-	// 		}
-
-	// 	}
-	// }
 
 	for {
 
