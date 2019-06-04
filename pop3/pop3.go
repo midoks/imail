@@ -6,36 +6,41 @@ import (
 	"fmt"
 	"log"
 	"net"
-	_ "net/http/pprof"
 	"runtime"
 	"strings"
 	"time"
 )
 
 const (
-	CMD_READY           = iota
-	CMD_HELO            = iota
-	CMD_EHLO            = iota
-	CMD_AUTH_LOGIN      = iota
-	CMD_AUTH_LOGIN_USER = iota
-	CMD_AUTH_LOGIN_PWD  = iota
-	CMD_MAIL_FROM       = iota
-	CMD_RCPT_TO         = iota
-	CMD_DATA            = iota
-	CMD_DATA_END        = iota
-	CMD_QUIT            = iota
+	CMD_READY = iota
+	CMD_USER  = iota
+	CMD_PASS  = iota
+	CMD_STAT  = iota
+	CMD_LIST  = iota
+	CMD_RETR  = iota
+	CMD_DELE  = iota
+	CMD_NOOP  = iota
+	CMD_RSET  = iota
+	CMD_TOP   = iota
+	CMD_UIDL  = iota
+	CMD_APOP  = iota
+	CMD_QUIT  = iota
 )
 
 var stateList = map[int]string{
-	CMD_READY:      "READY",
-	CMD_HELO:       "HELO",
-	CMD_EHLO:       "EHLO",
-	CMD_AUTH_LOGIN: "AUTH LOGIN",
-	CMD_MAIL_FROM:  "MAIL FROM",
-	CMD_RCPT_TO:    "RCPT TO",
-	CMD_DATA:       "DATA",
-	CMD_DATA_END:   ".",
-	CMD_QUIT:       "QUIT",
+	CMD_READY: "READY",
+	CMD_USER:  "USER",
+	CMD_PASS:  "PASS",
+	CMD_STAT:  "STAT",
+	CMD_LIST:  "LIST",
+	CMD_RETR:  "RETR",
+	CMD_DELE:  "DELE",
+	CMD_NOOP:  "NOOP",
+	CMD_RSET:  "RSET",
+	CMD_TOP:   "TOP",
+	CMD_UIDL:  "UIDL",
+	CMD_APOP:  "APOP",
+	CMD_QUIT:  "QUIT",
 }
 
 const (
@@ -165,36 +170,6 @@ func (this *Pop3Server) stateCompare(input int, cmd int) bool {
 	if input == cmd {
 		return true
 	}
-	return false
-}
-
-func (this *Pop3Server) cmdHelo(input string) bool {
-	inputN := strings.SplitN(input, " ", 2)
-
-	if this.cmdCompare(inputN[0], CMD_HELO) {
-		if len(inputN) < 2 {
-			this.write(MSG_BAD_SYNTAX)
-			return false
-		}
-		this.write(MSG_OK)
-		return true
-	}
-	this.write(MSG_COMMAND_ERR)
-	return false
-}
-
-func (this *Pop3Server) cmdEhlo(input string) bool {
-	inputN := strings.SplitN(input, " ", 2)
-
-	if this.cmdCompare(inputN[0], CMD_EHLO) {
-		if len(inputN) < 2 {
-			this.write(MSG_BAD_SYNTAX)
-			return false
-		}
-		this.write(MSG_OK)
-		return true
-	}
-	this.write(MSG_COMMAND_ERR)
 	return false
 }
 
