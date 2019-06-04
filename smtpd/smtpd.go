@@ -301,7 +301,13 @@ func (this *SmtpdServer) handle() {
 		state := this.getState()
 		input, _ := this.getString()
 
-		fmt.Println(input, stateList[state])
+		fmt.Println(input, state, stateList[state])
+
+		if strings.EqualFold(input, "") {
+			this.write(MSG_BYE)
+			this.close()
+			break
+		}
 
 		if this.stateCompare(state, CMD_QUIT) {
 			break
@@ -445,7 +451,6 @@ func Start(port int) {
 			continue
 		}
 
-		fmt.Println("hello world")
 		srv := SmtpdServer{}
 		go srv.start(conn)
 	}

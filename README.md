@@ -2,8 +2,9 @@
 Small mail server
 
 ### 依赖
-```
 
+```
+beego
 ```
 
 
