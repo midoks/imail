@@ -5,6 +5,8 @@ import (
 	_ "github.com/midoks/imail/app/routers"
 )
 
-func Start() {
+func Start(port int) {
+
+	beego.BConfig.Listen.HTTPPort = port
 	beego.Run()
 }

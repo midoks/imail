@@ -63,7 +63,12 @@ func main() {
 	}
 
 	if api_enable {
-		app.Start()
+		api_port, err := conf.Int("api::port")
+		if err != nil {
+			fmt.Println("read pop3:port failed, err:", err)
+			return
+		}
+		app.Start(api_port)
 	}
 }
 
