@@ -37,7 +37,7 @@ func PopList(domain string, port string, name string, password string) {
 	fmt.Println("S:", connect)
 
 	CMD_USER := fmt.Sprintf("USER %s\r\n", name)
-
+	fmt.Println("CMD:", CMD_USER)
 	_, err1 := conn.Write([]byte(CMD_USER))
 	chkError(err1)
 	data, err2 := bufio.NewReader(conn).ReadString('\n')
@@ -48,7 +48,7 @@ func PopList(domain string, port string, name string, password string) {
 	fmt.Println("S:", data)
 
 	CMD_PWD := fmt.Sprintf("PASS %s\r\n", password)
-
+	fmt.Println("CMD:", CMD_PWD)
 	_, err1 = conn.Write([]byte(CMD_PWD))
 	chkError(err1)
 	data, err2 = bufio.NewReader(conn).ReadString('\n')
@@ -57,6 +57,7 @@ func PopList(domain string, port string, name string, password string) {
 	}
 	fmt.Println("S:", data)
 
+	fmt.Println("CMD:LIST 1")
 	_, err1 = conn.Write([]byte("LIST 1\r\n"))
 	chkError(err1)
 	data, err2 = bufio.NewReader(conn).ReadString('\n')
@@ -65,6 +66,7 @@ func PopList(domain string, port string, name string, password string) {
 	}
 	fmt.Println("S:", data)
 
+	fmt.Println("CMD:UIDL 1")
 	_, err1 = conn.Write([]byte("UIDL 1\r\n"))
 	chkError(err1)
 	data, err2 = bufio.NewReader(conn).ReadString('\n')
@@ -73,6 +75,7 @@ func PopList(domain string, port string, name string, password string) {
 	}
 	fmt.Println("S:", data)
 
+	fmt.Println("CMD:RETR 1")
 	_, err1 = conn.Write([]byte("RETR 1\r\n"))
 	chkError(err1)
 

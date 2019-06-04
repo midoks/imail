@@ -2,7 +2,6 @@ package pop3
 
 import (
 	"bufio"
-	"encoding/base64"
 	"fmt"
 	"log"
 	"net"
@@ -56,6 +55,7 @@ const (
 	MSG_AUTH_OK         = "235"
 	MSG_AUTH_FAIL       = "535"
 	MSG_DATA            = "354"
+	MSG_RETR_DATA       = "%s\r\n."
 )
 
 var msgList = map[string]string{
@@ -70,7 +70,7 @@ var msgList = map[string]string{
 	MSG_AUTH_OK:         "Authentication successful",
 	MSG_AUTH_FAIL:       "Error: authentication failed",
 	MSG_MAIL_OK:         "Mail OK",
-	MSG_DATA:            "End data with <CR><LF>.<CR><LF>",
+	MSG_RETR_DATA:       "%s\r\n.",
 }
 
 var GO_EOL = GetGoEol()
@@ -90,22 +90,6 @@ type Pop3Server struct {
 	errCount  int
 }
 
-func (this *Pop3Server) base64Encode(en string) string {
-	src := []byte(en)
-	maxLen := base64.StdEncoding.EncodedLen(len(src))
-	dst := make([]byte, maxLen)
-	base64.StdEncoding.Encode(dst, src)
-	return string(dst)
-}
-
-func (this *Pop3Server) base64Decode(de string) string {
-	dst, err := base64.StdEncoding.DecodeString(de)
-	if err != nil {
-		return ""
-	}
-	return string(dst)
-}
-
 func (this *Pop3Server) setState(state int) {
 	this.state = state
 }
@@ -122,14 +106,17 @@ func (this *Pop3Server) Debug(d bool) {
 	this.debug = d
 }
 
-func (this *Pop3Server) write(code string) {
-
-	info := fmt.Sprintf("%s%s", msgList[code], GO_EOL)
-	_, err := this.conn.Write([]byte(info))
+func (this *Pop3Server) W(msg string) {
+	_, err := this.conn.Write([]byte(msg))
 
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func (this *Pop3Server) write(code string) {
+	info := fmt.Sprintf("%s\r\n", msgList[code])
+	this.W(info)
 }
 
 func (this *Pop3Server) getString() (string, error) {
@@ -201,6 +188,48 @@ func (this *Pop3Server) cmdPass(input string) bool {
 	return false
 }
 
+func (this *Pop3Server) cmdList(input string) bool {
+	inputN := strings.SplitN(input, " ", 2)
+
+	if this.cmdCompare(inputN[0], CMD_LIST) {
+		if len(inputN) < 2 {
+			this.write(MSG_BAD_SYNTAX)
+			return false
+		}
+		this.write(MSG_LOGIN_INFO)
+		return true
+	}
+	return false
+}
+
+func (this *Pop3Server) cmdRetr(input string) bool {
+	inputN := strings.SplitN(input, " ", 2)
+
+	if this.cmdCompare(inputN[0], CMD_RETR) {
+		if len(inputN) < 2 {
+			this.write(MSG_BAD_SYNTAX)
+			return false
+		}
+		this.write(MSG_RETR_DATA)
+		return true
+	}
+	return false
+}
+
+func (this *Pop3Server) cmdUidl(input string) bool {
+	inputN := strings.SplitN(input, " ", 2)
+
+	if this.cmdCompare(inputN[0], CMD_UIDL) {
+		if len(inputN) < 2 {
+			this.write(MSG_BAD_SYNTAX)
+			return false
+		}
+		this.write(MSG_LOGIN_INFO)
+		return true
+	}
+	return false
+}
+
 func (this *Pop3Server) cmdQuit(input string) bool {
 	if this.cmdCompare(input, CMD_QUIT) {
 		this.write(MSG_BYE)
@@ -214,7 +243,8 @@ func (this *Pop3Server) handle() {
 	for {
 		state := this.getState()
 		input, _ := this.getString()
-		fmt.Printf(input, state)
+
+		// fmt.Printf(input, state)
 
 		if this.cmdQuit(input) {
 			break
@@ -229,6 +259,21 @@ func (this *Pop3Server) handle() {
 		if this.stateCompare(state, CMD_USER) {
 			if this.cmdPass(input) {
 				this.setState(CMD_PASS)
+			}
+		}
+
+		if this.stateCompare(state, CMD_PASS) {
+
+			if this.cmdList(input) {
+
+			}
+
+			if this.cmdUidl(input) {
+
+			}
+
+			if this.cmdRetr(input) {
+
 			}
 		}
 
