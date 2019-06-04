@@ -5,6 +5,7 @@ import (
 	"fmt"
 	// "io"
 	// "io/ioutil"
+	// "bytes"
 	"log"
 	"net"
 	// "strings"
@@ -75,18 +76,57 @@ func PopList(domain string, port string) {
 	}
 	fmt.Println("S:", data)
 
-	_, err1 = conn.Write([]byte("Receive\r\n"))
-	chkError(err1)
+	data, err2 = bufio.NewReader(conn).ReadString('\n')
+	if err2 != nil {
+		log.Println("ehlo directive error:", err2)
+	}
+	fmt.Println("S:", data)
 
-	// buf := make([]byte, 0, 4096)
-	// buf, err = ioutil.ReadAll(conn)
-	// fmt.Println(buf, err)
+	// t, _ := ioutil.ReadAll(conn)
+	// fmt.Println(t)
+
+	for {
+		data, err2 = bufio.NewReader(conn).ReadString('\n')
+		if err2 != nil {
+			log.Println("directive error:", err2)
+			break
+		}
+		fmt.Println("S--|:", data, err2)
+	}
 
 	data, err2 = bufio.NewReader(conn).ReadString('\n')
 	if err2 != nil {
 		log.Println("ehlo directive error:", err2)
 	}
 	fmt.Println("S:", data)
+
+	// buf := make([]byte, 0, 4096)
+	// slen := 0
+
+	// for {
+	// 	n, err := conn.Read(buf[slen:])
+	// 	fmt.Println(n, err)
+	// 	if n > 0 {
+	// 		slen += n
+	// 	}
+
+	// 	break
+	// 	if err != nil {
+	// 		if err != io.EOF {
+
+	// 		}
+
+	// 		break
+	// 	}
+	// }
+
+	// var buf bytes.Buffer
+	// _, err = io.Copy(&buf, conn)
+	// if err != nil {
+
+	// 	fmt.Println(err)
+	// }
+	// fmt.Println(buf)
 
 	conn.Write([]byte("QUIT\r\n"))
 }
