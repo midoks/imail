@@ -233,7 +233,6 @@ func (this *Pop3Server) start(conn net.Conn) {
 func Start(port int) {
 	pop3_port := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp", pop3_port)
-	defer ln.Close()
 	if err != nil {
 		panic(err)
 		return

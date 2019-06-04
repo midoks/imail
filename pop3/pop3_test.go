@@ -19,7 +19,7 @@ func chkError(err error) {
 	}
 }
 
-func PopList(domain string, port string) {
+func PopList(domain string, port string, name string, password string) {
 
 	addr := fmt.Sprintf("%s:%s", domain, port)
 	conn, err := net.Dial("tcp", addr) //拨号操作，需要指定协议。
@@ -36,7 +36,9 @@ func PopList(domain string, port string) {
 	}
 	fmt.Println("S:", connect)
 
-	_, err1 := conn.Write([]byte("USER midoks\r\n"))
+	CMD_USER := fmt.Sprintf("USER %s\r\n", name)
+
+	_, err1 := conn.Write([]byte(CMD_USER))
 	chkError(err1)
 	data, err2 := bufio.NewReader(conn).ReadString('\n')
 	if err2 != nil {
@@ -45,7 +47,9 @@ func PopList(domain string, port string) {
 
 	fmt.Println("S:", data)
 
-	_, err1 = conn.Write([]byte("PASS mm123123\r\n"))
+	CMD_PWD := fmt.Sprintf("PASS %s\r\n", password)
+
+	_, err1 = conn.Write([]byte(CMD_PWD))
 	chkError(err1)
 	data, err2 = bufio.NewReader(conn).ReadString('\n')
 	if err2 != nil {
@@ -127,12 +131,13 @@ func PopList(domain string, port string) {
 	// }
 
 	for {
+
 		b := make([]byte, 4096)
 
 		n, err2 := conn.Read(b[0:])
 		fmt.Println(n, err)
 		if err2 != nil {
-			log.Println("directive error:", err2)
+			log.Println("SS:directive error:", err2)
 			break
 		}
 		fmt.Println("S--|~:", string(b[:n]))
@@ -153,5 +158,9 @@ func PopList(domain string, port string) {
 }
 
 func TestRunPop3(t *testing.T) {
-	PopList("pop3.163.com", "110")
+	PopList("pop3.163.com", "110", "midoks", "mm123123")
+}
+
+func TestRunLocalPop3(t *testing.T) {
+	PopList("127.0.0.1", "10110", "midoks", "123123")
 }
