@@ -10,7 +10,6 @@ import (
 	"net"
 	"runtime"
 	"strings"
-	// "sync"
 	"time"
 )
 
@@ -431,10 +430,6 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	this.handle()
 }
 
-// func (this *SmtpdServer) setChan(int c) {
-// 	this.channel = c
-// }
-
 func Start(port int) {
 	smtpd_port := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp", smtpd_port)
@@ -444,9 +439,6 @@ func Start(port int) {
 		return
 	}
 
-	// var mut sync.Mutex
-	// var wg sync.WaitGroup
-
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
@@ -454,21 +446,7 @@ func Start(port int) {
 		}
 
 		fmt.Println("hello world")
-		// wg.Add(1)
-		// sem := make(chan int, 1)
 		srv := SmtpdServer{}
-		// srv.setChan(sem)
-
-		// go func() {
-		// 	defer func(conn) {
-		// 		srv.start(conn)
-		// 		mut.Unlock()
-		// 	}(conn)
-		// 	mut.Lock()
-		// 	wg.Done()
-		// }
-		// wg.Wait()
-
 		go srv.start(conn)
 	}
 }
