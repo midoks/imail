@@ -36,11 +36,6 @@ func (t *UserController) In() {
 	t.retOk("landing success!", data)
 }
 
-//Login ...
-func (t *UserController) Out() {
-	t.retOk("ok")
-}
-
 func (t *UserController) Info() {
 	id, _ := t.GetInt("id")
 	// fmt.Println(id)

@@ -213,6 +213,7 @@ func (this *Pop3Server) handle() {
 		input, _ := this.getString()
 
 		fmt.Printf(input, state)
+		break
 	}
 }
 

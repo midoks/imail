@@ -1,18 +1,14 @@
 package smtpd
 
 import (
-	// "errors"
 	"bufio"
 	"encoding/base64"
 	"fmt"
+	"github.com/midoks/imail/app/models"
+	"github.com/midoks/imail/libs"
 	"log"
 	"net"
-	"net/http"
-	_ "net/http/pprof"
-	"os"
 	"runtime"
-	"runtime/debug"
-	"runtime/trace"
 	"strings"
 	"time"
 )
@@ -83,13 +79,15 @@ func GetGoEol() string {
 }
 
 type SmtpdServer struct {
-	debug     bool
-	conn      net.Conn
-	state     int
-	startTime time.Time
-	errCount  int
-	// srv         *SmtpService
+	debug       bool
+	conn        net.Conn
+	state       int
+	startTime   time.Time
+	errCount    int
+	loginUser   string
+	loginPwd    string
 	cmdHeloInfo string
+	channel     int
 }
 
 func (this *SmtpdServer) base64Encode(en string) string {
@@ -103,6 +101,7 @@ func (this *SmtpdServer) base64Encode(en string) string {
 func (this *SmtpdServer) base64Decode(de string) string {
 	dst, err := base64.StdEncoding.DecodeString(de)
 	if err != nil {
+		fmt.Println(err)
 		return ""
 	}
 	return string(dst)
@@ -158,6 +157,7 @@ func (this *SmtpdServer) getString0() (string, error) {
 }
 
 func (this *SmtpdServer) close() {
+	this.setState(CMD_QUIT)
 	this.conn.Close()
 }
 
@@ -186,7 +186,6 @@ func (this *SmtpdServer) cmdHelo(input string) bool {
 		this.write(MSG_OK)
 		return true
 	}
-	this.write(MSG_COMMAND_ERR)
 	return false
 }
 
@@ -201,7 +200,6 @@ func (this *SmtpdServer) cmdEhlo(input string) bool {
 		this.write(MSG_OK)
 		return true
 	}
-	this.write(MSG_COMMAND_ERR)
 	return false
 }
 
@@ -216,16 +214,39 @@ func (this *SmtpdServer) cmdAuthLogin(input string) bool {
 
 func (this *SmtpdServer) cmdAuthLoginUser(input string) bool {
 
-	s := this.base64Decode(input)
-	fmt.Println(s)
-
+	user := this.base64Decode(input)
+	this.loginUser = user
 	this.write(MSG_AUTH_LOGIN_PWD)
 	return true
 }
 
 func (this *SmtpdServer) cmdAuthLoginPwd(input string) bool {
+	pwd := this.base64Decode(input)
+	this.loginPwd = pwd
 
-	this.write(MSG_AUTH_OK)
+	if this.checkUserLogin() {
+		this.write(MSG_AUTH_OK)
+		return true
+	}
+	this.write(MSG_AUTH_FAIL)
+	return false
+}
+
+func (this *SmtpdServer) checkUserLogin() bool {
+	name := this.loginUser
+	pwd := this.loginPwd
+
+	info, err := models.UserGetByName(name)
+
+	pwdStr := libs.Md5str(pwd)
+	if pwdStr != info.Password {
+		return false
+	}
+
+	if err != nil {
+		return false
+	}
+
 	return true
 }
 
@@ -263,7 +284,6 @@ func (this *SmtpdServer) cmdDataEnd(input string) bool {
 		this.write(MSG_DATA)
 		return true
 	}
-	this.write(MSG_BAD_SYNTAX)
 	return false
 }
 
@@ -280,6 +300,18 @@ func (this *SmtpdServer) handle() {
 	for {
 		state := this.getState()
 		input, _ := this.getString()
+
+		fmt.Println(input, state, stateList[state])
+
+		if strings.EqualFold(input, "") {
+			this.write(MSG_BYE)
+			this.close()
+			break
+		}
+
+		if this.stateCompare(state, CMD_QUIT) {
+			break
+		}
 
 		//CMD_READY
 		if this.stateCompare(state, CMD_READY) {
@@ -378,16 +410,22 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_DATA_END
 		if this.stateCompare(state, CMD_DATA_END) {
-			if this.cmdDataEnd(input) {
-				this.setState(CMD_READY)
+			if this.cmdQuit(input) {
+				break
 			}
+
+			if strings.EqualFold(input, "") {
+				break
+			}
+
 		}
 	}
 }
 
 func (this *SmtpdServer) start(conn net.Conn) {
-	conn.SetReadDeadline(time.Now().Add(time.Minute * 180))
 	defer conn.Close()
+	conn.SetReadDeadline(time.Now().Add(time.Minute * 6))
+
 	this.conn = conn
 
 	this.startTime = time.Now()
@@ -406,9 +444,6 @@ func Start(port int) {
 		panic(err)
 		return
 	}
-	defer ln.Close()
-
-	go pprof()
 
 	for {
 		conn, err := ln.Accept()
@@ -419,50 +454,4 @@ func Start(port int) {
 		srv := SmtpdServer{}
 		go srv.start(conn)
 	}
-}
-
-//手动GC
-func gc(w http.ResponseWriter, r *http.Request) {
-	runtime.GC()
-	w.Write([]byte("StartGC"))
-}
-
-//运行trace
-func traceStart(w http.ResponseWriter, r *http.Request) {
-	f, err := os.Create("trace.out")
-	if err != nil {
-		panic(err)
-	}
-
-	err = trace.Start(f)
-	if err != nil {
-		panic(err)
-	}
-	w.Write([]byte("TrancStart"))
-	fmt.Println("StartTrancs")
-}
-
-//停止trace
-func traceStop(w http.ResponseWriter, r *http.Request) {
-	trace.Stop()
-	w.Write([]byte("TrancStop"))
-	fmt.Println("StopTrancs")
-}
-
-// go tool trace trace.out
-
-//运行pprof分析器
-func pprof() {
-	go func() {
-		//关闭GC
-		debug.SetGCPercent(-1)
-		//运行trace
-		http.HandleFunc("/start", traceStart)
-		//停止trace
-		http.HandleFunc("/stop", traceStop)
-		//手动GC
-		http.HandleFunc("/gc", gc)
-		//网站开始监听
-		http.ListenAndServe(":6060", nil)
-	}()
 }
