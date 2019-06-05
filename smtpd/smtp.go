@@ -3,110 +3,110 @@ package smtpd
 import (
 	"bufio"
 	"fmt"
-	"log"
+	// "log"
 	"net"
 	"strings"
 )
 
-func chkError(err error) {
-	if err != nil {
-		log.Fatal(err)
+const (
+	deliveryDebug = true
+)
+
+func DeliveryDebug(args ...interface{}) {
+	if deliveryDebug {
+		fmt.Println(args)
 	}
 }
 
 // Delivery of mail to external mail
-func Delivery(domain string, port string, from string, to string, content string) {
+func Delivery(domain string, port string, from string, to string, content string) (bool, error) {
 
 	addr := fmt.Sprintf("%s:%s", domain, port)
 	conn, err := net.Dial("tcp", addr)
-
 	if err != nil {
-		log.Println("dial error:", err)
-		return
+		return false, err
 	}
 	defer conn.Close()
 
-	connect, err0 := bufio.NewReader(conn).ReadString('\n')
-	if err0 != nil {
-		log.Println("connect directive error:", err0)
+	data, err := bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
 	}
-	fmt.Println("connect info:", connect)
 
-	_, err1 := conn.Write([]byte("EHLO IMAIL\r\n"))
-	chkError(err1)
-
-	data, err2 := bufio.NewReader(conn).ReadString('\n')
-	if err2 != nil {
-		log.Println("ehlo directive error:", err2)
+	code, err := conn.Write([]byte("EHLO IMAIL\r\n"))
+	if err != nil {
+		return false, err
 	}
-	fmt.Println("ehlo info", data)
+
+	DeliveryDebug(code)
+
+	data, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+
+	DeliveryDebug(data)
 
 	mailfrom := fmt.Sprintf("MAIL FROM: <%s>\r\n", from)
-	fmt.Println(mailfrom)
+	DeliveryDebug(mailfrom)
 
 	conn.Write([]byte(mailfrom))
-	data2, err3 := bufio.NewReader(conn).ReadString('\n')
-	if err2 != nil {
-		log.Println("mail from directive error:", err3)
-		return
+	data, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
 	}
-	if !strings.HasPrefix(data2, "250") {
-		fmt.Println("ddd:", data2)
-		return
+	if !strings.HasPrefix(data, "250") {
+		return false, err
 	}
 
 	rcpt_to := fmt.Sprintf("RCPT TO: <%s>\r\n", to)
-	fmt.Println(rcpt_to)
+	DeliveryDebug(rcpt_to)
 
 	rcpt_to_data, err := conn.Write([]byte(rcpt_to)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
 	if err != nil {
-		log.Fatal(err)
-		return
+		return false, err
 	}
-	fmt.Println(rcpt_to_data)
+	DeliveryDebug(rcpt_to_data)
 
-	data3, err3 := bufio.NewReader(conn).ReadString('\n')
-	if err3 != nil {
-		log.Fatal(err3)
-		return
+	data, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
 	}
-	fmt.Println(data3)
+	DeliveryDebug(data)
 
 	content = fmt.Sprintf("DATA\r\n%s\r\n\r\n", content)
-	fmt.Println("---------------------------------------")
-	fmt.Println(content)
+	DeliveryDebug("---------------------------------------")
+	DeliveryDebug(content)
 
 	_, err = conn.Write([]byte(content)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
 	if err != nil {
-		log.Fatal(err)
-		return
+		return false, err
 	}
 
-	data5, err5 := bufio.NewReader(conn).ReadString('\n')
-	if err5 != nil {
-		log.Fatal(err5)
+	data, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
 	}
-	fmt.Println(data5)
+	DeliveryDebug(data)
 
 	conn.Write([]byte(".\r\n"))
 
-	data7, err7 := bufio.NewReader(conn).ReadString('\n')
-	if err7 != nil {
-		log.Fatal(err7)
-		return
+	data, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
 	}
-	fmt.Println(data7)
+	DeliveryDebug(data)
 
 	_, err = conn.Write([]byte("QUIT\r\n"))
 	if err != nil {
-		log.Fatal(err)
-		return
+		return false, err
 	}
 
-	data6, err6 := bufio.NewReader(conn).ReadString('\n')
-	if err6 != nil {
-		log.Fatal(err6)
-		return
+	data, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
 	}
-	fmt.Println(data6)
+	DeliveryDebug(data)
+
+	return true, nil
 }

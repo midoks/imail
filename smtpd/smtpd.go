@@ -79,15 +79,17 @@ func GetGoEol() string {
 }
 
 type SmtpdServer struct {
-	debug       bool
-	conn        net.Conn
-	state       int
-	startTime   time.Time
-	errCount    int
-	loginUser   string
-	loginPwd    string
-	cmdHeloInfo string
-	channel     int
+	debug             bool
+	conn              net.Conn
+	state             int
+	startTime         time.Time
+	errCount          int
+	loginUser         string
+	loginPwd          string
+	recordCmdHelo     string
+	recordCmdMailFrom string
+	recordcmdRcptTo   string
+	recordCmdData     string
 }
 
 func (this *SmtpdServer) base64Encode(en string) string {
@@ -252,6 +254,7 @@ func (this *SmtpdServer) checkUserLogin() bool {
 
 func (this *SmtpdServer) cmdMailFrom(input string) bool {
 	inputN := strings.SplitN(input, ":", 2)
+	fmt.Println("cmd:", strings.TrimSpace(inputN[1]))
 	if this.cmdCompare(inputN[0], CMD_MAIL_FROM) {
 		this.write(MSG_MAIL_OK)
 		return true
