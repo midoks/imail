@@ -432,6 +432,12 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	this.conn = conn
 	this.startTime = time.Now()
 
+	this.debug = false
+	this.recordCmdHelo = ""
+	this.recordCmdMailFrom = ""
+	this.recordcmdRcptTo = ""
+	this.recordCmdData = ""
+
 	this.write(MSG_INIT)
 	this.setState(CMD_READY)
 

@@ -14,7 +14,7 @@ const (
 
 func DeliveryDebug(args ...interface{}) {
 	if deliveryDebug {
-		fmt.Println(args)
+		fmt.Println(args...)
 	}
 }
 
