@@ -14,10 +14,11 @@ func chkError(err error) {
 	}
 }
 
+// Delivery of mail to external mail
 func Delivery(domain string, port string, from string, to string, content string) {
 
 	addr := fmt.Sprintf("%s:%s", domain, port)
-	conn, err := net.Dial("tcp", addr) //拨号操作，需要指定协议。
+	conn, err := net.Dial("tcp", addr)
 
 	if err != nil {
 		log.Println("dial error:", err)

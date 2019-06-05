@@ -424,10 +424,9 @@ func (this *SmtpdServer) handle() {
 
 func (this *SmtpdServer) start(conn net.Conn) {
 	defer conn.Close()
-	conn.SetReadDeadline(time.Now().Add(time.Minute * 6))
+	// conn.SetReadDeadline(time.Now().Add(time.Minute * 6))
 
 	this.conn = conn
-
 	this.startTime = time.Now()
 
 	this.write(MSG_INIT)
