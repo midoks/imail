@@ -96,3 +96,14 @@ func ConvertToString(src string, srcCode string, tagCode string) string {
 	result := string(cdata)
 	return result
 }
+
+func CheckStandardMail(mail string) bool {
+	if mail[0:1] == "<" && mail[len(mail)-1:] == ">" {
+		return true
+	}
+	return false
+}
+
+func GetRealMail(mail string) string {
+	return mail[1 : len(mail)-1]
+}

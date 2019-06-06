@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	// "log"
+	"errors"
 	"net"
 	"strings"
 )
@@ -14,6 +15,7 @@ const (
 
 func DeliveryDebug(args ...interface{}) {
 	if deliveryDebug {
+		fmt.Println("deliveryDebug:")
 		fmt.Println(args...)
 	}
 }
@@ -50,28 +52,33 @@ func Delivery(domain string, port string, from string, to string, content string
 	mailfrom := fmt.Sprintf("MAIL FROM: <%s>\r\n", from)
 	DeliveryDebug(mailfrom)
 
-	conn.Write([]byte(mailfrom))
+	_, err = conn.Write([]byte(mailfrom))
+	if err != nil {
+		return false, err
+	}
+
 	data, err = bufio.NewReader(conn).ReadString('\n')
 	if err != nil {
 		return false, err
 	}
+
 	if !strings.HasPrefix(data, "250") {
-		return false, err
+		return false, errors.New(data)
 	}
 
 	rcpt_to := fmt.Sprintf("RCPT TO: <%s>\r\n", to)
 	DeliveryDebug(rcpt_to)
 
-	rcpt_to_data, err := conn.Write([]byte(rcpt_to)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
+	_, err = conn.Write([]byte(rcpt_to)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
 	if err != nil {
 		return false, err
 	}
-	DeliveryDebug(rcpt_to_data)
 
 	data, err = bufio.NewReader(conn).ReadString('\n')
 	if err != nil {
 		return false, err
 	}
+
 	DeliveryDebug(data)
 
 	content = fmt.Sprintf("DATA\r\n%s\r\n\r\n", content)

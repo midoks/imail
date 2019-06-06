@@ -6,10 +6,6 @@ import (
 	"testing"
 )
 
-func TestHelloWorld(t *testing.T) {
-	t.Log("hello world")
-}
-
 // func TestHelo_1(t *testing.T) {
 // 	d, err := DnsQuery("qq.com")
 // 	if err == nil {
@@ -31,21 +27,27 @@ func TestHelloWorld(t *testing.T) {
 // 	fmt.Println(mxDomain)
 
 // 	content := fmt.Sprintf("Data: 24 May 2013 19:00:29\r\nFrom: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
-// 	Delivery(mxDomain, "25", fromEmail, toEmail, content)
+// 	_, err = Delivery(mxDomain, "25", fromEmail, toEmail, content)
+// 	if err != nil {
+// 		fmt.Println("err:", err)
+// 	}
 // }
 
 func TestRunSendLocal(t *testing.T) {
 	toEmail := "midoks@imail.com"
 	fromEmail := "midoks@cachecha.com"
 	content := fmt.Sprintf("Data: 24 May 2013 19:00:29\r\nFrom: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
-	Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
-}
-
-func Benchmark_SendLocal(b *testing.B) {
-	toEmail := "midoks@imail.com"
-	fromEmail := "midoks@cachecha.com"
-	content := fmt.Sprintf("Data: 24 May 2013 19:00:29\r\nFrom: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
-	for i := 0; i < b.N; i++ { //use b.N for looping
-		Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
+	_, err := Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
+	if err != nil {
+		fmt.Println("err:", err)
 	}
 }
+
+// func Benchmark_SendLocal(b *testing.B) {
+// 	toEmail := "midoks@imail.com"
+// 	fromEmail := "midoks@cachecha.com"
+// 	content := fmt.Sprintf("Data: 24 May 2013 19:00:29\r\nFrom: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
+// 	for i := 0; i < b.N; i++ { //use b.N for looping
+// 		Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
+// 	}
+// }

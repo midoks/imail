@@ -46,6 +46,7 @@ const (
 	MSG_BYE             = "221"
 	MSG_BAD_SYNTAX      = "500"
 	MSG_COMMAND_ERR     = "502"
+	MSG_BAD_USER        = "505"
 	MSG_COMMAND_TM_ERR  = "421"
 	MSG_AUTH_LOGIN_USER = "334.user"
 	MSG_AUTH_LOGIN_PWD  = "334.passwd"
@@ -61,6 +62,7 @@ var msgList = map[string]string{
 	MSG_COMMAND_ERR:     "Error: command not implemented",
 	MSG_COMMAND_TM_ERR:  "Too many error commands",
 	MSG_BAD_SYNTAX:      "Error: bad syntax",
+	MSG_BAD_USER:        "Invalid User",
 	MSG_AUTH_LOGIN_USER: "dXNlcm5hbWU6",
 	MSG_AUTH_LOGIN_PWD:  "UGFzc3dvcmQ6",
 	MSG_AUTH_OK:         "Authentication successful",
@@ -254,8 +256,24 @@ func (this *SmtpdServer) checkUserLogin() bool {
 
 func (this *SmtpdServer) cmdMailFrom(input string) bool {
 	inputN := strings.SplitN(input, ":", 2)
-	fmt.Println("cmd:", strings.TrimSpace(inputN[1]))
+
 	if this.cmdCompare(inputN[0], CMD_MAIL_FROM) {
+
+		inputN[1] = strings.TrimSpace(inputN[1])
+
+		if !libs.CheckStandardMail(inputN[1]) {
+			this.write(MSG_BAD_SYNTAX)
+			return false
+		}
+
+		mailFrom := libs.GetRealMail(inputN[1])
+
+		if !libs.IsEmailRe(mailFrom) {
+			this.write(MSG_BAD_USER)
+			return false
+		}
+
+		this.recordCmdMailFrom = mailFrom
 		this.write(MSG_MAIL_OK)
 		return true
 	}
