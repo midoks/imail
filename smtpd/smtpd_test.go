@@ -26,7 +26,6 @@ func TestRunSendFunc(t *testing.T) {
 	}
 	fmt.Println(mxDomain)
 
-// 		fmt.Println("err:", err)
 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
 	_, err = Delivery(mxDomain, "25", fromEmail, toEmail, content)
 	if err != nil {
