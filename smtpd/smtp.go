@@ -35,12 +35,10 @@ func Delivery(domain string, port string, from string, to string, content string
 		return false, err
 	}
 
-	code, err := conn.Write([]byte("EHLO IMAIL\r\n"))
+	_, err = conn.Write([]byte("EHLO IMAIL\r\n"))
 	if err != nil {
 		return false, err
 	}
-
-	DeliveryDebug(code)
 
 	data, err = bufio.NewReader(conn).ReadString('\n')
 	if err != nil {
@@ -68,7 +66,6 @@ func Delivery(domain string, port string, from string, to string, content string
 
 	rcpt_to := fmt.Sprintf("RCPT TO: <%s>\r\n", to)
 	DeliveryDebug(rcpt_to)
-
 	_, err = conn.Write([]byte(rcpt_to)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
 	if err != nil {
 		return false, err
@@ -79,10 +76,13 @@ func Delivery(domain string, port string, from string, to string, content string
 		return false, err
 	}
 
+	if !strings.HasPrefix(data, "250") {
+		return false, errors.New(data)
+	}
+
 	DeliveryDebug(data)
 
 	content = fmt.Sprintf("DATA\r\n%s\r\n\r\n", content)
-	DeliveryDebug("---------------------------------------")
 	DeliveryDebug(content)
 
 	_, err = conn.Write([]byte(content)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
@@ -90,11 +90,11 @@ func Delivery(domain string, port string, from string, to string, content string
 		return false, err
 	}
 
-	data, err = bufio.NewReader(conn).ReadString('\n')
-	if err != nil {
-		return false, err
-	}
-	DeliveryDebug(data)
+	// data, err = bufio.NewReader(conn).ReadString('\n')
+	// if err != nil {
+	// 	return false, err
+	// }
+	// DeliveryDebug(data)
 
 	conn.Write([]byte(".\r\n"))
 

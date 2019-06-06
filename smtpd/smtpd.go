@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/midoks/imail/app/models"
 	"github.com/midoks/imail/libs"
+	// "io/ioutil"
 	"log"
 	"net"
 	"runtime"
@@ -147,6 +148,7 @@ func (this *SmtpdServer) getString() (string, error) {
 }
 
 func (this *SmtpdServer) getString0() (string, error) {
+
 	buffer := make([]byte, 2048)
 
 	n, err := this.conn.Read(buffer)
@@ -284,6 +286,22 @@ func (this *SmtpdServer) cmdMailFrom(input string) bool {
 func (this *SmtpdServer) cmdRcptTo(input string) bool {
 	inputN := strings.SplitN(input, ":", 2)
 	if this.cmdCompare(inputN[0], CMD_RCPT_TO) {
+		inputN[1] = strings.TrimSpace(inputN[1])
+
+		if !libs.CheckStandardMail(inputN[1]) {
+			this.write(MSG_BAD_SYNTAX)
+			return false
+		}
+
+		rcptTo := libs.GetRealMail(inputN[1])
+
+		if !libs.IsEmailRe(rcptTo) {
+			this.write(MSG_BAD_USER)
+			return false
+		}
+
+		this.recordcmdRcptTo = rcptTo
+
 		this.write(MSG_MAIL_OK)
 		return true
 	}
@@ -293,6 +311,18 @@ func (this *SmtpdServer) cmdRcptTo(input string) bool {
 
 func (this *SmtpdServer) cmdData(input string) bool {
 	if this.cmdCompare(input, CMD_DATA) {
+
+		// buffer := make([]byte, 2048)
+		// n, err := ioutil.ReadAll(this.conn)
+		// fmt.Println(n, "err:", err)
+
+		// m, err := this.getString()
+		// fmt.Println(m, err)
+
+		// input2 := string(buffer[:n])
+		// inputTrim := strings.TrimSpace(input2)
+		// fmt.Println(inputTrim)
+
 		this.write(MSG_DATA)
 		return true
 	}
@@ -320,7 +350,13 @@ func (this *SmtpdServer) cmdQuit(input string) bool {
 func (this *SmtpdServer) handle() {
 	for {
 		state := this.getState()
-		input, _ := this.getString()
+
+		var input string = "ready"
+
+		if this.stateCompare(state, CMD_RCPT_TO) {
+		} else {
+			input, _ = this.getString()
+		}
 
 		fmt.Println(input, state, stateList[state])
 
@@ -417,9 +453,34 @@ func (this *SmtpdServer) handle() {
 			if this.cmdQuit(input) {
 				break
 			}
-			if this.cmdData(input) {
-				this.setState(CMD_DATA)
+			// fmt.Println("getString0:")
+			// fmt.Println(this.getString0())
+
+			// n, err := ioutil.ReadAll(this.conn)
+			// fmt.Println("eee:", n, err)
+
+			for {
+
+				b := make([]byte, 4096)
+				n, err := this.conn.Read(b[0:])
+				if err != nil {
+					log.Println("SS:directive error:", err)
+					break
+				}
+				fmt.Println("S--|~:", string(b[:n]))
+
+				v := strings.TrimSpace(string(b[:n]))
+
+				fmt.Println("last char:", v)
+
+				if strings.EqualFold(v, ".") {
+					if this.cmdData(input) {
+						this.setState(CMD_DATA_END)
+					}
+					break
+				}
 			}
+
 		}
 
 		//CMD_DATA
