@@ -2,38 +2,39 @@ package smtpd
 
 import (
 	"fmt"
-	// "strings"
+	"strings"
 	"testing"
 )
 
-// func TestHelo_1(t *testing.T) {
-// 	d, err := DnsQuery("qq.com")
-// 	if err == nil {
-// 		t.Log("dns.Query ok:" + d)
-// 	} else {
-// 		t.Error("dns.Query fail:" + err.Error())
-// 	}
-// }
+func TestHelo_1(t *testing.T) {
+	d, err := DnsQuery("163.com")
+	if err == nil {
+		t.Log("dns.Query ok:" + d)
+	} else {
+		t.Error("dns.Query fail:" + err.Error())
+	}
+}
 
-// func TestRunSendFunc(t *testing.T) {
-// 	toEmail := "midoks@163.com"
-// 	fromEmail := "midoks@cachecha.com"
-// 	toInfo := strings.Split(toEmail, "@")
-// 	mxDomain, err := DnsQuery(toInfo[1])
-// 	if err != nil {
-// 		fmt.Println(err.Error())
-// 		return
-// 	}
-// 	fmt.Println(mxDomain)
+func TestRunSendFunc(t *testing.T) {
+	toEmail := "midoks@163.com"
+	fromEmail := "midoks@cachecha.com"
+	toInfo := strings.Split(toEmail, "@")
+	mxDomain, err := DnsQuery(toInfo[1])
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println(mxDomain)
 
-// 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
-// 	_, err = Delivery(mxDomain, "25", fromEmail, toEmail, content)
-// 	if err != nil {
 // 		fmt.Println("err:", err)
-// 	}
+	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
+	_, err = Delivery(mxDomain, "25", fromEmail, toEmail, content)
+	if err != nil {
+		fmt.Println("err:", err)
+	}
 
-// 	fmt.Println("-----------------end----------------")
-// }
+	fmt.Println("-----------------end----------------")
+}
 
 // func TestRunSendFuncQQ(t *testing.T) {
 // 	toEmail := "627293072@qq.com"

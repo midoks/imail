@@ -360,16 +360,6 @@ func (this *SmtpdServer) handle() {
 
 		fmt.Println(input, state, stateList[state])
 
-		if strings.EqualFold(input, "") {
-			this.write(MSG_BYE)
-			this.close()
-			break
-		}
-
-		if this.stateCompare(state, CMD_QUIT) {
-			break
-		}
-
 		//CMD_READY
 		if this.stateCompare(state, CMD_READY) {
 
@@ -453,11 +443,6 @@ func (this *SmtpdServer) handle() {
 			if this.cmdQuit(input) {
 				break
 			}
-			// fmt.Println("getString0:")
-			// fmt.Println(this.getString0())
-
-			// n, err := ioutil.ReadAll(this.conn)
-			// fmt.Println("eee:", n, err)
 
 			for {
 
@@ -467,16 +452,16 @@ func (this *SmtpdServer) handle() {
 					log.Println("SS:directive error:", err)
 					break
 				}
-				fmt.Println("S--|~:", string(b[:n]))
 
 				v := strings.TrimSpace(string(b[:n]))
+				fmt.Println("VV:", v)
 
-				fmt.Println("last char:", v)
+				last_word := v[len(v)-1:]
 
-				if strings.EqualFold(v, ".") {
-					if this.cmdData(input) {
-						this.setState(CMD_DATA_END)
-					}
+				if strings.EqualFold(last_word, ".") {
+					fmt.Println("last char:", v)
+					this.write(MSG_DATA)
+					this.setState(CMD_DATA_END)
 					break
 				}
 			}
