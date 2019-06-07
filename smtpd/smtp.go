@@ -44,7 +44,6 @@ func Delivery(domain string, port string, from string, to string, content string
 	if err != nil {
 		return false, err
 	}
-
 	DeliveryDebug(data)
 
 	mailfrom := fmt.Sprintf("MAIL FROM: <%s>\r\n", from)
@@ -82,27 +81,38 @@ func Delivery(domain string, port string, from string, to string, content string
 
 	DeliveryDebug(data)
 
-	content = fmt.Sprintf("DATA\r\n%s\r\n\r\n", content)
-	DeliveryDebug(content)
-
-	_, err = conn.Write([]byte(content)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
+	_, err = conn.Write([]byte("DATA\r\n")) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
 	if err != nil {
 		return false, err
 	}
-
-	// data, err = bufio.NewReader(conn).ReadString('\n')
-	// if err != nil {
-	// 	return false, err
-	// }
-	// DeliveryDebug(data)
-
-	conn.Write([]byte(".\r\n"))
 
 	data, err = bufio.NewReader(conn).ReadString('\n')
 	if err != nil {
 		return false, err
 	}
-	DeliveryDebug(data)
+	if !strings.HasPrefix(data, "354") {
+		return false, errors.New(data)
+	}
+
+	content = fmt.Sprintf("%s\r\n", content)
+	// DeliveryDebug(content)
+	_, err = conn.Write([]byte(content))
+	if err != nil {
+		return false, err
+	}
+
+	_, err = conn.Write([]byte(".\r\n"))
+	if err != nil {
+		return false, err
+	}
+
+	data, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+	if !strings.HasPrefix(data, "250") {
+		return false, errors.New(data)
+	}
 
 	_, err = conn.Write([]byte("QUIT\r\n"))
 	if err != nil {
@@ -113,7 +123,10 @@ func Delivery(domain string, port string, from string, to string, content string
 	if err != nil {
 		return false, err
 	}
-	DeliveryDebug(data)
+
+	if !strings.HasPrefix(data, "221") {
+		return false, errors.New(data)
+	}
 
 	return true, nil
 }
