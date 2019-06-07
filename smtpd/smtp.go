@@ -110,7 +110,7 @@ func Delivery(domain string, port string, from string, to string, content string
 	if err != nil {
 		return false, err
 	}
-	if !strings.HasPrefix(data, "250") {
+	if !strings.HasPrefix(data, "354") {
 		return false, errors.New(data)
 	}
 

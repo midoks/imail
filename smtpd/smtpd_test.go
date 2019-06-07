@@ -15,7 +15,7 @@ func TestHelo_1(t *testing.T) {
 	}
 }
 
-func TestRunSendFunc(t *testing.T) {
+func sendMailTest() {
 	toEmail := "midoks@163.com"
 	fromEmail := "midoks@cachecha.com"
 	toInfo := strings.Split(toEmail, "@")
@@ -31,7 +31,9 @@ func TestRunSendFunc(t *testing.T) {
 	if err != nil {
 		fmt.Println("err:", err)
 	}
+}
 
+func TestRunSendFunc(t *testing.T) {
 	fmt.Println("-----------------end----------------")
 }
 

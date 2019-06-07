@@ -311,18 +311,6 @@ func (this *SmtpdServer) cmdRcptTo(input string) bool {
 
 func (this *SmtpdServer) cmdData(input string) bool {
 	if this.cmdCompare(input, CMD_DATA) {
-
-		// buffer := make([]byte, 2048)
-		// n, err := ioutil.ReadAll(this.conn)
-		// fmt.Println(n, "err:", err)
-
-		// m, err := this.getString()
-		// fmt.Println(m, err)
-
-		// input2 := string(buffer[:n])
-		// inputTrim := strings.TrimSpace(input2)
-		// fmt.Println(inputTrim)
-
 		this.write(MSG_DATA)
 		return true
 	}
@@ -353,7 +341,7 @@ func (this *SmtpdServer) handle() {
 
 		var input string = "ready"
 
-		if this.stateCompare(state, CMD_RCPT_TO) {
+		if this.stateCompare(state, CMD_DATA) {
 		} else {
 			input, _ = this.getString()
 		}
@@ -444,6 +432,17 @@ func (this *SmtpdServer) handle() {
 				break
 			}
 
+			if this.cmdData(input) {
+				this.setState(CMD_DATA)
+			}
+		}
+
+		//CMD_DATA
+		if this.stateCompare(state, CMD_DATA) {
+			if this.cmdDataEnd(input) {
+				this.setState(CMD_DATA_END)
+			}
+
 			for {
 
 				b := make([]byte, 4096)
@@ -465,26 +464,15 @@ func (this *SmtpdServer) handle() {
 					break
 				}
 			}
-
 		}
 
-		//CMD_DATA
-		if this.stateCompare(state, CMD_DATA) {
-			if this.cmdDataEnd(input) {
-				this.setState(CMD_DATA_END)
-			}
-		}
+		fmt.Println(input)
 
 		//CMD_DATA_END
 		if this.stateCompare(state, CMD_DATA_END) {
 			if this.cmdQuit(input) {
 				break
 			}
-
-			if strings.EqualFold(input, "") {
-				break
-			}
-
 		}
 	}
 }
