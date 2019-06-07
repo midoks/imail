@@ -94,7 +94,7 @@ func Delivery(domain string, port string, from string, to string, content string
 		return false, errors.New(data)
 	}
 
-	content = fmt.Sprintf("%s\r\n", content)
+	content = fmt.Sprintf("%s\r\n\r\n", content)
 	// DeliveryDebug(content)
 	_, err = conn.Write([]byte(content))
 	if err != nil {

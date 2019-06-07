@@ -448,17 +448,13 @@ func (this *SmtpdServer) handle() {
 				b := make([]byte, 4096)
 				n, err := this.conn.Read(b[0:])
 				if err != nil {
-					log.Println("SS:directive error:", err)
 					break
 				}
 
-				v := strings.TrimSpace(string(b[:n]))
-				fmt.Println("VV:", v)
-
-				// last_word := v[len(v)-1:]
-
-				if strings.EqualFold(v, ".") {
-					fmt.Println("last char:", v)
+				line := strings.TrimSpace(string(b[:n]))
+				fmt.Println("line:", line, ".")
+				if strings.EqualFold(line, ".") {
+					fmt.Println("last char:", line)
 					this.write(MSG_DATA)
 					this.setState(CMD_DATA_END)
 					break

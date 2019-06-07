@@ -6,14 +6,14 @@ import (
 	"testing"
 )
 
-func TestHelo_1(t *testing.T) {
-	d, err := DnsQuery("163.com")
-	if err == nil {
-		t.Log("dns.Query ok:" + d)
-	} else {
-		t.Error("dns.Query fail:" + err.Error())
-	}
-}
+// func TestHelo_1(t *testing.T) {
+// 	d, err := DnsQuery("163.com")
+// 	if err == nil {
+// 		t.Log("dns.Query ok:" + d)
+// 	} else {
+// 		t.Error("dns.Query fail:" + err.Error())
+// 	}
+// }
 
 func sendMailTest() {
 	toEmail := "midoks@163.com"
