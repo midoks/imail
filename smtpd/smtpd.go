@@ -455,9 +455,9 @@ func (this *SmtpdServer) handle() {
 				v := strings.TrimSpace(string(b[:n]))
 				fmt.Println("VV:", v)
 
-				last_word := v[len(v)-1:]
+				// last_word := v[len(v)-1:]
 
-				if strings.EqualFold(last_word, ".") {
+				if strings.EqualFold(v, ".") {
 					fmt.Println("last char:", v)
 					this.write(MSG_DATA)
 					this.setState(CMD_DATA_END)
