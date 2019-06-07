@@ -454,8 +454,6 @@ func (this *SmtpdServer) handle() {
 			}
 		}
 
-		// fmt.Println(input)
-
 		//CMD_DATA_END
 		if this.stateCompare(state, CMD_DATA_END) {
 			input, _ := this.getString()
@@ -468,7 +466,7 @@ func (this *SmtpdServer) handle() {
 
 func (this *SmtpdServer) start(conn net.Conn) {
 	defer conn.Close()
-	// conn.SetReadDeadline(time.Now().Add(time.Minute * 6))
+	conn.SetReadDeadline(time.Now().Add(time.Minute * 6))
 
 	this.conn = conn
 	this.startTime = time.Now()
