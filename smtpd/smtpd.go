@@ -339,18 +339,11 @@ func (this *SmtpdServer) handle() {
 	for {
 		state := this.getState()
 
-		var input string = "ready"
-
-		if this.stateCompare(state, CMD_DATA) {
-		} else {
-			input, _ = this.getString()
-		}
-
-		fmt.Println(input, state, stateList[state])
+		fmt.Println(state, stateList[state])
 
 		//CMD_READY
 		if this.stateCompare(state, CMD_READY) {
-
+			input, _ := this.getString()
 			if this.cmdQuit(input) {
 				break
 			}
@@ -366,7 +359,7 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_HELO
 		if this.stateCompare(state, CMD_HELO) {
-
+			input, _ := this.getString()
 			if this.cmdQuit(input) {
 				break
 			}
@@ -378,7 +371,7 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_EHLO
 		if this.stateCompare(state, CMD_EHLO) {
-
+			input, _ := this.getString()
 			if this.cmdQuit(input) {
 				break
 			}
@@ -390,6 +383,7 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_AUTH_LOGIN
 		if this.stateCompare(state, CMD_AUTH_LOGIN) {
+			input, _ := this.getString()
 			if this.cmdAuthLoginUser(input) {
 				this.setState(CMD_AUTH_LOGIN_USER)
 			}
@@ -397,6 +391,7 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_AUTH_LOGIN_USER
 		if this.stateCompare(state, CMD_AUTH_LOGIN_USER) {
+			input, _ := this.getString()
 			if this.cmdQuit(input) {
 				break
 			}
@@ -407,6 +402,7 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_AUTH_LOGIN_PWD
 		if this.stateCompare(state, CMD_AUTH_LOGIN_PWD) {
+			input, _ := this.getString()
 			if this.cmdQuit(input) {
 				break
 			}
@@ -418,6 +414,7 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_MAIL_FROM
 		if this.stateCompare(state, CMD_MAIL_FROM) {
+			input, _ := this.getString()
 			if this.cmdQuit(input) {
 				break
 			}
@@ -428,6 +425,7 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_RCPT_TO
 		if this.stateCompare(state, CMD_RCPT_TO) {
+			input, _ := this.getString()
 			if this.cmdQuit(input) {
 				break
 			}
@@ -439,22 +437,16 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_DATA
 		if this.stateCompare(state, CMD_DATA) {
-			if this.cmdDataEnd(input) {
-				this.setState(CMD_DATA_END)
-			}
 
 			for {
 
 				b := make([]byte, 4096)
-				n, err := this.conn.Read(b[0:])
-				if err != nil {
-					break
-				}
+				n, _ := this.conn.Read(b[0:])
 
 				line := strings.TrimSpace(string(b[:n]))
-				fmt.Println("line:", line, ".")
-				if strings.EqualFold(line, ".") {
-					fmt.Println("last char:", line)
+				last := line[len(line)-1:]
+
+				if strings.EqualFold(last, ".") {
 					this.write(MSG_DATA)
 					this.setState(CMD_DATA_END)
 					break
@@ -462,10 +454,11 @@ func (this *SmtpdServer) handle() {
 			}
 		}
 
-		fmt.Println(input)
+		// fmt.Println(input)
 
 		//CMD_DATA_END
 		if this.stateCompare(state, CMD_DATA_END) {
+			input, _ := this.getString()
 			if this.cmdQuit(input) {
 				break
 			}
