@@ -319,7 +319,7 @@ func (this *SmtpdServer) cmdData(input string) bool {
 }
 
 func (this *SmtpdServer) cmdDataAccept() bool {
-
+	var content string
 	for {
 
 		b := make([]byte, 4096)
@@ -328,11 +328,15 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		line := strings.TrimSpace(string(b[:n]))
 		last := line[len(line)-1:]
 
+		content = fmt.Sprintf("%s", line)
+
 		if strings.EqualFold(last, ".") {
 			this.write(MSG_DATA)
 			break
 		}
 	}
+
+	fmt.Println("content:", content)
 
 	return true
 }
