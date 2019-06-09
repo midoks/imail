@@ -318,11 +318,23 @@ func (this *SmtpdServer) cmdData(input string) bool {
 	return false
 }
 
-func (this *SmtpdServer) cmdDataEnd(input string) bool {
-	if this.cmdCompare(input, CMD_DATA_END) {
-		this.write(MSG_DATA)
-		return true
+func (this *SmtpdServer) cmdDataAccept() bool {
+
+	for {
+
+		b := make([]byte, 4096)
+		n, _ := this.conn.Read(b[0:])
+
+		line := strings.TrimSpace(string(b[:n]))
+		last := line[len(line)-1:]
+
+		if strings.EqualFold(last, ".") {
+			this.write(MSG_DATA)
+			return true
+			break
+		}
 	}
+
 	return false
 }
 
@@ -437,20 +449,9 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_DATA
 		if this.stateCompare(state, CMD_DATA) {
-
-			for {
-
-				b := make([]byte, 4096)
-				n, _ := this.conn.Read(b[0:])
-
-				line := strings.TrimSpace(string(b[:n]))
-				last := line[len(line)-1:]
-
-				if strings.EqualFold(last, ".") {
-					this.write(MSG_DATA)
-					this.setState(CMD_DATA_END)
-					break
-				}
+			if this.cmdDataAccept() {
+				this.setState(CMD_DATA_END)
+				break
 			}
 		}
 
