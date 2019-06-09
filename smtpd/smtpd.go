@@ -330,12 +330,11 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 
 		if strings.EqualFold(last, ".") {
 			this.write(MSG_DATA)
-			return true
 			break
 		}
 	}
 
-	return false
+	return true
 }
 
 func (this *SmtpdServer) cmdQuit(input string) bool {
@@ -451,7 +450,6 @@ func (this *SmtpdServer) handle() {
 		if this.stateCompare(state, CMD_DATA) {
 			if this.cmdDataAccept() {
 				this.setState(CMD_DATA_END)
-				break
 			}
 		}
 
