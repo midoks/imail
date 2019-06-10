@@ -82,8 +82,6 @@ func Delivery(domain string, port string, from string, to string, content string
 		return false, errors.New(data)
 	}
 
-	DeliveryDebug(data)
-
 	_, err = conn.Write([]byte("DATA\r\n")) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
 	if err != nil {
 		return false, err
@@ -98,7 +96,7 @@ func Delivery(domain string, port string, from string, to string, content string
 	}
 
 	content = fmt.Sprintf("%s\r\n\r\n", content)
-	DeliveryDebug(content)
+	// DeliveryDebug(content)
 	_, err = conn.Write([]byte(content))
 	if err != nil {
 		return false, err

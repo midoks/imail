@@ -80,7 +80,6 @@ func TestRunSendLocal(t *testing.T) {
 	fromEmail := "midoks@cachecha.com"
 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
 	_, err := Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
-	fmt.Println(err)
 	if err != nil {
 		t.Error(err)
 	}

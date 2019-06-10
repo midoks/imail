@@ -384,7 +384,6 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_READY
 		if this.stateCompare(state, CMD_READY) {
-
 			if this.cmdQuit(input) {
 				break
 			}
@@ -394,14 +393,12 @@ func (this *SmtpdServer) handle() {
 			} else if this.cmdEhlo(input) {
 				this.setState(CMD_EHLO)
 			} else {
-				fmt.Println("????....")
 				this.write(MSG_COMMAND_ERR)
 			}
 		}
 
 		//CMD_HELO
 		if this.stateCompare(state, CMD_HELO) {
-
 			if this.cmdQuit(input) {
 				break
 			}
@@ -413,7 +410,6 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_EHLO
 		if this.stateCompare(state, CMD_EHLO) {
-
 			if this.cmdQuit(input) {
 				break
 			}
@@ -425,7 +421,6 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_AUTH_LOGIN
 		if this.stateCompare(state, CMD_AUTH_LOGIN) {
-
 			if this.cmdAuthLoginUser(input) {
 				this.setState(CMD_AUTH_LOGIN_USER)
 			}
@@ -433,7 +428,6 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_AUTH_LOGIN_USER
 		if this.stateCompare(state, CMD_AUTH_LOGIN_USER) {
-
 			if this.cmdQuit(input) {
 				break
 			}
@@ -444,7 +438,6 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_AUTH_LOGIN_PWD
 		if this.stateCompare(state, CMD_AUTH_LOGIN_PWD) {
-
 			if this.cmdQuit(input) {
 				break
 			}
