@@ -8,8 +8,10 @@ import (
 
 type UserMail struct {
 	Id         int64
-	Mail       string `json:"name";orm:"unique;size(50);comment(用户名)"`
-	Content    string `json:"password";orm:"unique;size(50);comment(用户密码)"`
+	MailFrom   string `orm:"size(50);comment(邮件来源)"`
+	MailTo     string `orm:"size(50);comment(接收邮件)"`
+	Content    string `orm:"comment(邮件内容)"`
+	Size       int    `orm:"size(50);comment(邮件内容大小)"`
 	Status     int
 	UpdateTime int64
 	CreateTime int64
@@ -25,4 +27,21 @@ func (u *UserMail) Update(fields ...string) error {
 		return err
 	}
 	return nil
+}
+
+func MailPush(mail_from string, mail_to string, content string) (int64, error) {
+	data := new(UserMail)
+	data.MailFrom = mail_from
+	data.MailTo = mail_to
+	data.Content = content
+	data.Size = len(content)
+
+	data.UpdateTime = time.Now().Unix()
+	data.CreateTime = time.Now().Unix()
+	i, err := orm.NewOrm().Insert(data)
+
+	if err != nil {
+		return 0, err
+	}
+	return i, err
 }

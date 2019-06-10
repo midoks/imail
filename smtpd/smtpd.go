@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"encoding/base64"
 	"fmt"
+	"github.com/astaxie/beego"
 	"github.com/midoks/imail/app/models"
 	"github.com/midoks/imail/libs"
-	// "io/ioutil"
 	"log"
 	"net"
 	"runtime"
@@ -42,12 +42,13 @@ var stateList = map[int]string{
 
 const (
 	MSG_INIT            = "220.init"
-	MSG_OK              = "220"
+	MSG_OK              = "250.ok"
 	MSG_MAIL_OK         = "250"
 	MSG_BYE             = "221"
 	MSG_BAD_SYNTAX      = "500"
 	MSG_COMMAND_ERR     = "502"
 	MSG_BAD_USER        = "505"
+	MSG_BAD_OPEN_RELAY  = "505.open.relay"
 	MSG_COMMAND_TM_ERR  = "421"
 	MSG_AUTH_LOGIN_USER = "334.user"
 	MSG_AUTH_LOGIN_PWD  = "334.passwd"
@@ -62,14 +63,15 @@ var msgList = map[string]string{
 	MSG_BYE:             "bye",
 	MSG_COMMAND_ERR:     "Error: command not implemented",
 	MSG_COMMAND_TM_ERR:  "Too many error commands",
-	MSG_BAD_SYNTAX:      "Error: bad syntax",
-	MSG_BAD_USER:        "Invalid User",
 	MSG_AUTH_LOGIN_USER: "dXNlcm5hbWU6",
 	MSG_AUTH_LOGIN_PWD:  "UGFzc3dvcmQ6",
 	MSG_AUTH_OK:         "Authentication successful",
 	MSG_AUTH_FAIL:       "Error: authentication failed",
 	MSG_MAIL_OK:         "Mail OK",
 	MSG_DATA:            "End data with <CR><LF>.<CR><LF>",
+	MSG_BAD_SYNTAX:      "Error: bad syntax",
+	MSG_BAD_USER:        "Invalid User",
+	MSG_BAD_OPEN_RELAY:  "Anonymous forwarding is not supported",
 }
 
 var GO_EOL = GetGoEol()
@@ -131,6 +133,7 @@ func (this *SmtpdServer) Debug(d bool) {
 func (this *SmtpdServer) write(code string) {
 
 	info := fmt.Sprintf("%.3s %s%s", code, msgList[code], GO_EOL)
+	this.D(info)
 	_, err := this.conn.Write([]byte(info))
 
 	if err != nil {
@@ -138,11 +141,18 @@ func (this *SmtpdServer) write(code string) {
 	}
 }
 
-func (this *SmtpdServer) getString() (string, error) {
+func (this *SmtpdServer) getString(state int) (string, error) {
+	fmt.Println("getString", state, CMD_DATA)
+	if state == CMD_DATA {
+		return "", nil
+	}
+
 	input, err := bufio.NewReader(this.conn).ReadString('\n')
+	// this.D("getString:", input, err)
 	if err != nil {
 		return "", err
 	}
+
 	inputTrim := strings.TrimSpace(input)
 	return inputTrim, err
 }
@@ -163,7 +173,6 @@ func (this *SmtpdServer) getString0() (string, error) {
 }
 
 func (this *SmtpdServer) close() {
-	this.setState(CMD_QUIT)
 	this.conn.Close()
 }
 
@@ -184,27 +193,22 @@ func (this *SmtpdServer) stateCompare(input int, cmd int) bool {
 func (this *SmtpdServer) cmdHelo(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
-	if this.cmdCompare(inputN[0], CMD_HELO) {
-		if len(inputN) < 2 {
-			this.write(MSG_BAD_SYNTAX)
-			return false
+	if len(inputN) == 2 {
+		if this.cmdCompare(inputN[0], CMD_HELO) {
+			this.write(MSG_OK)
+			return true
 		}
-		this.write(MSG_OK)
-		return true
 	}
 	return false
 }
 
 func (this *SmtpdServer) cmdEhlo(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
-
-	if this.cmdCompare(inputN[0], CMD_EHLO) {
-		if len(inputN) < 2 {
-			this.write(MSG_BAD_SYNTAX)
-			return false
+	if len(inputN) == 2 {
+		if this.cmdCompare(inputN[0], CMD_EHLO) {
+			this.write(MSG_OK)
+			return true
 		}
-		this.write(MSG_OK)
-		return true
 	}
 	return false
 }
@@ -259,51 +263,68 @@ func (this *SmtpdServer) checkUserLogin() bool {
 func (this *SmtpdServer) cmdMailFrom(input string) bool {
 	inputN := strings.SplitN(input, ":", 2)
 
-	if this.cmdCompare(inputN[0], CMD_MAIL_FROM) {
+	if len(inputN) == 2 {
+		if this.cmdCompare(inputN[0], CMD_MAIL_FROM) {
 
-		inputN[1] = strings.TrimSpace(inputN[1])
+			inputN[1] = strings.TrimSpace(inputN[1])
 
-		if !libs.CheckStandardMail(inputN[1]) {
-			this.write(MSG_BAD_SYNTAX)
-			return false
+			if !libs.CheckStandardMail(inputN[1]) {
+				this.write(MSG_BAD_SYNTAX)
+				return false
+			}
+
+			mailFrom := libs.GetRealMail(inputN[1])
+			if !libs.IsEmailRe(mailFrom) {
+				this.write(MSG_BAD_USER)
+				return false
+			}
+
+			this.recordCmdMailFrom = mailFrom
+			this.write(MSG_MAIL_OK)
+			return true
 		}
-
-		mailFrom := libs.GetRealMail(inputN[1])
-
-		if !libs.IsEmailRe(mailFrom) {
-			this.write(MSG_BAD_USER)
-			return false
-		}
-
-		this.recordCmdMailFrom = mailFrom
-		this.write(MSG_MAIL_OK)
-		return true
 	}
+
 	this.write(MSG_BAD_SYNTAX)
 	return false
 }
 
 func (this *SmtpdServer) cmdRcptTo(input string) bool {
 	inputN := strings.SplitN(input, ":", 2)
-	if this.cmdCompare(inputN[0], CMD_RCPT_TO) {
-		inputN[1] = strings.TrimSpace(inputN[1])
+	if len(inputN) == 2 {
+		if this.cmdCompare(inputN[0], CMD_RCPT_TO) {
+			inputN[1] = strings.TrimSpace(inputN[1])
 
-		if !libs.CheckStandardMail(inputN[1]) {
-			this.write(MSG_BAD_SYNTAX)
-			return false
+			if !libs.CheckStandardMail(inputN[1]) {
+				this.write(MSG_BAD_SYNTAX)
+				return false
+			}
+
+			rcptTo := libs.GetRealMail(inputN[1])
+
+			if !libs.IsEmailRe(rcptTo) {
+				this.write(MSG_BAD_USER)
+				return false
+			}
+			this.recordcmdRcptTo = rcptTo
+
+			info := strings.Split(rcptTo, "@")
+
+			mdomain := beego.AppConfig.String("mail.domain")
+			if !strings.EqualFold(mdomain, info[1]) {
+				this.write(MSG_BAD_OPEN_RELAY)
+				return false
+			}
+
+			_, err := models.UserGetByName(info[0])
+			if err != nil {
+				this.write(MSG_BAD_USER)
+				return false
+			}
+
+			this.write(MSG_MAIL_OK)
+			return true
 		}
-
-		rcptTo := libs.GetRealMail(inputN[1])
-
-		if !libs.IsEmailRe(rcptTo) {
-			this.write(MSG_BAD_USER)
-			return false
-		}
-
-		this.recordcmdRcptTo = rcptTo
-
-		this.write(MSG_MAIL_OK)
-		return true
 	}
 	this.write(MSG_BAD_SYNTAX)
 	return false
@@ -328,7 +349,7 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		line := strings.TrimSpace(string(b[:n]))
 		last := line[len(line)-1:]
 
-		content = fmt.Sprintf("%s", line)
+		content += fmt.Sprintf("%s", line)
 
 		if strings.EqualFold(last, ".") {
 			this.write(MSG_DATA)
@@ -336,8 +357,8 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		}
 	}
 
+	models.MailPush(this.recordCmdMailFrom, this.recordcmdRcptTo, content)
 	fmt.Println("content:", content)
-
 	return true
 }
 
@@ -354,11 +375,16 @@ func (this *SmtpdServer) handle() {
 	for {
 		state := this.getState()
 
-		fmt.Println(state, stateList[state])
+		input, err := this.getString(state)
+		if err != nil {
+			this.D("i:", input, "e:", err)
+			break
+		}
+		this.D(input, state, stateList[state])
 
 		//CMD_READY
 		if this.stateCompare(state, CMD_READY) {
-			input, _ := this.getString()
+
 			if this.cmdQuit(input) {
 				break
 			}
@@ -368,13 +394,14 @@ func (this *SmtpdServer) handle() {
 			} else if this.cmdEhlo(input) {
 				this.setState(CMD_EHLO)
 			} else {
+				fmt.Println("????....")
 				this.write(MSG_COMMAND_ERR)
 			}
 		}
 
 		//CMD_HELO
 		if this.stateCompare(state, CMD_HELO) {
-			input, _ := this.getString()
+
 			if this.cmdQuit(input) {
 				break
 			}
@@ -386,7 +413,7 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_EHLO
 		if this.stateCompare(state, CMD_EHLO) {
-			input, _ := this.getString()
+
 			if this.cmdQuit(input) {
 				break
 			}
@@ -398,7 +425,7 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_AUTH_LOGIN
 		if this.stateCompare(state, CMD_AUTH_LOGIN) {
-			input, _ := this.getString()
+
 			if this.cmdAuthLoginUser(input) {
 				this.setState(CMD_AUTH_LOGIN_USER)
 			}
@@ -406,7 +433,7 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_AUTH_LOGIN_USER
 		if this.stateCompare(state, CMD_AUTH_LOGIN_USER) {
-			input, _ := this.getString()
+
 			if this.cmdQuit(input) {
 				break
 			}
@@ -417,7 +444,7 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_AUTH_LOGIN_PWD
 		if this.stateCompare(state, CMD_AUTH_LOGIN_PWD) {
-			input, _ := this.getString()
+
 			if this.cmdQuit(input) {
 				break
 			}
@@ -429,10 +456,10 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_MAIL_FROM
 		if this.stateCompare(state, CMD_MAIL_FROM) {
-			input, _ := this.getString()
 			if this.cmdQuit(input) {
 				break
 			}
+
 			if this.cmdRcptTo(input) {
 				this.setState(CMD_RCPT_TO)
 			}
@@ -440,7 +467,6 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_RCPT_TO
 		if this.stateCompare(state, CMD_RCPT_TO) {
-			input, _ := this.getString()
 			if this.cmdQuit(input) {
 				break
 			}
@@ -459,7 +485,6 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_DATA_END
 		if this.stateCompare(state, CMD_DATA_END) {
-			input, _ := this.getString()
 			if this.cmdQuit(input) {
 				break
 			}
@@ -468,10 +493,9 @@ func (this *SmtpdServer) handle() {
 }
 
 func (this *SmtpdServer) start(conn net.Conn) {
-	defer conn.Close()
-	conn.SetReadDeadline(time.Now().Add(time.Minute * 6))
-
+	conn.SetReadDeadline(time.Now().Add(time.Minute * 60))
 	this.conn = conn
+	defer conn.Close()
 	this.startTime = time.Now()
 
 	this.write(MSG_INIT)
@@ -483,11 +507,11 @@ func (this *SmtpdServer) start(conn net.Conn) {
 func Start(port int) {
 	smtpd_port := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp", smtpd_port)
-	defer ln.Close()
 	if err != nil {
 		panic(err)
 		return
 	}
+	defer ln.Close()
 
 	for {
 		conn, err := ln.Accept()

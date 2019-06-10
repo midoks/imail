@@ -6,14 +6,14 @@ import (
 	"testing"
 )
 
-// func TestHelo_1(t *testing.T) {
-// 	d, err := DnsQuery("163.com")
-// 	if err == nil {
-// 		t.Log("dns.Query ok:" + d)
-// 	} else {
-// 		t.Error("dns.Query fail:" + err.Error())
-// 	}
-// }
+func TestHelo_1(t *testing.T) {
+	d, err := DnsQuery("163.com")
+	if err == nil {
+		t.Log("dns.Query ok:" + d)
+	} else {
+		t.Error("dns.Query fail:" + err.Error())
+	}
+}
 
 func sendMailTest() {
 	toEmail := "midoks@163.com"
@@ -21,7 +21,24 @@ func sendMailTest() {
 	toInfo := strings.Split(toEmail, "@")
 	mxDomain, err := DnsQuery(toInfo[1])
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(mxDomain)
+
+	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
+	_, err = Delivery(mxDomain, "25", fromEmail, toEmail, content)
+	if err != nil {
+		fmt.Println("err:", err)
+	}
+}
+
+func sendMailTest2() {
+	toEmail := "midoks@1632.com"
+	fromEmail := "midoks@cachecha.com"
+	mxDomain, err := DnsQuery("163.com")
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	fmt.Println(mxDomain)
@@ -34,7 +51,8 @@ func sendMailTest() {
 }
 
 func TestRunSendFunc(t *testing.T) {
-	fmt.Println("-----------------end----------------")
+	// fmt.Println("-----------------end----------------")
+	// sendMailTest2()
 }
 
 // func TestRunSendFuncQQ(t *testing.T) {
@@ -62,16 +80,17 @@ func TestRunSendLocal(t *testing.T) {
 	fromEmail := "midoks@cachecha.com"
 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
 	_, err := Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
+	fmt.Println(err)
 	if err != nil {
-		fmt.Println("err:", err)
+		t.Error(err)
 	}
 }
 
-// func Benchmark_SendLocal(b *testing.B) {
-// 	toEmail := "midoks@imail.com"
-// 	fromEmail := "midoks@cachecha.com"
-// 	content := fmt.Sprintf(From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
-// 	for i := 0; i < b.N; i++ { //use b.N for looping
-// 		Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
-// 	}
-// }
+func Benchmark_SendLocal(b *testing.B) {
+	toEmail := "midoks@imail.com"
+	fromEmail := "midoks@cachecha.com"
+	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
+	for i := 0; i < b.N; i++ { //use b.N for looping
+		Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
+	}
+}

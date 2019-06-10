@@ -44,7 +44,10 @@ func Delivery(domain string, port string, from string, to string, content string
 	if err != nil {
 		return false, err
 	}
-	DeliveryDebug(data)
+
+	if !strings.HasPrefix(data, "250") {
+		return false, errors.New(data)
+	}
 
 	mailfrom := fmt.Sprintf("MAIL FROM: <%s>\r\n", from)
 	DeliveryDebug(mailfrom)
@@ -95,7 +98,7 @@ func Delivery(domain string, port string, from string, to string, content string
 	}
 
 	content = fmt.Sprintf("%s\r\n\r\n", content)
-	// DeliveryDebug(content)
+	DeliveryDebug(content)
 	_, err = conn.Write([]byte(content))
 	if err != nil {
 		return false, err
