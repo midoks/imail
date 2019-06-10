@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : imail
+ Source Server         : 127.0.0.1
  Source Server Type    : MySQL
  Source Server Version : 50562
- Source Host           : 154.48.251.71:3306
+ Source Host           : localhost:3306
  Source Schema         : imail
 
  Target Server Type    : MySQL
  Target Server Version : 50562
  File Encoding         : 65001
 
- Date: 02/06/2019 17:49:07
+ Date: 10/06/2019 19:21:32
 */
 
 SET NAMES utf8mb4;
@@ -23,13 +23,15 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `im_mail`;
 CREATE TABLE `im_mail` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `mail` varchar(255) DEFAULT NULL,
-  `content` text,
-  `status` tinyint(4) DEFAULT NULL,
-  `created_time` bigint(20) DEFAULT NULL,
-  `updated_time` bigint(20) DEFAULT NULL,
+  `mail_from` varchar(255) NOT NULL DEFAULT '' COMMENT '邮件来源',
+  `mail_to` varchar(255) NOT NULL DEFAULT '' COMMENT '发送给谁',
+  `content` text NOT NULL COMMENT '邮件内容',
+  `size` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '内容大小',
+  `status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '状态',
+  `create_time` bigint(20) unsigned NOT NULL,
+  `update_time` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=603 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Table structure for im_user
@@ -40,17 +42,10 @@ CREATE TABLE `im_user` (
   `name` varchar(50) NOT NULL COMMENT '用户名',
   `password` varchar(32) NOT NULL COMMENT '密码',
   `status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '状态',
-  `create_time` bigint(20) DEFAULT NULL,
-  `update_time` bigint(20) DEFAULT NULL,
+  `create_time` bigint(20) unsigned NOT NULL,
+  `update_time` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
-
--- ----------------------------
--- Records of im_user
--- ----------------------------
-BEGIN;
-INSERT INTO `im_user` VALUES (1, 'midoks', '4297f44b13955235245b2497399d7a93', 0, 1559368857, 1559368857);
-COMMIT;
 
 -- ----------------------------
 -- Table structure for im_user_box
@@ -58,10 +53,10 @@ COMMIT;
 DROP TABLE IF EXISTS `im_user_box`;
 CREATE TABLE `im_user_box` (
   `id` bigint(255) unsigned NOT NULL AUTO_INCREMENT,
-  `uid` bigint(20) NOT NULL DEFAULT '0' COMMENT '用户ID',
-  `mid` bigint(20) NOT NULL DEFAULT '0' COMMENT '邮件ID',
-  `create_time` bigint(20) DEFAULT NULL,
-  `updated_time` bigint(20) DEFAULT NULL,
+  `uid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
+  `mid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '邮件ID',
+  `create_time` bigint(20) unsigned NOT NULL,
+  `updated_time` bigint(20) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
