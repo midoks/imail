@@ -251,28 +251,6 @@ func (this *SmtpdServer) cmdAuthLogin(input string) bool {
 	return false
 }
 
-func (this *SmtpdServer) cmdAuthLoginUser(input string) bool {
-
-	user := this.base64Decode(input)
-	this.loginUser = user
-	this.D(this.loginUser)
-	this.write(MSG_AUTH_LOGIN_PWD)
-	return true
-}
-
-func (this *SmtpdServer) cmdAuthLoginPwd(input string) bool {
-	pwd := this.base64Decode(input)
-	this.loginPwd = pwd
-
-	this.D(this.loginPwd)
-	if this.checkUserLogin() {
-		this.write(MSG_AUTH_OK)
-		return true
-	}
-	this.write(MSG_AUTH_FAIL)
-	return false
-}
-
 func (this *SmtpdServer) checkUserLogin() bool {
 	name := this.loginUser
 	pwd := this.loginPwd
@@ -289,6 +267,28 @@ func (this *SmtpdServer) checkUserLogin() bool {
 	}
 
 	return true
+}
+
+func (this *SmtpdServer) cmdAuthLoginUser(input string) bool {
+
+	user := this.base64Decode(input)
+	this.loginUser = user
+	this.D(this.loginUser)
+	this.write(MSG_AUTH_LOGIN_PWD)
+	return true
+}
+
+func (this *SmtpdServer) cmdAuthLoginPwd(input string) bool {
+	pwd := this.base64Decode(input)
+	this.loginPwd = pwd
+
+	fmt.Println(this.loginPwd)
+	if this.checkUserLogin() {
+		this.write(MSG_AUTH_OK)
+		return true
+	}
+	this.write(MSG_AUTH_FAIL)
+	return false
 }
 
 func (this *SmtpdServer) cmdMailFrom(input string) bool {
