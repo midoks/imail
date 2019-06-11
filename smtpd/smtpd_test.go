@@ -59,7 +59,7 @@ func TestRunSendDelivery(t *testing.T) {
 }
 
 // Delivery of mail to external mail
-func SendMail(user, pwd, domain string, port string, from string, to string, subject string, content string) (bool, error) {
+func SendMail(user, pwd, domain string, port string, from string, to string, subject string, msg string) (bool, error) {
 
 	addr := fmt.Sprintf("%s:%s", domain, port)
 	conn, err := net.Dial("tcp", addr)
@@ -148,7 +148,7 @@ func SendMail(user, pwd, domain string, port string, from string, to string, sub
 
 	rcpt_to := fmt.Sprintf("RCPT TO: <%s>\r\n", to)
 	DeliveryDebug(rcpt_to)
-	_, err = conn.Write([]byte(rcpt_to)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
+	_, err = conn.Write([]byte(rcpt_to))
 	if err != nil {
 		return false, err
 	}
@@ -162,7 +162,7 @@ func SendMail(user, pwd, domain string, port string, from string, to string, sub
 		return false, errors.New(data)
 	}
 
-	_, err = conn.Write([]byte("DATA\r\n")) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
+	_, err = conn.Write([]byte("DATA\r\n"))
 	if err != nil {
 		return false, err
 	}
@@ -175,8 +175,10 @@ func SendMail(user, pwd, domain string, port string, from string, to string, sub
 		return false, errors.New(data)
 	}
 
-	content = fmt.Sprintf("%s\r\n\r\n", content)
-	// DeliveryDebug(content)
+	content := fmt.Sprintf("FROM: <%s>\r\n", from)
+	content += fmt.Sprintf("TO: <%s>\r\n", to)
+	content += fmt.Sprintf("Sbuject: %s\r\n\r\n", subject)
+	content += fmt.Sprintf("%s\r\n\r\n", msg)
 	_, err = conn.Write([]byte(content))
 	if err != nil {
 		return false, err
@@ -213,10 +215,15 @@ func SendMail(user, pwd, domain string, port string, from string, to string, sub
 }
 
 func TestRunUserSend(t *testing.T) {
-	_, err := SendMail("midoks", "123123", "127.0.0.1", "1025", "midoks@163.com", "midoks@imail.com", "title test!", "content is test!")
+	_, err := SendMail("midoks", "123123", "127.0.0.1", "1025", "midoks@imail.com", "midoks@163.com", "title test!", "content is test!")
 	if err != nil {
 		fmt.Println("err:", err)
 	}
+
+	// _, err = SendMail("midoks", "mm123123", "smtp.163.com", "25", "midoks@163.com", "midoks@imail.com", "title test!", "content is test!")
+	// if err != nil {
+	// 	fmt.Println("err:", err)
+	// }
 }
 
 // func TestRunSendFuncQQ(t *testing.T) {

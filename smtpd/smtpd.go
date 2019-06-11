@@ -57,6 +57,7 @@ const (
 	MSG_COMMAND_ERR     = "502"
 	MSG_BAD_USER        = "505"
 	MSG_BAD_OPEN_RELAY  = "505.open.relay"
+	MSG_BAD_MAIL_ADDR   = "554"
 	MSG_COMMAND_TM_ERR  = "421"
 	MSG_AUTH_LOGIN_USER = "334.user"
 	MSG_AUTH_LOGIN_PWD  = "334.passwd"
@@ -80,6 +81,7 @@ var msgList = map[string]string{
 	MSG_BAD_SYNTAX:      "Error: bad syntax",
 	MSG_BAD_USER:        "Invalid User",
 	MSG_BAD_OPEN_RELAY:  "Anonymous forwarding is not supported",
+	MSG_BAD_MAIL_ADDR:   "The sender of the envelope does not match the sender of the letter.",
 }
 
 var GO_EOL = GetGoEol()
@@ -290,12 +292,27 @@ func (this *SmtpdServer) cmdMailFrom(input string) bool {
 				return false
 			}
 
+			if this.method == CMD_METHO_USER {
+				info := strings.Split(mailFrom, "@")
+				mdomain := beego.AppConfig.String("mail.domain")
+				if !strings.EqualFold(mdomain, info[1]) {
+					this.write(MSG_BAD_MAIL_ADDR)
+					return false
+				}
+
+				user, err := models.UserGetByName(info[0])
+				if err != nil {
+					this.write(MSG_BAD_USER)
+					return false
+				}
+				this.userID = user.Id
+			}
+
 			this.recordCmdMailFrom = mailFrom
 			this.write(MSG_MAIL_OK)
 			return true
 		}
 	}
-
 	this.write(MSG_BAD_SYNTAX)
 	return false
 }
@@ -319,21 +336,21 @@ func (this *SmtpdServer) cmdRcptTo(input string) bool {
 			}
 			this.recordcmdRcptTo = rcptTo
 
-			info := strings.Split(rcptTo, "@")
+			if this.method == CMD_METHO_SEND {
+				info := strings.Split(rcptTo, "@")
+				mdomain := beego.AppConfig.String("mail.domain")
+				if !strings.EqualFold(mdomain, info[1]) {
+					this.write(MSG_BAD_OPEN_RELAY)
+					return false
+				}
 
-			mdomain := beego.AppConfig.String("mail.domain")
-			if !strings.EqualFold(mdomain, info[1]) {
-				this.write(MSG_BAD_OPEN_RELAY)
-				return false
+				user, err := models.UserGetByName(info[0])
+				if err != nil {
+					this.write(MSG_BAD_USER)
+					return false
+				}
+				this.userID = user.Id
 			}
-
-			user, err := models.UserGetByName(info[0])
-			if err != nil {
-				this.write(MSG_BAD_USER)
-				return false
-			}
-
-			this.userID = user.Id
 
 			this.write(MSG_MAIL_OK)
 			return true
@@ -365,18 +382,23 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		content += fmt.Sprintf("%s", line)
 
 		if strings.EqualFold(last, ".") {
+			content = strings.TrimSpace(content[0 : len(content)-1])
 			this.write(MSG_DATA)
 			break
 		}
 	}
 
+	// fmt.Println("content:", content)
 	if this.method == CMD_METHO_SEND {
 		mid, err := models.MailPush(this.recordCmdMailFrom, this.recordcmdRcptTo, content)
 		if err != nil {
 			return false
 		}
 		models.BoxAdd(this.userID, mid)
-		fmt.Println("content:", content)
+	}
+
+	if this.method == CMD_METHO_USER {
+		models.SendAdd(this.userID, this.recordCmdMailFrom, this.recordcmdRcptTo, content)
 	}
 
 	return true

@@ -31,8 +31,7 @@ func Init() {
 	}
 	orm.RegisterDataBase("default", "mysql", dsn)
 
-	orm.RegisterModel(new(User), new(UserMail), new(UserMailBox))
-
+	orm.RegisterModel(new(User), new(UserMail), new(UserMailBox), new(UserMailSend))
 	if beego.AppConfig.String("runmode") == "dev" {
 		orm.Debug = true
 	}
