@@ -14,6 +14,14 @@ import (
 	"time"
 )
 
+// There are two ways
+// CMD_METHO_SEND is the data delivered by other SMTP servers.
+// CMD_METHO_USER is data sent by users.
+const (
+	CMD_METHO_SEND = iota
+	CMD_METHO_USER = iota
+)
+
 const (
 	CMD_READY           = iota
 	CMD_HELO            = iota
@@ -84,6 +92,7 @@ func GetGoEol() string {
 }
 
 type SmtpdServer struct {
+	method            int
 	debug             bool
 	conn              net.Conn
 	state             int
@@ -134,9 +143,7 @@ func (this *SmtpdServer) Debug(d bool) {
 }
 
 func (this *SmtpdServer) write(code string) {
-
 	info := fmt.Sprintf("%.3s %s%s", code, msgList[code], GO_EOL)
-	this.D(info)
 	_, err := this.conn.Write([]byte(info))
 
 	if err != nil {
@@ -145,13 +152,11 @@ func (this *SmtpdServer) write(code string) {
 }
 
 func (this *SmtpdServer) getString(state int) (string, error) {
-	fmt.Println("getString", state, CMD_DATA)
 	if state == CMD_DATA {
 		return "", nil
 	}
 
 	input, err := bufio.NewReader(this.conn).ReadString('\n')
-	// this.D("getString:", input, err)
 	if err != nil {
 		return "", err
 	}
@@ -195,7 +200,7 @@ func (this *SmtpdServer) stateCompare(input int, cmd int) bool {
 
 func (this *SmtpdServer) cmdHelo(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
-
+	this.method = CMD_METHO_USER
 	if len(inputN) == 2 {
 		if this.cmdCompare(inputN[0], CMD_HELO) {
 			this.write(MSG_OK)
@@ -206,6 +211,7 @@ func (this *SmtpdServer) cmdHelo(input string) bool {
 }
 
 func (this *SmtpdServer) cmdEhlo(input string) bool {
+	this.method = CMD_METHO_SEND
 	inputN := strings.SplitN(input, " ", 2)
 	if len(inputN) == 2 {
 		if this.cmdCompare(inputN[0], CMD_EHLO) {
@@ -229,6 +235,7 @@ func (this *SmtpdServer) cmdAuthLoginUser(input string) bool {
 
 	user := this.base64Decode(input)
 	this.loginUser = user
+	this.D(this.loginUser)
 	this.write(MSG_AUTH_LOGIN_PWD)
 	return true
 }
@@ -237,6 +244,7 @@ func (this *SmtpdServer) cmdAuthLoginPwd(input string) bool {
 	pwd := this.base64Decode(input)
 	this.loginPwd = pwd
 
+	this.D(this.loginPwd)
 	if this.checkUserLogin() {
 		this.write(MSG_AUTH_OK)
 		return true
@@ -362,12 +370,15 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		}
 	}
 
-	mid, err := models.MailPush(this.recordCmdMailFrom, this.recordcmdRcptTo, content)
-	if err != nil {
-		return false
+	if this.method == CMD_METHO_SEND {
+		mid, err := models.MailPush(this.recordCmdMailFrom, this.recordcmdRcptTo, content)
+		if err != nil {
+			return false
+		}
+		models.BoxAdd(this.userID, mid)
+		fmt.Println("content:", content)
 	}
-	models.BoxAdd(this.userID, mid)
-	fmt.Println("content:", content)
+
 	return true
 }
 

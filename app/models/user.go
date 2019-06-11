@@ -2,9 +2,8 @@ package models
 
 import (
 	_ "fmt"
-	"time"
-
 	"github.com/astaxie/beego/orm"
+	"time"
 )
 
 type User struct {

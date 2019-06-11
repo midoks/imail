@@ -1,7 +1,11 @@
 package smtpd
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
+	"github.com/midoks/imail/libs"
+	"net"
 	"strings"
 	"testing"
 )
@@ -15,7 +19,7 @@ func TestHelo_1(t *testing.T) {
 	}
 }
 
-func sendMailTest() {
+func mailDeliveryTest() {
 	toEmail := "midoks@163.com"
 	fromEmail := "midoks@cachecha.com"
 	toInfo := strings.Split(toEmail, "@")
@@ -26,14 +30,14 @@ func sendMailTest() {
 	}
 	fmt.Println(mxDomain)
 
-	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
+	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fromEmail, toEmail)
 	_, err = Delivery(mxDomain, "25", fromEmail, toEmail, content)
 	if err != nil {
 		fmt.Println("err:", err)
 	}
 }
 
-func sendMailTest2() {
+func mailDeliveryTest2() {
 	toEmail := "midoks@1632.com"
 	fromEmail := "midoks@cachecha.com"
 	mxDomain, err := DnsQuery("163.com")
@@ -43,16 +47,176 @@ func sendMailTest2() {
 	}
 	fmt.Println(mxDomain)
 
-	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
+	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fromEmail, toEmail)
 	_, err = Delivery(mxDomain, "25", fromEmail, toEmail, content)
 	if err != nil {
 		fmt.Println("err:", err)
 	}
 }
 
-func TestRunSendFunc(t *testing.T) {
-	// fmt.Println("-----------------end----------------")
+func TestRunSendDelivery(t *testing.T) {
 	// sendMailTest2()
+}
+
+// Delivery of mail to external mail
+func SendMail(user, pwd, domain string, port string, from string, to string, subject string, content string) (bool, error) {
+
+	addr := fmt.Sprintf("%s:%s", domain, port)
+	conn, err := net.Dial("tcp", addr)
+	if err != nil {
+		return false, err
+	}
+	defer conn.Close()
+
+	data, err := bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+
+	_, err = conn.Write([]byte("HELO IMAIL\r\n"))
+	if err != nil {
+		return false, err
+	}
+
+	data, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+
+	if !strings.HasPrefix(data, "250") {
+		return false, errors.New(data)
+	}
+
+	_, err = conn.Write([]byte("AUTH LOGIN\r\n"))
+	if err != nil {
+		return false, err
+	}
+
+	data, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+
+	if !strings.HasPrefix(data, "334") {
+		return false, errors.New(data)
+	}
+
+	user_input := fmt.Sprintf("%s\r\n", libs.Base64encode(user))
+	_, err = conn.Write([]byte(user_input))
+	if err != nil {
+		return false, err
+	}
+
+	data, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+	fmt.Println(data)
+	if !strings.HasPrefix(data, "334") {
+		return false, errors.New(data)
+	}
+
+	pwd_input := fmt.Sprintf("%s\r\n", libs.Base64encode(pwd))
+	_, err = conn.Write([]byte(pwd_input))
+	if err != nil {
+		return false, err
+	}
+
+	data, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+
+	if !strings.HasPrefix(data, "235") {
+		return false, errors.New(data)
+	}
+
+	mailfrom := fmt.Sprintf("MAIL FROM: <%s>\r\n", from)
+	_, err = conn.Write([]byte(mailfrom))
+	if err != nil {
+		return false, err
+	}
+
+	data, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+
+	if !strings.HasPrefix(data, "250") {
+		return false, errors.New(data)
+	}
+
+	rcpt_to := fmt.Sprintf("RCPT TO: <%s>\r\n", to)
+	DeliveryDebug(rcpt_to)
+	_, err = conn.Write([]byte(rcpt_to)) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
+	if err != nil {
+		return false, err
+	}
+
+	data, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+
+	if !strings.HasPrefix(data, "250") {
+		return false, errors.New(data)
+	}
+
+	_, err = conn.Write([]byte("DATA\r\n")) //向服务端发送数据。用n接受返回的数据大小，用err接受错误信息。
+	if err != nil {
+		return false, err
+	}
+
+	data, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+	if !strings.HasPrefix(data, "354") {
+		return false, errors.New(data)
+	}
+
+	content = fmt.Sprintf("%s\r\n\r\n", content)
+	// DeliveryDebug(content)
+	_, err = conn.Write([]byte(content))
+	if err != nil {
+		return false, err
+	}
+
+	_, err = conn.Write([]byte(".\r\n"))
+	if err != nil {
+		return false, err
+	}
+
+	data, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+	if !strings.HasPrefix(data, "354") {
+		return false, errors.New(data)
+	}
+
+	_, err = conn.Write([]byte("QUIT\r\n"))
+	if err != nil {
+		return false, err
+	}
+
+	data, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+
+	if !strings.HasPrefix(data, "221") {
+		return false, errors.New(data)
+	}
+
+	return true, nil
+}
+
+func TestRunUserSend(t *testing.T) {
+	_, err := SendMail("midoks", "123123", "127.0.0.1", "1025", "midoks@163.com", "midoks@imail.com", "title test!", "content is test!")
+	if err != nil {
+		fmt.Println("err:", err)
+	}
 }
 
 // func TestRunSendFuncQQ(t *testing.T) {
@@ -75,15 +239,15 @@ func TestRunSendFunc(t *testing.T) {
 // 	fmt.Println("-------------qq----end----------------")
 // }
 
-func TestRunSendLocal(t *testing.T) {
-	toEmail := "midoks@imail.com"
-	fromEmail := "midoks@cachecha.com"
-	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
-	_, err := Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
-	if err != nil {
-		t.Error(err)
-	}
-}
+// func TestRunSendLocal(t *testing.T) {
+// 	toEmail := "midoks@imail.com"
+// 	fromEmail := "midoks@cachecha.com"
+// 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
+// 	_, err := Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
+// 	if err != nil {
+// 		t.Error(err)
+// 	}
+// }
 
 func Benchmark_SendLocal(b *testing.B) {
 	toEmail := "midoks@imail.com"

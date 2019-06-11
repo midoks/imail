@@ -2,9 +2,8 @@ package smtpd
 
 import (
 	"bufio"
-	"fmt"
-	// "log"
 	"errors"
+	"fmt"
 	"net"
 	"strings"
 )
