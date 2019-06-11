@@ -144,6 +144,14 @@ func (this *SmtpdServer) Debug(d bool) {
 	this.debug = d
 }
 
+func (this *SmtpdServer) W(msg string) {
+	_, err := this.conn.Write([]byte(msg))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func (this *SmtpdServer) write(code string) {
 	info := fmt.Sprintf("%.3s %s%s", code, msgList[code], GO_EOL)
 	_, err := this.conn.Write([]byte(info))
@@ -216,8 +224,18 @@ func (this *SmtpdServer) cmdEhlo(input string) bool {
 	this.method = CMD_METHO_SEND
 	inputN := strings.SplitN(input, " ", 2)
 	if len(inputN) == 2 {
+
 		if this.cmdCompare(inputN[0], CMD_EHLO) {
 			this.write(MSG_OK)
+			this.W("250-mail\r\n")
+			this.W("250-PIPELINING\r\n")
+			this.W("250-AUTH LOGIN PLAIN\r\n")
+			this.W("250-AUTH=LOGIN PLAIN\r\n")
+			this.W("250-coremail 1Uxr2xKj7kG0xkI17xGrU7I0s8FY2U3Uj8Cz28x1UUUUU7Ic2I0Y2UFRbmXhUCa0xDrUUUUj\r\n")
+			this.W("250-STARTTLS\r\n")
+			this.W("250-SIZE 73400320\r\n")
+			this.W("250 8BITMIME\r\n")
+
 			return true
 		}
 	}
@@ -388,7 +406,6 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		}
 	}
 
-	// fmt.Println("content:", content)
 	if this.method == CMD_METHO_SEND {
 		mid, err := models.MailPush(this.recordCmdMailFrom, this.recordcmdRcptTo, content)
 		if err != nil {
@@ -419,7 +436,7 @@ func (this *SmtpdServer) handle() {
 
 		input, err := this.getString(state)
 		if err != nil {
-			this.D("i:", input, "e:", err)
+			// this.D("i:", input, "e:", err)
 			break
 		}
 		this.D(input, state, stateList[state])

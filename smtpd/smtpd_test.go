@@ -10,54 +10,6 @@ import (
 	"testing"
 )
 
-func TestHelo_1(t *testing.T) {
-	d, err := DnsQuery("163.com")
-	if err == nil {
-		t.Log("dns.Query ok:" + d)
-	} else {
-		t.Error("dns.Query fail:" + err.Error())
-	}
-}
-
-func mailDeliveryTest() {
-	toEmail := "midoks@163.com"
-	fromEmail := "midoks@cachecha.com"
-	toInfo := strings.Split(toEmail, "@")
-	mxDomain, err := DnsQuery(toInfo[1])
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println(mxDomain)
-
-	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fromEmail, toEmail)
-	_, err = Delivery(mxDomain, "25", fromEmail, toEmail, content)
-	if err != nil {
-		fmt.Println("err:", err)
-	}
-}
-
-func mailDeliveryTest2() {
-	toEmail := "midoks@1632.com"
-	fromEmail := "midoks@cachecha.com"
-	mxDomain, err := DnsQuery("163.com")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println(mxDomain)
-
-	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fromEmail, toEmail)
-	_, err = Delivery(mxDomain, "25", fromEmail, toEmail, content)
-	if err != nil {
-		fmt.Println("err:", err)
-	}
-}
-
-func TestRunSendDelivery(t *testing.T) {
-	// sendMailTest2()
-}
-
 // Delivery of mail to external mail
 func SendMail(user, pwd, domain string, port string, from string, to string, subject string, msg string) (bool, error) {
 
@@ -177,8 +129,8 @@ func SendMail(user, pwd, domain string, port string, from string, to string, sub
 
 	content := fmt.Sprintf("FROM: <%s>\r\n", from)
 	content += fmt.Sprintf("TO: <%s>\r\n", to)
-	content += fmt.Sprintf("Sbuject: %s\r\n\r\n", subject)
-	content += fmt.Sprintf("%s\r\n\r\n", msg)
+	content += fmt.Sprintf("Subject: %s\r\n\r\n", subject)
+	content += fmt.Sprintf("%s\r\n", msg)
 	_, err = conn.Write([]byte(content))
 	if err != nil {
 		return false, err
@@ -214,13 +166,62 @@ func SendMail(user, pwd, domain string, port string, from string, to string, sub
 	return true, nil
 }
 
+func TestDnsQuery(t *testing.T) {
+	d, err := DnsQuery("163.com")
+	fmt.Println(d, err)
+	if err == nil {
+		t.Log("dns.Query ok:" + d)
+	} else {
+		t.Error("dns.Query fail:" + err.Error())
+	}
+}
+
+func mailDeliveryTest() {
+	toEmail := "midoks@163.com"
+	fromEmail := "midoks@cachecha.com"
+	toInfo := strings.Split(toEmail, "@")
+	mxDomain, err := DnsQuery(toInfo[1])
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(mxDomain)
+
+	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fromEmail, toEmail)
+	_, err = Delivery(mxDomain, "25", fromEmail, toEmail, content)
+	if err != nil {
+		fmt.Println("err:", err)
+	}
+}
+
+func mailDeliveryTest2() {
+	toEmail := "midoks@1632.com"
+	fromEmail := "midoks@cachecha.com"
+	mxDomain, err := DnsQuery("163.com")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(mxDomain)
+
+	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fromEmail, toEmail)
+	_, err = Delivery(mxDomain, "25", fromEmail, toEmail, content)
+	if err != nil {
+		fmt.Println("err:", err)
+	}
+}
+
+func TestRunSendDelivery(t *testing.T) {
+	// sendMailTest2()
+}
+
 func TestRunUserSend(t *testing.T) {
 	_, err := SendMail("midoks", "123123", "127.0.0.1", "1025", "midoks@imail.com", "midoks@163.com", "title test!", "content is test!")
 	if err != nil {
 		fmt.Println("err:", err)
 	}
 
-	// _, err = SendMail("midoks", "mm123123", "smtp.163.com", "25", "midoks@163.com", "midoks@imail.com", "title test!", "content is test!")
+	// _, err = SendMail("midoks", "mm123123", "smtp.163.com", "25", "midoks@163.com", "627293072@qq.com", "php求增加pcntl扩展!", "谢谢使用，我有空了就加上吧!")
 	// if err != nil {
 	// 	fmt.Println("err:", err)
 	// }

@@ -89,7 +89,6 @@ func PopList(domain string, port string, name string, password string) {
 			log.Println("SS:directive error:", err2)
 			break
 		}
-		// fmt.Println("S--|~:", string(b[:n]))
 
 		v := strings.TrimSpace(string(b[:n]))
 		v_len := len(v)

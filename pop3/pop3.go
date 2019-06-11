@@ -24,6 +24,7 @@ const (
 	CMD_UIDL  = iota
 	CMD_APOP  = iota
 	CMD_QUIT  = iota
+	CMD_CAPA  = iota
 )
 
 var stateList = map[int]string{
@@ -40,6 +41,7 @@ var stateList = map[int]string{
 	CMD_UIDL:  "UIDL",
 	CMD_APOP:  "APOP",
 	CMD_QUIT:  "QUIT",
+	CMD_CAPA:  "CAPA",
 }
 
 const (
@@ -239,16 +241,39 @@ func (this *Pop3Server) cmdQuit(input string) bool {
 	return false
 }
 
+func (this *Pop3Server) cmdCapa(input string) bool {
+
+	if this.cmdCompare(input, CMD_CAPA) {
+
+		this.W("+OK Capability list follows")
+		this.W("TOP\r\n")
+		this.W("USER\r\n")
+		this.W("PIPELINING\r\n")
+		this.W("UIDL\r\n")
+		this.W("LANG\r\n")
+		this.W("UTF8\r\n")
+		// this.W("SASL PLAIN\r\n")
+		// this.W("STLS\r\n")
+		this.W(".\r\n")
+		return true
+	}
+	return false
+}
+
 func (this *Pop3Server) handle() {
 	for {
 		state := this.getState()
 		input, _ := this.getString()
 
-		// fmt.Printf(input, state)
-
 		if this.cmdQuit(input) {
 			break
 		}
+
+		if !this.cmdCapa(input) {
+			break
+		}
+
+		fmt.Println("pop3:", state, input)
 
 		if this.stateCompare(state, CMD_READY) {
 			if this.cmdUser(input) {
@@ -307,7 +332,6 @@ func Start(port int) {
 		if err != nil {
 			continue
 		}
-
 		srv := Pop3Server{}
 		go srv.start(conn)
 	}
