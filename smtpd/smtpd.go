@@ -557,8 +557,8 @@ func (this *SmtpdServer) start(conn net.Conn) {
 }
 
 func Start(port int) {
-	smtpd_port := fmt.Sprintf(":%d", port)
-	ln, err := net.Listen("tcp", smtpd_port)
+	addr := fmt.Sprintf(":%d", port)
+	ln, err := net.Listen("tcp", addr)
 	if err != nil {
 		panic(err)
 		return

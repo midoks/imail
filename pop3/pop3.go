@@ -269,8 +269,7 @@ func (this *Pop3Server) handle() {
 			break
 		}
 
-		if !this.cmdCapa(input) {
-			break
+		if this.cmdCapa(input) {
 		}
 
 		fmt.Println("pop3:", state, input)
@@ -319,8 +318,8 @@ func (this *Pop3Server) start(conn net.Conn) {
 }
 
 func Start(port int) {
-	pop3_port := fmt.Sprintf(":%d", port)
-	ln, err := net.Listen("tcp", pop3_port)
+	addr := fmt.Sprintf(":%d", port)
+	ln, err := net.Listen("tcp", addr)
 	if err != nil {
 		panic(err)
 		return
