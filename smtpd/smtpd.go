@@ -95,6 +95,9 @@ type SmtpdServer struct {
 	recordCmdMailFrom string
 	recordcmdRcptTo   string
 	recordCmdData     string
+
+	//DB DATA
+	userID int64
 }
 
 func (this *SmtpdServer) base64Encode(en string) string {
@@ -316,11 +319,13 @@ func (this *SmtpdServer) cmdRcptTo(input string) bool {
 				return false
 			}
 
-			_, err := models.UserGetByName(info[0])
+			user, err := models.UserGetByName(info[0])
 			if err != nil {
 				this.write(MSG_BAD_USER)
 				return false
 			}
+
+			this.userID = user.Id
 
 			this.write(MSG_MAIL_OK)
 			return true
@@ -357,7 +362,11 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		}
 	}
 
-	models.MailPush(this.recordCmdMailFrom, this.recordcmdRcptTo, content)
+	mid, err := models.MailPush(this.recordCmdMailFrom, this.recordcmdRcptTo, content)
+	if err != nil {
+		return false
+	}
+	models.BoxAdd(this.userID, mid)
 	fmt.Println("content:", content)
 	return true
 }

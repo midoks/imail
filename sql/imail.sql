@@ -56,7 +56,7 @@ CREATE TABLE `im_user_box` (
   `uid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
   `mid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '邮件ID',
   `create_time` bigint(20) unsigned NOT NULL,
-  `updated_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

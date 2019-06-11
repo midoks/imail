@@ -9,8 +9,8 @@ import (
 
 type UserMailBox struct {
 	Id         int64
-	Uid        string `json:"name";orm:"unique;size(50);comment(用户名)"`
-	Mid        string `json:"password";orm:"unique;size(50);comment(用户密码)"`
+	Uid        int64 `comment(用户ID)"`
+	Mid        int64 `comment(邮件ID)"`
 	UpdateTime int64
 	CreateTime int64
 }
@@ -25,4 +25,18 @@ func (u *UserMailBox) Update(fields ...string) error {
 		return err
 	}
 	return nil
+}
+
+func BoxAdd(uid int64, mid int64) (int64, error) {
+	data := new(UserMailBox)
+	data.Uid = uid
+	data.Mid = mid
+
+	data.UpdateTime = time.Now().Unix()
+	data.CreateTime = time.Now().Unix()
+	i, err := orm.NewOrm().Insert(data)
+	if err != nil {
+		return 0, err
+	}
+	return i, err
 }
