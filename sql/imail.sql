@@ -11,7 +11,7 @@
  Target Server Version : 50562
  File Encoding         : 65001
 
- Date: 12/06/2019 12:56:37
+ Date: 12/06/2019 17:19:58
 */
 
 SET NAMES utf8mb4;
@@ -31,7 +31,7 @@ CREATE TABLE `im_mail` (
   `create_time` bigint(20) unsigned NOT NULL COMMENT '创建时间',
   `update_time` bigint(20) unsigned NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Table structure for im_user
@@ -55,25 +55,11 @@ CREATE TABLE `im_user_box` (
   `id` bigint(255) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `uid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
   `mid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '邮件ID',
+  `size` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '邮件字节大小',
+  `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '类型， 0:接收邮件;1:发送邮件',
   `create_time` bigint(20) unsigned NOT NULL COMMENT '创建时间',
   `update_time` bigint(20) NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
-
--- ----------------------------
--- Table structure for im_user_send
--- ----------------------------
-DROP TABLE IF EXISTS `im_user_send`;
-CREATE TABLE `im_user_send` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `uid` bigint(20) NOT NULL COMMENT '用户ID',
-  `mail_from` varchar(255) NOT NULL COMMENT '邮件来源',
-  `mail_to` varchar(255) NOT NULL COMMENT '邮件接收方',
-  `content` text NOT NULL COMMENT '邮件内容',
-  `status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '状态',
-  `create_time` bigint(20) NOT NULL COMMENT '创建时间',
-  `update_time` bigint(20) NOT NULL COMMENT '更新时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4;
 
 SET FOREIGN_KEY_CHECKS = 1;
