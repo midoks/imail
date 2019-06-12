@@ -257,12 +257,12 @@ func (this *SmtpdServer) checkUserLogin() bool {
 
 	info, err := models.UserGetByName(name)
 
-	pwdStr := libs.Md5str(pwd)
-	if pwdStr != info.Password {
+	if err != nil {
 		return false
 	}
 
-	if err != nil {
+	pwdStr := libs.Md5str(pwd)
+	if pwdStr != info.Password {
 		return false
 	}
 
@@ -282,7 +282,7 @@ func (this *SmtpdServer) cmdAuthLoginPwd(input string) bool {
 	pwd := this.base64Decode(input)
 	this.loginPwd = pwd
 
-	fmt.Println(this.loginPwd)
+	// fmt.Println(this.loginPwd)
 	if this.checkUserLogin() {
 		this.write(MSG_AUTH_OK)
 		return true

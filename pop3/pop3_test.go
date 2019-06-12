@@ -6,6 +6,7 @@ import (
 	// "io"
 	_ "io/ioutil"
 	// "bytes"
+	"errors"
 	"log"
 	"net"
 	"strings"
@@ -48,7 +49,10 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 	if err != nil {
 		return false, err
 	}
-	fmt.Println("S:", data)
+
+	if strings.HasPrefix(data, "-ERR") {
+		return false, errors.New(data)
+	}
 
 	fmt.Println("CMD:LIST 1")
 
@@ -103,15 +107,15 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 }
 
 // go test -v pop3_test.go -test.run TestRunPop3
-func TestRunPop3(t *testing.T) {
-	PopCmd("pop3.163.com", "110", "midoks", "mm123123")
-}
+// func TestRunPop3(t *testing.T) {
+// 	PopCmd("pop3.163.com", "110", "midoks", "mm123123")
+// }
 
 // go test -v pop3_test.go -test.run TestRunLocalPop3
 func TestRunLocalPop3(t *testing.T) {
 
-	_, err := PopCmd("127.0.0.1", "10110", "midoks", "123123")
+	_, err := PopCmd("127.0.0.1", "10110", "midoks2", "123123")
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("cmd:", err)
 	}
 }

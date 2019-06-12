@@ -3,6 +3,8 @@ package pop3
 import (
 	"bufio"
 	"fmt"
+	"github.com/midoks/imail/app/models"
+	"github.com/midoks/imail/libs"
 	"log"
 	"net"
 	"runtime"
@@ -45,20 +47,14 @@ var stateList = map[int]string{
 }
 
 const (
-	MSG_INIT            = "Welcome to coremail Mail Pop3 Server (imail)"
-	MSG_OK              = "core mail"
-	MSG_MAIL_OK         = "250"
-	MSG_BYE             = "221"
-	MSG_BAD_SYNTAX      = "500"
-	MSG_LOGIN_INFO      = "502"
-	MSG_COMMAND_TM_ERR  = "421"
-	MSG_AUTH_LOGIN_USER = "334.user"
-	MSG_AUTH_LOGIN_PWD  = "334.passwd"
-	MSG_AUTH_OK         = "235"
-	MSG_NOT_LOGIN       = "Unable to log on"
-	MSG_CMD_NOT_VALID   = "Command not valid in this state"
-	MSG_RETR_DATA       = "%s\r\n."
-	MSG_CAPA            = "Capability list follows"
+	MSG_INIT          = "Welcome to coremail Mail Pop3 Server (imail)"
+	MSG_OK            = "core mail"
+	MSG_BAD_SYNTAX    = "500"
+	MSG_LOGIN_OK      = "%s message(s) [%s byte(s)]"
+	MSG_LOGIN_DISABLE = "Unable to log on"
+	MSG_CMD_NOT_VALID = "Command not valid in this state"
+	MSG_RETR_DATA     = "%s\r\n."
+	MSG_CAPA          = "Capability list follows"
 )
 
 var GO_EOL = GetGoEol()
@@ -155,6 +151,25 @@ func (this *Pop3Server) stateCompare(input int, cmd int) bool {
 	return false
 }
 
+func (this *Pop3Server) checkUserLogin() bool {
+	name := this.recordCmdUser
+	pwd := this.recordCmdPass
+
+	fmt.Println(name, pwd)
+
+	info, err := models.UserGetByName(name)
+	if err != nil {
+		return false
+	}
+
+	pwdStr := libs.Md5str(pwd)
+	if pwdStr != info.Password {
+		return false
+	}
+
+	return true
+}
+
 func (this *Pop3Server) cmdUser(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
@@ -180,8 +195,13 @@ func (this *Pop3Server) cmdPass(input string) bool {
 			return false
 		}
 		this.recordCmdPass = strings.TrimSpace(inputN[1])
-		this.Ok(MSG_LOGIN_INFO)
-		return true
+
+		if this.checkUserLogin() {
+			this.Ok(MSG_LOGIN_OK)
+			return true
+		}
+		this.Error(MSG_LOGIN_DISABLE)
+		return false
 	}
 	return false
 }
@@ -189,12 +209,14 @@ func (this *Pop3Server) cmdPass(input string) bool {
 func (this *Pop3Server) cmdList(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
+	fmt.Println(inputN)
+
 	if this.cmdCompare(inputN[0], CMD_LIST) {
 		if len(inputN) < 2 {
 			this.Ok(MSG_BAD_SYNTAX)
 			return false
 		}
-		this.Ok(MSG_LOGIN_INFO)
+		this.Ok(MSG_BAD_SYNTAX)
 		return true
 	}
 	return false
@@ -222,7 +244,7 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 			this.Ok(MSG_BAD_SYNTAX)
 			return false
 		}
-		this.Ok(MSG_LOGIN_INFO)
+		this.Ok(MSG_OK)
 		return true
 	}
 	return false
@@ -230,7 +252,7 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 
 func (this *Pop3Server) cmdQuit(input string) bool {
 	if this.cmdCompare(input, CMD_QUIT) {
-		this.Ok(MSG_BYE)
+		this.Ok(MSG_OK)
 		this.close()
 		return true
 	}
@@ -257,16 +279,19 @@ func (this *Pop3Server) cmdCapa(input string) bool {
 func (this *Pop3Server) handle() {
 	for {
 		state := this.getState()
-		input, _ := this.getString()
+		input, err := this.getString()
 
+		if err != nil {
+			break
+		}
+
+		fmt.Println("pop3:", state, input)
 		if this.cmdQuit(input) {
 			break
 		}
 
 		if this.cmdCapa(input) {
 		}
-
-		fmt.Println("pop3:", state, input)
 
 		if this.stateCompare(state, CMD_READY) {
 			if this.cmdUser(input) {
@@ -283,23 +308,19 @@ func (this *Pop3Server) handle() {
 		if this.stateCompare(state, CMD_PASS) {
 
 			if this.cmdList(input) {
-
 			}
 
 			if this.cmdUidl(input) {
-
 			}
 
 			if this.cmdRetr(input) {
-
 			}
 		}
-
 	}
 }
 
 func (this *Pop3Server) start(conn net.Conn) {
-	conn.SetReadDeadline(time.Now().Add(time.Minute * 180))
+	conn.SetReadDeadline(time.Now().Add(time.Minute * 10))
 	defer conn.Close()
 	this.conn = conn
 
