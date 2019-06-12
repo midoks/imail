@@ -56,7 +56,7 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 
 	fmt.Println("CMD:LIST 1")
 
-	_, err = conn.Write([]byte("LIST 1\r\n"))
+	_, err = conn.Write([]byte("LIST\r\n"))
 	data, err = bufio.NewReader(conn).ReadString('\n')
 	if err != nil {
 		return false, err
@@ -114,7 +114,7 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 // go test -v pop3_test.go -test.run TestRunLocalPop3
 func TestRunLocalPop3(t *testing.T) {
 
-	_, err := PopCmd("127.0.0.1", "10110", "midoks2", "123123")
+	_, err := PopCmd("127.0.0.1", "10110", "midoks", "123123")
 	if err != nil {
 		fmt.Println("cmd:", err)
 	}

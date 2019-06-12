@@ -11,6 +11,8 @@ type UserMailBox struct {
 	Id         int64
 	Uid        int64 `comment(用户ID)"`
 	Mid        int64 `comment(邮件ID)"`
+	Type       int   `comment(类型|0:接收邮件;1:发送邮件)`
+	Size       int   `comment(邮件内容大小[byte])`
 	UpdateTime int64
 	CreateTime int64
 }
@@ -27,10 +29,12 @@ func (u *UserMailBox) Update(fields ...string) error {
 	return nil
 }
 
-func BoxAdd(uid int64, mid int64) (int64, error) {
+func BoxAdd(uid int64, mid int64, method int, size int) (int64, error) {
 	data := new(UserMailBox)
 	data.Uid = uid
 	data.Mid = mid
+	data.Size = size
+	data.Type = method
 
 	data.UpdateTime = time.Now().Unix()
 	data.CreateTime = time.Now().Unix()
@@ -39,4 +43,8 @@ func BoxAdd(uid int64, mid int64) (int64, error) {
 		return 0, err
 	}
 	return i, err
+}
+
+func BoxList(uid int64, page int, pageSize int) {
+
 }

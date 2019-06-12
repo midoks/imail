@@ -227,14 +227,14 @@ func (this *SmtpdServer) cmdEhlo(input string) bool {
 
 		if this.cmdCompare(inputN[0], CMD_EHLO) {
 			this.write(MSG_OK)
-			this.W("250-mail\r\n")
-			this.W("250-PIPELINING\r\n")
-			this.W("250-AUTH LOGIN PLAIN\r\n")
-			this.W("250-AUTH=LOGIN PLAIN\r\n")
-			this.W("250-coremail 1Uxr2xKj7kG0xkI17xGrU7I0s8FY2U3Uj8Cz28x1UUUUU7Ic2I0Y2UFRbmXhUCa0xDrUUUUj\r\n")
-			this.W("250-STARTTLS\r\n")
-			this.W("250-SIZE 73400320\r\n")
-			this.W("250 8BITMIME\r\n")
+			// this.W("250-mail\r\n")
+			// this.W("250-PIPELINING\r\n")
+			// this.W("250-AUTH LOGIN PLAIN\r\n")
+			// this.W("250-AUTH=LOGIN PLAIN\r\n")
+			// this.W("250-coremail 1Uxr2xKj7kG0xkI17xGrU7I0s8FY2U3Uj8Cz28x1UUUUU7Ic2I0Y2UFRbmXhUCa0xDrUUUUj\r\n")
+			// this.W("250-STARTTLS\r\n")
+			// this.W("250-SIZE 73400320\r\n")
+			// this.W("250 8BITMIME\r\n")
 
 			return true
 		}
@@ -389,15 +389,16 @@ func (this *SmtpdServer) cmdData(input string) bool {
 
 func (this *SmtpdServer) cmdDataAccept() bool {
 	var content string
+	content = ""
 	for {
 
 		b := make([]byte, 4096)
 		n, _ := this.conn.Read(b[0:])
 
 		line := strings.TrimSpace(string(b[:n]))
-		last := line[len(line)-1:]
-
 		content += fmt.Sprintf("%s", line)
+
+		last := line[len(line)-1:]
 
 		if strings.EqualFold(last, ".") {
 			content = strings.TrimSpace(content[0 : len(content)-1])
@@ -411,11 +412,15 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		if err != nil {
 			return false
 		}
-		models.BoxAdd(this.userID, mid)
+		models.BoxAdd(this.userID, mid, 0, len(content))
 	}
 
 	if this.method == CMD_METHO_USER {
-		models.SendAdd(this.userID, this.recordCmdMailFrom, this.recordcmdRcptTo, content)
+		mid, err := models.MailPush(this.recordCmdMailFrom, this.recordcmdRcptTo, content)
+		if err != nil {
+			return false
+		}
+		models.BoxAdd(this.userID, mid, 1, len(content))
 	}
 
 	return true
@@ -436,9 +441,9 @@ func (this *SmtpdServer) handle() {
 
 		input, err := this.getString(state)
 		if err != nil {
-			// this.D("i:", input, "e:", err)
 			break
 		}
+
 		this.D(input, state, stateList[state])
 
 		//CMD_READY

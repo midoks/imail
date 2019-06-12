@@ -127,8 +127,8 @@ func SendMail(user, pwd, domain string, port string, from string, to string, sub
 		return false, errors.New(data)
 	}
 
-	content := fmt.Sprintf("FROM: <%s>\r\n", from)
-	content += fmt.Sprintf("TO: <%s>\r\n", to)
+	content := fmt.Sprintf("From: <%s>\r\n", from)
+	content += fmt.Sprintf("To: <%s>\r\n", to)
 	content += fmt.Sprintf("Subject: %s\r\n\r\n", subject)
 	content += fmt.Sprintf("%s\r\n", msg)
 	_, err = conn.Write([]byte(content))
@@ -227,6 +227,16 @@ func TestRunUserSend(t *testing.T) {
 	// }
 }
 
+func TestRunSendLocal(t *testing.T) {
+	toEmail := "midoks@imail.com"
+	fromEmail := "midoks@cachecha.com"
+	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
+	_, err := Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 // func TestRunSendFuncQQ(t *testing.T) {
 // 	toEmail := "627293072@qq.com"
 // 	fromEmail := "midoks@163.com"
@@ -245,16 +255,6 @@ func TestRunUserSend(t *testing.T) {
 // 	}
 
 // 	fmt.Println("-------------qq----end----------------")
-// }
-
-// func TestRunSendLocal(t *testing.T) {
-// 	toEmail := "midoks@imail.com"
-// 	fromEmail := "midoks@cachecha.com"
-// 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
-// 	_, err := Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
 // }
 
 func Benchmark_SendLocal(b *testing.B) {

@@ -74,6 +74,9 @@ type Pop3Server struct {
 	errCount      int
 	recordCmdUser string
 	recordCmdPass string
+
+	// user id
+	userID int64
 }
 
 func (this *Pop3Server) setState(state int) {
@@ -156,17 +159,17 @@ func (this *Pop3Server) checkUserLogin() bool {
 	pwd := this.recordCmdPass
 
 	fmt.Println(name, pwd)
-
 	info, err := models.UserGetByName(name)
 	if err != nil {
 		return false
 	}
 
-	pwdStr := libs.Md5str(pwd)
-	if pwdStr != info.Password {
+	pwdMd5 := libs.Md5str(pwd)
+	if pwdMd5 != info.Password {
 		return false
 	}
 
+	this.userID = info.Id
 	return true
 }
 
@@ -209,16 +212,19 @@ func (this *Pop3Server) cmdPass(input string) bool {
 func (this *Pop3Server) cmdList(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
-	fmt.Println(inputN)
+	inputLen := len(inputN)
+	fmt.Println(inputN, inputLen)
 
-	if this.cmdCompare(inputN[0], CMD_LIST) {
-		if len(inputN) < 2 {
-			this.Ok(MSG_BAD_SYNTAX)
-			return false
+	if inputLen < 2 {
+		if this.cmdCompare(inputN[0], CMD_LIST) {
+			return true
 		}
-		this.Ok(MSG_BAD_SYNTAX)
-		return true
+	} else if inputLen == 2 {
+		if this.cmdCompare(inputN[0], CMD_LIST) {
+			return true
+		}
 	}
+	this.Error(MSG_BAD_SYNTAX)
 	return false
 }
 
