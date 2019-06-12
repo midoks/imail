@@ -45,8 +45,8 @@ var stateList = map[int]string{
 }
 
 const (
-	MSG_INIT            = "220.init"
-	MSG_OK              = "220"
+	MSG_INIT            = "Welcome to coremail Mail Pop3 Server (imail)"
+	MSG_OK              = "core mail"
 	MSG_MAIL_OK         = "250"
 	MSG_BYE             = "221"
 	MSG_BAD_SYNTAX      = "500"
@@ -55,25 +55,11 @@ const (
 	MSG_AUTH_LOGIN_USER = "334.user"
 	MSG_AUTH_LOGIN_PWD  = "334.passwd"
 	MSG_AUTH_OK         = "235"
-	MSG_AUTH_FAIL       = "535"
-	MSG_DATA            = "354"
+	MSG_NOT_LOGIN       = "Unable to log on"
+	MSG_CMD_NOT_VALID   = "Command not valid in this state"
 	MSG_RETR_DATA       = "%s\r\n."
+	MSG_CAPA            = "Capability list follows"
 )
-
-var msgList = map[string]string{
-	MSG_INIT:            "+OK Welcome to coremail Mail Pop3 Server (imail)",
-	MSG_OK:              "+OK core mail",
-	MSG_BYE:             "bye",
-	MSG_LOGIN_INFO:      "+OK 2542 message(s) [100298482 byte(s)]",
-	MSG_COMMAND_TM_ERR:  "Too many error commands",
-	MSG_BAD_SYNTAX:      "Error: bad syntax",
-	MSG_AUTH_LOGIN_USER: "dXNlcm5hbWU6",
-	MSG_AUTH_LOGIN_PWD:  "UGFzc3dvcmQ6",
-	MSG_AUTH_OK:         "Authentication successful",
-	MSG_AUTH_FAIL:       "Error: authentication failed",
-	MSG_MAIL_OK:         "Mail OK",
-	MSG_RETR_DATA:       "%s\r\n.",
-}
 
 var GO_EOL = GetGoEol()
 
@@ -85,11 +71,13 @@ func GetGoEol() string {
 }
 
 type Pop3Server struct {
-	debug     bool
-	conn      net.Conn
-	state     int
-	startTime time.Time
-	errCount  int
+	debug         bool
+	conn          net.Conn
+	state         int
+	startTime     time.Time
+	errCount      int
+	recordCmdUser string
+	recordCmdPass string
 }
 
 func (this *Pop3Server) setState(state int) {
@@ -116,8 +104,13 @@ func (this *Pop3Server) W(msg string) {
 	}
 }
 
-func (this *Pop3Server) write(code string) {
-	info := fmt.Sprintf("%s\r\n", msgList[code])
+func (this *Pop3Server) Ok(code string) {
+	info := fmt.Sprintf("+OK %s\r\n", code)
+	this.W(info)
+}
+
+func (this *Pop3Server) Error(code string) {
+	info := fmt.Sprintf("-ERR %s\r\n", code)
 	this.W(info)
 }
 
@@ -167,10 +160,12 @@ func (this *Pop3Server) cmdUser(input string) bool {
 
 	if this.cmdCompare(inputN[0], CMD_USER) {
 		if len(inputN) < 2 {
-			this.write(MSG_BAD_SYNTAX)
+			this.Ok(MSG_BAD_SYNTAX)
 			return false
 		}
-		this.write(MSG_OK)
+
+		this.recordCmdUser = strings.TrimSpace(inputN[1])
+		this.Ok(MSG_OK)
 		return true
 	}
 	return false
@@ -181,10 +176,11 @@ func (this *Pop3Server) cmdPass(input string) bool {
 
 	if this.cmdCompare(inputN[0], CMD_PASS) {
 		if len(inputN) < 2 {
-			this.write(MSG_BAD_SYNTAX)
+			this.Ok(MSG_BAD_SYNTAX)
 			return false
 		}
-		this.write(MSG_LOGIN_INFO)
+		this.recordCmdPass = strings.TrimSpace(inputN[1])
+		this.Ok(MSG_LOGIN_INFO)
 		return true
 	}
 	return false
@@ -195,10 +191,10 @@ func (this *Pop3Server) cmdList(input string) bool {
 
 	if this.cmdCompare(inputN[0], CMD_LIST) {
 		if len(inputN) < 2 {
-			this.write(MSG_BAD_SYNTAX)
+			this.Ok(MSG_BAD_SYNTAX)
 			return false
 		}
-		this.write(MSG_LOGIN_INFO)
+		this.Ok(MSG_LOGIN_INFO)
 		return true
 	}
 	return false
@@ -209,10 +205,10 @@ func (this *Pop3Server) cmdRetr(input string) bool {
 
 	if this.cmdCompare(inputN[0], CMD_RETR) {
 		if len(inputN) < 2 {
-			this.write(MSG_BAD_SYNTAX)
+			this.Ok(MSG_BAD_SYNTAX)
 			return false
 		}
-		this.write(MSG_RETR_DATA)
+		this.Ok(MSG_RETR_DATA)
 		return true
 	}
 	return false
@@ -223,10 +219,10 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 
 	if this.cmdCompare(inputN[0], CMD_UIDL) {
 		if len(inputN) < 2 {
-			this.write(MSG_BAD_SYNTAX)
+			this.Ok(MSG_BAD_SYNTAX)
 			return false
 		}
-		this.write(MSG_LOGIN_INFO)
+		this.Ok(MSG_LOGIN_INFO)
 		return true
 	}
 	return false
@@ -234,7 +230,7 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 
 func (this *Pop3Server) cmdQuit(input string) bool {
 	if this.cmdCompare(input, CMD_QUIT) {
-		this.write(MSG_BYE)
+		this.Ok(MSG_BYE)
 		this.close()
 		return true
 	}
@@ -242,18 +238,16 @@ func (this *Pop3Server) cmdQuit(input string) bool {
 }
 
 func (this *Pop3Server) cmdCapa(input string) bool {
-
 	if this.cmdCompare(input, CMD_CAPA) {
-
-		this.W("+OK Capability list follows")
+		this.Ok(MSG_CAPA)
 		this.W("TOP\r\n")
 		this.W("USER\r\n")
 		this.W("PIPELINING\r\n")
 		this.W("UIDL\r\n")
 		this.W("LANG\r\n")
 		this.W("UTF8\r\n")
-		// this.W("SASL PLAIN\r\n")
-		// this.W("STLS\r\n")
+		this.W("SASL PLAIN\r\n")
+		this.W("STLS\r\n")
 		this.W(".\r\n")
 		return true
 	}
@@ -311,7 +305,7 @@ func (this *Pop3Server) start(conn net.Conn) {
 
 	this.startTime = time.Now()
 
-	this.write(MSG_INIT)
+	this.Ok(MSG_INIT)
 	this.setState(CMD_READY)
 
 	this.handle()

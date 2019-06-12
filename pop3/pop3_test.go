@@ -102,10 +102,12 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 	return true, nil
 }
 
+// go test -v pop3_test.go -test.run TestRunPop3
 func TestRunPop3(t *testing.T) {
 	PopCmd("pop3.163.com", "110", "midoks", "mm123123")
 }
 
+// go test -v pop3_test.go -test.run TestRunLocalPop3
 func TestRunLocalPop3(t *testing.T) {
 
 	_, err := PopCmd("127.0.0.1", "10110", "midoks", "123123")
