@@ -50,7 +50,7 @@ const (
 	MSG_INIT          = "Welcome to coremail Mail Pop3 Server (imail)"
 	MSG_OK            = "core mail"
 	MSG_BAD_SYNTAX    = "500"
-	MSG_LOGIN_OK      = "%s message(s) [%s byte(s)]"
+	MSG_LOGIN_OK      = "%d message(s) [%d byte(s)]"
 	MSG_LOGIN_DISABLE = "Unable to log on"
 	MSG_CMD_NOT_VALID = "Command not valid in this state"
 	MSG_RETR_DATA     = "%s\r\n."
@@ -95,7 +95,7 @@ func (this *Pop3Server) Debug(d bool) {
 	this.debug = d
 }
 
-func (this *Pop3Server) W(msg string) {
+func (this *Pop3Server) w(msg string) {
 	_, err := this.conn.Write([]byte(msg))
 
 	if err != nil {
@@ -103,14 +103,19 @@ func (this *Pop3Server) W(msg string) {
 	}
 }
 
-func (this *Pop3Server) Ok(code string) {
-	info := fmt.Sprintf("+OK %s\r\n", code)
-	this.W(info)
+func (this *Pop3Server) writeArgs(code string, args ...interface{}) {
+	info := fmt.Sprintf("+OK "+code+"\r\n", args...)
+	this.w(info)
 }
 
-func (this *Pop3Server) Error(code string) {
+func (this *Pop3Server) ok(code string) {
+	info := fmt.Sprintf("+OK %s\r\n", code)
+	this.w(info)
+}
+
+func (this *Pop3Server) error(code string) {
 	info := fmt.Sprintf("-ERR %s\r\n", code)
-	this.W(info)
+	this.w(info)
 }
 
 func (this *Pop3Server) getString() (string, error) {
@@ -178,12 +183,12 @@ func (this *Pop3Server) cmdUser(input string) bool {
 
 	if this.cmdCompare(inputN[0], CMD_USER) {
 		if len(inputN) < 2 {
-			this.Ok(MSG_BAD_SYNTAX)
+			this.ok(MSG_BAD_SYNTAX)
 			return false
 		}
 
 		this.recordCmdUser = strings.TrimSpace(inputN[1])
-		this.Ok(MSG_OK)
+		this.ok(MSG_OK)
 		return true
 	}
 	return false
@@ -194,17 +199,31 @@ func (this *Pop3Server) cmdPass(input string) bool {
 
 	if this.cmdCompare(inputN[0], CMD_PASS) {
 		if len(inputN) < 2 {
-			this.Ok(MSG_BAD_SYNTAX)
+			this.ok(MSG_BAD_SYNTAX)
 			return false
 		}
 		this.recordCmdPass = strings.TrimSpace(inputN[1])
 
 		if this.checkUserLogin() {
-			this.Ok(MSG_LOGIN_OK)
+
+			count, size := models.BoxUserTotal(this.userID)
+			fmt.Println("stat", count, size, this.userID)
+			this.writeArgs(MSG_LOGIN_OK, count, size)
 			return true
 		}
-		this.Error(MSG_LOGIN_DISABLE)
+		this.error(MSG_LOGIN_DISABLE)
 		return false
+	}
+	return false
+}
+
+func (this *Pop3Server) cmdStat(input string) bool {
+	if this.cmdCompare(input, CMD_STAT) {
+
+		count, size := models.BoxUserTotal(this.userID)
+		fmt.Println("stat", count, size, this.userID)
+		this.writeArgs(MSG_LOGIN_OK, count, size)
+		return true
 	}
 	return false
 }
@@ -228,7 +247,7 @@ func (this *Pop3Server) cmdList(input string) bool {
 			return true
 		}
 	}
-	this.Error(MSG_BAD_SYNTAX)
+	this.error(MSG_BAD_SYNTAX)
 	return false
 }
 
@@ -237,10 +256,10 @@ func (this *Pop3Server) cmdRetr(input string) bool {
 
 	if this.cmdCompare(inputN[0], CMD_RETR) {
 		if len(inputN) < 2 {
-			this.Ok(MSG_BAD_SYNTAX)
+			this.ok(MSG_BAD_SYNTAX)
 			return false
 		}
-		this.Ok(MSG_RETR_DATA)
+		this.ok(MSG_RETR_DATA)
 		return true
 	}
 	return false
@@ -251,10 +270,10 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 
 	if this.cmdCompare(inputN[0], CMD_UIDL) {
 		if len(inputN) < 2 {
-			this.Ok(MSG_BAD_SYNTAX)
+			this.ok(MSG_BAD_SYNTAX)
 			return false
 		}
-		this.Ok(MSG_OK)
+		this.ok(MSG_OK)
 		return true
 	}
 	return false
@@ -262,7 +281,7 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 
 func (this *Pop3Server) cmdQuit(input string) bool {
 	if this.cmdCompare(input, CMD_QUIT) {
-		this.Ok(MSG_OK)
+		this.ok(MSG_OK)
 		this.close()
 		return true
 	}
@@ -271,16 +290,16 @@ func (this *Pop3Server) cmdQuit(input string) bool {
 
 func (this *Pop3Server) cmdCapa(input string) bool {
 	if this.cmdCompare(input, CMD_CAPA) {
-		this.Ok(MSG_CAPA)
-		this.W("TOP\r\n")
-		this.W("USER\r\n")
-		this.W("PIPELINING\r\n")
-		this.W("UIDL\r\n")
-		this.W("LANG\r\n")
-		this.W("UTF8\r\n")
-		this.W("SASL PLAIN\r\n")
-		this.W("STLS\r\n")
-		this.W(".\r\n")
+		this.ok(MSG_CAPA)
+		this.w("TOP\r\n")
+		this.w("USER\r\n")
+		this.w("PIPELINING\r\n")
+		this.w("UIDL\r\n")
+		this.w("LANG\r\n")
+		this.w("UTF8\r\n")
+		this.w("SASL PLAIN\r\n")
+		this.w("STLS\r\n")
+		this.w(".\r\n")
 		return true
 	}
 	return false
@@ -317,6 +336,9 @@ func (this *Pop3Server) handle() {
 
 		if this.stateCompare(state, CMD_PASS) {
 
+			if this.cmdStat(input) {
+			}
+
 			if this.cmdList(input) {
 			}
 
@@ -336,7 +358,7 @@ func (this *Pop3Server) start(conn net.Conn) {
 
 	this.startTime = time.Now()
 
-	this.Ok(MSG_INIT)
+	this.ok(MSG_INIT)
 	this.setState(CMD_READY)
 
 	this.handle()

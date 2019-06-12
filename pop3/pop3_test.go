@@ -50,12 +50,22 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 		return false, err
 	}
 
+	fmt.Println("PASS data:", data)
+	if strings.HasPrefix(data, "-ERR") {
+		return false, errors.New(data)
+	}
+
+	_, err = conn.Write([]byte("STAT\r\n"))
+	data, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+
 	if strings.HasPrefix(data, "-ERR") {
 		return false, errors.New(data)
 	}
 
 	fmt.Println("CMD:LIST 1")
-
 	_, err = conn.Write([]byte("LIST\r\n"))
 	data, err = bufio.NewReader(conn).ReadString('\n')
 	if err != nil {
@@ -107,9 +117,9 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 }
 
 // go test -v pop3_test.go -test.run TestRunPop3
-// func TestRunPop3(t *testing.T) {
-// 	PopCmd("pop3.163.com", "110", "midoks", "mm123123")
-// }
+func TestRunPop3(t *testing.T) {
+	PopCmd("pop3.163.com", "110", "midoks", "mm123123")
+}
 
 // go test -v pop3_test.go -test.run TestRunLocalPop3
 func TestRunLocalPop3(t *testing.T) {

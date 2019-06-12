@@ -53,8 +53,7 @@ func BoxUserTotal(uid int64) (int64, int64) {
 	var maps []orm.Params
 	o := orm.NewOrm()
 	num, err := o.Raw("SELECT count(uid) as count, sum(size) as size FROM `im_user_box` WHERE uid=?", uid).Values(&maps)
-	if err != nil && num > 0 {
-
+	if err == nil && num > 0 {
 		count, err := strconv.ParseInt(maps[0]["count"].(string), 10, 64)
 		if err != nil {
 			count = 0
