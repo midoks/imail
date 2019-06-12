@@ -213,10 +213,14 @@ func (this *Pop3Server) cmdList(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
 	inputLen := len(inputN)
-	fmt.Println(inputN, inputLen)
-
-	if inputLen < 2 {
+	if inputLen == 1 {
 		if this.cmdCompare(inputN[0], CMD_LIST) {
+
+			t1, t2 := models.BoxUserTotal(this.userID)
+			fmt.Println(t1, t2)
+
+			list, count := models.BoxList(this.userID, 1, 100)
+			fmt.Println(list, count)
 			return true
 		}
 	} else if inputLen == 2 {

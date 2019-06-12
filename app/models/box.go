@@ -1,10 +1,9 @@
 package models
 
 import (
-	_ "fmt"
-	"time"
-
+	"fmt"
 	"github.com/astaxie/beego/orm"
+	"time"
 )
 
 type UserMailBox struct {
@@ -15,6 +14,10 @@ type UserMailBox struct {
 	Size       int   `comment(邮件内容大小[byte])`
 	UpdateTime int64
 	CreateTime int64
+}
+
+func BoxTableName() string {
+	return "im_user_box"
 }
 
 func (u *UserMailBox) TableName() string {
@@ -45,6 +48,32 @@ func BoxAdd(uid int64, mid int64, method int, size int) (int64, error) {
 	return i, err
 }
 
-func BoxList(uid int64, page int, pageSize int) {
+func BoxUserTotal(uid int64) (int64, int64) {
+	fmt.Println("uid", uid)
 
+	type User struct {
+		Count int64
+		Size  int64
+	}
+	var user User
+
+	o := orm.NewOrm()
+	err := o.Raw("SELECT count(uid) as count, sum(size) as size FROM `im_user_box` WHERE uid=?", uid).QueryRow(&user)
+	if err != nil {
+
+	}
+	fmt.Println(user, err)
+
+	return 0, 0
+}
+
+func BoxList(uid int64, page int, pageSize int) ([]*UserMailBox, int64) {
+
+	offset := (page - 1) * pageSize
+	list := make([]*UserMailBox, 0)
+
+	query := orm.NewOrm().QueryTable(BoxTableName())
+	total, _ := query.Count()
+	query.Limit(pageSize, offset).All(&list)
+	return list, total
 }
