@@ -1,8 +1,9 @@
 package models
 
 import (
-	"fmt"
+	// "fmt"
 	"github.com/astaxie/beego/orm"
+	"strconv"
 	"time"
 )
 
@@ -49,21 +50,22 @@ func BoxAdd(uid int64, mid int64, method int, size int) (int64, error) {
 }
 
 func BoxUserTotal(uid int64) (int64, int64) {
-	fmt.Println("uid", uid)
-
-	type User struct {
-		Count int64
-		Size  int64
-	}
-	var user User
-
+	var maps []orm.Params
 	o := orm.NewOrm()
-	err := o.Raw("SELECT count(uid) as count, sum(size) as size FROM `im_user_box` WHERE uid=?", uid).QueryRow(&user)
-	if err != nil {
+	num, err := o.Raw("SELECT count(uid) as count, sum(size) as size FROM `im_user_box` WHERE uid=?", uid).Values(&maps)
+	if err != nil && num > 0 {
 
+		count, err := strconv.ParseInt(maps[0]["count"].(string), 10, 64)
+		if err != nil {
+			count = 0
+		}
+
+		size, err := strconv.ParseInt(maps[0]["size"].(string), 10, 64)
+		if err != nil {
+			size = 0
+		}
+		return count, size
 	}
-	fmt.Println(user, err)
-
 	return 0, 0
 }
 
