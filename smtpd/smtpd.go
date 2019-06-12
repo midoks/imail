@@ -235,7 +235,6 @@ func (this *SmtpdServer) cmdEhlo(input string) bool {
 			// this.W("250-STARTTLS\r\n")
 			// this.W("250-SIZE 73400320\r\n")
 			// this.W("250 8BITMIME\r\n")
-
 			return true
 		}
 	}
