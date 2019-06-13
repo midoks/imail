@@ -254,7 +254,9 @@ func (this *SmtpdServer) checkUserLogin() bool {
 	name := this.loginUser
 	pwd := this.loginPwd
 
-	info, err := models.UserGetByName(name)
+	name_split := strings.SplitN(name, "@", 2)
+
+	info, err := models.UserGetByName(name_split[0])
 
 	if err != nil {
 		return false
