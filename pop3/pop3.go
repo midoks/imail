@@ -54,7 +54,7 @@ const (
 	MSG_LOGIN_OK      = "%d message(s) [%d byte(s)]"
 	MSG_LOGIN_DISABLE = "Unable to log on"
 	MSG_CMD_NOT_VALID = "Command not valid in this state"
-	MSG_RETR_DATA     = "%s\r\n."
+	MSG_RETR_DATA     = "%s octets\r\n%s\r\n."
 	MSG_CAPA          = "Capability list follows"
 	MSG_POS_DATA      = "%d %s"
 )
@@ -286,12 +286,19 @@ func (this *Pop3Server) cmdRetr(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
 	if this.cmdCompare(inputN[0], CMD_RETR) {
-		if len(inputN) < 2 {
-			this.ok(MSG_BAD_SYNTAX)
-			return false
+		if len(inputN) == 2 {
+			pos, err := strconv.ParseInt(inputN[1], 10, 64)
+			if err == nil {
+				if pos > 0 {
+					content, size, err := models.BoxPop3PosContent(this.userID, pos)
+					if err == nil {
+						this.writeArgs(MSG_RETR_DATA, size, content)
+						return true
+					}
+				}
+			}
 		}
-		this.ok(MSG_RETR_DATA)
-		return true
+		this.error(MSG_BAD_SYNTAX)
 	}
 	return false
 }

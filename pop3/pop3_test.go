@@ -7,7 +7,7 @@ import (
 	_ "io/ioutil"
 	// "bytes"
 	"errors"
-	// "log"
+	"log"
 	"net"
 	"strings"
 	"testing"
@@ -111,29 +111,29 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 
 	fmt.Println("S:", data)
 
-	// fmt.Println("CMD:RETR 1")
-	// _, err = conn.Write([]byte("RETR 1\r\n"))
+	fmt.Println("CMD:RETR 1")
+	_, err = conn.Write([]byte("RETR 1\r\n"))
 
-	// for {
+	for {
 
-	// 	b := make([]byte, 4096)
+		b := make([]byte, 4096)
 
-	// 	n, err := conn.Read(b[0:])
-	// 	fmt.Println(n, err)
-	// 	if err != nil {
-	// 		log.Println("SS:directive error:", err)
-	// 		break
-	// 	}
+		n, err := conn.Read(b[0:])
+		fmt.Println(n, err)
+		if err != nil {
+			log.Println("SS:directive error:", err)
+			break
+		}
 
-	// 	v := strings.TrimSpace(string(b[:n]))
+		v := strings.TrimSpace(string(b[:n]))
 
-	// 	fmt.Println("line:", v)
-	// 	last := string(v[len(v)-1:])
+		fmt.Println("line:", v)
+		last := string(v[len(v)-1:])
 
-	// 	if strings.EqualFold(last, ".") {
-	// 		break
-	// 	}
-	// }
+		if strings.EqualFold(last, ".") {
+			break
+		}
+	}
 
 	conn.Write([]byte("QUIT\r\n"))
 

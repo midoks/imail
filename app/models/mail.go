@@ -17,8 +17,12 @@ type UserMail struct {
 	CreateTime int64
 }
 
-func (u *UserMail) TableName() string {
+func MailTableName() string {
 	return "im_mail"
+}
+
+func (u *UserMail) TableName() string {
+	return MailTableName()
 }
 
 func (u *UserMail) Update(fields ...string) error {

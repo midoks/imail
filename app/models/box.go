@@ -79,6 +79,25 @@ func BoxPop3Pos(uid int64, pos int64) ([]orm.Params, error) {
 	return maps, err
 }
 
+func BoxPop3PosContent(uid int64, pos int64) (string, string, error) {
+	var maps []orm.Params
+
+	o := orm.NewOrm()
+	sql := fmt.Sprintf("SELECT mid,size FROM `%s` WHERE uid=? order by id limit %d,%d", BoxTableName(), pos-1, 1)
+	_, err := o.Raw(sql, uid).Values(&maps)
+
+	if err != nil {
+		return "", "", err
+	}
+	size := maps[0]["size"].(string)
+	var content []orm.Params
+	mid := maps[0]["mid"]
+	sql = fmt.Sprintf("SELECT content FROM `%s` WHERE id=?", MailTableName())
+	_, err = o.Raw(sql, mid).Values(&content)
+	text := content[0]["content"].(string)
+	return text, size, nil
+}
+
 // Paging List of POP3 Protocol
 func BoxPop3List(uid int64, page int, pageSize int) ([]orm.Params, error) {
 	var maps []orm.Params
