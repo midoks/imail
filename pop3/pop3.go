@@ -59,7 +59,7 @@ const (
 	MSG_RETR_DATA     = "%s octets\r\n%s\r\n."
 	MSG_CAPA          = "Capability list follows"
 	MSG_POS_DATA      = "%d %s"
-	MSG_AUTH_PLAIN    = "+"
+	MSG_AUTH_PLAIN    = "+\r\n"
 )
 
 var GO_EOL = GetGoEol()
