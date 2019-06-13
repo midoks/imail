@@ -330,7 +330,6 @@ func (this *SmtpdServer) cmdMailFrom(input string) bool {
 			return true
 		}
 	}
-	this.write(MSG_BAD_SYNTAX)
 	return false
 }
 
@@ -480,10 +479,14 @@ func (this *SmtpdServer) handle() {
 			if this.cmdMailFrom(input) {
 				this.setState(CMD_MAIL_FROM)
 			}
+
+			if this.cmdAuthLogin(input) {
+				this.setState(CMD_AUTH_LOGIN)
+			}
 		}
 
 		//CMD_AUTH_LOGIN
-		if this.stateCompare(state, CMD_AUTH_LOGIN) || this.stateCompare(state, CMD_MAIL_FROM) {
+		if this.stateCompare(state, CMD_AUTH_LOGIN) {
 			if this.cmdAuthLoginUser(input) {
 				this.setState(CMD_AUTH_LOGIN_USER)
 			}
@@ -512,6 +515,7 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_MAIL_FROM
 		if this.stateCompare(state, CMD_MAIL_FROM) {
+
 			if this.cmdQuit(input) {
 				break
 			}
