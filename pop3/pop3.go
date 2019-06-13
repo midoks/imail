@@ -317,6 +317,15 @@ func (this *Pop3Server) cmdQuit(input string) bool {
 	return false
 }
 
+func (this *Pop3Server) cmdNoop(input string) bool {
+	if this.cmdCompare(input, CMD_NOOP) {
+		this.ok(MSG_OK)
+		this.close()
+		return true
+	}
+	return false
+}
+
 func (this *Pop3Server) cmdAuthPlain(input string) bool {
 	if this.cmdCompare(input, CMD_AUTH_PLAIN) {
 		this.w(MSG_AUTH_PLAIN)
@@ -377,6 +386,9 @@ func (this *Pop3Server) handle() {
 		if this.stateCompare(state, CMD_PASS) {
 
 			if this.cmdStat(input) {
+			}
+
+			if this.cmdNoop(input) {
 			}
 
 			if this.cmdList(input) {
