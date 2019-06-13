@@ -226,7 +226,7 @@ func (this *SmtpdServer) cmdEhlo(input string) bool {
 	if len(inputN) == 2 {
 
 		if this.cmdCompare(inputN[0], CMD_EHLO) {
-			this.write(MSG_OK)
+			// this.write(MSG_OK)
 			this.w("250-mail\r\n")
 			this.w("250-PIPELINING\r\n")
 			this.w("250-AUTH LOGIN PLAIN\r\n")
