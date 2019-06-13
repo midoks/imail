@@ -229,10 +229,9 @@ func (this *Pop3Server) cmdStat(input string) bool {
 func (this *Pop3Server) cmdList(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
-	inputLen := len(inputN)
-	if inputLen == 1 {
-		if this.cmdCompare(inputN[0], CMD_LIST) {
-
+	if this.cmdCompare(inputN[0], CMD_LIST) {
+		inputLen := len(inputN)
+		if inputLen == 1 {
 			count, size := models.BoxUserTotal(this.userID)
 			this.writeArgs(MSG_LOGIN_OK, count, size)
 
@@ -243,9 +242,7 @@ func (this *Pop3Server) cmdList(input string) bool {
 			}
 			this.w(".\r\n")
 			return true
-		}
-	} else if inputLen == 2 {
-		if this.cmdCompare(inputN[0], CMD_LIST) {
+		} else if inputLen == 2 {
 			pos, err := strconv.ParseInt(inputN[1], 10, 64)
 			if err == nil {
 				if pos > 0 {
@@ -257,8 +254,31 @@ func (this *Pop3Server) cmdList(input string) bool {
 				}
 			}
 		}
+		this.error(MSG_BAD_SYNTAX)
 	}
-	this.error(MSG_BAD_SYNTAX)
+
+	return false
+}
+
+func (this *Pop3Server) cmdUidl(input string) bool {
+	inputN := strings.SplitN(input, " ", 2)
+
+	if this.cmdCompare(inputN[0], CMD_UIDL) {
+		if len(inputN) == 2 {
+			pos, err := strconv.ParseInt(inputN[1], 10, 64)
+			if err == nil {
+
+				if pos > 0 {
+					list, err := models.BoxPop3Pos(this.userID, pos)
+					if err == nil {
+						this.writeArgs(MSG_POS_DATA, pos, list[0]["mid"])
+						return true
+					}
+				}
+			}
+		}
+		this.error(MSG_BAD_SYNTAX)
+	}
 	return false
 }
 
@@ -271,20 +291,6 @@ func (this *Pop3Server) cmdRetr(input string) bool {
 			return false
 		}
 		this.ok(MSG_RETR_DATA)
-		return true
-	}
-	return false
-}
-
-func (this *Pop3Server) cmdUidl(input string) bool {
-	inputN := strings.SplitN(input, " ", 2)
-
-	if this.cmdCompare(inputN[0], CMD_UIDL) {
-		if len(inputN) < 2 {
-			this.ok(MSG_BAD_SYNTAX)
-			return false
-		}
-		this.ok(MSG_OK)
 		return true
 	}
 	return false

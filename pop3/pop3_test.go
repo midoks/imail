@@ -104,6 +104,11 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 	if err != nil {
 		return false, err
 	}
+
+	if strings.HasPrefix(data, "-ERR") {
+		return false, errors.New(data)
+	}
+
 	fmt.Println("S:", data)
 
 	// fmt.Println("CMD:RETR 1")
