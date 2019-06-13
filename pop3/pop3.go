@@ -14,37 +14,39 @@ import (
 )
 
 const (
-	CMD_READY = iota
-	CMD_USER  = iota
-	CMD_PASS  = iota
-	CMD_STAT  = iota
-	CMD_LIST  = iota
-	CMD_RETR  = iota
-	CMD_DELE  = iota
-	CMD_NOOP  = iota
-	CMD_RSET  = iota
-	CMD_TOP   = iota
-	CMD_UIDL  = iota
-	CMD_APOP  = iota
-	CMD_QUIT  = iota
-	CMD_CAPA  = iota
+	CMD_READY      = iota
+	CMD_AUTH_PLAIN = iota
+	CMD_USER       = iota
+	CMD_PASS       = iota
+	CMD_STAT       = iota
+	CMD_LIST       = iota
+	CMD_RETR       = iota
+	CMD_DELE       = iota
+	CMD_NOOP       = iota
+	CMD_RSET       = iota
+	CMD_TOP        = iota
+	CMD_UIDL       = iota
+	CMD_APOP       = iota
+	CMD_QUIT       = iota
+	CMD_CAPA       = iota
 )
 
 var stateList = map[int]string{
-	CMD_READY: "READY",
-	CMD_USER:  "USER",
-	CMD_PASS:  "PASS",
-	CMD_STAT:  "STAT",
-	CMD_LIST:  "LIST",
-	CMD_RETR:  "RETR",
-	CMD_DELE:  "DELE",
-	CMD_NOOP:  "NOOP",
-	CMD_RSET:  "RSET",
-	CMD_TOP:   "TOP",
-	CMD_UIDL:  "UIDL",
-	CMD_APOP:  "APOP",
-	CMD_QUIT:  "QUIT",
-	CMD_CAPA:  "CAPA",
+	CMD_READY:      "READY",
+	CMD_USER:       "USER",
+	CMD_PASS:       "PASS",
+	CMD_STAT:       "STAT",
+	CMD_LIST:       "LIST",
+	CMD_RETR:       "RETR",
+	CMD_DELE:       "DELE",
+	CMD_NOOP:       "NOOP",
+	CMD_RSET:       "RSET",
+	CMD_TOP:        "TOP",
+	CMD_UIDL:       "UIDL",
+	CMD_APOP:       "APOP",
+	CMD_QUIT:       "QUIT",
+	CMD_CAPA:       "CAPA",
+	CMD_AUTH_PLAIN: "AUTH PLAIN",
 }
 
 const (
@@ -57,6 +59,7 @@ const (
 	MSG_RETR_DATA     = "%s octets\r\n%s\r\n."
 	MSG_CAPA          = "Capability list follows"
 	MSG_POS_DATA      = "%d %s"
+	MSG_AUTH_PLAIN    = "+"
 )
 
 var GO_EOL = GetGoEol()
@@ -312,6 +315,14 @@ func (this *Pop3Server) cmdQuit(input string) bool {
 	return false
 }
 
+func (this *Pop3Server) cmdAuthPlain(input string) bool {
+	if this.cmdCompare(input, CMD_AUTH_PLAIN) {
+		this.w(MSG_AUTH_PLAIN)
+		return true
+	}
+	return false
+}
+
 func (this *Pop3Server) cmdCapa(input string) bool {
 	if this.cmdCompare(input, CMD_CAPA) {
 		this.ok(MSG_CAPA)
@@ -344,6 +355,9 @@ func (this *Pop3Server) handle() {
 		}
 
 		if this.cmdCapa(input) {
+		}
+
+		if this.cmdAuthPlain(input) {
 		}
 
 		if this.stateCompare(state, CMD_READY) {
