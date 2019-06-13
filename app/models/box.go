@@ -1,8 +1,9 @@
 package models
 
 import (
-	// "fmt"
+	"fmt"
 	"github.com/astaxie/beego/orm"
+	"math"
 	"strconv"
 	"time"
 )
@@ -22,7 +23,7 @@ func BoxTableName() string {
 }
 
 func (u *UserMailBox) TableName() string {
-	return "im_user_box"
+	return BoxTableName()
 }
 
 func (u *UserMailBox) Update(fields ...string) error {
@@ -51,15 +52,16 @@ func BoxAdd(uid int64, mid int64, method int, size int) (int64, error) {
 
 func BoxUserTotal(uid int64) (int64, int64) {
 	var maps []orm.Params
+
 	o := orm.NewOrm()
-	num, err := o.Raw("SELECT count(uid) as count, sum(size) as size FROM `im_user_box` WHERE uid=?", uid).Values(&maps)
+	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", BoxTableName())
+	num, err := o.Raw(sql, uid).Values(&maps)
 	if err == nil && num > 0 {
-		count, err := strconv.ParseInt(maps[0]["count"].(string), 10, 64)
+		count, err := strconv.ParseInt(maps[0]["count"].(string), 10, 32)
 		if err != nil {
 			count = 0
 		}
-
-		size, err := strconv.ParseInt(maps[0]["size"].(string), 10, 64)
+		size, err := strconv.ParseInt(maps[0]["size"].(string), 10, 32)
 		if err != nil {
 			size = 0
 		}
@@ -68,13 +70,42 @@ func BoxUserTotal(uid int64) (int64, int64) {
 	return 0, 0
 }
 
-func BoxList(uid int64, page int, pageSize int) ([]*UserMailBox, int64) {
+func BoxPop3Pos(uid int64, pos int64) ([]orm.Params, error) {
+	var maps []orm.Params
+
+	o := orm.NewOrm()
+	sql := fmt.Sprintf("SELECT mid,size FROM `%s` WHERE uid=? order by id limit %d,%d", BoxTableName(), pos-1, 1)
+	_, err := o.Raw(sql, uid).Values(&maps)
+	return maps, err
+}
+
+// Paging List of POP3 Protocol
+func BoxPop3List(uid int64, page int, pageSize int) ([]orm.Params, error) {
+	var maps []orm.Params
 
 	offset := (page - 1) * pageSize
-	list := make([]*UserMailBox, 0)
+	o := orm.NewOrm()
+	sql := fmt.Sprintf("SELECT mid,size FROM `%s` WHERE uid=? order by id limit %d,%d", BoxTableName(), offset, pageSize)
+	_, err := o.Raw(sql, uid).Values(&maps)
+	return maps, err
+}
 
-	query := orm.NewOrm().QueryTable(BoxTableName())
-	total, _ := query.Count()
-	query.Limit(pageSize, offset).All(&list)
-	return list, total
+// POP3 gets all the data
+func BoxPop3All(uid int64) []orm.Params {
+	var maps []orm.Params
+	count, _ := BoxUserTotal(uid)
+	pageSize := 100
+	page := int(math.Ceil(float64(count) / float64(pageSize)))
+
+	var num = 1
+	for i := 1; i <= page; i++ {
+		list, _ := BoxPop3List(uid, i, pageSize)
+		for i := 0; i < len(list); i++ {
+			list[i]["num"] = strconv.Itoa(num)
+			maps = append(maps, list[i])
+		}
+		num += 1
+	}
+	// fmt.Println("count:", count, page, maps)
+	return maps
 }

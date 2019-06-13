@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -55,6 +56,7 @@ const (
 	MSG_CMD_NOT_VALID = "Command not valid in this state"
 	MSG_RETR_DATA     = "%s\r\n."
 	MSG_CAPA          = "Capability list follows"
+	MSG_POS_DATA      = "%d %s"
 )
 
 var GO_EOL = GetGoEol()
@@ -205,9 +207,7 @@ func (this *Pop3Server) cmdPass(input string) bool {
 		this.recordCmdPass = strings.TrimSpace(inputN[1])
 
 		if this.checkUserLogin() {
-
 			count, size := models.BoxUserTotal(this.userID)
-			fmt.Println("stat", count, size, this.userID)
 			this.writeArgs(MSG_LOGIN_OK, count, size)
 			return true
 		}
@@ -219,9 +219,7 @@ func (this *Pop3Server) cmdPass(input string) bool {
 
 func (this *Pop3Server) cmdStat(input string) bool {
 	if this.cmdCompare(input, CMD_STAT) {
-
 		count, size := models.BoxUserTotal(this.userID)
-		fmt.Println("stat", count, size, this.userID)
 		this.writeArgs(MSG_LOGIN_OK, count, size)
 		return true
 	}
@@ -235,16 +233,29 @@ func (this *Pop3Server) cmdList(input string) bool {
 	if inputLen == 1 {
 		if this.cmdCompare(inputN[0], CMD_LIST) {
 
-			t1, t2 := models.BoxUserTotal(this.userID)
-			fmt.Println(t1, t2)
+			count, size := models.BoxUserTotal(this.userID)
+			this.writeArgs(MSG_LOGIN_OK, count, size)
 
-			list, count := models.BoxList(this.userID, 1, 100)
-			fmt.Println(list, count)
+			list := models.BoxPop3All(this.userID)
+			for i := 1; i <= len(list); i++ {
+				t := fmt.Sprintf("%d %s\r\n", i, list[i-1]["size"])
+				this.w(t)
+			}
+			this.w(".\r\n")
 			return true
 		}
 	} else if inputLen == 2 {
 		if this.cmdCompare(inputN[0], CMD_LIST) {
-			return true
+			pos, err := strconv.ParseInt(inputN[1], 10, 64)
+			if err == nil {
+				if pos > 0 {
+					list, err := models.BoxPop3Pos(this.userID, pos)
+					if err == nil {
+						this.writeArgs(MSG_POS_DATA, pos, list[0]["size"])
+						return true
+					}
+				}
+			}
 		}
 	}
 	this.error(MSG_BAD_SYNTAX)
