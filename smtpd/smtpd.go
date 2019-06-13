@@ -144,7 +144,7 @@ func (this *SmtpdServer) Debug(d bool) {
 	this.debug = d
 }
 
-func (this *SmtpdServer) W(msg string) {
+func (this *SmtpdServer) w(msg string) {
 	_, err := this.conn.Write([]byte(msg))
 
 	if err != nil {
@@ -227,14 +227,14 @@ func (this *SmtpdServer) cmdEhlo(input string) bool {
 
 		if this.cmdCompare(inputN[0], CMD_EHLO) {
 			this.write(MSG_OK)
-			// this.W("250-mail\r\n")
-			// this.W("250-PIPELINING\r\n")
-			// this.W("250-AUTH LOGIN PLAIN\r\n")
-			// this.W("250-AUTH=LOGIN PLAIN\r\n")
-			// this.W("250-coremail 1Uxr2xKj7kG0xkI17xGrU7I0s8FY2U3Uj8Cz28x1UUUUU7Ic2I0Y2UFRbmXhUCa0xDrUUUUj\r\n")
-			// this.W("250-STARTTLS\r\n")
-			// this.W("250-SIZE 73400320\r\n")
-			// this.W("250 8BITMIME\r\n")
+			this.w("250-mail\r\n")
+			this.w("250-PIPELINING\r\n")
+			this.w("250-AUTH LOGIN PLAIN\r\n")
+			this.w("250-AUTH=LOGIN PLAIN\r\n")
+			this.w("250-coremail 1Uxr2xKj7kG0xkI17xGrU7I0s8FY2U3Uj8Cz28x1UUUUU7Ic2I0Y2UFRbmXhUCa0xDrUUUUj\r\n")
+			this.w("250-STARTTLS\r\n")
+			this.w("250-SIZE 73400320\r\n")
+			this.w("250 8BITMIME\r\n")
 			return true
 		}
 	}
