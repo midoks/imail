@@ -483,7 +483,7 @@ func (this *SmtpdServer) handle() {
 		}
 
 		//CMD_AUTH_LOGIN
-		if this.stateCompare(state, CMD_AUTH_LOGIN) {
+		if this.stateCompare(state, CMD_AUTH_LOGIN) || this.stateCompare(state, CMD_MAIL_FROM) {
 			if this.cmdAuthLoginUser(input) {
 				this.setState(CMD_AUTH_LOGIN_USER)
 			}
