@@ -320,7 +320,6 @@ func (this *Pop3Server) cmdQuit(input string) bool {
 func (this *Pop3Server) cmdNoop(input string) bool {
 	if this.cmdCompare(input, CMD_NOOP) {
 		this.ok(MSG_OK)
-		this.close()
 		return true
 	}
 	return false
