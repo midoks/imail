@@ -39,14 +39,45 @@ func Delivery(domain string, port string, from string, to string, content string
 		return false, err
 	}
 
-	data, err = bufio.NewReader(conn).ReadString('\n')
-	if err != nil {
-		return false, err
+	// data, err = bufio.NewReader(conn).ReadString('\n')
+	// if err != nil {
+	// 	return false, err
+	// }
+
+	data = ""
+	for {
+
+		b := make([]byte, 4096)
+		n, err := conn.Read(b[0:])
+		fmt.Println(n, err)
+		if err != nil {
+			break
+		}
+
+		v := strings.TrimSpace(string(b[:n]))
+		data += fmt.Sprintf("%s\r\n", v)
+		fmt.Println(v)
+		// last := string(v[0:4])
+		// fmt.Println(last)
+		inputN := strings.Split(v, "\r\n")
+
+		// for i := 0; i < len(inputN); i++ {
+		// 	fmt.Println("dd:v", inputN[i])
+		// }
+
+		// fmt.Println(inputN, len(inputN))
+		last := inputN[len(inputN)-1:][0]
+		fmt.Println(last)
+		if strings.EqualFold(last, "250 8BITMIME") {
+			break
+		}
 	}
 
-	if !strings.HasPrefix(data, "250") {
-		return false, errors.New(data)
-	}
+	fmt.Println(data)
+
+	// if !strings.HasPrefix(data, "250") {
+	// 	return false, errors.New(data)
+	// }
 
 	mailfrom := fmt.Sprintf("MAIL FROM: <%s>\r\n", from)
 	DeliveryDebug(mailfrom)

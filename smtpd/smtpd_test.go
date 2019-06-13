@@ -255,15 +255,15 @@ func TestRunUserSend(t *testing.T) {
 	// }
 }
 
-// func TestRunSendLocal(t *testing.T) {
-// 	toEmail := "midoks@imail.com"
-// 	fromEmail := "midoks@cachecha.com"
-// 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
-// 	_, err := Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-// }
+func TestRunSendLocal(t *testing.T) {
+	toEmail := "midoks@cachecha.com"
+	fromEmail := "midoks@11.com"
+	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
+	_, err := Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
+	if err != nil {
+		t.Error(err)
+	}
+}
 
 // func TestRunSendFuncQQ(t *testing.T) {
 // 	toEmail := "627293072@qq.com"
