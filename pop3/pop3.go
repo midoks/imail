@@ -171,8 +171,6 @@ func (this *Pop3Server) checkUserLogin() bool {
 	pwd := this.recordCmdPass
 
 	name_split := strings.SplitN(name, "@", 2)
-
-	fmt.Println(name, pwd, name_split[0])
 	info, err := models.UserGetByName(name_split[0])
 	if err != nil {
 		return false
