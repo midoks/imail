@@ -363,6 +363,9 @@ func (this *Pop3Server) cmdParseAuthPlain(input string) bool {
 	data, err := libs.Base64decode(input)
 	if err == nil {
 		this.D("cmdParseAuthPlain:", data)
+
+		this.ok("Authentication successful")
+		return true
 	}
 	this.error(MSG_LOGIN_DISABLE)
 	return false
