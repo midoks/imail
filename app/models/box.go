@@ -5,6 +5,7 @@ import (
 	"github.com/astaxie/beego/orm"
 	"math"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -77,6 +78,20 @@ func BoxPop3Pos(uid int64, pos int64) ([]orm.Params, error) {
 	sql := fmt.Sprintf("SELECT mid,size FROM `%s` WHERE uid=? order by id limit %d,%d", BoxTableName(), pos-1, 1)
 	_, err := o.Raw(sql, uid).Values(&maps)
 	return maps, err
+}
+
+func BoxPop3PosTop(uid int64, pos int64, line int64) (string, error) {
+	text, _, err := BoxPop3PosContent(uid, pos)
+
+	if err != nil {
+		return "", err
+	}
+
+	textSplit := strings.SplitN(text, "\r\n\r\n", 2)
+	if line == 0 {
+		return textSplit[0] + "\r\n.\r\n", nil
+	}
+	return "", err
 }
 
 func BoxPop3PosContent(uid int64, pos int64) (string, string, error) {

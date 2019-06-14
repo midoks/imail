@@ -287,6 +287,30 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 	return false
 }
 
+func (this *Pop3Server) cmdTop(input string) bool {
+	inputN := strings.SplitN(input, " ", 2)
+	if this.cmdCompare(inputN[0], CMD_TOP) {
+		if len(inputN) == 2 {
+			inputArgs := strings.SplitN(inputN[1], " ", 2)
+			if len(inputArgs) == 2 {
+				pos, err := strconv.ParseInt(inputArgs[0], 10, 64)
+				if err == nil {
+					line, err2 := strconv.ParseInt(inputArgs[1], 10, 64)
+					if err2 == nil {
+						content, err3 := models.BoxPop3PosTop(this.userID, pos, line)
+						if err3 == nil {
+							this.ok(content)
+							return true
+						}
+					}
+				}
+			}
+		}
+		this.error(MSG_BAD_SYNTAX)
+	}
+	return false
+}
+
 func (this *Pop3Server) cmdRetr(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
@@ -397,6 +421,9 @@ func (this *Pop3Server) handle() {
 			}
 
 			if this.cmdRetr(input) {
+			}
+
+			if this.cmdTop(input) {
 			}
 		}
 	}

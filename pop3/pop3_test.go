@@ -65,7 +65,7 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 		return false, errors.New(data)
 	}
 
-	page := "3"
+	page := ""
 	cmd := fmt.Sprintf("LIST %s\r\n", page)
 	fmt.Println(cmd)
 	_, err = conn.Write([]byte(cmd))
@@ -111,6 +111,28 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 
 	fmt.Println("S:", data)
 
+	fmt.Println("TOP 1 0")
+	_, err = conn.Write([]byte("TOP 1 0\r\n"))
+	var content string
+	for {
+
+		b := make([]byte, 4096)
+		n, err := conn.Read(b[0:])
+		if err != nil {
+			break
+		}
+
+		v := strings.TrimSpace(string(b[:n]))
+		content += fmt.Sprintf("%s\r\n", v)
+		fmt.Println("S-v:", v)
+		last := string(v[len(v)-1:])
+		if strings.EqualFold(last, ".") {
+			break
+		}
+	}
+	data = content
+	fmt.Println("S:", data)
+
 	fmt.Println("CMD:RETR 1")
 	_, err = conn.Write([]byte("RETR 1\r\n"))
 
@@ -147,9 +169,9 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 }
 
 // go test -v pop3_test.go -test.run TestRunPop3
-func TestRunPop3(t *testing.T) {
-	PopCmd("pop3.163.com", "110", "midoks", "mm123123")
-}
+// func TestRunPop3(t *testing.T) {
+// 	PopCmd("pop3.163.com", "110", "midoks", "mm123123")
+// }
 
 // go test -v pop3_test.go -test.run TestRunLocalPop3
 func TestRunLocalPop3(t *testing.T) {
