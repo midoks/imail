@@ -358,6 +358,16 @@ func (this *Pop3Server) cmdAuthPlain(input string) bool {
 	return false
 }
 
+func (this *Pop3Server) cmdParseAuthPlain(input string) bool {
+
+	data, err := libs.Base64decode(input)
+	if err == nil {
+		this.D("cmdParseAuthPlain:", data)
+	}
+	this.error(MSG_LOGIN_DISABLE)
+	return false
+}
+
 func (this *Pop3Server) cmdCapa(input string) bool {
 	if this.cmdCompare(input, CMD_CAPA) {
 		this.ok(MSG_CAPA)
@@ -393,6 +403,12 @@ func (this *Pop3Server) handle() {
 		}
 
 		if this.cmdAuthPlain(input) {
+			this.setState(CMD_AUTH_PLAIN)
+		}
+
+		if this.stateCompare(state, CMD_AUTH_PLAIN) {
+			if this.cmdParseAuthPlain(input) {
+			}
 		}
 
 		if this.stateCompare(state, CMD_READY) {
