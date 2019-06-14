@@ -26,6 +26,7 @@ const (
 	CMD_READY           = iota
 	CMD_HELO            = iota
 	CMD_EHLO            = iota
+	CMD_AUTH_PLAIN      = iota
 	CMD_AUTH_LOGIN      = iota
 	CMD_AUTH_LOGIN_USER = iota
 	CMD_AUTH_LOGIN_PWD  = iota
@@ -41,6 +42,7 @@ var stateList = map[int]string{
 	CMD_HELO:       "HELO",
 	CMD_EHLO:       "EHLO",
 	CMD_AUTH_LOGIN: "AUTH LOGIN",
+	CMD_AUTH_PLAIN: "AUTH PLAIN",
 	CMD_MAIL_FROM:  "MAIL FROM",
 	CMD_RCPT_TO:    "RCPT TO",
 	CMD_DATA:       "DATA",
@@ -229,10 +231,10 @@ func (this *SmtpdServer) cmdEhlo(input string) bool {
 			// this.write(MSG_OK)
 			this.w("250-mail\r\n")
 			this.w("250-PIPELINING\r\n")
-			// this.w("250-AUTH LOGIN PLAIN\r\n")
-			// this.w("250-AUTH=LOGIN PLAIN\r\n")
-			this.w("250-AUTH PLAIN LOGIN\r\n")
-			this.w("250-AUTH=PLAIN LOGIN\r\n")
+			this.w("250-AUTH LOGIN PLAIN\r\n")
+			this.w("250-AUTH=LOGIN PLAIN\r\n")
+			// this.w("250-AUTH PLAIN LOGIN\r\n")
+			// this.w("250-AUTH=PLAIN LOGIN\r\n")
 			this.w("250-coremail 1Uxr2xKj7kG0xkI17xGrU7I0s8FY2U3Uj8Cz28x1UUUUU7Ic2I0Y2UFRbmXhUCa0xDrUUUUj\r\n")
 			this.w("250-STARTTLS\r\n")
 			this.w("250-SIZE 73400320\r\n")
@@ -289,6 +291,12 @@ func (this *SmtpdServer) cmdAuthLoginPwd(input string) bool {
 	}
 	this.write(MSG_AUTH_FAIL)
 	return false
+}
+
+func (this *SmtpdServer) cmdAuthPlain(input string) bool {
+	inputN := strings.SplitN(input, ":", 3)
+	fmt.Println(inputN)
+	return true
 }
 
 func (this *SmtpdServer) cmdMailFrom(input string) bool {
@@ -443,7 +451,7 @@ func (this *SmtpdServer) handle() {
 			break
 		}
 
-		this.D("smtpd:", input, state, stateList[state])
+		this.D("smtpd:", state, stateList[state], input)
 
 		//CMD_READY
 		if this.stateCompare(state, CMD_READY) {
@@ -490,6 +498,10 @@ func (this *SmtpdServer) handle() {
 		if this.stateCompare(state, CMD_AUTH_LOGIN) {
 			if this.cmdAuthLoginUser(input) {
 				this.setState(CMD_AUTH_LOGIN_USER)
+			}
+
+			if this.cmdAuthPlain(input) {
+				this.setState(CMD_AUTH_LOGIN_PWD)
 			}
 		}
 

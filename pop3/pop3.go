@@ -177,7 +177,7 @@ func (this *Pop3Server) checkUserLogin() bool {
 	}
 
 	pwdMd5 := libs.Md5str(pwd)
-	if pwdMd5 != info.Password {
+	if !strings.EqualFold(pwdMd5, info.Password) {
 		return false
 	}
 
@@ -364,8 +364,18 @@ func (this *Pop3Server) cmdParseAuthPlain(input string) bool {
 	if err == nil {
 		this.D("cmdParseAuthPlain:", data)
 
-		this.ok("Authentication successful")
-		return true
+		list := strings.SplitN(data, "@cachecha.com", 3)
+
+		this.recordCmdUser = list[0]
+		this.recordCmdPass = list[2]
+
+		b := this.checkUserLogin()
+
+		fmt.Println(b, this.recordCmdUser, this.recordCmdPass)
+		if b {
+			this.ok("Authentication successful")
+			return true
+		}
 	}
 	this.error(MSG_LOGIN_DISABLE)
 	return false
@@ -411,6 +421,7 @@ func (this *Pop3Server) handle() {
 
 		if this.stateCompare(state, CMD_AUTH_PLAIN) {
 			if this.cmdParseAuthPlain(input) {
+				this.setState(CMD_PASS)
 			}
 		}
 
