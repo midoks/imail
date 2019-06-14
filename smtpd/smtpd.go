@@ -444,7 +444,7 @@ func (this *SmtpdServer) handle() {
 			break
 		}
 
-		this.D(input, state, stateList[state])
+		this.D("smtpd:", input, state, stateList[state])
 
 		//CMD_READY
 		if this.stateCompare(state, CMD_READY) {

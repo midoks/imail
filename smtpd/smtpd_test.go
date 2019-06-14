@@ -257,8 +257,8 @@ func TestRunUserSend(t *testing.T) {
 
 func TestRunSendLocal(t *testing.T) {
 	toEmail := "midoks@cachecha.com"
-	fromEmail := "midoks@11.com"
-	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
+	fromEmail := "627293072@qq.com"
+	content := fmt.Sprintf("Date: Fri, 14 Jun 2019 06:09:38 +0800\r\nFrom: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
 	_, err := Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
 	if err != nil {
 		t.Error(err)
@@ -276,11 +276,11 @@ func TestRunSendLocal(t *testing.T) {
 // 	}
 // 	fmt.Println(mxDomain)
 
-// 	content := fmt.Sprintf("From: <121212312@qq.com>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", toEmail)
-// 	_, err = Delivery(mxDomain, "25", fromEmail, toEmail, content)
-// 	if err != nil {
-// 		fmt.Println("err:", err)
-// 	}
+// content := fmt.Sprintf("From: <121212312@qq.com>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", toEmail)
+// _, err = Delivery(mxDomain, "25", fromEmail, toEmail, content)
+// if err != nil {
+// 	fmt.Println("err:", err)
+// }
 
 // 	fmt.Println("-------------qq----end----------------")
 // }
@@ -288,7 +288,7 @@ func TestRunSendLocal(t *testing.T) {
 func Benchmark_SendLocal(b *testing.B) {
 	toEmail := "midoks@imail.com"
 	fromEmail := "midoks@cachecha.com"
-	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
+	content := fmt.Sprintf("Date: Tue, 30 Apr 2019 08:17:02 -0700\r\nFrom: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
 	for i := 0; i < b.N; i++ { //use b.N for looping
 		Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
 	}
