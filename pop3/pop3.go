@@ -276,7 +276,7 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 				if pos > 0 {
 					list, err := models.BoxPop3Pos(this.userID, pos)
 					if err == nil {
-						this.writeArgs(MSG_POS_DATA, pos, libs.Md5str(list[0]["mid"]))
+						this.writeArgs(MSG_POS_DATA, pos, libs.Md5str(list[0]["mid"].(string)))
 						return true
 					}
 				}
