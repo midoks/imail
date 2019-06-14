@@ -59,6 +59,7 @@ const (
 	MSG_RETR_DATA     = "%s octets\r\n%s\r\n."
 	MSG_CAPA          = "Capability list follows"
 	MSG_POS_DATA      = "%d %s"
+	MSG_TOP_DATA      = "%s octets\r\n%s"
 	MSG_AUTH_PLAIN    = "+\r\n"
 )
 
@@ -297,9 +298,10 @@ func (this *Pop3Server) cmdTop(input string) bool {
 				if err == nil {
 					line, err2 := strconv.ParseInt(inputArgs[1], 10, 64)
 					if err2 == nil {
-						content, err3 := models.BoxPop3PosTop(this.userID, pos, line)
+						content, size, err3 := models.BoxPop3PosTop(this.userID, pos, line)
 						if err3 == nil {
-							this.ok(content)
+							// this.ok(content)
+							this.writeArgs(MSG_TOP_DATA, size, content)
 							return true
 						}
 					}

@@ -80,18 +80,18 @@ func BoxPop3Pos(uid int64, pos int64) ([]orm.Params, error) {
 	return maps, err
 }
 
-func BoxPop3PosTop(uid int64, pos int64, line int64) (string, error) {
-	text, _, err := BoxPop3PosContent(uid, pos)
+func BoxPop3PosTop(uid int64, pos int64, line int64) (string, string, error) {
+	text, size, err := BoxPop3PosContent(uid, pos)
 
 	if err != nil {
-		return "", err
+		return "", size, err
 	}
 
 	textSplit := strings.SplitN(text, "\r\n\r\n", 2)
 	if line == 0 {
-		return textSplit[0] + "\r\n.\r\n", nil
+		return textSplit[0] + "\r\n.\r\n", size, nil
 	}
-	return "", err
+	return "", size, err
 }
 
 func BoxPop3PosContent(uid int64, pos int64) (string, string, error) {
