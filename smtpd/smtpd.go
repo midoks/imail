@@ -14,14 +14,6 @@ import (
 	"time"
 )
 
-// There are two ways
-// CMD_METHO_SEND is the data delivered by other SMTP servers.
-// CMD_METHO_USER is data sent by users.
-const (
-	CMD_METHO_SEND = iota
-	CMD_METHO_USER = iota
-)
-
 const (
 	CMD_READY           = iota
 	CMD_HELO            = iota
@@ -99,6 +91,7 @@ func GetGoEol() string {
 type SmtpdServer struct {
 	method            int
 	debug             bool
+	isLogin           bool
 	conn              net.Conn
 	state             int
 	startTime         time.Time
@@ -214,7 +207,6 @@ func (this *SmtpdServer) stateCompare(input int, cmd int) bool {
 
 func (this *SmtpdServer) cmdHelo(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
-	this.method = CMD_METHO_USER
 	if len(inputN) == 2 {
 		if this.cmdCompare(inputN[0], CMD_HELO) {
 			this.write(MSG_OK)
@@ -225,7 +217,6 @@ func (this *SmtpdServer) cmdHelo(input string) bool {
 }
 
 func (this *SmtpdServer) cmdEhlo(input string) bool {
-	this.method = CMD_METHO_SEND
 	inputN := strings.SplitN(input, " ", 2)
 	if len(inputN) == 2 {
 
@@ -258,7 +249,7 @@ func (this *SmtpdServer) cmdAuthLogin(input string) bool {
 
 func (this *SmtpdServer) checkUserLogin() bool {
 	name := this.loginUser
-	pwd := this.loginPwd
+	pwd := strings.TrimSpace(this.loginPwd)
 
 	name_split := strings.SplitN(name, "@", 2)
 
@@ -268,11 +259,13 @@ func (this *SmtpdServer) checkUserLogin() bool {
 		return false
 	}
 
-	pwdStr := libs.Md5str(pwd)
-	if pwdStr != info.Password {
+	pwdMd5 := libs.Md5str(pwd)
+	this.D("smtpd: - checkUserLogin", pwd, len(pwd), pwdMd5, info.Password)
+	if !strings.EqualFold(pwdMd5, info.Password) {
 		return false
 	}
 
+	this.isLogin = true
 	return true
 }
 
@@ -303,11 +296,24 @@ func (this *SmtpdServer) cmdAuthPlain(input string) bool {
 	inputN := strings.SplitN(input, " ", 3)
 
 	if len(inputN) == 3 {
-		// pwd := this.base64Decode(input)
-		fmt.Println("smtp - cmdAuthPlain", len(inputN))
-		fmt.Println("smtp - cmdAuthPlain", inputN[0])
-		fmt.Println("smtp - cmdAuthPlain", inputN[1])
-		fmt.Println("smtp - cmdAuthPlain", inputN[2])
+		data := this.base64Decode(inputN[2])
+		// this.D("smtp - cmdAuthPlain", len(inputN))
+		// this.D("smtp - cmdAuthPlain", inputN[0])
+		// this.D("smtp - cmdAuthPlain", inputN[1])
+		// this.D("smtp - cmdAuthPlain", inputN[2])
+		list := strings.SplitN(data, "@cachecha.com", 3)
+
+		this.loginUser = list[0]
+		this.loginPwd = list[2]
+
+		b := this.checkUserLogin()
+
+		fmt.Println(b, this.loginUser, this.loginPwd)
+		if b {
+			this.write(MSG_AUTH_OK)
+			return true
+		}
+		this.write(MSG_AUTH_FAIL)
 	}
 	return false
 }
@@ -331,7 +337,7 @@ func (this *SmtpdServer) cmdMailFrom(input string) bool {
 				return false
 			}
 
-			if this.method == CMD_METHO_USER {
+			if this.isLogin {
 				info := strings.Split(mailFrom, "@")
 				mdomain := beego.AppConfig.String("mail.domain")
 				if !strings.EqualFold(mdomain, info[1]) {
@@ -357,6 +363,7 @@ func (this *SmtpdServer) cmdMailFrom(input string) bool {
 
 func (this *SmtpdServer) cmdRcptTo(input string) bool {
 	inputN := strings.SplitN(input, ":", 2)
+	this.D("cmdRcptTo", inputN[1])
 	if len(inputN) == 2 {
 		if this.cmdCompare(inputN[0], CMD_RCPT_TO) {
 			inputN[1] = strings.TrimSpace(inputN[1])
@@ -374,7 +381,7 @@ func (this *SmtpdServer) cmdRcptTo(input string) bool {
 			}
 			this.recordcmdRcptTo = rcptTo
 
-			if this.method == CMD_METHO_SEND {
+			if !this.isLogin {
 				info := strings.Split(rcptTo, "@")
 				mdomain := beego.AppConfig.String("mail.domain")
 				if !strings.EqualFold(mdomain, info[1]) {
@@ -427,7 +434,7 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		}
 	}
 
-	if this.method == CMD_METHO_SEND {
+	if !this.isLogin {
 		mid, err := models.MailPush(this.recordCmdMailFrom, this.recordcmdRcptTo, content)
 		if err != nil {
 			return false
@@ -435,7 +442,7 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		models.BoxAdd(this.userID, mid, 0, len(content))
 	}
 
-	if this.method == CMD_METHO_USER {
+	if this.isLogin {
 		mid, err := models.MailPush(this.recordCmdMailFrom, this.recordcmdRcptTo, content)
 		if err != nil {
 			return false
@@ -582,6 +589,7 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	this.conn = conn
 	defer conn.Close()
 	this.startTime = time.Now()
+	this.isLogin = false
 
 	this.write(MSG_INIT)
 	this.setState(CMD_READY)

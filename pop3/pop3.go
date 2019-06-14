@@ -168,7 +168,7 @@ func (this *Pop3Server) stateCompare(input int, cmd int) bool {
 
 func (this *Pop3Server) checkUserLogin() bool {
 	name := this.recordCmdUser
-	pwd := this.recordCmdPass
+	pwd := strings.TrimSpace(this.recordCmdPass)
 
 	name_split := strings.SplitN(name, "@", 2)
 	info, err := models.UserGetByName(name_split[0])
@@ -176,8 +176,9 @@ func (this *Pop3Server) checkUserLogin() bool {
 		return false
 	}
 
-	pwdMd5 := libs.Md5str(pwd)
-	if !strings.EqualFold(pwdMd5, info.Password) {
+	pwd_md5 := libs.Md5str(pwd)
+	// this.D("pop3 - checkUserLogin", pwd2, len(pwd2), pwd_md5, pwd_md52, info.Password)
+	if !strings.EqualFold(pwd_md5, info.Password) {
 		return false
 	}
 
@@ -377,7 +378,7 @@ func (this *Pop3Server) cmdParseAuthPlain(input string) bool {
 		list := strings.SplitN(data, "@cachecha.com", 3)
 
 		this.recordCmdUser = list[0]
-		this.recordCmdPass = list[2]
+		this.recordCmdPass = list[2][1:]
 
 		b := this.checkUserLogin()
 
