@@ -38,16 +38,17 @@ const (
 )
 
 var stateList = map[int]string{
-	CMD_READY:      "READY",
-	CMD_HELO:       "HELO",
-	CMD_EHLO:       "EHLO",
-	CMD_AUTH_LOGIN: "AUTH LOGIN",
-	CMD_AUTH_PLAIN: "AUTH PLAIN",
-	CMD_MAIL_FROM:  "MAIL FROM",
-	CMD_RCPT_TO:    "RCPT TO",
-	CMD_DATA:       "DATA",
-	CMD_DATA_END:   ".",
-	CMD_QUIT:       "QUIT",
+	CMD_READY:          "READY",
+	CMD_HELO:           "HELO",
+	CMD_EHLO:           "EHLO",
+	CMD_AUTH_LOGIN:     "AUTH LOGIN",
+	CMD_AUTH_LOGIN_PWD: "PASSWORD",
+	CMD_AUTH_PLAIN:     "AUTH PLAIN",
+	CMD_MAIL_FROM:      "MAIL FROM",
+	CMD_RCPT_TO:        "RCPT TO",
+	CMD_DATA:           "DATA",
+	CMD_DATA_END:       ".",
+	CMD_QUIT:           "QUIT",
 }
 
 const (
@@ -173,6 +174,7 @@ func (this *SmtpdServer) getString(state int) (string, error) {
 		return "", err
 	}
 
+	// this.D("getString:", input, ":", err)
 	inputTrim := strings.TrimSpace(input)
 	return inputTrim, err
 }
@@ -277,14 +279,18 @@ func (this *SmtpdServer) checkUserLogin() bool {
 func (this *SmtpdServer) cmdAuthLoginUser(input string) bool {
 	user := this.base64Decode(input)
 	this.loginUser = user
+
+	this.D(this.loginUser)
 	this.write(MSG_AUTH_LOGIN_PWD)
 	return true
 }
 
 func (this *SmtpdServer) cmdAuthLoginPwd(input string) bool {
+
 	pwd := this.base64Decode(input)
 	this.loginPwd = pwd
 
+	this.D(this.loginPwd)
 	if this.checkUserLogin() {
 		this.write(MSG_AUTH_OK)
 		return true
@@ -294,9 +300,16 @@ func (this *SmtpdServer) cmdAuthLoginPwd(input string) bool {
 }
 
 func (this *SmtpdServer) cmdAuthPlain(input string) bool {
-	inputN := strings.SplitN(input, ":", 3)
-	fmt.Println(inputN)
-	return true
+	inputN := strings.SplitN(input, " ", 3)
+
+	if len(inputN) == 3 {
+		// pwd := this.base64Decode(input)
+		fmt.Println("smtp - cmdAuthPlain", len(inputN))
+		fmt.Println("smtp - cmdAuthPlain", inputN[0])
+		fmt.Println("smtp - cmdAuthPlain", inputN[1])
+		fmt.Println("smtp - cmdAuthPlain", inputN[2])
+	}
+	return false
 }
 
 func (this *SmtpdServer) cmdMailFrom(input string) bool {
@@ -451,7 +464,7 @@ func (this *SmtpdServer) handle() {
 			break
 		}
 
-		this.D("smtpd:", state, stateList[state], input)
+		this.D("smtpd:", state, stateList[state], "input:[", input, "]")
 
 		//CMD_READY
 		if this.stateCompare(state, CMD_READY) {
@@ -500,9 +513,6 @@ func (this *SmtpdServer) handle() {
 				this.setState(CMD_AUTH_LOGIN_USER)
 			}
 
-			if this.cmdAuthPlain(input) {
-				this.setState(CMD_AUTH_LOGIN_PWD)
-			}
 		}
 
 		//CMD_AUTH_LOGIN_USER
@@ -510,7 +520,10 @@ func (this *SmtpdServer) handle() {
 			if this.cmdQuit(input) {
 				break
 			}
-			if this.cmdAuthLoginPwd(input) {
+
+			if this.cmdAuthPlain(input) {
+				this.setState(CMD_AUTH_LOGIN_PWD)
+			} else if this.cmdAuthLoginPwd(input) {
 				this.setState(CMD_AUTH_LOGIN_PWD)
 			}
 		}
@@ -528,7 +541,6 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_MAIL_FROM
 		if this.stateCompare(state, CMD_MAIL_FROM) {
-
 			if this.cmdQuit(input) {
 				break
 			}

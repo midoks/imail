@@ -242,7 +242,7 @@ func (this *Pop3Server) cmdList(input string) bool {
 
 			list := models.BoxPop3All(this.userID)
 			for i := 1; i <= len(list); i++ {
-				t := fmt.Sprintf("%d %s\r\n", i, list[i-1]["size"])
+				t := fmt.Sprintf("%d %s\r\n", i, list[i-1]["mid"])
 				this.w(t)
 			}
 			this.w(".\r\n")
@@ -253,7 +253,7 @@ func (this *Pop3Server) cmdList(input string) bool {
 				if pos > 0 {
 					list, err := models.BoxPop3Pos(this.userID, pos)
 					if err == nil {
-						this.writeArgs(MSG_POS_DATA, pos, list[0]["size"])
+						this.writeArgs(MSG_POS_DATA, pos, list[0]["mid"])
 						return true
 					}
 				}
@@ -269,7 +269,8 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
 	if this.cmdCompare(inputN[0], CMD_UIDL) {
-		if len(inputN) == 2 {
+		inputLen := len(inputN)
+		if inputLen == 2 {
 			pos, err := strconv.ParseInt(inputN[1], 10, 64)
 			if err == nil {
 
@@ -281,6 +282,15 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 					}
 				}
 			}
+		} else if inputLen == 1 {
+			this.ok("")
+			list := models.BoxPop3All(this.userID)
+			for i := 1; i <= len(list); i++ {
+				t := fmt.Sprintf("%d %s\r\n", i, libs.Md5str(list[i-1]["mid"].(string)))
+				this.w(t)
+			}
+			this.w(".\r\n")
+			return true
 		}
 		this.error(MSG_BAD_SYNTAX)
 	}
