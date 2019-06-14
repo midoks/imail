@@ -174,7 +174,7 @@ func SendMail(user, pwd, domain string, port string, from string, to string, sub
 		return false, err
 	}
 	DeliveryDebug("..............", data)
-	if !strings.HasPrefix(data, "354") {
+	if !strings.HasPrefix(data, "250") {
 		return false, errors.New(data)
 	}
 
@@ -245,12 +245,17 @@ func TestRunSendDelivery(t *testing.T) {
 }
 
 func TestRunUserSend(t *testing.T) {
-	_, err := SendMail("midoks", "mm123123", "127.0.0.1", "1025", "midoks@cachecha.com", "midoks@163.com", "title test!", "content is test!")
-	if err != nil {
-		fmt.Println("err:", err)
-	}
+	// _, err := SendMail("midoks", "mm123123", "127.0.0.1", "1025", "midoks@cachecha.com", "midoks@163.com", "title test!", "content is test!")
+	// if err != nil {
+	// 	fmt.Println("err:", err)
+	// }
 
-	_, err = SendMail("midoks", "mm123123", "smtp.163.com", "25", "midoks@163.com", "627293072@qq.com", "php求增加pcntl扩展!", "谢谢使用，我有空了就加上吧!")
+	// _, err = SendMail("midoks", "mm123123", "smtp.163.com", "25", "midoks@163.com", "627293072@qq.com", "php求增加pcntl扩展!", "谢谢使用，我有空了就加上吧!")
+	// if err != nil {
+	// 	fmt.Println("err:", err)
+	// }
+
+	_, err := SendMail("midoks", "mm123123", "smtp.cachecha.com", "25", "midoks@cachecha.com", "627293072@qq.com", "php求增加pcntl扩展!", "谢谢使用，我有空了就加上吧!")
 	if err != nil {
 		fmt.Println("err:", err)
 	}
