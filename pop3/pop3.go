@@ -54,6 +54,7 @@ const (
 	MSG_OK            = "core mail"
 	MSG_BAD_SYNTAX    = "500"
 	MSG_LOGIN_OK      = "%d message(s) [%d byte(s)]"
+	MSG_STAT_OK       = "%d %d"
 	MSG_LOGIN_DISABLE = "Unable to log on"
 	MSG_CMD_NOT_VALID = "Command not valid in this state"
 	MSG_RETR_DATA     = "%s octets\r\n%s\r\n."
@@ -226,7 +227,7 @@ func (this *Pop3Server) cmdPass(input string) bool {
 func (this *Pop3Server) cmdStat(input string) bool {
 	if this.cmdCompare(input, CMD_STAT) {
 		count, size := models.BoxUserTotal(this.userID)
-		this.writeArgs(MSG_LOGIN_OK, count, size)
+		this.writeArgs(MSG_STAT_OK, count, size)
 		return true
 	}
 	return false
@@ -239,7 +240,7 @@ func (this *Pop3Server) cmdList(input string) bool {
 		inputLen := len(inputN)
 		if inputLen == 1 {
 			count, size := models.BoxUserTotal(this.userID)
-			this.writeArgs(MSG_LOGIN_OK, count, size)
+			this.writeArgs(MSG_STAT_OK, count, size)
 
 			list := models.BoxPop3All(this.userID)
 			for i := 1; i <= len(list); i++ {
