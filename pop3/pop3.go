@@ -177,7 +177,7 @@ func (this *Pop3Server) checkUserLogin() bool {
 	}
 
 	pwd_md5 := libs.Md5str(pwd)
-	// this.D("pop3 - checkUserLogin", pwd2, len(pwd2), pwd_md5, pwd_md52, info.Password)
+	this.D("pop3: - checkUserLogin", pwd, len(pwd), pwd_md5, info.Password)
 	if !strings.EqualFold(pwd_md5, info.Password) {
 		return false
 	}
@@ -373,7 +373,7 @@ func (this *Pop3Server) cmdParseAuthPlain(input string) bool {
 
 	data, err := libs.Base64decode(input)
 	if err == nil {
-		this.D("cmdParseAuthPlain:", data)
+		this.D("pop3:", "cmdParseAuthPlain:", data)
 
 		list := strings.SplitN(data, "@cachecha.com", 3)
 
@@ -381,8 +381,7 @@ func (this *Pop3Server) cmdParseAuthPlain(input string) bool {
 		this.recordCmdPass = list[2][1:]
 
 		b := this.checkUserLogin()
-
-		fmt.Println(b, this.recordCmdUser, this.recordCmdPass)
+		this.D("pop3:", b, this.recordCmdUser, this.recordCmdPass)
 		if b {
 			this.ok("Authentication successful")
 			return true

@@ -56,16 +56,7 @@ func Delivery(domain string, port string, from string, to string, content string
 
 		v := strings.TrimSpace(string(b[:n]))
 		data += fmt.Sprintf("%s\r\n", v)
-		fmt.Println(v)
-		// last := string(v[0:4])
-		// fmt.Println(last)
 		inputN := strings.Split(v, "\r\n")
-
-		// for i := 0; i < len(inputN); i++ {
-		// 	fmt.Println("dd:v", inputN[i])
-		// }
-
-		// fmt.Println(inputN, len(inputN))
 		last := inputN[len(inputN)-1:][0]
 		fmt.Println(last)
 		if strings.EqualFold(last, "250 8BITMIME") {
@@ -126,7 +117,7 @@ func Delivery(domain string, port string, from string, to string, content string
 	}
 
 	content = fmt.Sprintf("%s\r\n\r\n", content)
-	// DeliveryDebug(content)
+	DeliveryDebug(content)
 	_, err = conn.Write([]byte(content))
 	if err != nil {
 		return false, err
@@ -141,6 +132,8 @@ func Delivery(domain string, port string, from string, to string, content string
 	if err != nil {
 		return false, err
 	}
+
+	fmt.Println(".", data)
 	if !strings.HasPrefix(data, "354") {
 		return false, errors.New(data)
 	}

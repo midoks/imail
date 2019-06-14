@@ -173,6 +173,7 @@ func SendMail(user, pwd, domain string, port string, from string, to string, sub
 	if err != nil {
 		return false, err
 	}
+	DeliveryDebug("..............", data)
 	if !strings.HasPrefix(data, "354") {
 		return false, errors.New(data)
 	}
@@ -223,7 +224,7 @@ func mailDeliveryTest() {
 }
 
 func mailDeliveryTest2() {
-	toEmail := "midoks@1632.com"
+	toEmail := "midoks@164.com"
 	fromEmail := "midoks@cachecha.com"
 	mxDomain, err := DnsQuery("163.com")
 	if err != nil {
@@ -240,30 +241,30 @@ func mailDeliveryTest2() {
 }
 
 func TestRunSendDelivery(t *testing.T) {
-	// sendMailTest2()
+	// mailDeliveryTest()
 }
 
 func TestRunUserSend(t *testing.T) {
-	_, err := SendMail("midoks", "123123", "127.0.0.1", "1025", "midoks@imail.com", "midoks@163.com", "title test!", "content is test!")
+	_, err := SendMail("midoks", "mm123123", "127.0.0.1", "1025", "midoks@cachecha.com", "midoks@163.com", "title test!", "content is test!")
 	if err != nil {
 		fmt.Println("err:", err)
 	}
 
-	// _, err = SendMail("midoks", "mm123123", "smtp.163.com", "25", "midoks@163.com", "627293072@qq.com", "php求增加pcntl扩展!", "谢谢使用，我有空了就加上吧!")
-	// if err != nil {
-	// 	fmt.Println("err:", err)
-	// }
-}
-
-func TestRunSendLocal(t *testing.T) {
-	toEmail := "midoks@cachecha.com"
-	fromEmail := "627293072@qq.com"
-	content := fmt.Sprintf("Date: Fri, 14 Jun 2019 06:09:38 +0800\r\nFrom: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
-	_, err := Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
+	_, err = SendMail("midoks", "mm123123", "smtp.163.com", "25", "midoks@163.com", "627293072@qq.com", "php求增加pcntl扩展!", "谢谢使用，我有空了就加上吧!")
 	if err != nil {
-		t.Error(err)
+		fmt.Println("err:", err)
 	}
 }
+
+// func TestRunSendLocal(t *testing.T) {
+// 	toEmail := "midoks@cachecha.com"
+// 	fromEmail := "627293072@qq.com"
+// 	content := fmt.Sprintf("Date: Fri, 14 Jun 2019 06:09:38 +0800\r\nFrom: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?!", fromEmail, toEmail)
+// 	_, err := Delivery("127.0.0.1", "1025", fromEmail, toEmail, content)
+// 	if err != nil {
+// 		t.Error(err)
+// 	}
+// }
 
 // func TestRunSendFuncQQ(t *testing.T) {
 // 	toEmail := "627293072@qq.com"

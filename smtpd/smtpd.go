@@ -219,15 +219,11 @@ func (this *SmtpdServer) cmdHelo(input string) bool {
 func (this *SmtpdServer) cmdEhlo(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 	if len(inputN) == 2 {
-
 		if this.cmdCompare(inputN[0], CMD_EHLO) {
-			// this.write(MSG_OK)
 			this.w("250-mail\r\n")
 			this.w("250-PIPELINING\r\n")
 			this.w("250-AUTH LOGIN PLAIN\r\n")
 			this.w("250-AUTH=LOGIN PLAIN\r\n")
-			// this.w("250-AUTH PLAIN LOGIN\r\n")
-			// this.w("250-AUTH=PLAIN LOGIN\r\n")
 			this.w("250-coremail 1Uxr2xKj7kG0xkI17xGrU7I0s8FY2U3Uj8Cz28x1UUUUU7Ic2I0Y2UFRbmXhUCa0xDrUUUUj\r\n")
 			this.w("250-STARTTLS\r\n")
 			this.w("250-SIZE 73400320\r\n")
@@ -254,7 +250,6 @@ func (this *SmtpdServer) checkUserLogin() bool {
 	name_split := strings.SplitN(name, "@", 2)
 
 	info, err := models.UserGetByName(name_split[0])
-
 	if err != nil {
 		return false
 	}
@@ -273,7 +268,7 @@ func (this *SmtpdServer) cmdAuthLoginUser(input string) bool {
 	user := this.base64Decode(input)
 	this.loginUser = user
 
-	this.D(this.loginUser)
+	this.D("smtpd:", this.loginUser)
 	this.write(MSG_AUTH_LOGIN_PWD)
 	return true
 }
@@ -283,7 +278,7 @@ func (this *SmtpdServer) cmdAuthLoginPwd(input string) bool {
 	pwd := this.base64Decode(input)
 	this.loginPwd = pwd
 
-	this.D(this.loginPwd)
+	this.D("smtpd:", this.loginPwd)
 	if this.checkUserLogin() {
 		this.write(MSG_AUTH_OK)
 		return true
@@ -308,7 +303,7 @@ func (this *SmtpdServer) cmdAuthPlain(input string) bool {
 
 		b := this.checkUserLogin()
 
-		fmt.Println(b, this.loginUser, this.loginPwd)
+		this.D("smtpd:", b, this.loginUser, this.loginPwd)
 		if b {
 			this.write(MSG_AUTH_OK)
 			return true
@@ -429,7 +424,7 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 
 		if strings.EqualFold(last, ".") {
 			content = strings.TrimSpace(content[0 : len(content)-1])
-			this.write(MSG_DATA)
+			this.write(MSG_MAIL_OK)
 			break
 		}
 	}
