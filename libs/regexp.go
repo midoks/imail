@@ -1,9 +1,7 @@
 package libs
 
 import (
-	"html"
 	"regexp"
-	"strings"
 )
 
 func IsEmailRe(b string) bool {
