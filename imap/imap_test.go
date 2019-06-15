@@ -1,0 +1,5 @@
+package imap
+
+func imapCmd() {
+
+}
