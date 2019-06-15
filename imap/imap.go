@@ -73,7 +73,7 @@ func GetGoEol() string {
 	return "\n"
 }
 
-type Pop3Server struct {
+type ImapServer struct {
 	debug         bool
 	conn          net.Conn
 	state         int
@@ -86,23 +86,23 @@ type Pop3Server struct {
 	userID int64
 }
 
-func (this *Pop3Server) setState(state int) {
+func (this *ImapServer) setState(state int) {
 	this.state = state
 }
 
-func (this *Pop3Server) getState() int {
+func (this *ImapServer) getState() int {
 	return this.state
 }
 
-func (this *Pop3Server) D(a ...interface{}) (n int, err error) {
+func (this *ImapServer) D(a ...interface{}) (n int, err error) {
 	return fmt.Println(a...)
 }
 
-func (this *Pop3Server) Debug(d bool) {
+func (this *ImapServer) Debug(d bool) {
 	this.debug = d
 }
 
-func (this *Pop3Server) w(msg string) {
+func (this *ImapServer) w(msg string) {
 	_, err := this.conn.Write([]byte(msg))
 
 	if err != nil {
@@ -110,22 +110,22 @@ func (this *Pop3Server) w(msg string) {
 	}
 }
 
-func (this *Pop3Server) writeArgs(code string, args ...interface{}) {
+func (this *ImapServer) writeArgs(code string, args ...interface{}) {
 	info := fmt.Sprintf("+OK "+code+"\r\n", args...)
 	this.w(info)
 }
 
-func (this *Pop3Server) ok(code string) {
+func (this *ImapServer) ok(code string) {
 	info := fmt.Sprintf("+OK %s\r\n", code)
 	this.w(info)
 }
 
-func (this *Pop3Server) error(code string) {
+func (this *ImapServer) error(code string) {
 	info := fmt.Sprintf("-ERR %s\r\n", code)
 	this.w(info)
 }
 
-func (this *Pop3Server) getString() (string, error) {
+func (this *ImapServer) getString() (string, error) {
 	input, err := bufio.NewReader(this.conn).ReadString('\n')
 	if err != nil {
 		return "", err
@@ -134,7 +134,7 @@ func (this *Pop3Server) getString() (string, error) {
 	return inputTrim, err
 }
 
-func (this *Pop3Server) getString0() (string, error) {
+func (this *ImapServer) getString0() (string, error) {
 	buffer := make([]byte, 2048)
 
 	n, err := this.conn.Read(buffer)
@@ -148,25 +148,25 @@ func (this *Pop3Server) getString0() (string, error) {
 	return inputTrim, err
 }
 
-func (this *Pop3Server) close() {
+func (this *ImapServer) close() {
 	this.conn.Close()
 }
 
-func (this *Pop3Server) cmdCompare(input string, cmd int) bool {
+func (this *ImapServer) cmdCompare(input string, cmd int) bool {
 	if strings.EqualFold(input, stateList[cmd]) {
 		return true
 	}
 	return false
 }
 
-func (this *Pop3Server) stateCompare(input int, cmd int) bool {
+func (this *ImapServer) stateCompare(input int, cmd int) bool {
 	if input == cmd {
 		return true
 	}
 	return false
 }
 
-func (this *Pop3Server) checkUserLogin() bool {
+func (this *ImapServer) checkUserLogin() bool {
 	name := this.recordCmdUser
 	pwd := strings.TrimSpace(this.recordCmdPass)
 
@@ -186,7 +186,7 @@ func (this *Pop3Server) checkUserLogin() bool {
 	return true
 }
 
-func (this *Pop3Server) cmdUser(input string) bool {
+func (this *ImapServer) cmdUser(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
 	if this.cmdCompare(inputN[0], CMD_USER) {
@@ -202,7 +202,7 @@ func (this *Pop3Server) cmdUser(input string) bool {
 	return false
 }
 
-func (this *Pop3Server) cmdPass(input string) bool {
+func (this *ImapServer) cmdPass(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
 	if this.cmdCompare(inputN[0], CMD_PASS) {
@@ -223,7 +223,7 @@ func (this *Pop3Server) cmdPass(input string) bool {
 	return false
 }
 
-func (this *Pop3Server) cmdStat(input string) bool {
+func (this *ImapServer) cmdStat(input string) bool {
 	if this.cmdCompare(input, CMD_STAT) {
 		count, size := models.BoxUserTotal(this.userID)
 		this.writeArgs(MSG_STAT_OK, count, size)
@@ -232,7 +232,7 @@ func (this *Pop3Server) cmdStat(input string) bool {
 	return false
 }
 
-func (this *Pop3Server) cmdList(input string) bool {
+func (this *ImapServer) cmdList(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
 	if this.cmdCompare(inputN[0], CMD_LIST) {
@@ -266,7 +266,7 @@ func (this *Pop3Server) cmdList(input string) bool {
 	return false
 }
 
-func (this *Pop3Server) cmdUidl(input string) bool {
+func (this *ImapServer) cmdUidl(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
 	if this.cmdCompare(inputN[0], CMD_UIDL) {
@@ -298,7 +298,7 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 	return false
 }
 
-func (this *Pop3Server) cmdTop(input string) bool {
+func (this *ImapServer) cmdTop(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 	if this.cmdCompare(inputN[0], CMD_TOP) {
 		if len(inputN) == 2 {
@@ -323,7 +323,7 @@ func (this *Pop3Server) cmdTop(input string) bool {
 	return false
 }
 
-func (this *Pop3Server) cmdRetr(input string) bool {
+func (this *ImapServer) cmdRetr(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
 	if this.cmdCompare(inputN[0], CMD_RETR) {
@@ -344,7 +344,7 @@ func (this *Pop3Server) cmdRetr(input string) bool {
 	return false
 }
 
-func (this *Pop3Server) cmdQuit(input string) bool {
+func (this *ImapServer) cmdQuit(input string) bool {
 	if this.cmdCompare(input, CMD_QUIT) {
 		this.ok(MSG_OK)
 		this.close()
@@ -353,7 +353,7 @@ func (this *Pop3Server) cmdQuit(input string) bool {
 	return false
 }
 
-func (this *Pop3Server) cmdNoop(input string) bool {
+func (this *ImapServer) cmdNoop(input string) bool {
 	if this.cmdCompare(input, CMD_NOOP) {
 		this.ok(MSG_OK)
 		return true
@@ -361,7 +361,7 @@ func (this *Pop3Server) cmdNoop(input string) bool {
 	return false
 }
 
-func (this *Pop3Server) cmdAuthPlain(input string) bool {
+func (this *ImapServer) cmdAuthPlain(input string) bool {
 	if this.cmdCompare(input, CMD_AUTH_PLAIN) {
 		this.w(MSG_AUTH_PLAIN)
 		return true
@@ -369,7 +369,7 @@ func (this *Pop3Server) cmdAuthPlain(input string) bool {
 	return false
 }
 
-func (this *Pop3Server) cmdParseAuthPlain(input string) bool {
+func (this *ImapServer) cmdParseAuthPlain(input string) bool {
 
 	data, err := libs.Base64decode(input)
 	if err == nil {
@@ -391,7 +391,7 @@ func (this *Pop3Server) cmdParseAuthPlain(input string) bool {
 	return false
 }
 
-func (this *Pop3Server) cmdCapa(input string) bool {
+func (this *ImapServer) cmdCapa(input string) bool {
 	if this.cmdCompare(input, CMD_CAPA) {
 		this.ok(MSG_CAPA)
 		this.w("TOP\r\n")
@@ -408,7 +408,7 @@ func (this *Pop3Server) cmdCapa(input string) bool {
 	return false
 }
 
-func (this *Pop3Server) handle() {
+func (this *ImapServer) handle() {
 	for {
 		state := this.getState()
 		input, err := this.getString()
@@ -471,7 +471,7 @@ func (this *Pop3Server) handle() {
 	}
 }
 
-func (this *Pop3Server) start(conn net.Conn) {
+func (this *ImapServer) start(conn net.Conn) {
 	conn.SetReadDeadline(time.Now().Add(time.Minute * 10))
 	defer conn.Close()
 	this.conn = conn
@@ -498,7 +498,7 @@ func Start(port int) {
 		if err != nil {
 			continue
 		}
-		srv := Pop3Server{}
+		srv := ImapServer{}
 		go srv.start(conn)
 	}
 }

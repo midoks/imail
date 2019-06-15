@@ -27,63 +27,60 @@ func main() {
 	}
 
 	smptd_enable, err := conf.Bool("smtpd::enable")
-	if err != nil {
-		fmt.Println("read smptd:port failed, err:", err)
-		return
+	if err == nil {
 		if smptd_enable {
 			smptd_port, err := conf.Int("smtpd::port")
-			if err != nil {
+			if err == nil {
+				go smtpd.Start(smptd_port)
+			} else {
 				fmt.Println("read smptd:port failed, err:", err)
-				return
 			}
-
-			go smtpd.Start(smptd_port)
 		}
-
+	} else {
+		fmt.Println("read smptd:port failed, err:", err)
 	}
 
 	pop3_enable, err := conf.Bool("pop3::enable")
-	if err != nil {
-		fmt.Println("read pop3:port failed, err:", err)
-		return
-
+	if err == nil {
 		if pop3_enable {
 			pop3_port, err := conf.Int("pop3::port")
-			if err != nil {
+			if err == nil {
+				go pop3.Start(pop3_port)
+			} else {
 				fmt.Println("read pop3:port failed, err:", err)
-				return
 			}
-			go pop3.Start(pop3_port)
+
 		}
+	} else {
+		fmt.Println("read pop3:port failed, err:", err)
 	}
 
 	imap_enable, err := conf.Bool("imap::enable")
-	if err != nil {
-		fmt.Println("read imap:port failed, err:", err)
-		return
-
+	if err == nil {
 		if imap_enable {
 			imap_port, err := conf.Int("imap::port")
-			if err != nil {
+			if err == nil {
+				go imap.Start(imap_port)
+			} else {
 				fmt.Println("read imap:port failed, err:", err)
-				return
 			}
-			go imap.Start(imap_port)
 		}
+	} else {
+		fmt.Println("read imap:port failed, err:", err)
 	}
 
-	api_enable, err := conf.Bool("smtpd::enable")
-	if err != nil {
-		fmt.Println("read api:port enable, err:", err)
-
+	api_enable, err := conf.Bool("api::enable")
+	if err == nil {
 		if api_enable {
 			api_port, err := conf.Int("api::port")
-			if err != nil {
-				fmt.Println("read pop3:port failed, err:", err)
-				return
+			if err == nil {
+				app.Start(api_port)
+			} else {
+				fmt.Println("read api:port failed, err:", err)
 			}
-			app.Start(api_port)
 		}
+	} else {
+		fmt.Println("read api:port enable, err:", err)
 	}
 
 }
