@@ -21,7 +21,7 @@ func imapCmd(domain string, port string, name string, password string) (bool, er
 	}
 	fmt.Println("S:", data)
 
-	CMD_USER := fmt.Sprintf("USER %s\r\n", name)
+	CMD_USER := fmt.Sprintf("a1 %s %s\r\n", name, password)
 	fmt.Println("C:", CMD_USER)
 	_, err = conn.Write([]byte(CMD_USER))
 	if err != nil {
