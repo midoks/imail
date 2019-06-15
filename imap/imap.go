@@ -50,7 +50,7 @@ var stateList = map[int]string{
 }
 
 const (
-	MSG_INIT          = "Welcome to coremail Mail Pop3 Server (imail)"
+	MSG_INIT          = "* OK Coremail System IMap Server Ready(imail)"
 	MSG_OK            = "core mail"
 	MSG_BAD_SYNTAX    = "500"
 	MSG_LOGIN_OK      = "%d message(s) [%d byte(s)]"
@@ -111,17 +111,17 @@ func (this *ImapServer) w(msg string) {
 }
 
 func (this *ImapServer) writeArgs(code string, args ...interface{}) {
-	info := fmt.Sprintf("+OK "+code+"\r\n", args...)
+	info := fmt.Sprintf(code+"\r\n", args...)
 	this.w(info)
 }
 
 func (this *ImapServer) ok(code string) {
-	info := fmt.Sprintf("+OK %s\r\n", code)
+	info := fmt.Sprintf("%s\r\n", code)
 	this.w(info)
 }
 
 func (this *ImapServer) error(code string) {
-	info := fmt.Sprintf("-ERR %s\r\n", code)
+	info := fmt.Sprintf("%s\r\n", code)
 	this.w(info)
 }
 
@@ -391,23 +391,6 @@ func (this *ImapServer) cmdParseAuthPlain(input string) bool {
 	return false
 }
 
-func (this *ImapServer) cmdCapa(input string) bool {
-	if this.cmdCompare(input, CMD_CAPA) {
-		this.ok(MSG_CAPA)
-		this.w("TOP\r\n")
-		this.w("USER\r\n")
-		this.w("PIPELINING\r\n")
-		this.w("UIDL\r\n")
-		this.w("LANG\r\n")
-		this.w("UTF8\r\n")
-		this.w("SASL PLAIN\r\n")
-		this.w("STLS\r\n")
-		this.w(".\r\n")
-		return true
-	}
-	return false
-}
-
 func (this *ImapServer) handle() {
 	for {
 		state := this.getState()
@@ -420,9 +403,6 @@ func (this *ImapServer) handle() {
 		fmt.Println("pop3:", state, input)
 		if this.cmdQuit(input) {
 			break
-		}
-
-		if this.cmdCapa(input) {
 		}
 
 		if this.cmdAuthPlain(input) {
@@ -466,7 +446,6 @@ func (this *ImapServer) handle() {
 
 			if this.cmdTop(input) {
 			}
-
 		}
 	}
 }
