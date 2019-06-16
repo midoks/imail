@@ -44,3 +44,7 @@ func UserGetByName(name string) (*User, error) {
 	}
 	return u, nil
 }
+
+func UserLogin(name string, password string) bool {
+	return false
+}

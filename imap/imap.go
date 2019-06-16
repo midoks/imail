@@ -157,21 +157,22 @@ func (this *ImapServer) checkUserLogin() bool {
 	return true
 }
 
-// func (this *ImapServer) cmdAuth(input string) bool {
-// 	inputN := strings.SplitN(input, " ", 2)
+func (this *ImapServer) cmdAuth(input string) bool {
+	inputN := strings.SplitN(input, " ", 3)
 
-// 	if this.cmdCompare(inputN[0], CMD_USER) {
-// 		if len(inputN) < 2 {
-// 			this.ok(MSG_BAD_SYNTAX)
-// 			return false
-// 		}
+	fmt.Println("imap - cmdAuth:", inputN[0], inputN[1])
+	if this.cmdCompare(inputN[1], CMD_AUTH) {
+		if len(inputN) < 3 {
+			this.ok(MSG_BAD_SYNTAX)
+			return false
+		}
 
-// 		this.recordCmdUser = strings.TrimSpace(inputN[1])
-// 		this.ok(MSG_OK)
-// 		return true
-// 	}
-// 	return false
-// }
+		this.recordCmdUser = strings.TrimSpace(inputN[1])
+		// this.ok(MSG_OK)
+		return true
+	}
+	return false
+}
 
 func (this *ImapServer) cmdQuit(input string) bool {
 	if this.cmdCompare(input, CMD_QUIT) {
@@ -186,7 +187,7 @@ func (this *ImapServer) cmdParseAuthPlain(input string) bool {
 
 	data, err := libs.Base64decode(input)
 	if err == nil {
-		this.D("pop3:", "cmdParseAuthPlain:", data)
+		this.D("imap:", "cmdParseAuthPlain:", data)
 
 		list := strings.SplitN(data, "@cachecha.com", 3)
 
@@ -194,7 +195,7 @@ func (this *ImapServer) cmdParseAuthPlain(input string) bool {
 		this.recordCmdPass = list[2][1:]
 
 		b := this.checkUserLogin()
-		this.D("pop3:", b, this.recordCmdUser, this.recordCmdPass)
+		this.D("imap:", b, this.recordCmdUser, this.recordCmdPass)
 		if b {
 			this.ok("Authentication successful")
 			return true
@@ -219,9 +220,9 @@ func (this *ImapServer) handle() {
 			break
 		}
 
-		// if this.cmdAuthPlain(input) {
-		// 	this.setState(CMD_AUTH_PLAIN)
-		// }
+		if this.cmdAuth(input) {
+			this.setState(CMD_AUTH)
+		}
 
 		// if this.stateCompare(state, CMD_AUTH_PLAIN) {
 		// 	if this.cmdParseAuthPlain(input) {
