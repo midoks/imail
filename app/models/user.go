@@ -3,6 +3,8 @@ package models
 import (
 	_ "fmt"
 	"github.com/astaxie/beego/orm"
+	"github.com/midoks/imail/libs"
+	"strings"
 	"time"
 )
 
@@ -45,6 +47,16 @@ func UserGetByName(name string) (*User, error) {
 	return u, nil
 }
 
-func UserLogin(name string, password string) bool {
-	return false
+func UserLogin(name string, password string) (bool, int64) {
+	info, err := UserGetByName(name)
+	if err != nil {
+		return false, 0
+	}
+	pwd_md5 := libs.Md5str(password)
+
+	if !strings.EqualFold(pwd_md5, info.Password) {
+		return false, 0
+	}
+
+	return true, info.Id
 }
