@@ -157,7 +157,7 @@ func (this *ImapServer) checkUserLogin() bool {
 	return true
 }
 
-// func (this *ImapServer) cmdUser(input string) bool {
+// func (this *ImapServer) cmdAuth(input string) bool {
 // 	inputN := strings.SplitN(input, " ", 2)
 
 // 	if this.cmdCompare(inputN[0], CMD_USER) {
@@ -169,27 +169,6 @@ func (this *ImapServer) checkUserLogin() bool {
 // 		this.recordCmdUser = strings.TrimSpace(inputN[1])
 // 		this.ok(MSG_OK)
 // 		return true
-// 	}
-// 	return false
-// }
-
-// func (this *ImapServer) cmdPass(input string) bool {
-// 	inputN := strings.SplitN(input, " ", 2)
-
-// 	if this.cmdCompare(inputN[0], CMD_PASS) {
-// 		if len(inputN) < 2 {
-// 			this.ok(MSG_BAD_SYNTAX)
-// 			return false
-// 		}
-// 		this.recordCmdPass = strings.TrimSpace(inputN[1])
-
-// 		if this.checkUserLogin() {
-// 			count, size := models.BoxUserTotal(this.userID)
-// 			this.writeArgs(MSG_LOGIN_OK, count, size)
-// 			return true
-// 		}
-// 		this.error(MSG_LOGIN_DISABLE)
-// 		return false
 // 	}
 // 	return false
 // }
