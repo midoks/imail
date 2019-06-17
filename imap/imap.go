@@ -14,24 +14,28 @@ import (
 )
 
 const (
-	CMD_READY = iota
-	CMD_AUTH  = iota
-	CMD_QUIT  = iota
+	CMD_READY      = iota
+	CMD_AUTH       = iota
+	CMD_LIST       = iota
+	CMD_LOGOUT     = iota
+	CMD_CAPABILITY = iota
 )
 
 var stateList = map[int]string{
-	CMD_READY: "READY",
-	CMD_AUTH:  "AUTH",
+	CMD_READY:      "READY",
+	CMD_AUTH:       "LOGIN",
+	CMD_LOGOUT:     "LOGOUT",
+	CMD_LIST:       "LIST",
+	CMD_CAPABILITY: "CAPABILITY",
 }
 
 const (
 	MSG_INIT          = "* OK Coremail System IMap Server Ready(imail)"
-	MSG_BAD_SYNTAX    = "500"
-	MSG_LOGIN_OK      = "%d message(s) [%d byte(s)]"
-	MSG_STAT_OK       = "%d %d"
-	MSG_LOGIN_DISABLE = "Unable to log on"
+	MSG_BAD_SYNTAX    = "%s BAD command not support"
+	MSG_LOGIN_OK      = "%s OK LOGIN completed"
+	MSG_LOGOUT_OK     = "%s OK LOGOUT completed"
+	MSG_LOGIN_DISABLE = "%s NO LOGIN Login error password error"
 	MSG_CMD_NOT_VALID = "Command not valid in this state"
-	MSG_AUTH_PLAIN    = "+\r\n"
 	MSG_LOGOUT        = "* BYE IMAP4rev1 Server logging out"
 )
 
@@ -158,50 +162,58 @@ func (this *ImapServer) checkUserLogin() bool {
 }
 
 func (this *ImapServer) cmdAuth(input string) bool {
-	inputN := strings.SplitN(input, " ", 3)
-
-	fmt.Println("imap - cmdAuth:", inputN[0], inputN[1])
+	inputN := strings.SplitN(input, " ", 4)
 	if this.cmdCompare(inputN[1], CMD_AUTH) {
-		if len(inputN) < 3 {
-			this.ok(MSG_BAD_SYNTAX)
+		if len(inputN) < 4 {
+			this.writeArgs(MSG_BAD_SYNTAX, inputN[0])
 			return false
 		}
 
-		this.recordCmdUser = strings.TrimSpace(inputN[1])
-		// this.ok(MSG_OK)
-		return true
+		user := inputN[2]
+		pwd := inputN[3]
+
+		isLogin, id := models.UserLogin(user, pwd)
+		if isLogin {
+			this.userID = id
+			this.writeArgs(MSG_LOGIN_OK, inputN[0])
+			return true
+		}
+		this.writeArgs(MSG_LOGIN_DISABLE, inputN[0])
 	}
 	return false
 }
 
-func (this *ImapServer) cmdQuit(input string) bool {
-	if this.cmdCompare(input, CMD_QUIT) {
-		// this.ok(MSG_OK)
-		this.close()
-		return true
-	}
+func (this *ImapServer) cmdList(input string) bool {
+	inputN := strings.SplitN(input, " ", 4)
+	fmt.Println("cmd_list:", inputN)
 	return false
 }
 
-func (this *ImapServer) cmdParseAuthPlain(input string) bool {
+func (this *ImapServer) cmdCapabitity(input string) bool {
+	inputN := strings.SplitN(input, " ", 2)
 
-	data, err := libs.Base64decode(input)
-	if err == nil {
-		this.D("imap:", "cmdParseAuthPlain:", data)
-
-		list := strings.SplitN(data, "@cachecha.com", 3)
-
-		this.recordCmdUser = list[0]
-		this.recordCmdPass = list[2][1:]
-
-		b := this.checkUserLogin()
-		this.D("imap:", b, this.recordCmdUser, this.recordCmdPass)
-		if b {
-			this.ok("Authentication successful")
+	if len(inputN) == 2 {
+		if this.cmdCompare(inputN[1], CMD_CAPABILITY) {
+			this.w("* OK Coremail System IMap Server Ready(imail)\r\n")
+			this.w("* CAPABILITY IMAP4rev1 XLIST SPECIAL-USE ID LITERAL+ STARTTLS XAPPLEPUSHSERVICE UIDPLUS X-CM-EXT-1\r\n")
+			this.writeArgs("%s OK CAPABILITY completed\r\n", inputN[0])
 			return true
 		}
 	}
-	this.error(MSG_LOGIN_DISABLE)
+	return false
+}
+
+func (this *ImapServer) cmdLogout(input string) bool {
+	inputN := strings.SplitN(input, " ", 2)
+
+	if len(inputN) == 2 {
+		if this.cmdCompare(inputN[1], CMD_LOGOUT) {
+			this.writeArgs(MSG_LOGOUT)
+			this.writeArgs(MSG_LOGOUT_OK, inputN[0])
+			this.close()
+			return true
+		}
+	}
 	return false
 }
 
@@ -209,36 +221,28 @@ func (this *ImapServer) handle() {
 	for {
 		state := this.getState()
 		input, err := this.getString()
-
 		if err != nil {
 			break
 		}
 
 		fmt.Println("imap:", state, input)
 
-		if this.cmdQuit(input) {
+		if this.cmdLogout(input) {
 			break
+		}
+
+		if this.cmdCapabitity(input) {
 		}
 
 		if this.cmdAuth(input) {
 			this.setState(CMD_AUTH)
 		}
 
-		// if this.stateCompare(state, CMD_AUTH_PLAIN) {
-		// 	if this.cmdParseAuthPlain(input) {
-		// 		this.setState(CMD_PASS)
-		// 	}
-		// }
+		if this.stateCompare(state, CMD_AUTH) {
+			if this.cmdList(input) {
+			}
 
-		if this.stateCompare(state, CMD_READY) {
-			// if this.cmdUser(input) {
-			// 	this.setState(CMD_USER)
-			// }
 		}
-
-		// if this.stateCompare(state, CMD_PASS) {
-
-		// }
 	}
 }
 
