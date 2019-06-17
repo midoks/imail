@@ -66,11 +66,22 @@ func imapCmd(domain string, port string, name string, password string) (bool, er
 		return false, err
 	}
 
-	data, err = bufio.NewReader(conn).ReadString('\n')
-	if err != nil {
-		return false, err
+	for {
+
+		b := make([]byte, 4096)
+		n, err := conn.Read(b[0:])
+		if err != nil {
+			break
+		}
+
+		v := strings.TrimSpace(string(b[:n]))
+		content += fmt.Sprintf("%s\r\n", v)
+		fmt.Println("S-v:", v)
+
+		if strings.Contains(strings.ToLower(v), "completed") {
+			break
+		}
 	}
-	fmt.Println("S:", data)
 
 	cmd = fmt.Sprintf("a1 logout\r\n")
 	fmt.Println("C:", cmd)
@@ -95,6 +106,10 @@ func imapCmd(domain string, port string, name string, password string) (bool, er
 	return false, err
 }
 
-func TestRunImap(t *testing.T) {
-	imapCmd("127.0.0.1", "143", "midoks", "mm123123")
+// func TestRunImap(t *testing.T) {
+// 	imapCmd("127.0.0.1", "143", "midoks", "mm123123")
+// }
+
+func TestRunImap163(t *testing.T) {
+	imapCmd("imap.163.com", "143", "midoks@163.com", "mm123123")
 }
