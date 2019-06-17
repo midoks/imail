@@ -190,11 +190,11 @@ func (this *ImapServer) cmdSelect(input string) bool {
 	if len(inputN) == 3 {
 		if this.cmdCompare(inputN[1], CMD_SELECT) {
 			fmt.Println("cmd_list:", inputN)
-			this.w("* 122 EXISTS")
-			this.w("* 1 RECENT")
-			this.w("* OK [UIDVALIDITY 1] UIDs valid")
-			this.w("* FLAGS (\\Answered\\Seen \\Deleted \\Draft \\Flagged)")
-			this.w("* OK [PERMANENTFLAGS (\\Answered \\Seen \\Deleted \\Draft \\Flagged)] Limited")
+			this.w("* 122 EXISTS\r\n")
+			this.w("* 1 RECENT\r\n")
+			this.w("* OK [UIDVALIDITY 1] UIDs valid\r\n")
+			this.w("* FLAGS (\\Answered\\Seen \\Deleted \\Draft \\Flagged)\r\n")
+			this.w("* OK [PERMANENTFLAGS (\\Answered \\Seen \\Deleted \\Draft \\Flagged)] Limited\r\n")
 			this.writeArgs("%s OK [READ-WRITE] %s completed", inputN[0], inputN[1])
 			return true
 		}
@@ -204,13 +204,12 @@ func (this *ImapServer) cmdSelect(input string) bool {
 
 func (this *ImapServer) cmdList(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
-
 	if len(inputN) == 4 {
 		if this.cmdCompare(inputN[1], CMD_LIST) {
 			fmt.Println("cmd_list:", inputN)
-			this.w("* LIST () \"/\" \"INBOX\"")
+			this.w("* LIST () \"/\" \"INBOX\"\r\n")
 			// this.w("* LIST () \"/\" \"Notes\"")
-			// this.w("* LIST () \"/\" \"文件11212\"")
+			this.w("* LIST () \"/\" \"文件11212\"\r\n")
 			this.writeArgs("%s OK %s completed", inputN[0], inputN[1])
 			return true
 		}
