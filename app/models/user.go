@@ -48,7 +48,8 @@ func UserGetByName(name string) (*User, error) {
 }
 
 func UserLogin(name string, password string) (bool, int64) {
-	info, err := UserGetByName(name)
+	list := strings.SplitN(name, "@", 2)
+	info, err := UserGetByName(list[0])
 	if err != nil {
 		return false, 0
 	}

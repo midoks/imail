@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/midoks/imail/app/models"
-	"github.com/midoks/imail/libs"
+	// "github.com/midoks/imail/libs"
 	"log"
 	"net"
 	"runtime"
@@ -19,6 +19,9 @@ const (
 	CMD_LIST       = iota
 	CMD_LOGOUT     = iota
 	CMD_CAPABILITY = iota
+	CMD_ID         = iota
+	CMD_STATUS     = iota
+	CMD_SELECT     = iota
 )
 
 var stateList = map[int]string{
@@ -27,6 +30,9 @@ var stateList = map[int]string{
 	CMD_LOGOUT:     "LOGOUT",
 	CMD_LIST:       "LIST",
 	CMD_CAPABILITY: "CAPABILITY",
+	CMD_ID:         "ID",
+	CMD_STATUS:     "STATUS",
+	CMD_SELECT:     "SELECT",
 }
 
 const (
@@ -78,6 +84,7 @@ func (this *ImapServer) Debug(d bool) {
 }
 
 func (this *ImapServer) w(msg string) {
+	// fmt.Println("w[debug]:", msg)
 	_, err := this.conn.Write([]byte(msg))
 
 	if err != nil {
@@ -141,26 +148,6 @@ func (this *ImapServer) stateCompare(input int, cmd int) bool {
 	return false
 }
 
-func (this *ImapServer) checkUserLogin() bool {
-	name := this.recordCmdUser
-	pwd := strings.TrimSpace(this.recordCmdPass)
-
-	name_split := strings.SplitN(name, "@", 2)
-	info, err := models.UserGetByName(name_split[0])
-	if err != nil {
-		return false
-	}
-
-	pwd_md5 := libs.Md5str(pwd)
-	this.D("imap: - checkUserLogin", pwd, len(pwd), pwd_md5, info.Password)
-	if !strings.EqualFold(pwd_md5, info.Password) {
-		return false
-	}
-
-	this.userID = info.Id
-	return true
-}
-
 func (this *ImapServer) cmdAuth(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
 	if this.cmdCompare(inputN[1], CMD_AUTH) {
@@ -170,7 +157,7 @@ func (this *ImapServer) cmdAuth(input string) bool {
 		}
 
 		user := inputN[2]
-		pwd := inputN[3]
+		pwd := strings.Trim(inputN[3], "\"")
 
 		isLogin, id := models.UserLogin(user, pwd)
 		if isLogin {
@@ -183,9 +170,51 @@ func (this *ImapServer) cmdAuth(input string) bool {
 	return false
 }
 
+func (this *ImapServer) cmdStatus(input string) bool {
+	inputN := strings.SplitN(input, " ", 4)
+
+	if len(inputN) == 4 {
+		if this.cmdCompare(inputN[1], CMD_STATUS) {
+			fmt.Println("cmd_list:", inputN)
+			this.writeArgs("* %s %s (MESSAGES 122 RECENT 0 UNSEEN 0)", inputN[1], inputN[2])
+			this.writeArgs("%s OK %s completed", inputN[0], inputN[1])
+			return true
+		}
+	}
+	return false
+}
+
+func (this *ImapServer) cmdSelect(input string) bool {
+	inputN := strings.SplitN(input, " ", 3)
+
+	if len(inputN) == 3 {
+		if this.cmdCompare(inputN[1], CMD_SELECT) {
+			fmt.Println("cmd_list:", inputN)
+			this.w("* 122 EXISTS")
+			this.w("* 1 RECENT")
+			this.w("* OK [UIDVALIDITY 1] UIDs valid")
+			this.w("* FLAGS (\\Answered\\Seen \\Deleted \\Draft \\Flagged)")
+			this.w("* OK [PERMANENTFLAGS (\\Answered \\Seen \\Deleted \\Draft \\Flagged)] Limited")
+			this.writeArgs("%s OK [READ-WRITE] %s completed", inputN[0], inputN[1])
+			return true
+		}
+	}
+	return false
+}
+
 func (this *ImapServer) cmdList(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
-	fmt.Println("cmd_list:", inputN)
+
+	if len(inputN) == 4 {
+		if this.cmdCompare(inputN[1], CMD_LIST) {
+			fmt.Println("cmd_list:", inputN)
+			this.w("* LIST () \"/\" \"INBOX\"")
+			// this.w("* LIST () \"/\" \"Notes\"")
+			// this.w("* LIST () \"/\" \"文件11212\"")
+			this.writeArgs("%s OK %s completed", inputN[0], inputN[1])
+			return true
+		}
+	}
 	return false
 }
 
@@ -197,6 +226,17 @@ func (this *ImapServer) cmdCapabitity(input string) bool {
 			this.w("* OK Coremail System IMap Server Ready(imail)\r\n")
 			this.w("* CAPABILITY IMAP4rev1 XLIST SPECIAL-USE ID LITERAL+ STARTTLS XAPPLEPUSHSERVICE UIDPLUS X-CM-EXT-1\r\n")
 			this.writeArgs("%s OK CAPABILITY completed\r\n", inputN[0])
+			return true
+		}
+	}
+	return false
+}
+
+func (this *ImapServer) cmdId(input string) bool {
+	inputN := strings.SplitN(input, " ", 3)
+	if len(inputN) == 3 {
+		if this.cmdCompare(inputN[1], CMD_ID) {
+			this.writeArgs("%s OK %s completed\r\n", inputN[0], inputN[1])
 			return true
 		}
 	}
@@ -234,6 +274,9 @@ func (this *ImapServer) handle() {
 		if this.cmdCapabitity(input) {
 		}
 
+		if this.cmdId(input) {
+		}
+
 		if this.cmdAuth(input) {
 			this.setState(CMD_AUTH)
 		}
@@ -242,6 +285,11 @@ func (this *ImapServer) handle() {
 			if this.cmdList(input) {
 			}
 
+			if this.cmdStatus(input) {
+			}
+
+			if this.cmdSelect(input) {
+			}
 		}
 	}
 }
