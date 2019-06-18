@@ -15,8 +15,6 @@
 */
 
 SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
-
 -- ----------------------------
 -- Table structure for im_mail
 -- ----------------------------
@@ -31,7 +29,7 @@ CREATE TABLE `im_mail` (
   `create_time` bigint(20) unsigned NOT NULL COMMENT '创建时间',
   `update_time` bigint(20) unsigned NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Table structure for im_user
@@ -45,7 +43,7 @@ CREATE TABLE `im_user` (
   `create_time` bigint(20) unsigned NOT NULL COMMENT '创建时间',
   `update_time` bigint(20) unsigned NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Table structure for im_user_box
@@ -60,6 +58,19 @@ CREATE TABLE `im_user_box` (
   `create_time` bigint(20) unsigned NOT NULL COMMENT '创建时间',
   `update_time` bigint(20) NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;
 
-SET FOREIGN_KEY_CHECKS = 1;
+-- ----------------------------
+-- Table structure for im_class
+-- ----------------------------
+DROP TABLE IF EXISTS `im_class`;
+CREATE TABLE `im_class` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `name` varchar(50) NOT NULL COMMENT '名字',
+  `type` tinyint(4) unsigned NOT NULL DEFAULT '0',
+  `userid` bigint(20) NOT NULL DEFAULT '0',
+  `create_time` bigint(20) NOT NULL COMMENT '创建时间',
+  `update_time` bigint(20) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分类';
+

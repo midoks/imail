@@ -296,6 +296,7 @@ func (this *ImapServer) handle() {
 		}
 
 		if this.stateCompare(state, CMD_AUTH) {
+
 			if this.cmdList(input) {
 			}
 
