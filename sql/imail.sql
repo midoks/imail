@@ -67,10 +67,21 @@ DROP TABLE IF EXISTS `im_class`;
 CREATE TABLE `im_class` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `name` varchar(50) NOT NULL COMMENT '名字',
-  `type` tinyint(4) unsigned NOT NULL DEFAULT '0',
-  `userid` bigint(20) NOT NULL DEFAULT '0',
-  `create_time` bigint(20) NOT NULL COMMENT '创建时间',
+  `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '类型,0:通用:1,用户自定义',
+  `userid` bigint(20) NOT NULL DEFAULT '0' COMMENT '用户ID',
   `update_time` bigint(20) NOT NULL COMMENT '更新时间',
+  `create_time` bigint(20) NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分类';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='分类';
+
+-- ----------------------------
+-- Records of im_class
+-- ----------------------------
+BEGIN;
+INSERT INTO `im_class` VALUES (1, '收件箱', 0, 0, 1560332405, 1560332405);
+INSERT INTO `im_class` VALUES (2, '发件箱', 0, 0, 1560332405, 1560332405);
+INSERT INTO `im_class` VALUES (3, '已删除', 0, 0, 1560332405, 1560332405);
+INSERT INTO `im_class` VALUES (4, '广告邮件', 0, 0, 1560332405, 1560332405);
+INSERT INTO `im_class` VALUES (5, '垃圾邮件', 0, 0, 1560332405, 1560332405);
+COMMIT;
 
