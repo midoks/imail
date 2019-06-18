@@ -1,7 +1,7 @@
 package models
 
 import (
-	_ "fmt"
+	"fmt"
 	"github.com/astaxie/beego/orm"
 	"github.com/midoks/imail/libs"
 	"strings"
@@ -53,8 +53,9 @@ func UserLogin(name string, password string) (bool, int64) {
 	if err != nil {
 		return false, 0
 	}
-	pwd_md5 := libs.Md5str(password)
 
+	pwd_md5 := libs.Md5str(password)
+	fmt.Println("UserLogin", list[0], pwd_md5, info.Password)
 	if !strings.EqualFold(pwd_md5, info.Password) {
 		return false, 0
 	}

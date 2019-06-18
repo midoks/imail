@@ -221,12 +221,14 @@ func (this *ImapServer) cmdList(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
 	if len(inputN) == 4 {
 		if this.cmdCompare(inputN[1], CMD_LIST) {
-			fmt.Println("cmd_list:", inputN)
-			this.w("* LIST () \"/\" \"INBOX\"\r\n")
-			// this.w("* LIST () \"/\" \"Notes\"")
-			this.w("* LIST () \"/\" \"文件11212\"\r\n")
-			this.writeArgs("%s OK %s completed", inputN[0], inputN[1])
-			return true
+			list, err := models.ClassGetByUid(this.userID)
+			if err == nil {
+				for i := 1; i <= len(list); i++ {
+					this.writeArgs("* LIST (\\%s) \"/\" \"%s\"", list[i-1]["tag"], list[i-1]["name"])
+				}
+				this.writeArgs("%s OK %s completed", inputN[0], inputN[1])
+				return true
+			}
 		}
 	}
 	return false

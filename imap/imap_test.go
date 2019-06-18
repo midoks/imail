@@ -106,10 +106,10 @@ func imapCmd(domain string, port string, name string, password string) (bool, er
 	return false, err
 }
 
-// func TestRunImap(t *testing.T) {
-// 	imapCmd("127.0.0.1", "143", "midoks", "mm123123")
-// }
-
 func TestRunImap163(t *testing.T) {
 	imapCmd("imap.163.com", "143", "midoks@163.com", "mm123123")
+}
+
+func TestRunImap(t *testing.T) {
+	imapCmd("127.0.0.1", "143", "midoks@163.com", "123123")
 }
