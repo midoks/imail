@@ -41,7 +41,7 @@ func imapCmd(domain string, port string, name string, password string) (bool, er
 		v := strings.TrimSpace(string(b[:n]))
 		content += fmt.Sprintf("%s\r\n", v)
 		fmt.Println("S-v:", v)
-		if strings.Contains(v, "completed") {
+		if strings.Contains(strings.ToLower(v), "completed") {
 			break
 		}
 	}
