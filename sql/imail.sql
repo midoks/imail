@@ -29,7 +29,7 @@ CREATE TABLE `im_mail` (
   `create_time` bigint(20) unsigned NOT NULL COMMENT '创建时间',
   `update_time` bigint(20) unsigned NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COMMENT='邮件内容表';
 
 -- ----------------------------
 -- Table structure for im_user
@@ -43,7 +43,7 @@ CREATE TABLE `im_user` (
   `create_time` bigint(20) unsigned NOT NULL COMMENT '创建时间',
   `update_time` bigint(20) unsigned NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 
 -- ----------------------------
 -- Table structure for im_user_box
@@ -58,7 +58,7 @@ CREATE TABLE `im_user_box` (
   `create_time` bigint(20) unsigned NOT NULL COMMENT '创建时间',
   `update_time` bigint(20) NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COMMENT='用户BOX';
 
 -- ----------------------------
 -- Table structure for im_class
@@ -72,7 +72,7 @@ CREATE TABLE `im_class` (
   `update_time` bigint(20) NOT NULL COMMENT '更新时间',
   `create_time` bigint(20) NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='分类';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COMMENT='分类';
 
 -- ----------------------------
 -- Records of im_class
