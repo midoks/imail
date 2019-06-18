@@ -580,7 +580,7 @@ func (this *SmtpdServer) handle() {
 }
 
 func (this *SmtpdServer) start(conn net.Conn) {
-	conn.SetReadDeadline(time.Now().Add(time.Minute * 60))
+	conn.SetReadDeadline(time.Now().Add(time.Minute * 30))
 	this.conn = conn
 	defer conn.Close()
 	this.startTime = time.Now()
