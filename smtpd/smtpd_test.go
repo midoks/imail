@@ -10,6 +10,16 @@ import (
 	"testing"
 )
 
+func TestGetMx_1(t *testing.T) {
+	d, err := DnsQuery("163.com")
+	fmt.Println(d, err)
+	if err == nil {
+		t.Log("dns.Query ok:" + d)
+	} else {
+		t.Error("dns.Query fail:" + err.Error())
+	}
+}
+
 // Delivery of mail to external mail
 func SendMail(user, pwd, domain string, port string, from string, to string, subject string, msg string) (bool, error) {
 

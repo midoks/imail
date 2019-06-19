@@ -57,11 +57,14 @@ func BoxUserTotal(uid int64) (int64, int64) {
 	o := orm.NewOrm()
 	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", BoxTableName())
 	num, err := o.Raw(sql, uid).Values(&maps)
-	if err == nil && num > 0 {
-		count, err := strconv.ParseInt(maps[0]["count"].(string), 10, 32)
-		if err != nil {
-			count = 0
-		}
+
+	count, err := strconv.ParseInt(maps[0]["count"].(string), 10, 32)
+	if err != nil {
+		count = 0
+	}
+
+	if err == nil && num > 0 && count > 0 {
+
 		size, err := strconv.ParseInt(maps[0]["size"].(string), 10, 32)
 		if err != nil {
 			size = 0

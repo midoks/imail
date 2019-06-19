@@ -244,6 +244,7 @@ func (this *ImapServer) cmdCapabitity(input string) bool {
 			this.writeArgs("%s OK CAPABILITY completed\r\n", inputN[0])
 			return true
 		}
+
 	}
 	return false
 }
@@ -310,6 +311,7 @@ func (this *ImapServer) handle() {
 
 			if this.cmdFetch(input) {
 			}
+
 		}
 	}
 }
