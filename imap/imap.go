@@ -245,7 +245,7 @@ func (this *ImapServer) cmdList(input string) bool {
 			list, err := models.ClassGetByUid(this.userID)
 			if err == nil {
 				for i := 1; i <= len(list); i++ {
-					this.writeArgs("* LIST (\\%s) \"/\" \"%s\"", list[i-1]["tag"], list[i-1]["name"])
+					this.writeArgs("* LIST (\\%s) \"/\" \"%s\"", list[i-1]["flags"], list[i-1]["name"])
 				}
 				this.writeArgs("%s OK %s completed", inputN[0], inputN[1])
 				return true

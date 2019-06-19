@@ -35,7 +35,7 @@ func ClassGetByUid(uid int64) ([]orm.Params, error) {
 	var maps []orm.Params
 
 	o := orm.NewOrm()
-	sql := fmt.Sprintf("SELECT name,tag FROM `%s` WHERE (`type`=0) or (uid=?)", ClassTableName())
+	sql := fmt.Sprintf("SELECT name,flags FROM `%s` WHERE (`type`=0) or (uid=?)", ClassTableName())
 	num, err := o.Raw(sql, uid).Values(&maps)
 	if err == nil && num > 0 {
 
