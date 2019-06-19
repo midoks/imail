@@ -284,17 +284,12 @@ func (this *SmtpdServer) cmdAuthPlain(input string) bool {
 
 	if len(inputN) == 3 {
 		data := this.base64Decode(inputN[2])
-		// this.D("smtp - cmdAuthPlain", len(inputN))
-		// this.D("smtp - cmdAuthPlain", inputN[0])
-		// this.D("smtp - cmdAuthPlain", inputN[1])
-		// this.D("smtp - cmdAuthPlain", inputN[2])
 		list := strings.SplitN(data, "@cachecha.com", 3)
 
 		this.loginUser = list[0]
 		this.loginPwd = list[2]
 
 		b := this.checkUserLogin()
-
 		this.D("smtpd:", b, this.loginUser, this.loginPwd)
 		if b {
 			this.write(MSG_AUTH_OK)
