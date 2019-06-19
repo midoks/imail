@@ -66,7 +66,7 @@ CREATE TABLE `im_class` (
 -- Records of im_class
 -- ----------------------------
 BEGIN;
-INSERT INTO `im_class` VALUES (1, '','收件箱', 0, 0, 1560332405, 1560332405);
+INSERT INTO `im_class` VALUES (1, '','inbox', 0, 0, 1560332405, 1560332405);
 INSERT INTO `im_class` VALUES (2, '','发件箱', 0, 0, 1560332405, 1560332405);
 INSERT INTO `im_class` VALUES (3, '','已删除', 0, 0, 1560332405, 1560332405);
 INSERT INTO `im_class` VALUES (4, '','广告邮件', 0, 0, 1560332405, 1560332405);
