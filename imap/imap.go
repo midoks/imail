@@ -24,6 +24,7 @@ const (
 	CMD_SELECT     = iota
 	CMD_FETCH      = iota
 	CMD_UID        = iota
+	CMD_NOOP       = iota
 )
 
 var stateList = map[int]string{
@@ -37,6 +38,7 @@ var stateList = map[int]string{
 	CMD_SELECT:     "SELECT",
 	CMD_FETCH:      "FETCH",
 	CMD_UID:        "UID",
+	CMD_NOOP:       "NOOP",
 }
 
 const (
@@ -209,6 +211,8 @@ func (this *ImapServer) cmdSelect(input string) bool {
 func (this *ImapServer) cmdFetch(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
 
+	this.writeArgs("fetch:%s", inputN)
+
 	if len(inputN) == 4 {
 		if this.cmdCompare(inputN[1], CMD_FETCH) {
 			this.w("* 1 FETCH (UID 1320476750)\r\n")
@@ -277,6 +281,17 @@ func (this *ImapServer) cmdId(input string) bool {
 	return false
 }
 
+func (this *ImapServer) cmdNoop(input string) bool {
+	inputN := strings.SplitN(input, " ", 2)
+	if len(inputN) == 2 {
+		if this.cmdCompare(inputN[1], CMD_NOOP) {
+			this.writeArgs("%s OK %s completed\r\n", inputN[0], inputN[1])
+			return true
+		}
+	}
+	return false
+}
+
 func (this *ImapServer) cmdLogout(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
@@ -330,6 +345,9 @@ func (this *ImapServer) handle() {
 			}
 
 			if this.cmdUid(input) {
+			}
+
+			if this.cmdNoop(input) {
 			}
 
 		}
