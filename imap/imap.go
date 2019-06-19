@@ -223,7 +223,7 @@ func (this *ImapServer) cmdFetch(input string) bool {
 func (this *ImapServer) cmdUid(input string) bool {
 	inputN := strings.SplitN(input, " ", 5)
 
-	if len(inputN) == 4 {
+	if len(inputN) == 5 {
 		if this.cmdCompare(inputN[1], CMD_UID) {
 			this.w("* 1 FETCH (UID 1320476750)\r\n")
 			this.w("* 2 FETCH (UID 1320476751)\r\n")
