@@ -247,19 +247,11 @@ func (this *SmtpdServer) checkUserLogin() bool {
 	name := this.loginUser
 	pwd := strings.TrimSpace(this.loginPwd)
 
-	name_split := strings.SplitN(name, "@", 2)
-
-	info, err := models.UserGetByName(name_split[0])
-	if err != nil {
+	isLogin, id := models.UserLogin(name, pwd)
+	if !isLogin {
 		return false
 	}
-
-	pwdMd5 := libs.Md5str(pwd)
-	this.D("smtpd: - checkUserLogin", pwd, len(pwd), pwdMd5, info.Password)
-	if !strings.EqualFold(pwdMd5, info.Password) {
-		return false
-	}
-
+	this.userID = id
 	this.isLogin = true
 	return true
 }

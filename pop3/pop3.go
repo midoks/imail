@@ -170,19 +170,11 @@ func (this *Pop3Server) checkUserLogin() bool {
 	name := this.recordCmdUser
 	pwd := strings.TrimSpace(this.recordCmdPass)
 
-	name_split := strings.SplitN(name, "@", 2)
-	info, err := models.UserGetByName(name_split[0])
-	if err != nil {
+	isLogin, id := models.UserLogin(name, pwd)
+	if !isLogin {
 		return false
 	}
-
-	pwd_md5 := libs.Md5str(pwd)
-	this.D("pop3: - checkUserLogin", pwd, len(pwd), pwd_md5, info.Password)
-	if !strings.EqualFold(pwd_md5, info.Password) {
-		return false
-	}
-
-	this.userID = info.Id
+	this.userID = id
 	return true
 }
 
