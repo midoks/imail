@@ -265,8 +265,15 @@ func (this *ImapServer) cmdUid(input string) bool {
 
 	if len(inputN) == 5 && this.cmdCompare(inputN[1], CMD_UID) {
 
-		this.w("* 1 FETCH (UID 1320476750)\r\n")
-		this.w("* 2 FETCH (UID 1320476751)\r\n")
+		// this.w("* 1 FETCH (UID 1320476750)\r\n")
+		// this.w("* 2 FETCH (UID 1320476751)\r\n")
+
+		list, err := models.BoxAllByClassName(this.userID, this.selectBox)
+		if err == nil {
+			for i := 1; i < len(list); i++ {
+				this.writeArgs("* %d FETCH (UID %s)", i, list[i-1]["mid"].(string))
+			}
+		}
 		this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
 		return true
 	}
