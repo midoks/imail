@@ -93,7 +93,7 @@ func (this *ImapServer) Debug(d bool) {
 }
 
 func (this *ImapServer) w(msg string) {
-	fmt.Println("w[debug]:", msg)
+	// fmt.Println("w[debug]:", msg)
 	_, err := this.conn.Write([]byte(msg))
 
 	if err != nil {
@@ -251,7 +251,6 @@ func (this *ImapServer) cmdFetch(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
 
 	this.writeArgs("fetch:%s", inputN)
-
 	if len(inputN) == 4 {
 		if this.cmdCompare(inputN[1], CMD_FETCH) {
 			this.w("* 1 FETCH (UID 1320476750)\r\n")
