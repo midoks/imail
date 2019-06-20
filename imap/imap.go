@@ -226,18 +226,16 @@ func (this *ImapServer) cmdStatus(input string) bool {
 func (this *ImapServer) cmdSelect(input string) bool {
 	inputN := strings.SplitN(input, " ", 3)
 
-	if len(inputN) == 3 {
-		if this.cmdCompare(inputN[1], CMD_SELECT) {
-			this.selectBox = strings.Trim(inputN[2], "\"")
-			msgCount, _ := models.BoxUserMessageCountByClassName(this.userID, this.selectBox)
-			this.writeArgs("* %s EXISTS", msgCount)
-			this.writeArgs("* 0 RECENT")
-			this.writeArgs("* OK [UIDVALIDITY 1] UIDs valid")
-			this.writeArgs("* FLAGS (\\Answered\\Seen \\Deleted \\Draft \\Flagged)")
-			this.writeArgs("* OK [PERMANENTFLAGS (\\Answered \\Seen \\Deleted \\Draft \\Flagged)] Limited")
-			this.writeArgs("%s OK [READ-WRITE] %s completed", inputN[0], inputN[1])
-			return true
-		}
+	if len(inputN) == 3 && this.cmdCompare(inputN[1], CMD_SELECT) {
+		this.selectBox = strings.Trim(inputN[2], "\"")
+		msgCount, _ := models.BoxUserMessageCountByClassName(this.userID, this.selectBox)
+		this.writeArgs("* %d EXISTS", msgCount)
+		this.writeArgs("* 0 RECENT")
+		this.writeArgs("* OK [UIDVALIDITY 1] UIDs valid")
+		this.writeArgs("* FLAGS (\\Answered\\Seen \\Deleted \\Draft \\Flagged)")
+		this.writeArgs("* OK [PERMANENTFLAGS (\\Answered \\Seen \\Deleted \\Draft \\Flagged)] Limited")
+		this.writeArgs("%s OK [READ-WRITE] %s completed", inputN[0], inputN[1])
+		return true
 	}
 	return false
 }
@@ -265,17 +263,19 @@ func (this *ImapServer) cmdUid(input string) bool {
 
 	if len(inputN) == 5 && this.cmdCompare(inputN[1], CMD_UID) {
 
-		// this.w("* 1 FETCH (UID 1320476750)\r\n")
-		// this.w("* 2 FETCH (UID 1320476751)\r\n")
+		if strings.EqualFold(inputN[2], "fetch") {
+			// this.w("* 1 FETCH (UID 1320476750)\r\n")
+			// this.w("* 2 FETCH (UID 1320476751)\r\n")
 
-		list, err := models.BoxAllByClassName(this.userID, this.selectBox)
-		if err == nil {
-			for i := 1; i < len(list); i++ {
-				this.writeArgs("* %d FETCH (UID %s)", i, list[i-1]["mid"].(string))
+			list, err := models.BoxAllByClassName(this.userID, this.selectBox)
+			if err == nil {
+				for i := 1; i < len(list); i++ {
+					this.writeArgs("* %d FETCH (UID %s)", i, list[i-1]["mid"].(string))
+				}
 			}
+			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
+			return true
 		}
-		this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
-		return true
 	}
 	return false
 }
