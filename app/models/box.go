@@ -51,6 +51,14 @@ func BoxAdd(uid int64, mid int64, method int, size int) (int64, error) {
 	return i, err
 }
 
+func BoxUserMessageCountByClassName(uid int64, className string) (int64, error) {
+	cid, err := ClassGetIdByName(uid, className)
+	if err == nil {
+		return BoxUserMessageCountByCid(uid, cid)
+	}
+	return 0, err
+}
+
 func BoxUserMessageCountByCid(uid int64, cid int64) (int64, error) {
 	var maps []orm.Params
 
@@ -87,7 +95,7 @@ func BoxUserTotal(uid int64) (int64, int64) {
 	return 0, 0
 }
 
-func BoxPop3Pos(uid int64, pos int64) ([]orm.Params, error) {
+func BoxPos(uid int64, pos int64) ([]orm.Params, error) {
 	var maps []orm.Params
 
 	o := orm.NewOrm()
@@ -96,8 +104,8 @@ func BoxPop3Pos(uid int64, pos int64) ([]orm.Params, error) {
 	return maps, err
 }
 
-func BoxPop3PosTop(uid int64, pos int64, line int64) (string, string, error) {
-	text, size, err := BoxPop3PosContent(uid, pos)
+func BoxPosTop(uid int64, pos int64, line int64) (string, string, error) {
+	text, size, err := BoxPosContent(uid, pos)
 
 	if err != nil {
 		return "", size, err
@@ -110,7 +118,7 @@ func BoxPop3PosTop(uid int64, pos int64, line int64) (string, string, error) {
 	return "", size, err
 }
 
-func BoxPop3PosContent(uid int64, pos int64) (string, string, error) {
+func BoxPosContent(uid int64, pos int64) (string, string, error) {
 	var maps []orm.Params
 
 	o := orm.NewOrm()
@@ -130,18 +138,18 @@ func BoxPop3PosContent(uid int64, pos int64) (string, string, error) {
 }
 
 // Paging List of POP3 Protocol
-func BoxPop3List(uid int64, page int, pageSize int) ([]orm.Params, error) {
+func BoxList(uid int64, cid int64, page int, pageSize int) ([]orm.Params, error) {
 	var maps []orm.Params
 
 	offset := (page - 1) * pageSize
 	o := orm.NewOrm()
-	sql := fmt.Sprintf("SELECT mid,size FROM `%s` WHERE uid=? order by id limit %d,%d", BoxTableName(), offset, pageSize)
-	_, err := o.Raw(sql, uid).Values(&maps)
+	sql := fmt.Sprintf("SELECT mid,size FROM `%s` WHERE uid=? and cid=? order by id limit %d,%d", BoxTableName(), offset, pageSize)
+	_, err := o.Raw(sql, uid, cid).Values(&maps)
 	return maps, err
 }
 
 // POP3 gets all the data
-func BoxPop3All(uid int64) []orm.Params {
+func BoxAll(uid int64, cid int64) []orm.Params {
 	var maps []orm.Params
 	count, _ := BoxUserTotal(uid)
 	pageSize := 100
@@ -149,7 +157,7 @@ func BoxPop3All(uid int64) []orm.Params {
 
 	var num = 1
 	for i := 1; i <= page; i++ {
-		list, _ := BoxPop3List(uid, i, pageSize)
+		list, _ := BoxList(uid, cid, i, pageSize)
 		for i := 0; i < len(list); i++ {
 			list[i]["num"] = strconv.Itoa(num)
 			maps = append(maps, list[i])
@@ -158,4 +166,14 @@ func BoxPop3All(uid int64) []orm.Params {
 	}
 	// fmt.Println("count:", count, page, maps)
 	return maps
+}
+
+// POP3 gets all the data
+func BoxAllByClassName(uid int64, className string) ([]orm.Params, error) {
+	cid, err := ClassGetIdByName(uid, className)
+	if err == nil {
+		return BoxAll(uid, cid), nil
+	}
+	var maps []orm.Params
+	return maps, err
 }

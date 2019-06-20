@@ -233,7 +233,7 @@ func (this *Pop3Server) cmdList(input string) bool {
 			count, size := models.BoxUserTotal(this.userID)
 			this.writeArgs(MSG_STAT_OK, count, size)
 
-			list := models.BoxPop3All(this.userID)
+			list := models.BoxAll(this.userID, 1)
 			for i := 1; i <= len(list); i++ {
 				t := fmt.Sprintf("%d %s\r\n", i, list[i-1]["mid"])
 				this.w(t)
@@ -244,7 +244,7 @@ func (this *Pop3Server) cmdList(input string) bool {
 			pos, err := strconv.ParseInt(inputN[1], 10, 64)
 			if err == nil {
 				if pos > 0 {
-					list, err := models.BoxPop3Pos(this.userID, pos)
+					list, err := models.BoxPos(this.userID, pos)
 					if err == nil {
 						this.writeArgs(MSG_POS_DATA, pos, list[0]["mid"])
 						return true
@@ -268,7 +268,7 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 			if err == nil {
 
 				if pos > 0 {
-					list, err := models.BoxPop3Pos(this.userID, pos)
+					list, err := models.BoxPos(this.userID, pos)
 					if err == nil {
 						this.writeArgs(MSG_POS_DATA, pos, libs.Md5str(list[0]["mid"].(string)))
 						return true
@@ -277,7 +277,7 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 			}
 		} else if inputLen == 1 {
 			this.ok("")
-			list := models.BoxPop3All(this.userID)
+			list := models.BoxAll(this.userID, 1)
 			for i := 1; i <= len(list); i++ {
 				t := fmt.Sprintf("%d %s\r\n", i, libs.Md5str(list[i-1]["mid"].(string)))
 				this.w(t)
@@ -300,7 +300,7 @@ func (this *Pop3Server) cmdTop(input string) bool {
 				if err == nil {
 					line, err2 := strconv.ParseInt(inputArgs[1], 10, 64)
 					if err2 == nil {
-						content, size, err3 := models.BoxPop3PosTop(this.userID, pos, line)
+						content, size, err3 := models.BoxPosTop(this.userID, pos, line)
 						if err3 == nil {
 							// this.ok(content)
 							this.writeArgs(MSG_TOP_DATA, size, content)
@@ -323,7 +323,7 @@ func (this *Pop3Server) cmdRetr(input string) bool {
 			pos, err := strconv.ParseInt(inputN[1], 10, 64)
 			if err == nil {
 				if pos > 0 {
-					content, size, err := models.BoxPop3PosContent(this.userID, pos)
+					content, size, err := models.BoxPosContent(this.userID, pos)
 					if err == nil {
 						this.writeArgs(MSG_RETR_DATA, size, content)
 						return true

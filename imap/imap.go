@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/midoks/imail/app/models"
-	// "github.com/midoks/imail/libs"
 	"log"
 	"net"
 	"runtime"
@@ -93,7 +92,7 @@ func (this *ImapServer) Debug(d bool) {
 }
 
 func (this *ImapServer) w(msg string) {
-	// fmt.Println("w[debug]:", msg)
+	fmt.Println("w[debug]:", msg)
 	_, err := this.conn.Write([]byte(msg))
 
 	if err != nil {
@@ -166,13 +165,8 @@ func (this *ImapServer) parseArgs(input string) string {
 
 	for i := 0; i < len(inputN); i++ {
 		if strings.EqualFold(inputN[i], "messages") {
-			cid, err := models.ClassGetIdByName(this.userID, this.selectBox)
-			if err == nil {
-				count, _ := models.BoxUserMessageCountByCid(this.userID, cid)
-				list[inputN[i]] = count
-			} else {
-				list[inputN[i]] = 0
-			}
+			count, _ := models.BoxUserMessageCountByClassName(this.userID, this.selectBox)
+			list[inputN[i]] = count
 		}
 		if strings.EqualFold(inputN[i], "recent") {
 			list[inputN[i]] = 0
@@ -234,12 +228,13 @@ func (this *ImapServer) cmdSelect(input string) bool {
 
 	if len(inputN) == 3 {
 		if this.cmdCompare(inputN[1], CMD_SELECT) {
-			fmt.Println("cmd_list:", inputN)
-			this.w("* 122 EXISTS\r\n")
-			this.w("* 1 RECENT\r\n")
-			this.w("* OK [UIDVALIDITY 1] UIDs valid\r\n")
-			this.w("* FLAGS (\\Answered\\Seen \\Deleted \\Draft \\Flagged)\r\n")
-			this.w("* OK [PERMANENTFLAGS (\\Answered \\Seen \\Deleted \\Draft \\Flagged)] Limited\r\n")
+			this.selectBox = strings.Trim(inputN[2], "\"")
+			msgCount, _ := models.BoxUserMessageCountByClassName(this.userID, this.selectBox)
+			this.writeArgs("* %s EXISTS", msgCount)
+			this.writeArgs("* 0 RECENT")
+			this.writeArgs("* OK [UIDVALIDITY 1] UIDs valid")
+			this.writeArgs("* FLAGS (\\Answered\\Seen \\Deleted \\Draft \\Flagged)")
+			this.writeArgs("* OK [PERMANENTFLAGS (\\Answered \\Seen \\Deleted \\Draft \\Flagged)] Limited")
 			this.writeArgs("%s OK [READ-WRITE] %s completed", inputN[0], inputN[1])
 			return true
 		}
@@ -250,14 +245,17 @@ func (this *ImapServer) cmdSelect(input string) bool {
 func (this *ImapServer) cmdFetch(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
 
-	this.writeArgs("fetch:%s", inputN)
-	if len(inputN) == 4 {
-		if this.cmdCompare(inputN[1], CMD_FETCH) {
-			this.w("* 1 FETCH (UID 1320476750)\r\n")
-			this.w("* 2 FETCH (UID 1320476751)\r\n")
-			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
-			return true
+	if len(inputN) == 4 && this.cmdCompare(inputN[1], CMD_FETCH) {
+		fmt.Println("fetch:%s", input)
+
+		list, err := models.BoxAllByClassName(this.userID, this.selectBox)
+		if err == nil {
+			for i := 1; i < len(list); i++ {
+				this.writeArgs("* %d FETCH (UID %s)", i, list[i-1]["mid"].(string))
+			}
 		}
+		this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
+		return true
 	}
 	return false
 }
@@ -265,13 +263,12 @@ func (this *ImapServer) cmdFetch(input string) bool {
 func (this *ImapServer) cmdUid(input string) bool {
 	inputN := strings.SplitN(input, " ", 5)
 
-	if len(inputN) == 5 {
-		if this.cmdCompare(inputN[1], CMD_UID) {
-			this.w("* 1 FETCH (UID 1320476750)\r\n")
-			this.w("* 2 FETCH (UID 1320476751)\r\n")
-			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
-			return true
-		}
+	if len(inputN) == 5 && this.cmdCompare(inputN[1], CMD_UID) {
+
+		this.w("* 1 FETCH (UID 1320476750)\r\n")
+		this.w("* 2 FETCH (UID 1320476751)\r\n")
+		this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
+		return true
 	}
 	return false
 }
@@ -299,7 +296,7 @@ func (this *ImapServer) cmdCapabitity(input string) bool {
 
 	if len(inputN) == 2 {
 		if this.cmdCompare(inputN[1], CMD_CAPABILITY) {
-			this.w("* OK Coremail System IMap Server Ready(imail)\r\n")
+			this.writeArgs("* OK Coremail System IMap Server Ready(imail)")
 			this.w("* CAPABILITY IMAP4rev1 XLIST SPECIAL-USE ID LITERAL+ STARTTLS XAPPLEPUSHSERVICE UIDPLUS X-CM-EXT-1\r\n")
 			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
 			return true
