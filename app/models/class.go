@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"github.com/astaxie/beego/orm"
+	"strconv"
 	"time"
 )
 
@@ -42,4 +43,20 @@ func ClassGetByUid(uid int64) ([]orm.Params, error) {
 		return maps, nil
 	}
 	return maps, err
+}
+
+func ClassGetIdByName(uid int64, name string) (int64, error) {
+	var maps []orm.Params
+
+	o := orm.NewOrm()
+	sql := fmt.Sprintf("SELECT id,name,flags FROM `%s` WHERE (`type`=0 or uid=?) and `name`=?", ClassTableName())
+	num, err := o.Raw(sql, uid, name).Values(&maps)
+	if err == nil && num > 0 {
+		id, err := strconv.ParseInt(maps[0]["id"].(string), 10, 64)
+		if err == nil {
+			return id, nil
+		}
+		return id, err
+	}
+	return 0, err
 }

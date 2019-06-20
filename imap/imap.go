@@ -49,6 +49,7 @@ const (
 	MSG_LOGIN_DISABLE = "%s NO LOGIN Login error password error"
 	MSG_CMD_NOT_VALID = "Command not valid in this state"
 	MSG_LOGOUT        = "* BYE IMAP4rev1 Server logging out"
+	MSG_COMPLELED     = "%s OK %s completed"
 )
 
 var GO_EOL = GetGoEol()
@@ -68,6 +69,8 @@ type ImapServer struct {
 	errCount      int
 	recordCmdUser string
 	recordCmdPass string
+
+	selectBox string
 
 	// user id
 	userID int64
@@ -90,7 +93,7 @@ func (this *ImapServer) Debug(d bool) {
 }
 
 func (this *ImapServer) w(msg string) {
-	// fmt.Println("w[debug]:", msg)
+	fmt.Println("w[debug]:", msg)
 	_, err := this.conn.Write([]byte(msg))
 
 	if err != nil {
@@ -154,6 +157,42 @@ func (this *ImapServer) stateCompare(input int, cmd int) bool {
 	return false
 }
 
+func (this *ImapServer) parseArgs(input string) string {
+	input = strings.TrimSpace(input)
+	input = strings.Trim(input, "()")
+
+	inputN := strings.Split(input, " ")
+	list := make(map[string]int64)
+
+	for i := 0; i < len(inputN); i++ {
+		if strings.EqualFold(inputN[i], "messages") {
+			cid, err := models.ClassGetIdByName(this.userID, this.selectBox)
+			if err == nil {
+				count, _ := models.BoxUserMessageCountByCid(this.userID, cid)
+				list[inputN[i]] = count
+			} else {
+				list[inputN[i]] = 0
+			}
+		}
+		if strings.EqualFold(inputN[i], "recent") {
+			list[inputN[i]] = 0
+		}
+
+		if strings.EqualFold(inputN[i], "unseen") {
+			list[inputN[i]] = 0
+		}
+	}
+
+	out := ""
+	for i := 0; i < len(inputN); i++ {
+		// fmt.Println(i, inputN[i], list[inputN[i]])
+		out += fmt.Sprintf("%s %d ", inputN[i], list[inputN[i]])
+	}
+
+	out = fmt.Sprintf("( %s )", out)
+	return out
+}
+
 func (this *ImapServer) cmdAuth(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
 	if this.cmdCompare(inputN[1], CMD_AUTH) {
@@ -178,12 +217,12 @@ func (this *ImapServer) cmdAuth(input string) bool {
 
 func (this *ImapServer) cmdStatus(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
-
 	if len(inputN) == 4 {
 		if this.cmdCompare(inputN[1], CMD_STATUS) {
-			fmt.Println("cmd_list:", inputN)
-			this.writeArgs("* %s %s (MESSAGES 122 RECENT 0 UNSEEN 0)", inputN[1], inputN[2])
-			this.writeArgs("%s OK %s completed", inputN[0], inputN[1])
+			this.selectBox = strings.Trim(inputN[2], "\"")
+			outArgs := this.parseArgs(inputN[3])
+			this.writeArgs("* %s %s %s", inputN[1], inputN[2], outArgs)
+			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
 			return true
 		}
 	}
@@ -217,7 +256,7 @@ func (this *ImapServer) cmdFetch(input string) bool {
 		if this.cmdCompare(inputN[1], CMD_FETCH) {
 			this.w("* 1 FETCH (UID 1320476750)\r\n")
 			this.w("* 2 FETCH (UID 1320476751)\r\n")
-			this.writeArgs("%s OK %s completed", inputN[0], inputN[1])
+			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
 			return true
 		}
 	}
@@ -231,7 +270,7 @@ func (this *ImapServer) cmdUid(input string) bool {
 		if this.cmdCompare(inputN[1], CMD_UID) {
 			this.w("* 1 FETCH (UID 1320476750)\r\n")
 			this.w("* 2 FETCH (UID 1320476751)\r\n")
-			this.writeArgs("%s OK %s completed", inputN[0], inputN[1])
+			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
 			return true
 		}
 	}
@@ -245,9 +284,10 @@ func (this *ImapServer) cmdList(input string) bool {
 			list, err := models.ClassGetByUid(this.userID)
 			if err == nil {
 				for i := 1; i <= len(list); i++ {
+					fmt.Println(list[i-1]["flags"], list[i-1]["name"])
 					this.writeArgs("* LIST (\\%s) \"/\" \"%s\"", list[i-1]["flags"], list[i-1]["name"])
 				}
-				this.writeArgs("%s OK %s completed", inputN[0], inputN[1])
+				this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
 				return true
 			}
 		}
@@ -262,7 +302,7 @@ func (this *ImapServer) cmdCapabitity(input string) bool {
 		if this.cmdCompare(inputN[1], CMD_CAPABILITY) {
 			this.w("* OK Coremail System IMap Server Ready(imail)\r\n")
 			this.w("* CAPABILITY IMAP4rev1 XLIST SPECIAL-USE ID LITERAL+ STARTTLS XAPPLEPUSHSERVICE UIDPLUS X-CM-EXT-1\r\n")
-			this.writeArgs("%s OK CAPABILITY completed\r\n", inputN[0])
+			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
 			return true
 		}
 
@@ -274,7 +314,7 @@ func (this *ImapServer) cmdId(input string) bool {
 	inputN := strings.SplitN(input, " ", 3)
 	if len(inputN) == 3 {
 		if this.cmdCompare(inputN[1], CMD_ID) {
-			this.writeArgs("%s OK %s completed\r\n", inputN[0], inputN[1])
+			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
 			return true
 		}
 	}
@@ -285,7 +325,7 @@ func (this *ImapServer) cmdNoop(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 	if len(inputN) == 2 {
 		if this.cmdCompare(inputN[1], CMD_NOOP) {
-			this.writeArgs("%s OK %s completed\r\n", inputN[0], inputN[1])
+			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
 			return true
 		}
 	}

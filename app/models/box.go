@@ -51,6 +51,19 @@ func BoxAdd(uid int64, mid int64, method int, size int) (int64, error) {
 	return i, err
 }
 
+func BoxUserMessageCountByCid(uid int64, cid int64) (int64, error) {
+	var maps []orm.Params
+
+	o := orm.NewOrm()
+	sql := fmt.Sprintf("SELECT count(uid) as count FROM `%s` WHERE uid=? and cid=?", BoxTableName())
+	num, err := o.Raw(sql, uid, cid).Values(&maps)
+	if err == nil && num > 0 {
+		count, err := strconv.ParseInt(maps[0]["count"].(string), 10, 64)
+		return count, err
+	}
+	return 0, err
+}
+
 func BoxUserTotal(uid int64) (int64, int64) {
 	var maps []orm.Params
 
@@ -58,14 +71,14 @@ func BoxUserTotal(uid int64) (int64, int64) {
 	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", BoxTableName())
 	num, err := o.Raw(sql, uid).Values(&maps)
 
-	count, err := strconv.ParseInt(maps[0]["count"].(string), 10, 32)
+	count, err := strconv.ParseInt(maps[0]["count"].(string), 10, 64)
 	if err != nil {
 		count = 0
 	}
 
 	if err == nil && num > 0 && count > 0 {
 
-		size, err := strconv.ParseInt(maps[0]["size"].(string), 10, 32)
+		size, err := strconv.ParseInt(maps[0]["size"].(string), 10, 64)
 		if err != nil {
 			size = 0
 		}
