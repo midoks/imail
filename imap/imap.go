@@ -175,6 +175,7 @@ func (this *ImapServer) parseArgs(input string) string {
 		if strings.EqualFold(inputN[i], "unseen") {
 			list[inputN[i]] = 0
 		}
+
 	}
 
 	out := ""
@@ -184,6 +185,46 @@ func (this *ImapServer) parseArgs(input string) string {
 	}
 
 	out = fmt.Sprintf("( %s )", out)
+	return out
+}
+
+func (this *ImapServer) parseArgsConent(format string, mid string) string {
+	format = strings.TrimSpace(format)
+	format = strings.Trim(format, "()")
+
+	inputN := strings.Split(format, " ")
+	list := make(map[string]interface{})
+
+	for i := 0; i < len(inputN); i++ {
+
+		if strings.EqualFold(inputN[i], "uid") {
+			list[inputN[i]] = mid //strconv.FormatInt(mid, 10)
+		}
+
+		if strings.EqualFold(inputN[i], "flags") {
+			list[inputN[i]] = "(\\Seen)"
+		}
+
+		if strings.EqualFold(inputN[i], "rfc822.size") {
+			list[inputN[i]] = "13443"
+		}
+
+		if strings.EqualFold(inputN[i], "bodystructure") {
+			list[inputN[i]] = "(\"text\" \"html\" (\"charset\" \"UTF-8\") NIL NIL \"8bit\" 12225 229 NIL NIL NIL) "
+		}
+
+		if strings.EqualFold(inputN[i], "body.peek[header]") {
+			list[inputN[i]] = "{1218} \r\nTo: \"midoks@163.com\" <midoks@163.com> \r\nFrom:  <report-noreply@jiankongbao.com>\r\nSubject: 123123\r\nMessage-ID: <80d0b8ee122340ceb665ad1bf5220a42@localhost.localdomain>"
+		}
+	}
+
+	out := ""
+	for i := 0; i < len(inputN); i++ {
+		// fmt.Println(i, inputN[i], list[inputN[i]])
+		out += fmt.Sprintf(" %s %s ", inputN[i], list[inputN[i]].(string))
+	}
+
+	out = fmt.Sprintf("(%s)", out)
 	return out
 }
 
@@ -270,6 +311,8 @@ func (this *ImapServer) cmdUid(input string) bool {
 			list, err := models.BoxAllByClassName(this.userID, this.selectBox)
 			if err == nil {
 				for i := 1; i < len(list); i++ {
+					c := this.parseArgsConent(inputN[4], list[i-1]["mid"].(string))
+					fmt.Println(c)
 					this.writeArgs("* %d FETCH (UID %s)", i, list[i-1]["mid"].(string))
 				}
 			}
