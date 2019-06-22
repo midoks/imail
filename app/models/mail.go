@@ -1,7 +1,7 @@
 package models
 
 import (
-	_ "fmt"
+	"fmt"
 	"github.com/astaxie/beego/orm"
 	"time"
 )
@@ -48,4 +48,16 @@ func MailPush(mail_from string, mail_to string, content string) (int64, error) {
 		return 0, err
 	}
 	return i, err
+}
+
+func MailById(id int64) (orm.Params, error) {
+	var maps []orm.Params
+
+	o := orm.NewOrm()
+	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE id=?", MailTableName())
+	num, err := o.Raw(sql, id).Values(&maps)
+	if err == nil && num > 0 {
+		return maps[0], nil
+	}
+	return maps[0], err
 }

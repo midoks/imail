@@ -4,10 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/midoks/imail/app/models"
+	// "github.com/midoks/imail/libs"
 	"log"
 	"net"
 	"runtime"
-	// "strconv"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -92,7 +93,7 @@ func (this *ImapServer) Debug(d bool) {
 }
 
 func (this *ImapServer) w(msg string) {
-	fmt.Println("w[debug]:", msg)
+	// fmt.Println("w[debug]:", msg)
 	_, err := this.conn.Write([]byte(msg))
 
 	if err != nil {
@@ -195,10 +196,20 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 	inputN := strings.Split(format, " ")
 	list := make(map[string]interface{})
 
+	midInt64, _ := strconv.ParseInt(mid, 10, 64)
+	s, _ := models.MailById(midInt64)
+	content := s["content"].(string)
+
+	contentN := strings.Split(content, "\n\n")
+	contentL := strings.Split(content, "\n")
+	// fmt.Println("cmdCompare::--------\r\n", contentN, len(contentN))
+	// fmt.Println("cmdCompare::--------\r\n")
+
 	for i := 0; i < len(inputN); i++ {
 
 		if strings.EqualFold(inputN[i], "uid") {
-			list[inputN[i]] = mid //strconv.FormatInt(mid, 10)
+			// list[inputN[i]] = libs.Md5str(mid)
+			list[inputN[i]] = mid
 		}
 
 		if strings.EqualFold(inputN[i], "flags") {
@@ -206,22 +217,35 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 		}
 
 		if strings.EqualFold(inputN[i], "rfc822.size") {
-			list[inputN[i]] = "13443"
+			nnn := fmt.Sprintf("%d", len(content))
+			list[inputN[i]] = nnn
 		}
 
 		if strings.EqualFold(inputN[i], "bodystructure") {
-			list[inputN[i]] = "(\"text\" \"html\" (\"charset\" \"UTF-8\") NIL NIL \"8bit\" 12225 229 NIL NIL NIL) "
+			cccc := fmt.Sprintf("(\"text\" \"html\" (\"charset\" \"UTF-8\") NIL NIL \"8bit\" %d %d NIL NIL NIL)", len(content), len(contentL[0]))
+			// cccc := "(  )"
+
+			// ccc2 := "((\"text\" \"plain\" (\"charset\" \"UTF-8\") NIL NIL \"quoted-printable\" 4542 104 NIL NIL NIL)(\"text\" \"html\" (\"charset\" \"UTF-8\") NIL NIL \"quoted-printable\" 43308 574 NIL NIL NIL) \"alternative\" (\"boundary\" \"--==_mimepart_5d09e7387efec_127483fd2fc2449c43048322e7\" \"charset\" \"UTF-8\") NIL NIL)"
+			list[inputN[i]] = cccc
 		}
 
 		if strings.EqualFold(inputN[i], "body.peek[header]") {
-			list[inputN[i]] = "{1218} \r\nTo: \"midoks@163.com\" <midoks@163.com> \r\nFrom:  <report-noreply@jiankongbao.com>\r\nSubject: 123123\r\nMessage-ID: <80d0b8ee122340ceb665ad1bf5220a42@localhost.localdomain>"
+
+			list["body[header]"] = fmt.Sprintf("{%d}\r\n%s\r\n", len(contentN[0]), contentN[0])
+			// list[inputN[i]] = "{1218} \r\nTo: \"midoks@163.com\" <midoks@163.com> \r\nFrom:  <report-noreply@jiankongbao.com>\r\nSubject: 123123\r\nMessage-ID: <80d0b8ee122340ceb665ad1bf5220a42@localhost.localdomain>"
 		}
 	}
 
 	out := ""
 	for i := 0; i < len(inputN); i++ {
 		// fmt.Println(i, inputN[i], list[inputN[i]])
-		out += fmt.Sprintf(" %s %s ", inputN[i], list[inputN[i]].(string))
+
+		if strings.EqualFold(inputN[i], "body.peek[header]") {
+			out += fmt.Sprintf("%s %s ", "body[header]", list["body[header]"].(string))
+		} else {
+			out += fmt.Sprintf("%s %s ", inputN[i], list[inputN[i]].(string))
+		}
+
 	}
 
 	out = fmt.Sprintf("(%s)", out)
@@ -236,8 +260,10 @@ func (this *ImapServer) cmdAuth(input string) bool {
 			return false
 		}
 
-		user := inputN[2]
+		user := strings.Trim(inputN[2], "\"")
 		pwd := strings.Trim(inputN[3], "\"")
+
+		fmt.Println(user, pwd)
 
 		isLogin, id := models.UserLogin(user, pwd)
 		if isLogin {
@@ -288,8 +314,9 @@ func (this *ImapServer) cmdFetch(input string) bool {
 		fmt.Println("fetch:%s", input)
 
 		list, err := models.BoxAllByClassName(this.userID, this.selectBox)
+		fmt.Println(list)
 		if err == nil {
-			for i := 1; i < len(list); i++ {
+			for i := 1; i <= len(list); i++ {
 				this.writeArgs("* %d FETCH (UID %s)", i, list[i-1]["mid"].(string))
 			}
 		}
@@ -310,10 +337,12 @@ func (this *ImapServer) cmdUid(input string) bool {
 
 			list, err := models.BoxAllByClassName(this.userID, this.selectBox)
 			if err == nil {
-				for i := 1; i < len(list); i++ {
+				for i := 1; i <= len(list); i++ {
 					c := this.parseArgsConent(inputN[4], list[i-1]["mid"].(string))
-					fmt.Println(c)
-					this.writeArgs("* %d FETCH (UID %s)", i, list[i-1]["mid"].(string))
+					// fmt.Println(c)
+					// d := fmt.Sprintf("")
+					this.writeArgs("* %d FETCH "+c, i)
+					// this.writeArgs("* %d FETCH (UID %s)", i, list[i-1]["mid"].(string))
 				}
 			}
 			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
