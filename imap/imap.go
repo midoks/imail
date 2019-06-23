@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/midoks/imail/app/models"
+	"github.com/midoks/imail/utf7"
 	// "github.com/midoks/imail/libs"
 	"log"
 	"net"
@@ -311,7 +312,7 @@ func (this *ImapServer) cmdFetch(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
 
 	if len(inputN) == 4 && this.cmdCompare(inputN[1], CMD_FETCH) {
-		fmt.Println("fetch:%s", input)
+		// fmt.Println("fetch:%s", input)
 
 		list, err := models.BoxAllByClassName(this.userID, this.selectBox)
 		fmt.Println(list)
@@ -360,7 +361,9 @@ func (this *ImapServer) cmdList(input string) bool {
 			if err == nil {
 				for i := 1; i <= len(list); i++ {
 					fmt.Println(list[i-1]["flags"], list[i-1]["name"])
-					this.writeArgs("* LIST (\\%s) \"/\" \"%s\"", list[i-1]["flags"], list[i-1]["name"])
+					mailbox, _ := utf7.Encoding.NewEncoder().String(list[i-1]["name"].(string))
+					fmt.Println(mailbox)
+					this.writeArgs("* LIST (\\%s) \"/\" \"%s\"", list[i-1]["flags"], mailbox)
 				}
 				this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
 				return true
