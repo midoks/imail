@@ -201,6 +201,8 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 	s, _ := models.MailById(midInt64)
 	content := s["content"].(string)
 
+	GetHeader(content)
+
 	contentN := strings.Split(content, "\n\n")
 	contentL := strings.Split(content, "\n")
 	// fmt.Println("cmdCompare::--------\r\n", contentN, len(contentN))
