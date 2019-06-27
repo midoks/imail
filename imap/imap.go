@@ -94,7 +94,7 @@ func (this *ImapServer) Debug(d bool) {
 }
 
 func (this *ImapServer) w(msg string) {
-	// fmt.Println("w[debug]:", msg)
+	fmt.Println("w[debug]:", msg)
 	_, err := this.conn.Write([]byte(msg))
 
 	if err != nil {
@@ -225,7 +225,7 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 		}
 
 		if strings.EqualFold(inputN[i], "bodystructure") {
-			cccc := fmt.Sprintf("(\"text\" \"html\" (\"charset\" \"UTF-8\") NIL NIL \"8bit\" %d %d NIL NIL NIL)", len(content), len(contentL[0]))
+			cccc := fmt.Sprintf("(\"text\" \"plain\" (\"charset\" \"utf-8\") NIL NIL \"8bit\" %d %d NIL NIL NIL)", len(content), len(contentL[0]))
 			// cccc := "(  )"
 
 			// ccc2 := "((\"text\" \"plain\" (\"charset\" \"UTF-8\") NIL NIL \"quoted-printable\" 4542 104 NIL NIL NIL)(\"text\" \"html\" (\"charset\" \"UTF-8\") NIL NIL \"quoted-printable\" 43308 574 NIL NIL NIL) \"alternative\" (\"boundary\" \"--==_mimepart_5d09e7387efec_127483fd2fc2449c43048322e7\" \"charset\" \"UTF-8\") NIL NIL)"
