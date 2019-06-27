@@ -1,10 +1,6 @@
 package imap
 
 import (
-	// "bufio"
-	// "fmt"
-	// "strings"
-	// "time"
 	"net/textproto"
 )
 
