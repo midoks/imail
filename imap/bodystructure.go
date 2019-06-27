@@ -2,7 +2,9 @@ package imap
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
+	"net/textproto"
 	"strings"
 )
 
@@ -56,6 +58,24 @@ type BodyStructure struct {
 	MD5 string
 }
 
+func isSpace(c byte) bool {
+	return c == ' ' || c == '\t'
+}
+
+// trim returns s with leading and trailing spaces and tabs removed.
+// It does not assume Unicode or UTF-8.
+func trim(s []byte) []byte {
+	i := 0
+	for i < len(s) && isSpace(s[i]) {
+		i++
+	}
+	n := len(s)
+	for n > i && isSpace(s[n-1]) {
+		n--
+	}
+	return s[i:n]
+}
+
 func GetHeaderLine(r *bufio.Reader, line []byte) ([]byte, error) {
 	for {
 		l, more, err := r.ReadLine()
@@ -63,8 +83,7 @@ func GetHeaderLine(r *bufio.Reader, line []byte) ([]byte, error) {
 		if err != nil {
 			break
 		}
-		fmt.Println("GetHeader:", string(l))
-		fmt.Println("GetHeader--end")
+
 		line = append(line, l...)
 		if !more {
 			break
@@ -78,14 +97,22 @@ func GetHeader(body string) {
 
 	for {
 		kv, err := GetHeaderLine(bufferedBody, nil)
-		// fmt.Println(kv, err)
-		if err != nil {
-			break
-		}
-
 		if len(kv) == 0 {
 			break
 		}
+
+		if err != nil {
+			break
+		}
+		i := bytes.IndexByte(kv, ':')
+		fmt.Println(":::", i, string(kv))
+		if i < 0 {
+			break
+		}
+
+		key := textproto.CanonicalMIMEHeaderKey(string(trim(kv[:i])))
+		fmt.Println("key:", key)
+
 	}
 
 }
