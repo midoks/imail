@@ -241,6 +241,8 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 
 			// ccc2 := "((\"text\" \"plain\" (\"charset\" \"UTF-8\") NIL NIL \"quoted-printable\" 4542 104 NIL NIL NIL)(\"text\" \"html\" (\"charset\" \"UTF-8\") NIL NIL \"quoted-printable\" 43308 574 NIL NIL NIL) \"alternative\" (\"boundary\" \"--==_mimepart_5d09e7387efec_127483fd2fc2449c43048322e7\" \"charset\" \"UTF-8\") NIL NIL)"
 			list[inputN[i]] = cccc
+
+			list[inputN[i]] = bs.ToString()
 		}
 
 		if strings.EqualFold(inputN[i], "body.peek[header]") {

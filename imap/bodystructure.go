@@ -62,7 +62,7 @@ type BodyStructure struct {
 }
 
 func (bs *BodyStructure) Format() (fields []interface{}) {
-	fmt.Println("format:", bs)
+	// fmt.Println("format:", bs)
 	if strings.EqualFold(bs.MimeType, "multipart") {
 		for _, part := range bs.Parts {
 			fields = append(fields, part.Format())
@@ -154,68 +154,35 @@ func (bs *BodyStructure) Format() (fields []interface{}) {
 	return
 }
 
-func mergeFieldsChild(fields interface{}) string {
-	result := ""
-	for i := 0; i < len(fields); i++ {
-
-		switch fields[i].(type) {
-		case nil:
-			result += " NIL"
-		case string:
-			result += fmt.Sprintf(" %s", fields[i])
-		case uint32:
-			result += fmt.Sprintf(" %d", fields[i])
-		case interface{}:
-			result += mergeFields(fields[i])
-		default:
-			fmt.Println("sss::", reflect.TypeOf(fields[i]))
-			// s = mergeFields(fields[i])
-		}
-
-		fmt.Println("ttt:", fields[i])
-
-	}
-
-	return result
-}
-
 func mergeFields(fields []interface{}) string {
-	result := ""
+	result := "("
 	for i := 0; i < len(fields); i++ {
 
 		switch fields[i].(type) {
 		case nil:
 			result += " NIL"
 		case string:
-			result += fmt.Sprintf(" %s", fields[i])
+			result += fmt.Sprintf(" \"%s\"", fields[i])
 		case uint32:
 			result += fmt.Sprintf(" %d", fields[i])
 		case interface{}:
-			result += mergeFieldsChild(fields[i])
+			result += fmt.Sprintf(" %s", mergeFields(fields[i].([]interface{})))
 		default:
 			fmt.Println("sss::", reflect.TypeOf(fields[i]))
-			// s = mergeFields(fields[i])
 		}
-
-		fmt.Println("ttt:", fields[i])
-
 	}
+	result = fmt.Sprintf("%s)", result)
 	return result
 }
 
-func (bs *BodyStructure) ToString() {
-	fmt.Println("ToString:", bs)
+func (bs *BodyStructure) ToString() string {
+	// fmt.Println("ToString:", bs)
 
 	t := bs.Format()
 
 	res := mergeFields(t)
-	// if bs.MimeType != "" && strings.EqualFold(bs.MimeType, "multipart") {
-
-	// } else {
-
-	// }
 	fmt.Println("ToString:", res)
-
+	return res
 }
 
 func isSpace(c byte) bool {
@@ -288,6 +255,8 @@ func FormatParamList(params map[string]string) []interface{} {
 	for key, value := range params {
 		fields = append(fields, key, value)
 	}
+
+	fmt.Println(fields)
 	return fields
 }
 
@@ -320,6 +289,7 @@ func FetchBodyStructure(header Header, body io.Reader, extended bool) (*BodyStru
 	bs.Description = header.Get("Content-Description")
 	bs.Encoding = header.Get("Content-Encoding")
 	// TODO: bs.Size
+	// bs.Size = len(string(body.buf))
 
 	// multipartReader(header, body)
 	if mr := multipartReader(header, body); mr != nil {
@@ -353,6 +323,6 @@ func FetchBodyStructure(header Header, body io.Reader, extended bool) (*BodyStru
 		// TODO: bs.MD5
 	}
 
-	fmt.Println("FetchBodyStructure:", bs)
+	// fmt.Println("FetchBodyStructure:", bs)
 	return bs, nil
 }

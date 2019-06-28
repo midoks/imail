@@ -141,6 +141,7 @@ func (this *SmtpdServer) Debug(d bool) {
 }
 
 func (this *SmtpdServer) w(msg string) {
+	fmt.Println("smtpd:", msg)
 	_, err := this.conn.Write([]byte(msg))
 
 	if err != nil {

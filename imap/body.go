@@ -4,7 +4,7 @@ import (
 	// "bufio"
 	// "bytes"
 	"errors"
-	"fmt"
+	// "fmt"
 	"io"
 	"mime"
 	"strings"
@@ -72,11 +72,11 @@ func multipartReader(header Header, body io.Reader) *MultipartReader {
 	if err != nil {
 		return nil
 	}
-	fmt.Println("multipartReader:", contentType)
 
-	fmt.Println("multipartReader-params:", params)
+	// fmt.Println("multipartReader:", contentType)
+	// fmt.Println("multipartReader-params:", params)
 
 	s := NewMultipartReader(body, params["boundary"])
-	fmt.Println("NewMultipartReader:", s)
+	// fmt.Println("NewMultipartReader:", s)
 	return s
 }
