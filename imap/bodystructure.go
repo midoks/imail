@@ -62,7 +62,7 @@ type BodyStructure struct {
 }
 
 func (bs *BodyStructure) Format() (fields []interface{}) {
-	// fmt.Println("format:", bs)
+	fmt.Println("format:", bs)
 	if strings.EqualFold(bs.MimeType, "multipart") {
 		for _, part := range bs.Parts {
 			fields = append(fields, part.Format())
@@ -160,13 +160,13 @@ func mergeFields(fields []interface{}) string {
 
 		switch fields[i].(type) {
 		case nil:
-			result += " NIL"
+			result += "NIL "
 		case string:
-			result += fmt.Sprintf(" \"%s\"", fields[i])
+			result += fmt.Sprintf("\"%s\" ", fields[i])
 		case uint32:
-			result += fmt.Sprintf(" %d", fields[i])
+			result += fmt.Sprintf("%d ", fields[i])
 		case interface{}:
-			result += fmt.Sprintf(" %s", mergeFields(fields[i].([]interface{})))
+			result += fmt.Sprintf("%s ", mergeFields(fields[i].([]interface{})))
 		default:
 			fmt.Println("sss::", reflect.TypeOf(fields[i]))
 		}
@@ -321,6 +321,7 @@ func FetchBodyStructure(header Header, body io.Reader, extended bool) (*BodyStru
 
 		// TODO: bs.Language, bs.Location
 		// TODO: bs.MD5
+		bs.MD5 = ""
 	}
 
 	// fmt.Println("FetchBodyStructure:", bs)
