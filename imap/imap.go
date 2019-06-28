@@ -94,7 +94,7 @@ func (this *ImapServer) Debug(d bool) {
 }
 
 func (this *ImapServer) w(msg string) {
-	fmt.Println("w[debug]:", msg)
+	// fmt.Println("w[debug]:", msg)
 	_, err := this.conn.Write([]byte(msg))
 
 	if err != nil {
@@ -201,7 +201,18 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 	s, _ := models.MailById(midInt64)
 	content := s["content"].(string)
 
-	GetHeader(content)
+	bufferedBody := bufio.NewReader(strings.NewReader(content))
+	header, err := ReadHeader(bufferedBody)
+	if err != nil {
+		fmt.Errorf("Expected no error while reading mail, got:", err)
+	}
+	bs, err := FetchBodyStructure(header, bufferedBody, true)
+	if err == nil {
+		fmt.Println("FetchBodyStructure------333:", bs)
+		bs.ToString()
+	} else {
+		fmt.Println(err)
+	}
 
 	contentN := strings.Split(content, "\n\n")
 	contentL := strings.Split(content, "\n")
