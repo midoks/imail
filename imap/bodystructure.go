@@ -287,7 +287,7 @@ func FetchBodyStructure(header Header, body io.Reader, extended bool) (*BodyStru
 
 	bs.Id = header.Get("Content-Id")
 	bs.Description = header.Get("Content-Description")
-	bs.Encoding = header.Get("Content-Encoding")
+	bs.Encoding = header.Get("Content-Transfer-Encoding")
 	// TODO: bs.Size
 	// bs.Size = len(string(body.buf))
 
