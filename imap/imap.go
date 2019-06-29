@@ -94,7 +94,7 @@ func (this *ImapServer) Debug(d bool) {
 }
 
 func (this *ImapServer) w(msg string) {
-	// fmt.Println("w[debug]:", msg)
+	fmt.Println("w[debug]:", msg)
 	_, err := this.conn.Write([]byte(msg))
 
 	if err != nil {
@@ -203,6 +203,9 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 
 	bufferedBody := bufio.NewReader(strings.NewReader(content))
 	header, err := ReadHeader(bufferedBody)
+
+	headerString, err := ReadHeaderString(bufio.NewReader(strings.NewReader(content)))
+	// fmt.Println("headerString:", headerString)
 	if err != nil {
 		fmt.Errorf("Expected no error while reading mail, got:", err)
 	}
@@ -214,7 +217,7 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 		fmt.Println(err)
 	}
 
-	contentN := strings.Split(content, "\n\n")
+	// contentN := strings.Split(content, "\n\n")
 	contentL := strings.Split(content, "\n")
 	// fmt.Println("cmdCompare::--------\r\n", contentN, len(contentN))
 	// fmt.Println("cmdCompare::--------\r\n")
@@ -247,7 +250,7 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 
 		if strings.EqualFold(inputN[i], "body.peek[header]") {
 
-			list["body[header]"] = fmt.Sprintf("{%d}\r\n%s\r\n", len(contentN[0]), contentN[0])
+			list["body[header]"] = fmt.Sprintf("{%d}\r\n%s\r\n", len(headerString), headerString)
 			// list[inputN[i]] = "{1218} \r\nTo: \"midoks@163.com\" <midoks@163.com> \r\nFrom:  <report-noreply@jiankongbao.com>\r\nSubject: 123123\r\nMessage-ID: <80d0b8ee122340ceb665ad1bf5220a42@localhost.localdomain>"
 		}
 	}
@@ -257,9 +260,9 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 		// fmt.Println(i, inputN[i], list[inputN[i]])
 
 		if strings.EqualFold(inputN[i], "body.peek[header]") {
-			out += fmt.Sprintf("%s %s ", "body[header]", list["body[header]"].(string))
+			out += fmt.Sprintf("%s %s", "body[header]", list["body[header]"].(string))
 		} else {
-			out += fmt.Sprintf("%s %s ", inputN[i], list[inputN[i]].(string))
+			out += fmt.Sprintf("%s %s", inputN[i], list[inputN[i]].(string))
 		}
 
 	}

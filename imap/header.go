@@ -159,6 +159,54 @@ func ReadHeader(r *bufio.Reader) (Header, error) {
 	}
 }
 
+// ReadHeader reads a MIME header from r. The header is a sequence of possibly
+// continued Key: Value lines ending in a blank line.
+func ReadHeaderString(r *bufio.Reader) (string, error) {
+
+	var lines []byte
+	// The first line cannot start with a leading space.
+	if buf, err := r.Peek(1); err == nil && isSpace(buf[0]) {
+		line, err := readLineSlice(r, nil)
+		if err != nil {
+			return string(lines), err
+		}
+		return string(lines), fmt.Errorf("message: malformed MIME header initial line: %v", string(line))
+	}
+
+	for {
+		kv, err := readContinuedLineSlice(r)
+
+		if len(kv) == 0 {
+			lines = append(lines, '\r', '\n')
+			return string(lines), err
+		}
+
+		// Key ends at first colon; should not have trailing spaces but they
+		// appear in the wild, violating specs, so we remove them if present.
+		i := bytes.IndexByte(kv, ':')
+		if i < 0 {
+			return string(lines), fmt.Errorf("message: malformed MIME header line: %v", string(kv))
+			// return NewHeader(fs), fmt.Errorf("message: malformed MIME header line: %v", string(kv))
+		}
+
+		key := textproto.CanonicalMIMEHeaderKey(string(trim(kv[:i])))
+
+		// As per RFC 7230 field-name is a token, tokens consist of one or more
+		// chars. We could return a an error here, but better to be liberal in
+		// what we accept, so if we get an empty key, skip it.
+		if key == "" {
+			continue
+		}
+
+		if err != nil {
+			lines = append(lines, '\r', '\n')
+			return string(lines), err
+		}
+
+		lines = append(lines, kv...)
+	}
+}
+
 // Strip newlines and spaces around newlines.
 func trimAroundNewlines(v []byte) string {
 	var b strings.Builder
