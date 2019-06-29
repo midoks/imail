@@ -175,12 +175,8 @@ func mergeFields(fields []interface{}) string {
 }
 
 func (bs *BodyStructure) ToString() string {
-	// fmt.Println("ToString:", bs)
-
 	t := bs.Format()
-
 	res := mergeFields(t)
-	fmt.Println("ToString:", res)
 	return res
 }
 
@@ -295,7 +291,6 @@ func FetchBodyStructure(header Header, body io.Reader, extended bool) (*BodyStru
 		var parts []*BodyStructure
 		for {
 			p, err := mr.NextPart()
-			fmt.Println("part:", p)
 			if err == io.EOF {
 				break
 			} else if err != nil {
@@ -323,7 +318,5 @@ func FetchBodyStructure(header Header, body io.Reader, extended bool) (*BodyStru
 		// TODO: bs.MD5
 		bs.MD5 = ""
 	}
-
-	// fmt.Println("FetchBodyStructure:", bs)
 	return bs, nil
 }

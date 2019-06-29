@@ -148,6 +148,17 @@ func BoxList(uid int64, cid int64, page int, pageSize int) ([]orm.Params, error)
 	return maps, err
 }
 
+// Paging List of POP3 Protocol
+func BoxListSE(uid int64, className string, start int64, end int64) ([]orm.Params, error) {
+	var maps []orm.Params
+	cid, _ := ClassGetIdByName(uid, className)
+
+	o := orm.NewOrm()
+	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and cid=? and mid>='%d' and mid<='%d'", BoxTableName(), start, end)
+	_, err := o.Raw(sql, uid, cid).Values(&maps)
+	return maps, err
+}
+
 // POP3 gets all the data
 func BoxAll(uid int64, cid int64) []orm.Params {
 	var maps []orm.Params

@@ -94,7 +94,7 @@ func (this *ImapServer) Debug(d bool) {
 }
 
 func (this *ImapServer) w(msg string) {
-	// fmt.Println("w[debug]:", msg)
+	fmt.Println("w[debug]:", msg)
 	_, err := this.conn.Write([]byte(msg))
 
 	if err != nil {
@@ -210,7 +210,6 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 	}
 	bs, err := FetchBodyStructure(header, bufferedBody, true)
 	if err == nil {
-		fmt.Println("FetchBodyStructure------333:", bs)
 		bs.ToString()
 	} else {
 		fmt.Println(err)
@@ -229,7 +228,7 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 		}
 
 		if strings.EqualFold(inputN[i], "flags") {
-			list[inputN[i]] = "(\\Seen)"
+			list[inputN[i]] = "(\\Flagged)"
 		}
 
 		if strings.EqualFold(inputN[i], "rfc822.size") {
@@ -254,7 +253,7 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 		}
 
 		if strings.EqualFold(inputN[i], "body.peek[]") {
-			list[inputN[i]] = fmt.Sprintf("{%d}\r\n%s\r\n", len(content), content)
+			list[inputN[i]] = fmt.Sprintf("{%d}\r\n%s", len(content), content)
 			// list[inputN[i]] = "{1218} \r\nTo: \"midoks@163.com\" <midoks@163.com> \r\nFrom:  <report-noreply@jiankongbao.com>\r\nSubject: 123123\r\nMessage-ID: <80d0b8ee122340ceb665ad1bf5220a42@localhost.localdomain>"
 		}
 	}
@@ -264,16 +263,16 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 		fmt.Println(i, inputN[i], list[inputN[i]])
 
 		if strings.EqualFold(inputN[i], "body.peek[header]") {
-			out += fmt.Sprintf("%s %s", "body[header]", list["body[header]"].(string))
+			out += fmt.Sprintf("%s %s ", "body[header]", list["body[header]"].(string))
 		} else if strings.EqualFold(inputN[i], "body[]") {
-			out += fmt.Sprintf("%s %s", "body[]", list["body[]"].(string))
+			out += fmt.Sprintf("%s %s ", "body[]", list["body[]"].(string))
 		} else {
-			out += fmt.Sprintf("%s %s", inputN[i], list[inputN[i]].(string))
+			out += fmt.Sprintf("%s %s ", inputN[i], list[inputN[i]].(string))
 		}
 	}
 
 	out = fmt.Sprintf("(%s)", out)
-	fmt.Println(out)
+	// fmt.Println(out)
 	return out
 }
 
@@ -324,7 +323,7 @@ func (this *ImapServer) cmdSelect(input string) bool {
 		this.writeArgs("* %d EXISTS", msgCount)
 		this.writeArgs("* 0 RECENT")
 		this.writeArgs("* OK [UIDVALIDITY 1] UIDs valid")
-		this.writeArgs("* FLAGS (\\Answered\\Seen \\Deleted \\Draft \\Flagged)")
+		this.writeArgs("* FLAGS (\\Answered \\Seen \\Deleted \\Draft \\Flagged)")
 		this.writeArgs("* OK [PERMANENTFLAGS (\\Answered \\Seen \\Deleted \\Draft \\Flagged)] Limited")
 		this.writeArgs("%s OK [READ-WRITE] %s completed", inputN[0], inputN[1])
 		return true
@@ -339,7 +338,7 @@ func (this *ImapServer) cmdFetch(input string) bool {
 		// fmt.Println("fetch:%s", input)
 
 		list, err := models.BoxAllByClassName(this.userID, this.selectBox)
-		fmt.Println(list)
+		// fmt.Println(list)
 		if err == nil {
 			for i := 1; i <= len(list); i++ {
 				this.writeArgs("* %d FETCH (UID %s)", i, list[i-1]["mid"].(string))
@@ -357,19 +356,42 @@ func (this *ImapServer) cmdUid(input string) bool {
 	if len(inputN) == 5 && this.cmdCompare(inputN[1], CMD_UID) {
 
 		if strings.EqualFold(inputN[2], "fetch") {
+
+			if strings.Index(inputN[3], ":") > 0 {
+
+				se := strings.SplitN(inputN[3], ":", 2)
+				fmt.Println(se)
+
+				start, _ := strconv.ParseInt(se[0], 10, 64)
+				end, _ := strconv.ParseInt(se[1], 10, 64)
+				list, err := models.BoxListSE(this.userID, this.selectBox, start, end)
+				fmt.Println(list)
+				if err == nil {
+					for i := 1; i <= len(list); i++ {
+						c := this.parseArgsConent(inputN[4], list[i-1]["mid"].(string))
+						// fmt.Println(c)
+						this.writeArgs("* %d FETCH "+c, i)
+						// this.writeArgs("* %d FETCH (UID %s)", i, list[i-1]["mid"].(string))
+					}
+				}
+			} else {
+
+				list, err := models.BoxAllByClassName(this.userID, this.selectBox)
+				if err == nil {
+					for i := 1; i <= len(list); i++ {
+						c := this.parseArgsConent(inputN[4], list[i-1]["mid"].(string))
+						// fmt.Println(c)
+						// d := fmt.Sprintf("")
+						this.writeArgs("* %d FETCH "+c, i)
+						// this.writeArgs("* %d FETCH (UID %s)", i, list[i-1]["mid"].(string))
+					}
+				}
+			}
+
+			fmt.Println(inputN)
 			// this.w("* 1 FETCH (UID 1320476750)\r\n")
 			// this.w("* 2 FETCH (UID 1320476751)\r\n")
 
-			list, err := models.BoxAllByClassName(this.userID, this.selectBox)
-			if err == nil {
-				for i := 1; i <= len(list); i++ {
-					c := this.parseArgsConent(inputN[4], list[i-1]["mid"].(string))
-					// fmt.Println(c)
-					// d := fmt.Sprintf("")
-					this.writeArgs("* %d FETCH "+c, i)
-					// this.writeArgs("* %d FETCH (UID %s)", i, list[i-1]["mid"].(string))
-				}
-			}
 			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
 			return true
 		}

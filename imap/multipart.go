@@ -86,8 +86,6 @@ func (r *MultipartReader) NextPart() (*Part, error) {
 	for {
 		line, err := r.bufReader.ReadSlice('\n')
 
-		fmt.Println("line", string(line))
-
 		if err == io.EOF && r.isFinalBoundary(line) {
 			// If the buffer ends in "--boundary--" without the
 			// trailing "\r\n", ReadSlice will return an error
