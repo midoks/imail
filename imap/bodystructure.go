@@ -62,7 +62,7 @@ type BodyStructure struct {
 }
 
 func (bs *BodyStructure) Format() (fields []interface{}) {
-	fmt.Println("format:", bs)
+	// fmt.Println("format:", bs)
 	if strings.EqualFold(bs.MimeType, "multipart") {
 		for _, part := range bs.Parts {
 			fields = append(fields, part.Format())

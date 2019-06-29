@@ -94,7 +94,7 @@ func (this *ImapServer) Debug(d bool) {
 }
 
 func (this *ImapServer) w(msg string) {
-	fmt.Println("w[debug]:", msg)
+	// fmt.Println("w[debug]:", msg)
 	_, err := this.conn.Write([]byte(msg))
 
 	if err != nil {
