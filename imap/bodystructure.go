@@ -150,9 +150,6 @@ func (bs *BodyStructure) Format() (fields []interface{}) {
 			fields = append(fields, extended...)
 		}
 	}
-
-	fmt.Println("ffff:", len(fields))
-
 	return
 }
 

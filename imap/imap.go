@@ -204,7 +204,6 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 	bufferedBody := bufio.NewReader(strings.NewReader(content))
 	header, err := ReadHeader(bufferedBody)
 
-	headerString, err := ReadHeaderString(bufio.NewReader(strings.NewReader(content)))
 	// fmt.Println("headerString:", headerString)
 	if err != nil {
 		fmt.Errorf("Expected no error while reading mail, got:", err)
@@ -249,25 +248,32 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 		}
 
 		if strings.EqualFold(inputN[i], "body.peek[header]") {
-
+			headerString, _ := ReadHeaderString(bufio.NewReader(strings.NewReader(content)))
 			list["body[header]"] = fmt.Sprintf("{%d}\r\n%s\r\n", len(headerString), headerString)
+			// list[inputN[i]] = "{1218} \r\nTo: \"midoks@163.com\" <midoks@163.com> \r\nFrom:  <report-noreply@jiankongbao.com>\r\nSubject: 123123\r\nMessage-ID: <80d0b8ee122340ceb665ad1bf5220a42@localhost.localdomain>"
+		}
+
+		if strings.EqualFold(inputN[i], "body.peek[]") {
+			list[inputN[i]] = fmt.Sprintf("{%d}\r\n%s\r\n", len(content), content)
 			// list[inputN[i]] = "{1218} \r\nTo: \"midoks@163.com\" <midoks@163.com> \r\nFrom:  <report-noreply@jiankongbao.com>\r\nSubject: 123123\r\nMessage-ID: <80d0b8ee122340ceb665ad1bf5220a42@localhost.localdomain>"
 		}
 	}
 
 	out := ""
 	for i := 0; i < len(inputN); i++ {
-		// fmt.Println(i, inputN[i], list[inputN[i]])
+		fmt.Println(i, inputN[i], list[inputN[i]])
 
 		if strings.EqualFold(inputN[i], "body.peek[header]") {
 			out += fmt.Sprintf("%s %s", "body[header]", list["body[header]"].(string))
+		} else if strings.EqualFold(inputN[i], "body[]") {
+			out += fmt.Sprintf("%s %s", "body[]", list["body[]"].(string))
 		} else {
 			out += fmt.Sprintf("%s %s", inputN[i], list[inputN[i]].(string))
 		}
-
 	}
 
 	out = fmt.Sprintf("(%s)", out)
+	fmt.Println(out)
 	return out
 }
 
