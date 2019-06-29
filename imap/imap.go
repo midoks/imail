@@ -216,7 +216,7 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 	}
 
 	// contentN := strings.Split(content, "\n\n")
-	contentL := strings.Split(content, "\n")
+	// contentL := strings.Split(content, "\n")
 	// fmt.Println("cmdCompare::--------\r\n", contentN, len(contentN))
 	// fmt.Println("cmdCompare::--------\r\n")
 
@@ -237,23 +237,23 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 		}
 
 		if strings.EqualFold(inputN[i], "bodystructure") {
-			cccc := fmt.Sprintf("(\"text\" \"plain\" (\"charset\" \"utf-8\") NIL NIL \"8bit\" %d %d NIL NIL NIL)", len(content), len(contentL[0]))
+			// cccc := fmt.Sprintf("(\"text\" \"html\" (\"charset\" \"UTF-8\") NIL NIL \"8bit\" %d %d NIL NIL NIL)", 12225, 229)
 			// cccc := "(  )"
 
 			// ccc2 := "((\"text\" \"plain\" (\"charset\" \"UTF-8\") NIL NIL \"quoted-printable\" 4542 104 NIL NIL NIL)(\"text\" \"html\" (\"charset\" \"UTF-8\") NIL NIL \"quoted-printable\" 43308 574 NIL NIL NIL) \"alternative\" (\"boundary\" \"--==_mimepart_5d09e7387efec_127483fd2fc2449c43048322e7\" \"charset\" \"UTF-8\") NIL NIL)"
-			list[inputN[i]] = cccc
+			// list[inputN[i]] = cccc
 
 			list[inputN[i]] = bs.ToString()
 		}
 
 		if strings.EqualFold(inputN[i], "body.peek[header]") {
 			headerString, _ := ReadHeaderString(bufio.NewReader(strings.NewReader(content)))
-			list["body[header]"] = fmt.Sprintf("{%d}\r\n%s\r\n", len(headerString), headerString)
+			list["body[header]"] = fmt.Sprintf("{%d}\r\n%s", len(headerString), headerString) //len(headerString)
 			// list[inputN[i]] = "{1218} \r\nTo: \"midoks@163.com\" <midoks@163.com> \r\nFrom:  <report-noreply@jiankongbao.com>\r\nSubject: 123123\r\nMessage-ID: <80d0b8ee122340ceb665ad1bf5220a42@localhost.localdomain>"
 		}
 
 		if strings.EqualFold(inputN[i], "body.peek[]") {
-			list[inputN[i]] = fmt.Sprintf("{%d}\r\n%s", len(content), content)
+			list[inputN[i]] = fmt.Sprintf("{%d}\r\n%s", len(content), content) //len(content)
 			// list[inputN[i]] = "{1218} \r\nTo: \"midoks@163.com\" <midoks@163.com> \r\nFrom:  <report-noreply@jiankongbao.com>\r\nSubject: 123123\r\nMessage-ID: <80d0b8ee122340ceb665ad1bf5220a42@localhost.localdomain>"
 		}
 	}
@@ -263,11 +263,11 @@ func (this *ImapServer) parseArgsConent(format string, mid string) string {
 		fmt.Println(i, inputN[i], list[inputN[i]])
 
 		if strings.EqualFold(inputN[i], "body.peek[header]") {
-			out += fmt.Sprintf("%s %s ", "body[header]", list["body[header]"].(string))
+			out += fmt.Sprintf("%s %s", strings.ToUpper("body[header]"), list["body[header]"].(string))
 		} else if strings.EqualFold(inputN[i], "body[]") {
-			out += fmt.Sprintf("%s %s ", "body[]", list["body[]"].(string))
+			out += fmt.Sprintf("%s %s ", strings.ToUpper("body[]"), list["body[]"].(string))
 		} else {
-			out += fmt.Sprintf("%s %s ", inputN[i], list[inputN[i]].(string))
+			out += fmt.Sprintf("%s %s ", strings.ToUpper(inputN[i]), list[inputN[i]].(string))
 		}
 	}
 

@@ -175,7 +175,6 @@ func ReadHeaderString(r *bufio.Reader) (string, error) {
 
 	for {
 		kv, err := readContinuedLineSlice(r)
-
 		if len(kv) == 0 {
 			// lines = append(lines, '\r', '\n')
 			return string(lines), err
