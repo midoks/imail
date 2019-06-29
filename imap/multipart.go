@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
+	// "io/ioutil"
 	// "strings"
 )
 
@@ -73,14 +73,6 @@ func newPart(mr *MultipartReader) (*Part, error) {
 	return bp, nil
 }
 
-func (bp *Part) populateHeaders() error {
-	header, err := ReadHeader(bp.mr.bufReader)
-	if err == nil {
-		bp.Header = header
-	}
-	return err
-}
-
 // NextPart returns the next part in the multipart or an error.
 // When there are no more parts, the error io.EOF is returned.
 func (r *MultipartReader) NextPart() (*Part, error) {
@@ -93,6 +85,8 @@ func (r *MultipartReader) NextPart() (*Part, error) {
 	expectNewPart := false
 	for {
 		line, err := r.bufReader.ReadSlice('\n')
+
+		fmt.Println("line", string(line))
 
 		if err == io.EOF && r.isFinalBoundary(line) {
 			// If the buffer ends in "--boundary--" without the
@@ -306,33 +300,4 @@ func matchAfterPrefix(buf, prefix []byte, readErr error) int {
 		return +1
 	}
 	return -1
-}
-
-// Read reads the body of a part, after its headers and before the
-// next part (if any) begins.
-func (p *Part) Read(d []byte) (n int, err error) {
-	return p.r.Read(d)
-}
-
-func (p *Part) Close() error {
-	io.Copy(ioutil.Discard, p)
-	return nil
-}
-
-// A Part represents a single part in a multipart body.
-type Part struct {
-	Header Header
-
-	mr *MultipartReader
-
-	disposition       string
-	dispositionParams map[string]string
-
-	// r is either a reader directly reading from mr
-	r io.Reader
-
-	n       int   // known data bytes waiting in mr.bufReader
-	total   int64 // total data bytes read already
-	err     error // error to return when n == 0
-	readErr error // read error observed from mr.bufReader
 }

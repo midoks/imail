@@ -71,7 +71,7 @@ func (bs *BodyStructure) Format() (fields []interface{}) {
 		fields = append(fields, bs.MimeSubType)
 
 		if bs.Extended {
-			extended := make([]interface{}, 4)
+			extended := make([]interface{}, 3)
 
 			if bs.Params != nil {
 				extended[0] = formatHeaderParamList(bs.Params)
@@ -86,7 +86,7 @@ func (bs *BodyStructure) Format() (fields []interface{}) {
 				extended[2] = FormatStringList(bs.Language)
 			}
 			if bs.Location != nil {
-				extended[3] = FormatStringList(bs.Location)
+				// extended[3] = FormatStringList(bs.Location)
 			}
 
 			fields = append(fields, extended...)
@@ -129,7 +129,7 @@ func (bs *BodyStructure) Format() (fields []interface{}) {
 
 		// Extension data
 		if bs.Extended {
-			extended := make([]interface{}, 4)
+			extended := make([]interface{}, 3)
 
 			if bs.MD5 != "" {
 				extended[0] = bs.MD5
@@ -144,12 +144,14 @@ func (bs *BodyStructure) Format() (fields []interface{}) {
 				extended[2] = FormatStringList(bs.Language)
 			}
 			if bs.Location != nil {
-				extended[3] = FormatStringList(bs.Location)
+				// extended[3] = FormatStringList(bs.Location)
 			}
 
 			fields = append(fields, extended...)
 		}
 	}
+
+	fmt.Println("ffff:", len(fields))
 
 	return
 }
@@ -296,6 +298,7 @@ func FetchBodyStructure(header Header, body io.Reader, extended bool) (*BodyStru
 		var parts []*BodyStructure
 		for {
 			p, err := mr.NextPart()
+			fmt.Println("part:", p)
 			if err == io.EOF {
 				break
 			} else if err != nil {
