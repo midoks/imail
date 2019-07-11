@@ -1,4 +1,4 @@
-package server
+package imap
 
 import (
 	"bufio"
@@ -330,25 +330,6 @@ func (this *ImapServer) cmdSelect(input string) bool {
 	return false
 }
 
-func (this *ImapServer) cmdFetch(input string) bool {
-	inputN := strings.SplitN(input, " ", 4)
-
-	if len(inputN) == 4 && this.cmdCompare(inputN[1], CMD_FETCH) {
-		// fmt.Println("fetch:%s", input)
-
-		list, err := models.BoxAllByClassName(this.userID, this.selectBox)
-		// fmt.Println(list)
-		if err == nil {
-			for i := 1; i <= len(list); i++ {
-				this.writeArgs("* %d FETCH (UID %s)", i, list[i-1]["mid"].(string))
-			}
-		}
-		this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
-		return true
-	}
-	return false
-}
-
 func (this *ImapServer) cmdUid(input string) bool {
 	inputN := strings.SplitN(input, " ", 5)
 
@@ -444,17 +425,6 @@ func (this *ImapServer) cmdId(input string) bool {
 	return false
 }
 
-func (this *ImapServer) cmdNoop(input string) bool {
-	inputN := strings.SplitN(input, " ", 2)
-	if len(inputN) == 2 {
-		if this.cmdCompare(inputN[1], CMD_NOOP) {
-			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
-			return true
-		}
-	}
-	return false
-}
-
 func (this *ImapServer) cmdLogout(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
@@ -504,15 +474,8 @@ func (this *ImapServer) handle() {
 			if this.cmdSelect(input) {
 			}
 
-			if this.cmdFetch(input) {
-			}
-
 			if this.cmdUid(input) {
 			}
-
-			if this.cmdNoop(input) {
-			}
-
 		}
 	}
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/config"
 	"github.com/midoks/imail/app"
-	"github.com/midoks/imail/imap"
+	ipserver "github.com/midoks/imail/imap/server"
 	"github.com/midoks/imail/pop3"
 	"github.com/midoks/imail/smtpd"
 	"net/http"
@@ -60,7 +60,7 @@ func main() {
 		if imap_enable {
 			imap_port, err := conf.Int("imap::port")
 			if err == nil {
-				go imap.Start(imap_port)
+				go ipserver.Start(imap_port)
 			} else {
 				fmt.Println("read imap:port failed, err:", err)
 			}
