@@ -3,7 +3,7 @@ package cmd
 type Fetch struct {
 }
 
-func (r *Fetch) Handle(resp Resp) error {
+func (r *Fetch) Handle() error {
 	return nil
 }
 

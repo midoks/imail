@@ -26,16 +26,16 @@ func (cmd *Command) Command() *Command {
 	return cmd
 }
 
-func (cmd *Command) WriteTo(w *Writer) error {
-	tag := cmd.Tag
-	if tag == "" {
-		tag = "*"
-	}
+// func (cmd *Command) WriteTo(w *Writer) error {
+// 	tag := cmd.Tag
+// 	if tag == "" {
+// 		tag = "*"
+// 	}
 
-	fields := []interface{}{string(tag), string(cmd.Name)}
-	fields = append(fields, cmd.Arguments...)
-	return w.writeLine(fields...)
-}
+// 	fields := []interface{}{string(tag), string(cmd.Name)}
+// 	fields = append(fields, cmd.Arguments...)
+// 	return w.writeLine(fields...)
+// }
 
 // Parse a command from fields.
 func (cmd *Command) Parse(fields []interface{}) error {

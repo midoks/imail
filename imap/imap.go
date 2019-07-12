@@ -3,6 +3,7 @@ package imap
 import (
 	"bufio"
 	"fmt"
+	"github.com/midoks/imail/app/models"
 	"github.com/midoks/imail/imap/cmd"
 	"log"
 	"net"
@@ -17,12 +18,12 @@ type Parser interface {
 
 // A command handler.
 type Handler interface {
-	Parser
+	// Parser
 	// Handle this command for a given connection.
 	//
 	// By default, after this function has returned a status response is sent. To
 	// prevent this behavior handlers can use ErrStatusResp or ErrNoStatusResp.
-	Handle(conn Conn) error
+	// Handle(conn Conn) error
 }
 
 // A function that creates handlers.
@@ -239,7 +240,8 @@ func (this *ImapServer) cmdLogout(input string) bool {
 func (this *ImapServer) handle() {
 	for {
 
-		cmd := &imap.Command{}
+		cmd := &Command{}
+		fmt.Println(cmd)
 
 		// state := this.getState()
 		// input, err := this.getString()
