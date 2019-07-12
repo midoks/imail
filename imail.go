@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/config"
 	"github.com/midoks/imail/app"
-	ipserver "github.com/midoks/imail/imap/server"
+	ipserver "github.com/midoks/imail/imap"
 	"github.com/midoks/imail/pop3"
 	"github.com/midoks/imail/smtpd"
 	"net/http"
