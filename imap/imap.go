@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/midoks/imail/app/models"
 	"github.com/midoks/imail/imap/cmd"
+	"io"
 	"log"
 	"net"
 	"runtime"
@@ -77,7 +78,22 @@ func GetGoEol() string {
 	return "\n"
 }
 
+// An IMAP reader.
+// type Reader struct {
+// 	MaxLiteralSize uint32 // The maximum literal size.
+
+// 	reader
+
+// 	continues chan<- bool
+
+// 	brackets   int
+// 	inRespCode bool
+// }
+
 type ImapServer struct {
+	io.Reader
+	io.RuneScanner
+	// *Writer
 	debug         bool
 	conn          net.Conn
 	state         int
@@ -238,37 +254,62 @@ func (this *ImapServer) cmdLogout(input string) bool {
 }
 
 func (this *ImapServer) handle() {
+	var char rune
+	var err error
+	r := io.Reader(this.conn)
+	rr := bufio.NewReader(r)
+
+	// for {
+
+	fmt.Println("handle...start")
+
+	// cmd := &Command{}
+
 	for {
-
-		cmd := &Command{}
-		fmt.Println(cmd)
-
-		// state := this.getState()
-		// input, err := this.getString()
-		// if err != nil {
-		// 	break
-		// }
-
-		// fmt.Println("imap:", state, input)
-
-		// if this.cmdLogout(input) {
-		// 	break
-		// }
-
-		// if this.cmdCapabitity(input) {
-		// }
-
-		// if this.cmdId(input) {
-		// }
-
-		// if this.cmdAuth(input) {
-		// 	this.setState(CMD_AUTH)
-		// }
-
-		// if this.stateCompare(state, CMD_AUTH) {
-
-		// }
+		if char, _, err = rr.ReadRune(); err != nil {
+			break
+		}
+		fmt.Println(char, err)
 	}
+
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
+
+	fmt.Println("handle...end")
+
+	// fields, err := this.ReadLine()
+	// cmd.Parse(fields)
+	// fmt.Println(cmd)
+
+	// state := this.getState()
+	// input, err := this.getString()
+	// if err != nil {
+	// 	break
+	// }
+
+	// fmt.Println("imap:", state, input)
+
+	// if this.cmdLogout(input) {
+	// 	break
+	// }
+
+	// if this.cmdCapabitity(input) {
+	// }
+
+	// if this.cmdId(input) {
+	// }
+
+	// if this.cmdAuth(input) {
+	// 	this.setState(CMD_AUTH)
+	// }
+
+	// if this.stateCompare(state, CMD_AUTH) {
+
+	// }
+
+	// }
 }
 
 func (this *ImapServer) start(conn net.Conn) {
