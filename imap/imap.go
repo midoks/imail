@@ -267,7 +267,11 @@ func (this *ImapServer) handle() {
 
 	for {
 		if char, _, err = rr.ReadRune(); err != nil {
-			break
+			return
+		}
+
+		if err = rr.UnreadRune(); err != nil {
+			return
 		}
 		fmt.Println(char, err)
 	}
