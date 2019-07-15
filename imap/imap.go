@@ -264,17 +264,23 @@ func (this *ImapServer) handle() {
 	fmt.Println("handle...start")
 
 	// cmd := &Command{}
-
+	var atom string
 	for {
 		if char, _, err = rr.ReadRune(); err != nil {
-			return
+			fmt.Println("ccc", char, err)
+			break
 		}
 
-		if err = rr.UnreadRune(); err != nil {
-			return
-		}
-		fmt.Println(char, err)
+		fmt.Println(char)
+		// if err = rr.UnreadRune(); err != nil {
+		// 	fmt.Println("ddd", err)
+		// 	break
+		atom += string(char)
+		fmt.Println(atom)
 	}
+
+	// fmt.Println(char, err)
+	// }
 
 	// if err != nil {
 	// 	fmt.Println(err)
