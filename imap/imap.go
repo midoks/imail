@@ -267,15 +267,12 @@ func (this *ImapServer) handle() {
 	var atom string
 	for {
 		if char, _, err = rr.ReadRune(); err != nil {
-			fmt.Println("ccc", char, err)
 			break
 		}
 
 		if char == '\r' {
 			break
 		}
-
-		fmt.Println(char)
 		// if err = rr.UnreadRune(); err != nil {
 		// 	fmt.Println("ddd", err)
 		// 	break
