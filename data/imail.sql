@@ -26,6 +26,7 @@ CREATE TABLE `im_user` (
   `name` varchar(50) NOT NULL COMMENT '用户名',
   `password` varchar(32) NOT NULL COMMENT '密码',
   `status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '状态',
+  `code` varchar(16) DEFAULT NULL COMMENT '授权码',
   `create_time` bigint(20) unsigned NOT NULL COMMENT '创建时间',
   `update_time` bigint(20) unsigned NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`)
