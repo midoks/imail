@@ -3,7 +3,7 @@ package imap
 import (
 	"bufio"
 	"fmt"
-	"github.com/midoks/imail/app/models"
+	"github.com/midoks/imail/db"
 	"github.com/midoks/imail/imap/cmd"
 	"io"
 	"log"
@@ -202,7 +202,7 @@ func (this *ImapServer) cmdAuth(input string) bool {
 
 		fmt.Println(user, pwd)
 
-		isLogin, id := models.UserLogin(user, pwd)
+		isLogin, id := db.LoginWithCode(user, pwd)
 		if isLogin {
 			this.userID = id
 			this.writeArgs(MSG_LOGIN_OK, inputN[0])

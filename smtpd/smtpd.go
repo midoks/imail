@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/astaxie/beego"
-	"github.com/midoks/imail/app/models"
+	"github.com/midoks/imail/db"
 	"github.com/midoks/imail/libs"
 	"log"
 	"net"
@@ -248,7 +248,7 @@ func (this *SmtpdServer) checkUserLogin() bool {
 	name := this.loginUser
 	pwd := strings.TrimSpace(this.loginPwd)
 
-	isLogin, id := models.UserLogin(name, pwd)
+	isLogin, id := db.LoginWithCode(name, pwd)
 	if !isLogin {
 		return false
 	}
@@ -323,12 +323,13 @@ func (this *SmtpdServer) cmdMailFrom(input string) bool {
 			if this.isLogin {
 				info := strings.Split(mailFrom, "@")
 				mdomain := beego.AppConfig.String("mail.domain")
+				fmt.Println(info)
 				if !strings.EqualFold(mdomain, info[1]) {
 					this.write(MSG_BAD_MAIL_ADDR)
 					return false
 				}
 
-				user, err := models.UserGetByName(info[0])
+				user, err := db.UserGetByName(info[0])
 				if err != nil {
 					this.write(MSG_BAD_USER)
 					return false
@@ -372,7 +373,7 @@ func (this *SmtpdServer) cmdRcptTo(input string) bool {
 					return false
 				}
 
-				user, err := models.UserGetByName(info[0])
+				user, err := db.UserGetByName(info[0])
 				if err != nil {
 					this.write(MSG_BAD_USER)
 					return false
@@ -406,31 +407,35 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		n, _ := this.conn.Read(b[0:])
 
 		line := strings.TrimSpace(string(b[:n]))
-		content += fmt.Sprintf("%s", line)
+		content += fmt.Sprintf("%s\r\n", line)
 
-		last := line[len(line)-1:]
+		// fmt.Println(line)
+		// fmt.Println(content)
 
-		if strings.EqualFold(last, ".") {
-			content = strings.TrimSpace(content[0 : len(content)-1])
-			this.write(MSG_MAIL_OK)
-			break
+		if line != "" {
+			last := line[len(line)-1:]
+			if strings.EqualFold(last, ".") {
+				content = strings.TrimSpace(content[0 : len(content)-1])
+				this.write(MSG_MAIL_OK)
+				break
+			}
 		}
 	}
 
 	if !this.isLogin {
-		mid, err := models.MailPush(this.recordCmdMailFrom, this.recordcmdRcptTo, content)
+		_, err := db.MailPush(this.recordCmdMailFrom, this.recordcmdRcptTo, content)
 		if err != nil {
 			return false
 		}
-		models.BoxAdd(this.userID, mid, 0, len(content))
+		// db.BoxAdd(this.userID, mid, 0, len(content))
 	}
 
 	if this.isLogin {
-		mid, err := models.MailPush(this.recordCmdMailFrom, this.recordcmdRcptTo, content)
+		_, err := db.MailPush(this.recordCmdMailFrom, this.recordcmdRcptTo, content)
 		if err != nil {
 			return false
 		}
-		models.BoxAdd(this.userID, mid, 1, len(content))
+		// db.BoxAdd(this.userID, mid, 1, len(content))
 	}
 
 	return true

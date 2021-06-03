@@ -3,12 +3,12 @@ package pop3
 import (
 	"bufio"
 	"fmt"
-	"github.com/midoks/imail/app/models"
+	"github.com/midoks/imail/db"
 	"github.com/midoks/imail/libs"
 	"log"
 	"net"
 	"runtime"
-	"strconv"
+	// "strconv"
 	"strings"
 	"time"
 )
@@ -170,7 +170,7 @@ func (this *Pop3Server) checkUserLogin() bool {
 	name := this.recordCmdUser
 	pwd := strings.TrimSpace(this.recordCmdPass)
 
-	isLogin, id := models.UserLogin(name, pwd)
+	isLogin, id := db.LoginWithCode(name, pwd)
 	if !isLogin {
 		return false
 	}
@@ -205,7 +205,7 @@ func (this *Pop3Server) cmdPass(input string) bool {
 		this.recordCmdPass = strings.TrimSpace(inputN[1])
 
 		if this.checkUserLogin() {
-			count, size := models.BoxUserTotal(this.userID)
+			count, size := db.BoxUserTotal(this.userID)
 			this.writeArgs(MSG_LOGIN_OK, count, size)
 			return true
 		}
@@ -217,7 +217,7 @@ func (this *Pop3Server) cmdPass(input string) bool {
 
 func (this *Pop3Server) cmdStat(input string) bool {
 	if this.cmdCompare(input, CMD_STAT) {
-		count, size := models.BoxUserTotal(this.userID)
+		count, size := db.BoxUserTotal(this.userID)
 		this.writeArgs(MSG_STAT_OK, count, size)
 		return true
 	}
@@ -225,114 +225,114 @@ func (this *Pop3Server) cmdStat(input string) bool {
 }
 
 func (this *Pop3Server) cmdList(input string) bool {
-	inputN := strings.SplitN(input, " ", 2)
+	// inputN := strings.SplitN(input, " ", 2)
 
-	if this.cmdCompare(inputN[0], CMD_LIST) {
-		inputLen := len(inputN)
-		if inputLen == 1 {
-			count, size := models.BoxUserTotal(this.userID)
-			this.writeArgs(MSG_STAT_OK, count, size)
+	// if this.cmdCompare(inputN[0], CMD_LIST) {
+	// 	inputLen := len(inputN)
+	// 	if inputLen == 1 {
+	// 		count, size := db.BoxUserTotal(this.userID)
+	// 		this.writeArgs(MSG_STAT_OK, count, size)
 
-			list := models.BoxAll(this.userID, 1)
-			for i := 1; i <= len(list); i++ {
-				t := fmt.Sprintf("%d %s\r\n", i, list[i-1]["mid"])
-				this.w(t)
-			}
-			this.w(".\r\n")
-			return true
-		} else if inputLen == 2 {
-			pos, err := strconv.ParseInt(inputN[1], 10, 64)
-			if err == nil {
-				if pos > 0 {
-					list, err := models.BoxPos(this.userID, pos)
-					if err == nil {
-						this.writeArgs(MSG_POS_DATA, pos, list[0]["mid"])
-						return true
-					}
-				}
-			}
-		}
-		this.error(MSG_BAD_SYNTAX)
-	}
+	// 		list := db.BoxAll(this.userID, 1)
+	// 		for i := 1; i <= len(list); i++ {
+	// 			t := fmt.Sprintf("%d %s\r\n", i, list[i-1]["mid"])
+	// 			this.w(t)
+	// 		}
+	// 		this.w(".\r\n")
+	// 		return true
+	// 	} else if inputLen == 2 {
+	// 		pos, err := strconv.ParseInt(inputN[1], 10, 64)
+	// 		if err == nil {
+	// 			if pos > 0 {
+	// 				list, err := db.BoxPos(this.userID, pos)
+	// 				if err == nil {
+	// 					this.writeArgs(MSG_POS_DATA, pos, list[0]["mid"])
+	// 					return true
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// 	this.error(MSG_BAD_SYNTAX)
+	// }
 
 	return false
 }
 
 func (this *Pop3Server) cmdUidl(input string) bool {
-	inputN := strings.SplitN(input, " ", 2)
+	// inputN := strings.SplitN(input, " ", 2)
 
-	if this.cmdCompare(inputN[0], CMD_UIDL) {
-		inputLen := len(inputN)
-		if inputLen == 2 {
-			pos, err := strconv.ParseInt(inputN[1], 10, 64)
-			if err == nil {
+	// if this.cmdCompare(inputN[0], CMD_UIDL) {
+	// 	inputLen := len(inputN)
+	// 	if inputLen == 2 {
+	// 		pos, err := strconv.ParseInt(inputN[1], 10, 64)
+	// 		if err == nil {
 
-				if pos > 0 {
-					list, err := models.BoxPos(this.userID, pos)
-					if err == nil {
-						this.writeArgs(MSG_POS_DATA, pos, libs.Md5str(list[0]["mid"].(string)))
-						return true
-					}
-				}
-			}
-		} else if inputLen == 1 {
-			this.ok("")
-			list := models.BoxAll(this.userID, 1)
-			for i := 1; i <= len(list); i++ {
-				t := fmt.Sprintf("%d %s\r\n", i, libs.Md5str(list[i-1]["mid"].(string)))
-				this.w(t)
-			}
-			this.w(".\r\n")
-			return true
-		}
-		this.error(MSG_BAD_SYNTAX)
-	}
+	// 			if pos > 0 {
+	// 				list, err := db.BoxPos(this.userID, pos)
+	// 				if err == nil {
+	// 					this.writeArgs(MSG_POS_DATA, pos, libs.Md5str(list[0]["mid"].(string)))
+	// 					return true
+	// 				}
+	// 			}
+	// 		}
+	// 	} else if inputLen == 1 {
+	// 		this.ok("")
+	// 		list := db.BoxAll(this.userID, 1)
+	// 		for i := 1; i <= len(list); i++ {
+	// 			t := fmt.Sprintf("%d %s\r\n", i, libs.Md5str(list[i-1]["mid"].(string)))
+	// 			this.w(t)
+	// 		}
+	// 		this.w(".\r\n")
+	// 		return true
+	// 	}
+	// 	this.error(MSG_BAD_SYNTAX)
+	// }
 	return false
 }
 
 func (this *Pop3Server) cmdTop(input string) bool {
-	inputN := strings.SplitN(input, " ", 2)
-	if this.cmdCompare(inputN[0], CMD_TOP) {
-		if len(inputN) == 2 {
-			inputArgs := strings.SplitN(inputN[1], " ", 2)
-			if len(inputArgs) == 2 {
-				pos, err := strconv.ParseInt(inputArgs[0], 10, 64)
-				if err == nil {
-					line, err2 := strconv.ParseInt(inputArgs[1], 10, 64)
-					if err2 == nil {
-						content, size, err3 := models.BoxPosTop(this.userID, pos, line)
-						if err3 == nil {
-							// this.ok(content)
-							this.writeArgs(MSG_TOP_DATA, size, content)
-							return true
-						}
-					}
-				}
-			}
-		}
-		this.error(MSG_BAD_SYNTAX)
-	}
+	// inputN := strings.SplitN(input, " ", 2)
+	// if this.cmdCompare(inputN[0], CMD_TOP) {
+	// 	if len(inputN) == 2 {
+	// 		inputArgs := strings.SplitN(inputN[1], " ", 2)
+	// 		if len(inputArgs) == 2 {
+	// 			pos, err := strconv.ParseInt(inputArgs[0], 10, 64)
+	// 			if err == nil {
+	// 				line, err2 := strconv.ParseInt(inputArgs[1], 10, 64)
+	// 				if err2 == nil {
+	// 					content, size, err3 := db.BoxPosTop(this.userID, pos, line)
+	// 					if err3 == nil {
+	// 						// this.ok(content)
+	// 						this.writeArgs(MSG_TOP_DATA, size, content)
+	// 						return true
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// 	this.error(MSG_BAD_SYNTAX)
+	// }
 	return false
 }
 
 func (this *Pop3Server) cmdRetr(input string) bool {
-	inputN := strings.SplitN(input, " ", 2)
+	// inputN := strings.SplitN(input, " ", 2)
 
-	if this.cmdCompare(inputN[0], CMD_RETR) {
-		if len(inputN) == 2 {
-			pos, err := strconv.ParseInt(inputN[1], 10, 64)
-			if err == nil {
-				if pos > 0 {
-					content, size, err := models.BoxPosContent(this.userID, pos)
-					if err == nil {
-						this.writeArgs(MSG_RETR_DATA, size, content)
-						return true
-					}
-				}
-			}
-		}
-		this.error(MSG_BAD_SYNTAX)
-	}
+	// if this.cmdCompare(inputN[0], CMD_RETR) {
+	// 	if len(inputN) == 2 {
+	// 		pos, err := strconv.ParseInt(inputN[1], 10, 64)
+	// 		if err == nil {
+	// 			if pos > 0 {
+	// 				content, size, err := db.BoxPosContent(this.userID, pos)
+	// 				if err == nil {
+	// 					this.writeArgs(MSG_RETR_DATA, size, content)
+	// 					return true
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// 	this.error(MSG_BAD_SYNTAX)
+	// }
 	return false
 }
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/config"
 	"github.com/midoks/imail/app"
+	"github.com/midoks/imail/db"
 	ipserver "github.com/midoks/imail/imap"
 	"github.com/midoks/imail/pop3"
 	"github.com/midoks/imail/smtpd"
@@ -17,8 +18,11 @@ import (
 )
 
 func main() {
+	//go mod tidy
 
 	go pprof()
+
+	db.Init()
 
 	conf, err := config.NewConfig("ini", "conf/app.conf")
 	if err != nil {
