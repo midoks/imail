@@ -225,35 +225,36 @@ func (this *Pop3Server) cmdStat(input string) bool {
 }
 
 func (this *Pop3Server) cmdList(input string) bool {
-	// inputN := strings.SplitN(input, " ", 2)
+	inputN := strings.SplitN(input, " ", 2)
 
-	// if this.cmdCompare(inputN[0], CMD_LIST) {
-	// 	inputLen := len(inputN)
-	// 	if inputLen == 1 {
-	// 		count, size := db.BoxUserTotal(this.userID)
-	// 		this.writeArgs(MSG_STAT_OK, count, size)
+	if this.cmdCompare(inputN[0], CMD_LIST) {
+		inputLen := len(inputN)
+		if inputLen == 1 {
+			count, size := db.BoxUserTotal(this.userID)
+			this.writeArgs(MSG_STAT_OK, count, size)
 
-	// 		list := db.BoxAll(this.userID, 1)
-	// 		for i := 1; i <= len(list); i++ {
-	// 			t := fmt.Sprintf("%d %s\r\n", i, list[i-1]["mid"])
-	// 			this.w(t)
-	// 		}
-	// 		this.w(".\r\n")
-	// 		return true
-	// 	} else if inputLen == 2 {
-	// 		pos, err := strconv.ParseInt(inputN[1], 10, 64)
-	// 		if err == nil {
-	// 			if pos > 0 {
-	// 				list, err := db.BoxPos(this.userID, pos)
-	// 				if err == nil {
-	// 					this.writeArgs(MSG_POS_DATA, pos, list[0]["mid"])
-	// 					return true
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// 	this.error(MSG_BAD_SYNTAX)
-	// }
+			// list := db.BoxAll(this.userID, 1)
+			// for i := 1; i <= len(list); i++ {
+			// 	t := fmt.Sprintf("%d %s\r\n", i, list[i-1]["mid"])
+			// 	this.w(t)
+			// }
+			// this.w(".\r\n")
+			return true
+		}
+		// else if inputLen == 2 {
+		// 	pos, err := strconv.ParseInt(inputN[1], 10, 64)
+		// 	if err == nil {
+		// 		if pos > 0 {
+		// 			list, err := db.BoxPos(this.userID, pos)
+		// 			if err == nil {
+		// 				this.writeArgs(MSG_POS_DATA, pos, list[0]["mid"])
+		// 				return true
+		// 			}
+		// 		}
+		// 	}
+		// }
+		this.error(MSG_BAD_SYNTAX)
+	}
 
 	return false
 }

@@ -36,6 +36,8 @@ func Init() {
 
   db.AutoMigrate(&User{})
   db.AutoMigrate(&Mail{})
+  db.AutoMigrate(&Box{})
+  db.AutoMigrate(&Class{})
 
   //创建默认账户
 
@@ -50,7 +52,6 @@ func Init() {
     })
   }
 
-  LoginWithCode("admin@xxx.com", "admin")
-
-  MailPush("admin@xxx.com", "midoks@163.com", "tedmm")
+  // LoginWithCode("admin@xxx.com", "admin")
+  // MailPush("admin@xxx.com", "midoks@163.com", "tedmm")
 }

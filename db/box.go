@@ -1,7 +1,7 @@
 package db
 
 import (
-	// "fmt"
+	"fmt"
 	_ "github.com/midoks/imail/libs"
 	// "gorm.io/gorm"
 	// "strings"
@@ -26,11 +26,37 @@ func (Box) TableName() string {
 	return BoxTableName()
 }
 
+func BoxUserList(uid int64) (int64, int64) {
+
+	var resultBox Box
+	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", BoxTableName())
+	num := db.Raw(sql, uid).Find(&resultBox)
+
+	fmt.Println(num, resultBox)
+
+	// count, err := strconv.ParseInt(maps[0]["count"].(string), 10, 64)
+	// if err != nil {
+	// 	count = 0
+	// }
+
+	// if err == nil && num > 0 && count > 0 {
+
+	// 	size, err := strconv.ParseInt(maps[0]["size"].(string), 10, 64)
+	// 	if err != nil {
+	// 		size = 0
+	// 	}
+	// 	return count, size
+	// }
+	return 0, 0
+}
+
 func BoxUserTotal(uid int64) (int64, int64) {
 
-	// var resultBox Box
-	// sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", BoxTableName())
-	// num, err := db.Raw(sql, uid).Values(&resultBox)
+	var resultBox Box
+	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", BoxTableName())
+	num := db.Raw(sql, uid).Find(&resultBox)
+
+	fmt.Println(num, resultBox)
 
 	// count, err := strconv.ParseInt(maps[0]["count"].(string), 10, 64)
 	// if err != nil {
