@@ -459,7 +459,6 @@ func (this *Pop3Server) handle() {
 
 			if this.cmdTop(input) {
 			}
-
 		}
 	}
 }

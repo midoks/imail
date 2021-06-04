@@ -13,6 +13,7 @@ type User struct {
 	Name       string `gorm:"unique;size:50;comment:用户名"`
 	Password   string `gorm:"size:32;comment:用户密码"`
 	Code       string `gorm:"size:50;comment:编码"`
+	Role       int    `gorm:"comment:角色"`
 	Status     int    `gorm:"comment:状态"`
 	UpdateTime int64  `gorm:"autoCreateTime;comment:更新时间"`
 	CreateTime int64  `gorm:"autoCreateTime;comment:创建时间"`

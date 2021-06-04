@@ -2,6 +2,8 @@ package db
 
 import (
   "fmt"
+  // "github.com/go-ini/ini"
+  // "go_dev/go_read_config/global"
   "gorm.io/driver/mysql"
   "gorm.io/gorm"
   "time"
@@ -11,6 +13,7 @@ var db *gorm.DB
 var err error
 
 func Init() {
+
   dsn := "root:root@tcp(127.0.0.1:3306)/imail?charset=utf8mb4&parseTime=True"
   db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
   // defer db.Close()
@@ -38,17 +41,27 @@ func Init() {
   db.AutoMigrate(&Mail{})
   db.AutoMigrate(&Box{})
   db.AutoMigrate(&Class{})
+  db.AutoMigrate(&Role{})
 
   //创建默认账户
-
   var user User
   d := db.First(&user, "name = ?", "admin")
-  // fmt.Println(d.Error)
   if d.Error != nil {
     db.Create(&User{
       Name:     "admin",
       Password: "21232f297a57a5a743894a0e4a801fc3",
       Code:     "admin",
+    })
+  }
+
+  //管理员角色
+  var role Role
+  ruleResult := db.First(&role, "pid = ?", "0")
+  if ruleResult.Error != nil {
+    db.Create(&Role{
+      Name:   "管理员",
+      Pid:    0,
+      Status: 1,
     })
   }
 
