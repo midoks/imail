@@ -3,7 +3,7 @@ package imap
 import (
 	"bufio"
 	"fmt"
-	"github.com/midoks/imail/app/models"
+	// "github.com/midoks/imail/app/models"
 	"github.com/midoks/imail/libs/utf7"
 	"log"
 	"net"

@@ -18,7 +18,8 @@ import (
 )
 
 func main() {
-	//go mod tidy
+	// go mod tidy
+	// go mod vendor
 
 	go pprof()
 
