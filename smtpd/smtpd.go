@@ -16,6 +16,7 @@ import (
 
 const (
 	CMD_READY           = iota
+	CMD_STARTTLS        = iota
 	CMD_HELO            = iota
 	CMD_EHLO            = iota
 	CMD_AUTH_PLAIN      = iota
@@ -31,6 +32,7 @@ const (
 
 var stateList = map[int]string{
 	CMD_READY:          "READY",
+	CMD_STARTTLS:       "STARTTLS",
 	CMD_HELO:           "HELO",
 	CMD_EHLO:           "EHLO",
 	CMD_AUTH_LOGIN:     "AUTH LOGIN",
@@ -59,6 +61,7 @@ const (
 	MSG_AUTH_OK         = "235"
 	MSG_AUTH_FAIL       = "535"
 	MSG_DATA            = "354"
+	MSG_STARTTLS        = "220"
 )
 
 var msgList = map[string]string{
@@ -77,6 +80,7 @@ var msgList = map[string]string{
 	MSG_BAD_USER:        "Invalid User",
 	MSG_BAD_OPEN_RELAY:  "Anonymous forwarding is not supported",
 	MSG_BAD_MAIL_ADDR:   "The sender of the envelope does not match the sender of the letter.",
+	MSG_STARTTLS:        "Ready to start TLS from xxx to mail.xxx.com.",
 }
 
 var GO_EOL = GetGoEol()
@@ -492,6 +496,7 @@ func (this *SmtpdServer) handle() {
 			if this.cmdQuit(input) {
 				break
 			}
+			fmt.Println("....stat:CMD_EHLO", state, CMD_STARTTLS)
 
 			if this.cmdMailFrom(input) {
 				this.setState(CMD_MAIL_FROM)
@@ -499,6 +504,10 @@ func (this *SmtpdServer) handle() {
 
 			if this.cmdAuthLogin(input) {
 				this.setState(CMD_AUTH_LOGIN)
+			}
+
+			if input == stateList[CMD_STARTTLS] { //CMD_STARTTLS
+				this.write(MSG_STARTTLS)
 			}
 		}
 

@@ -21,6 +21,9 @@ func main() {
 	// go mod tidy
 	// go mod vendor
 
+	b, err := smtpd.Delivery("smtp.163.com", "25", "midoks@cachecha.com", "midoks@163.com", "demob")
+	fmt.Println(b, err)
+
 	go pprof()
 
 	db.Init()
