@@ -14,7 +14,7 @@ var err error
 
 func Init() {
 
-  dsn := "root:root@tcp(127.0.0.1:3306)/imail?charset=utf8mb4&parseTime=True"
+  dsn := "imail:imail@tcp(127.0.0.1:3306)/imail?charset=utf8mb4&parseTime=True"
   db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
   // defer db.Close()
   if err != nil {
