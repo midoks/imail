@@ -423,7 +423,7 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 	}
 
 	if !this.isLogin {
-		_, err := db.MailPush(this.recordCmdMailFrom, this.recordcmdRcptTo, content)
+		_, err := db.MailPush(this.userID, this.recordCmdMailFrom, this.recordcmdRcptTo, content)
 		if err != nil {
 			return false
 		}
@@ -431,7 +431,7 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 	}
 
 	if this.isLogin {
-		_, err := db.MailPush(this.recordCmdMailFrom, this.recordcmdRcptTo, content)
+		_, err := db.MailPush(this.userID, this.recordCmdMailFrom, this.recordcmdRcptTo, content)
 		if err != nil {
 			return false
 		}
