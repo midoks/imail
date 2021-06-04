@@ -498,17 +498,21 @@ func (this *SmtpdServer) handle() {
 			}
 			fmt.Println("....stat:CMD_EHLO", state, CMD_STARTTLS)
 
-			if this.cmdMailFrom(input) {
-				this.setState(CMD_MAIL_FROM)
-			}
-
-			if this.cmdAuthLogin(input) {
-				this.setState(CMD_AUTH_LOGIN)
-			}
-
 			if input == stateList[CMD_STARTTLS] { //CMD_STARTTLS
 				this.write(MSG_STARTTLS)
+
+			} else {
+
+				if this.cmdMailFrom(input) {
+					this.setState(CMD_MAIL_FROM)
+				}
+
+				if this.cmdAuthLogin(input) {
+					this.setState(CMD_AUTH_LOGIN)
+				}
+
 			}
+
 		}
 
 		//CMD_AUTH_LOGIN
