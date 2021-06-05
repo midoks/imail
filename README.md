@@ -10,3 +10,7 @@ imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件
 
 - github.com/gin-gonic/gin
 - gorm.io/gorm
+
+### ？
+
+- 谁能告诉我SMTP{MTA} - to - SMTP{MTA} 如何交互的呀。 midoks@163.com 邮件交流一下啊。
