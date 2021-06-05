@@ -55,7 +55,7 @@ func Delivery(domain string, port string, from string, to string, content string
 		return false, err
 	}
 
-	_, err = conn.Write([]byte("EHLO IMAIL\r\n"))
+	_, err = conn.Write([]byte("HELO IMAIL\r\n"))
 	if err != nil {
 		return false, err
 	}
@@ -81,6 +81,10 @@ func Delivery(domain string, port string, from string, to string, content string
 		last := inputN[len(inputN)-1:][0]
 		fmt.Println(last)
 		if strings.EqualFold(last, "250 8BITMIME") {
+			break
+		}
+
+		if strings.EqualFold(last, "250 OK") {
 			break
 		}
 	}
