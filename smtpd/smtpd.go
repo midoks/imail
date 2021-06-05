@@ -230,7 +230,7 @@ func (this *SmtpdServer) cmdEhlo(input string) bool {
 			this.w("250-AUTH LOGIN PLAIN\r\n")
 			this.w("250-AUTH=LOGIN PLAIN\r\n")
 			this.w("250-coremail 1Uxr2xKj7kG0xkI17xGrU7I0s8FY2U3Uj8Cz28x1UUUUU7Ic2I0Y2UFRbmXhUCa0xDrUUUUj\r\n")
-			this.w("250-STARTTLS\r\n")
+			// this.w("250-STARTTLS\r\n")
 			this.w("250-SIZE 73400320\r\n")
 			this.w("250 8BITMIME\r\n")
 			return true
@@ -244,7 +244,7 @@ func (this *SmtpdServer) cmdAuthLogin(input string) bool {
 		this.write(MSG_AUTH_LOGIN_USER)
 		return true
 	}
-	this.write(MSG_BAD_SYNTAX)
+	// this.write(MSG_BAD_SYNTAX)
 	return false
 }
 
@@ -343,6 +343,7 @@ func (this *SmtpdServer) cmdMailFrom(input string) bool {
 
 			this.recordCmdMailFrom = mailFrom
 			this.write(MSG_MAIL_OK)
+
 			return true
 		}
 	}
@@ -502,13 +503,14 @@ func (this *SmtpdServer) handle() {
 			} else {
 
 				if this.cmdMailFrom(input) {
+					fmt.Println(".....CMD_MAIL_FROM....")
 					this.setState(CMD_MAIL_FROM)
 				}
 
 				if this.cmdAuthLogin(input) {
+					fmt.Println(".....CMD_AUTH_LOGIN....")
 					this.setState(CMD_AUTH_LOGIN)
 				}
-
 			}
 
 		}
