@@ -230,7 +230,7 @@ func (this *SmtpdServer) cmdEhlo(input string) bool {
 			this.w("250-AUTH LOGIN PLAIN\r\n")
 			this.w("250-AUTH=LOGIN PLAIN\r\n")
 			this.w("250-coremail 1Uxr2xKj7kG0xkI17xGrU7I0s8FY2U3Uj8Cz28x1UUUUU7Ic2I0Y2UFRbmXhUCa0xDrUUUUj\r\n")
-			//this.w("250-STARTTLS\r\n")
+			this.w("250-STARTTLS\r\n")
 			this.w("250-SIZE 73400320\r\n")
 			this.w("250 8BITMIME\r\n")
 			return true
@@ -431,7 +431,6 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		if err != nil {
 			return false
 		}
-		// db.BoxAdd(this.userID, mid, 0, len(content))
 	}
 
 	if this.isLogin {
@@ -439,7 +438,6 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		if err != nil {
 			return false
 		}
-		// db.BoxAdd(this.userID, mid, 1, len(content))
 	}
 
 	return true
