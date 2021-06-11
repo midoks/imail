@@ -21,8 +21,8 @@ func main() {
 	// go mod tidy
 	// go mod vendor
 
-	// b, err := smtpd.Delivery("smtp.qq.com", "25", "midoks@cachecha.com", "midoks@163.com", "demob")
-	// fmt.Println(b, err)
+	// err := smtpd.Delivery("smtp.gmail.com", "25", nil, "admin@cachecha.com", []string{"yuludejia@gmail.com"}, "demob")
+	// fmt.Println("err:", err)
 
 	go pprof()
 
