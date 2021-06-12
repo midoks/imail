@@ -21,7 +21,7 @@ func main() {
 	// go mod tidy
 	// go mod vendor
 
-	msg := []byte("from:yuludejia@gmail.com\r\n" +
+	msg := []byte("from:627293072@qq.com\r\n" +
 		"to: midoks@163.com\r\n" +
 		"Subject: hello,subject!\r\n" +
 		"Content-Type:multipart/mixed;boundary=a\r\n" +
@@ -33,7 +33,7 @@ func main() {
 		"\r\n" +
 		"此处为正文内容D!\r\n")
 
-	err := smtpd.Delivery("627293072@qq.com", []string{"midoks@163.com"}, msg)
+	err := smtpd.Delivery("admin@cachecha.com", "627293072@qq.com", msg)
 	fmt.Println("err:", err)
 
 	// auth := smtpd.PlainAuth("", "yuludejia@gmail.com", "pmroenyllybhlwub", "smtp.gmail.com")

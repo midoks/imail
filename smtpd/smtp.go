@@ -417,7 +417,7 @@ func DnsQuery(domain string) (string, error) {
 }
 
 // Delivery of mail to external mail
-func Delivery(from string, to []string, msg []byte) error {
+func Delivery(from string, to string, msg []byte) error {
 	port := "25"
 	if err := validateLine(from); err != nil {
 		return err
@@ -428,7 +428,7 @@ func Delivery(from string, to []string, msg []byte) error {
 		}
 	}
 
-	domain := strings.Split(from, "@")
+	domain := strings.Split(to, "@")
 	mxHost, err := DnsQuery(domain[1])
 	fmt.Println(mxHost, err)
 
