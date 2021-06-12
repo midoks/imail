@@ -21,6 +21,21 @@ func main() {
 	// go mod tidy
 	// go mod vendor
 
+	msg := []byte("from:yuludejia@gmail.com\r\n" +
+		"to: midoks@163.com\r\n" +
+		"Subject: hello,subject!\r\n" +
+		"Content-Type:multipart/mixed;boundary=a\r\n" +
+		"Mime-Version:1.0\r\n" +
+		"\r\n" +
+		"--a\r\n" +
+		"Content-type:text/plain;charset=utf-8\r\n" +
+		"Content-Transfer-Encoding:quoted-printable\r\n" +
+		"\r\n" +
+		"此处为正文内容D!\r\n")
+
+	err := smtpd.Delivery("627293072@qq.com", []string{"midoks@163.com"}, msg)
+	fmt.Println("err:", err)
+
 	// auth := smtpd.PlainAuth("", "yuludejia@gmail.com", "pmroenyllybhlwub", "smtp.gmail.com")
 
 	// msg := []byte("from:yuludejia@gmail.com\r\n" +
@@ -35,7 +50,7 @@ func main() {
 	// 	"\r\n" +
 	// 	"此处为正文内容D!\r\n")
 
-	// err := smtpd.Delivery("smtp.gmail.com", "587", auth, "yuludejia@gmail.com", []string{"midoks@163.com"}, msg)
+	// err := smtpd.SendMail("smtp.gmail.com", "587", auth, "yuludejia@gmail.com", []string{"midoks@163.com"}, msg)
 	// fmt.Println("err:", err)
 
 	go pprof()

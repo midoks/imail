@@ -1,7 +1,6 @@
 package smtpd
 
 import (
-	// "bufio"
 	"crypto/hmac"
 	"crypto/md5"
 	"crypto/tls"
@@ -11,7 +10,6 @@ import (
 	"io"
 	"math/rand"
 	"net"
-	// "net/smtp"
 	"net/textproto"
 	"strings"
 	"time"
@@ -419,8 +417,8 @@ func DnsQuery(domain string) (string, error) {
 }
 
 // Delivery of mail to external mail
-func Delivery(domain string, port string, a Auth, from string, to []string, msg []byte) error {
-
+func Delivery(from string, to []string, msg []byte) error {
+	port := "25"
 	if err := validateLine(from); err != nil {
 		return err
 	}
@@ -430,8 +428,12 @@ func Delivery(domain string, port string, a Auth, from string, to []string, msg 
 		}
 	}
 
-	addr := fmt.Sprintf("%s:%s", domain, port)
+	domain := strings.Split(from, "@")
+	mxHost, err := DnsQuery(domain[1])
+	fmt.Println(mxHost, err)
 
+	addr := fmt.Sprintf("%s:%s", mxHost, port)
+	fmt.Println("addr:", addr)
 	c, err := Dial(addr)
 	if err != nil {
 		return err
@@ -447,15 +449,6 @@ func Delivery(domain string, port string, a Auth, from string, to []string, msg 
 			testHookStartTLS(config)
 		}
 		if err = c.StartTLS(config); err != nil {
-			return err
-		}
-	}
-
-	if a != nil && c.ext != nil {
-		if _, ok := c.ext["AUTH"]; !ok {
-			return errors.New("smtp: server doesn't support AUTH")
-		}
-		if err = c.Auth(a); err != nil {
 			return err
 		}
 	}
