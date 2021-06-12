@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/midoks/imail/libs"
+	"github.com/midoks/imail/internal/libs"
 	"net"
 	"strings"
 	"testing"
