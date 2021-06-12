@@ -442,15 +442,15 @@ func Delivery(from string, to string, msg []byte) error {
 		return err
 	}
 
-	if ok, _ := c.Extension("STARTTLS"); ok {
-		config := &tls.Config{ServerName: c.serverName}
-		if testHookStartTLS != nil {
-			testHookStartTLS(config)
-		}
-		if err = c.StartTLS(config); err != nil {
-			return err
-		}
-	}
+	// if ok, _ := c.Extension("STARTTLS"); ok {
+	// 	config := &tls.Config{ServerName: c.serverName}
+	// 	if testHookStartTLS != nil {
+	// 		testHookStartTLS(config)
+	// 	}
+	// 	if err = c.StartTLS(config); err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	if err = c.Mail(from); err != nil {
 		return err
