@@ -419,7 +419,7 @@ func DnsQuery(domain string) (string, error) {
 }
 
 // Delivery of mail to external mail
-func Delivery(domain string, port string, a Auth, from string, to []string, content string) error {
+func Delivery(domain string, port string, a Auth, from string, to []string, msg []byte) error {
 
 	if err := validateLine(from); err != nil {
 		return err
@@ -469,7 +469,19 @@ func Delivery(domain string, port string, a Auth, from string, to []string, cont
 		}
 	}
 
-	return nil
+	w, err := c.Data()
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(msg)
+	if err != nil {
+		return err
+	}
+	err = w.Close()
+	if err != nil {
+		return err
+	}
+	return c.Quit()
 }
 
 var testHookStartTLS func(*tls.Config) // nil, except for tests
