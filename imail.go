@@ -22,22 +22,22 @@ func main() {
 	// go mod tidy
 	// go mod vendor
 
-	tomail := "627293072@qq.com"
+	// tomail := "627293072@qq.com"
 
-	msg := []byte("from:admin@cachecha.com\r\n" +
-		"to: " + tomail + "\r\n" +
-		"Subject: hello,imail!\r\n" +
-		"Content-Type:multipart/mixed;boundary=a\r\n" +
-		"Mime-Version:1.0\r\n" +
-		"\r\n" +
-		"--a\r\n" +
-		"Content-type:text/plain;charset=utf-8\r\n" +
-		"Content-Transfer-Encoding:quoted-printable\r\n" +
-		"\r\n" +
-		"此处为正文内容D!\r\n")
+	// msg := []byte("from:admin@cachecha.com\r\n" +
+	// 	"to: " + tomail + "\r\n" +
+	// 	"Subject: hello,imail!\r\n" +
+	// 	"Content-Type:multipart/mixed;boundary=a\r\n" +
+	// 	"Mime-Version:1.0\r\n" +
+	// 	"\r\n" +
+	// 	"--a\r\n" +
+	// 	"Content-type:text/plain;charset=utf-8\r\n" +
+	// 	"Content-Transfer-Encoding:quoted-printable\r\n" +
+	// 	"\r\n" +
+	// 	"此处为正文内容D!\r\n")
 
-	err := smtpd.Delivery("admin@cachecha.com", tomail, msg)
-	fmt.Println("err:", err)
+	// err := smtpd.Delivery("admin@cachecha.com", tomail, msg)
+	// fmt.Println("err:", err)
 
 	// auth := smtpd.PlainAuth("", "yuludejia@gmail.com", "pmroenyllybhlwub", "smtp.gmail.com")
 
