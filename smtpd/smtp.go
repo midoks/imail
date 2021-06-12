@@ -422,10 +422,9 @@ func Delivery(from string, to string, msg []byte) error {
 	if err := validateLine(from); err != nil {
 		return err
 	}
-	for _, recp := range to {
-		if err := validateLine(recp); err != nil {
-			return err
-		}
+
+	if err := validateLine(to); err != nil {
+		return err
 	}
 
 	domain := strings.Split(to, "@")
@@ -456,11 +455,16 @@ func Delivery(from string, to string, msg []byte) error {
 	if err = c.Mail(from); err != nil {
 		return err
 	}
-	for _, addr := range to {
-		if err = c.Rcpt(addr); err != nil {
-			return err
-		}
+
+	if err = c.Rcpt(to); err != nil {
+		return err
 	}
+
+	// for _, addr := range to {
+	// 	if err = c.Rcpt(addr); err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	w, err := c.Data()
 	if err != nil {
