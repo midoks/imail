@@ -13,3 +13,5 @@
 imail
 lib/.DS_Store
 .DS_Store
+vendor/*
+vendor_bak/*
