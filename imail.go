@@ -23,7 +23,7 @@ func main() {
 
 	// auth := smtpd.PlainAuth("", "yuludejia@gmail.com", "pmroenyllybhlwub", "smtp.gmail.com")
 
-	// msg := []byte("from:admin@cachecha.com\r\n" +
+	// msg := []byte("from:yuludejia@gmail.com\r\n" +
 	// 	"to: midoks@163.com\r\n" +
 	// 	"Subject: hello,subject!\r\n" +
 	// 	"Content-Type:multipart/mixed;boundary=a\r\n" +
