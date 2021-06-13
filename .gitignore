@@ -15,3 +15,5 @@ lib/.DS_Store
 .DS_Store
 vendor/*
 vendor_bak/*
+conf/dkim/public.pem
+conf/dkim/private.pem
