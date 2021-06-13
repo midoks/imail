@@ -5,9 +5,11 @@ import (
 	"github.com/astaxie/beego/config"
 	"github.com/midoks/imail/internal/app"
 	"github.com/midoks/imail/internal/db"
+	"github.com/midoks/imail/internal/dkim"
 	ipserver "github.com/midoks/imail/internal/imap"
 	"github.com/midoks/imail/internal/pop3"
 	"github.com/midoks/imail/internal/smtpd"
+	"net"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -15,12 +17,32 @@ import (
 	"runtime/debug"
 	"runtime/trace"
 	"strconv"
+	_ "strings"
 )
 
 func main() {
 	// go mod init
 	// go mod tidy
 	// go mod vendor
+
+	mx, _ := net.LookupIP("mail.cachecha.com")
+	fmt.Println(mx)
+
+	addrs, err := net.InterfaceAddrs()
+	for _, value := range addrs {
+		if ipnet, ok := value.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				fmt.Println(ipnet.IP.String())
+			}
+		}
+	}
+	fmt.Println("addr:", addrs, err)
+
+	// mxHost := strings.Trim(mx[0].Host, ".")
+	// fmt.Println(mxHost)
+
+	pri, pub := dkim.DKIM()
+	fmt.Println("dkim:", pri, "\r\n", "pub:", pub)
 
 	// tomail := "627293072@qq.com"
 
