@@ -6,12 +6,13 @@ import (
 	"crypto/x509"
 	b64 "encoding/base64"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
-	// "strings"
+	"strings"
 )
 
 func makeRsa() ([]byte, []byte, error) {
@@ -41,16 +42,53 @@ func GetPublicIP() (ip string, err error) {
 	return "", err
 }
 
-func CheckDomainA(domain string) {
-	aIp, _ := net.LookupIP(domain)
-	fmt.Println("aIP:", aIp)
+func CheckDomainA(domain string) (bool, error) {
+	findIp, err := net.LookupIP(domain)
+	if err != nil {
+		return false, err
+	}
 
-	mx, _ := net.LookupMX(domain)
-	fmt.Println("amx", mx)
+	mx, err := net.LookupMX(domain)
+	if err != nil {
+		return false, err
+	}
+
+	if len(mx) < 1 {
+		return false, errors.New("not find domain mx!")
+	}
+
+	mxHost := fmt.Sprintf("%s", mx[0].Host)
+	mxHost = strings.Trim(mxHost, ".")
+	if !strings.HasSuffix(mxHost, domain) {
+		return false, errors.New("It's not a top-level domain name!")
+	}
 
 	ip, err := GetPublicIP()
+	if err != nil {
+		return false, err
+	}
 
-	fmt.Println(ip, err)
+	var isFind = false
+	for _, fIp := range findIp {
+		if strings.EqualFold(string(fIp), ip) {
+			isFind = true
+			break
+		}
+	}
+
+	if !isFind {
+		return false, errors.New("IP not configured by domain name!")
+	}
+
+	return true, nil
+}
+
+func MakeDkimFile() {
+
+}
+
+func MakeDkimConfFile(domain string) {
+
 }
 
 func DKIM() (pri, pub string) {

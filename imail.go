@@ -26,7 +26,8 @@ func main() {
 	// go mod tidy
 	// go mod vendor
 
-	dkim.CheckDomainA("biqu.xyz")
+	dkim.MakeDkimConfFile("biqu.xyz")
+	// fmt.Println(b, err)
 
 	pri, pub := dkim.DKIM()
 	fmt.Println("dkim:", pri, "\r\n", "pub:", pub)
