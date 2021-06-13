@@ -26,11 +26,8 @@ func main() {
 	// go mod tidy
 	// go mod vendor
 
-	dkim.MakeDkimConfFile("biqu.xyz")
-	// fmt.Println(b, err)
-
-	pri, pub := dkim.DKIM()
-	fmt.Println("dkim:", pri, "\r\n", "pub:", pub)
+	err := dkim.MakeDkimConfFile("biqu.xyz")
+	fmt.Println(err)
 
 	// tomail := "627293072@qq.com"
 

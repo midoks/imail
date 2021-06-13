@@ -8,6 +8,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -42,30 +43,30 @@ func GetPublicIP() (ip string, err error) {
 	return "", err
 }
 
-func CheckDomainA(domain string) (bool, error) {
+func CheckDomainA(domain string) error {
 	findIp, err := net.LookupIP(domain)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	mx, err := net.LookupMX(domain)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	if len(mx) < 1 {
-		return false, errors.New("not find domain mx!")
+		return errors.New("not find domain mx!")
 	}
 
 	mxHost := fmt.Sprintf("%s", mx[0].Host)
 	mxHost = strings.Trim(mxHost, ".")
 	if !strings.HasSuffix(mxHost, domain) {
-		return false, errors.New("It's not a top-level domain name!")
+		return errors.New("It's not a top-level domain name!")
 	}
 
 	ip, err := GetPublicIP()
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	var isFind = false
@@ -77,53 +78,78 @@ func CheckDomainA(domain string) (bool, error) {
 	}
 
 	if !isFind {
-		return false, errors.New("IP not configured by domain name!")
+		return errors.New("IP not configured by domain name!")
 	}
 
-	return true, nil
+	return nil
 }
 
-func MakeDkimFile() {
-
-}
-
-func MakeDkimConfFile(domain string) {
-
-}
-
-func DKIM() (pri, pub string) {
-
-	Priv, Pub, err := makeRsa()
-	pub = ""
-	pri = ""
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
 	if err == nil {
-
-		block := &pem.Block{
-			Type:  "RSA PRIVATE KEY",
-			Bytes: Priv,
-		}
-
-		pri = b64.StdEncoding.EncodeToString(Priv)
-
-		file, err := os.Create("conf/dkim/private.pem")
-		fmt.Println(err)
-
-		err = pem.Encode(file, block)
-		fmt.Println(err)
-
-		pub = b64.StdEncoding.EncodeToString(Pub)
-
-		blockPub := &pem.Block{
-			Type:  "PUBLIC KEY",
-			Bytes: Pub,
-		}
-		file, err = os.Create("conf/dkim/public.pem")
-		fmt.Println(err)
-
-		err = pem.Encode(file, blockPub)
-		fmt.Println(err)
-
-		fmt.Println(pub, pri)
+		return true, nil
 	}
-	return
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
+
+func MakeDkimFile(domain string) error {
+	Priv, Pub, err := makeRsa()
+
+	if err != nil {
+		return err
+	}
+
+	block := &pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: Priv,
+	}
+
+	// pri := b64.StdEncoding.EncodeToString(Priv)
+	priFile := fmt.Sprintf("conf/dkim/%s/default.private", domain)
+	file, err := os.Create(priFile)
+	if err != nil {
+		return err
+	}
+
+	err = pem.Encode(file, block)
+	if err != nil {
+		return err
+	}
+
+	pub := b64.StdEncoding.EncodeToString(Pub)
+
+	pubContent := fmt.Sprintf("default._domainkey\tIN\tTXT\t( \"v=DKIM1; k=rsa; \"\r\n\t\"p=%s\" )  ; ----- DKIM key default for %s", pub, domain)
+
+	pubFile := fmt.Sprintf("conf/dkim/%s/default.txt", domain)
+	file, err = os.Create(pubFile)
+	if err != nil {
+		return err
+	}
+
+	_, err = io.WriteString(file, pubContent)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func MakeDkimConfFile(domain string) error {
+	// if err := CheckDomainA(domain); err != nil {
+	// 	fmt.Println(err)
+	// 	return err
+	// }
+
+	path := fmt.Sprintf("conf/dkim/%s", domain)
+	if _, err := PathExists(path); err == nil {
+		err := os.MkdirAll(path, 0755)
+		if err != nil {
+			return err
+		}
+	}
+
+	return MakeDkimFile(domain)
 }
