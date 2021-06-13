@@ -9,7 +9,8 @@ import (
 	ipserver "github.com/midoks/imail/internal/imap"
 	"github.com/midoks/imail/internal/pop3"
 	"github.com/midoks/imail/internal/smtpd"
-	"net"
+	// "io/ioutil"
+	// "net"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -17,7 +18,7 @@ import (
 	"runtime/debug"
 	"runtime/trace"
 	"strconv"
-	_ "strings"
+	// "strings"
 )
 
 func main() {
@@ -25,21 +26,7 @@ func main() {
 	// go mod tidy
 	// go mod vendor
 
-	mx, _ := net.LookupIP("mail.cachecha.com")
-	fmt.Println(mx)
-
-	addrs, err := net.InterfaceAddrs()
-	for _, value := range addrs {
-		if ipnet, ok := value.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil {
-				fmt.Println(ipnet.IP.String())
-			}
-		}
-	}
-	fmt.Println("addr:", addrs, err)
-
-	// mxHost := strings.Trim(mx[0].Host, ".")
-	// fmt.Println(mxHost)
+	dkim.CheckDomainA("biqu.xyz")
 
 	pri, pub := dkim.DKIM()
 	fmt.Println("dkim:", pri, "\r\n", "pub:", pub)

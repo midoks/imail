@@ -7,7 +7,11 @@ import (
 	b64 "encoding/base64"
 	"encoding/pem"
 	"fmt"
+	"io/ioutil"
+	"net"
+	"net/http"
 	"os"
+	// "strings"
 )
 
 func makeRsa() ([]byte, []byte, error) {
@@ -23,6 +27,30 @@ func makeRsa() ([]byte, []byte, error) {
 		}
 	}
 	return []byte{}, []byte{}, err
+}
+
+func GetPublicIP() (ip string, err error) {
+	// - http://myexternalip.com/raw
+	// - http://ip.dhcp.cn/?ip
+	resp, err := http.Get("http://ip.dhcp.cn/?ip")
+	content, err := ioutil.ReadAll(resp.Body)
+
+	if err == nil {
+		return string(content), nil
+	}
+	return "", err
+}
+
+func CheckDomainA(domain string) {
+	aIp, _ := net.LookupIP(domain)
+	fmt.Println("aIP:", aIp)
+
+	mx, _ := net.LookupMX(domain)
+	fmt.Println("amx", mx)
+
+	ip, err := GetPublicIP()
+
+	fmt.Println(ip, err)
 }
 
 func DKIM() (pri, pub string) {
