@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/astaxie/beego/config"
 	"github.com/midoks/imail/internal/app"
+	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/db"
-	"github.com/midoks/imail/internal/dkim"
+	// "github.com/midoks/imail/internal/dkim"
 	ipserver "github.com/midoks/imail/internal/imap"
 	"github.com/midoks/imail/internal/pop3"
 	"github.com/midoks/imail/internal/smtpd"
+
 	// "io/ioutil"
 	// "net"
 	"net/http"
@@ -26,8 +27,12 @@ func main() {
 	// go mod tidy
 	// go mod vendor
 
-	err := dkim.MakeDkimConfFile("biqu.xyz")
-	fmt.Println(err)
+	err := config.Load("conf/app.conf")
+	if err != nil {
+		return
+	}
+	// err := dkim.MakeDkimConfFile("biqu.xyz")
+	// fmt.Println(err)
 
 	// tomail := "627293072@qq.com"
 
@@ -67,67 +72,38 @@ func main() {
 
 	db.Init()
 
-	conf, err := config.NewConfig("ini", "conf/app.conf")
-	if err != nil {
-		fmt.Println("app config failed, err:", err)
-		return
+	smptd_enable := config.GetBool("smtpd.enable")
+
+	if smptd_enable {
+		smptd_port := config.GetInt("smtpd.port")
+
+		go smtpd.Start(smptd_port)
+		fmt.Println("listen smtpd success!")
 	}
 
-	smptd_enable, err := conf.Bool("smtpd::enable")
-	if err == nil {
-		if smptd_enable {
-			smptd_port, err := conf.Int("smtpd::port")
-			if err == nil {
-				go smtpd.Start(smptd_port)
-			} else {
-				fmt.Println("read smptd:port failed, err:", err)
-			}
-		}
-	} else {
-		fmt.Println("read smptd:port failed, err:", err)
+	pop3_enable := config.GetBool("pop3.enable")
+
+	if pop3_enable {
+		pop3_port := config.GetInt("pop3.port")
+
+		go pop3.Start(pop3_port)
+		fmt.Println("listen pop3 success!")
 	}
 
-	pop3_enable, err := conf.Bool("pop3::enable")
-	if err == nil {
-		if pop3_enable {
-			pop3_port, err := conf.Int("pop3::port")
-			if err == nil {
-				go pop3.Start(pop3_port)
-			} else {
-				fmt.Println("read pop3:port failed, err:", err)
-			}
+	imap_enable := config.GetBool("imap.enable")
+	if imap_enable {
+		imap_port := config.GetInt("imap.port")
 
-		}
-	} else {
-		fmt.Println("read pop3:port failed, err:", err)
+		go ipserver.Start(imap_port)
+		fmt.Println("listen imap success!")
 	}
 
-	imap_enable, err := conf.Bool("imap::enable")
-	if err == nil {
-		if imap_enable {
-			imap_port, err := conf.Int("imap::port")
-			if err == nil {
-				go ipserver.Start(imap_port)
-			} else {
-				fmt.Println("read imap:port failed, err:", err)
-			}
-		}
-	} else {
-		fmt.Println("read imap:port failed, err:", err)
-	}
+	http_enable := config.GetBool("http.enable")
+	if http_enable {
+		http_port := config.GetInt("http.port")
 
-	api_enable, err := conf.Bool("api::enable")
-	if err == nil {
-		if api_enable {
-			api_port, err := conf.Int("api::port")
-			if err == nil {
-				app.Start(api_port)
-			} else {
-				fmt.Println("read api:port failed, err:", err)
-			}
-		}
-	} else {
-		fmt.Println("read api:port enable, err:", err)
+		app.Start(http_port)
+		fmt.Println("listen http success!")
 	}
 
 }

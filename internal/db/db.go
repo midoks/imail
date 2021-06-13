@@ -2,8 +2,8 @@ package db
 
 import (
   "fmt"
-  // "github.com/go-ini/ini"
-  // "go_dev/go_read_config/global"
+
+  "github.com/midoks/imail/internal/config"
   "gorm.io/driver/mysql"
   "gorm.io/gorm"
   "time"
@@ -14,12 +14,19 @@ var err error
 
 func Init() {
 
-  // dsn := "root:root@tcp(127.0.0.1:3306)/imail?charset=utf8mb4&parseTime=True"
-  dsn := "imail:imail@tcp(127.0.0.1:3306)/imail?charset=utf8mb4&parseTime=True"
+  dbUser := config.GetString("db.user")
+  dbPasswd := config.GetString("db.password")
+  dbHost := config.GetString("db.host")
+  dbPort := config.GetInt64("db.port")
+
+  dbName := config.GetString("db.name")
+  dbCharset := config.GetString("db.charset")
+
+  dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True", dbUser, dbPasswd, dbHost, dbPort, dbName, dbCharset)
   db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-  // defer db.Close()
+
   if err != nil {
-    fmt.Println("init db err,link error!")
+    fmt.Println("init db err,link error:", err)
     return
   }
 
@@ -33,6 +40,7 @@ func Init() {
   // SetConnMaxLifetime 设置了连接可复用的最大时间。
   sqlDB.SetConnMaxLifetime(time.Hour)
 
+  defer sqlDB.Close()
   if sqlErr != nil {
     fmt.Println(sqlErr)
     return
