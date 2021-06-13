@@ -14,13 +14,13 @@ var err error
 
 func Init() {
 
-  dbUser := config.GetString("db.user")
-  dbPasswd := config.GetString("db.password")
-  dbHost := config.GetString("db.host")
-  dbPort := config.GetInt64("db.port")
+  dbUser := config.GetString("db.user", "root")
+  dbPasswd := config.GetString("db.password", "root")
+  dbHost := config.GetString("db.host", "127.0.0.1")
+  dbPort, _ := config.GetInt64("db.port", 3306)
 
-  dbName := config.GetString("db.name")
-  dbCharset := config.GetString("db.charset")
+  dbName := config.GetString("db.name", "imail")
+  dbCharset := config.GetString("db.charset", "utf8mb4")
 
   dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True", dbUser, dbPasswd, dbHost, dbPort, dbName, dbCharset)
   db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})

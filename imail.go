@@ -68,44 +68,62 @@ func main() {
 	// err := smtpd.SendMail("smtp.gmail.com", "587", auth, "yuludejia@gmail.com", []string{"midoks@163.com"}, msg)
 	// fmt.Println("err:", err)
 
+	model_in, err := config.GetBool("smtpd.mode_in", false)
+	fmt.Println("mode_in", model_in, err)
+
 	go pprof()
 
 	db.Init()
 
-	smptd_enable := config.GetBool("smtpd.enable")
+	smptd_enable, err := config.GetBool("smtpd.enable", false)
 
 	if smptd_enable {
-		smptd_port := config.GetInt("smtpd.port")
+		smptd_port, err := config.GetInt("smtpd.port", 25)
 
-		go smtpd.Start(smptd_port)
-		fmt.Println("listen smtpd success!")
+		if err == nil {
+			go smtpd.Start(smptd_port)
+			fmt.Println("listen smtpd success!")
+		} else {
+			fmt.Println("listen smtpd erorr:", err)
+		}
+
 	}
 
-	pop3_enable := config.GetBool("pop3.enable")
+	pop3_enable, err := config.GetBool("pop3.enable", false)
 
 	if pop3_enable {
-		pop3_port := config.GetInt("pop3.port")
-
-		go pop3.Start(pop3_port)
-		fmt.Println("listen pop3 success!")
+		pop3_port, err := config.GetInt("pop3.port", 110)
+		if err == nil {
+			go pop3.Start(pop3_port)
+			fmt.Println("listen pop3 success!")
+		} else {
+			fmt.Println("listen pop3 erorr:", err)
+		}
 	}
 
-	imap_enable := config.GetBool("imap.enable")
+	imap_enable, err := config.GetBool("imap.enable", false)
 	if imap_enable {
-		imap_port := config.GetInt("imap.port")
-
-		go ipserver.Start(imap_port)
-		fmt.Println("listen imap success!")
+		imap_port, err := config.GetInt("imap.port", 120)
+		if err == nil {
+			go ipserver.Start(imap_port)
+			fmt.Println("listen imap success!")
+		} else {
+			fmt.Println("listen imap erorr:", err)
+		}
 	}
 
-	http_enable := config.GetBool("http.enable")
+	http_enable, err := config.GetBool("http.enable", false)
 	if http_enable {
-		http_port := config.GetInt("http.port")
+		http_port, err := config.GetInt("http.port", 80)
+		if err == nil {
+			app.Start(http_port)
+			fmt.Println("listen http success!")
+		} else {
+			fmt.Println("listen http erorr:", err)
+		}
 
-		app.Start(http_port)
-		fmt.Println("listen http success!")
 	}
-
+	fmt.Println("end", err)
 }
 
 //手动GC
