@@ -68,9 +68,6 @@ func main() {
 	// err := smtpd.SendMail("smtp.gmail.com", "587", auth, "yuludejia@gmail.com", []string{"midoks@163.com"}, msg)
 	// fmt.Println("err:", err)
 
-	model_in, err := config.GetBool("smtpd.mode_in", false)
-	fmt.Println("mode_in", model_in, err)
-
 	go pprof()
 
 	db.Init()

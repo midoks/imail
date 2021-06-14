@@ -8,15 +8,15 @@ import (
 	"unsafe"
 )
 
-var app_config *toml.Tree
+var confToml *toml.Tree
 var err error
 
 func Load(path string) error {
 
-	app_config, err = toml.LoadFile(path) //load config file
+	confToml, err = toml.LoadFile(path) //load config file
 
 	if err != nil {
-		fmt.Println("config init error:", err, app_config)
+		fmt.Println("config init error:", err, confToml)
 		return err
 	}
 
@@ -25,7 +25,7 @@ func Load(path string) error {
 }
 
 func GetString(key string, def string) string {
-	v := app_config.Get(key)
+	v := confToml.Get(key)
 
 	if reflect.TypeOf(v) == nil {
 		return def
@@ -35,7 +35,7 @@ func GetString(key string, def string) string {
 }
 
 func GetInt64(key string, def int64) (int64, error) {
-	v := app_config.Get(key)
+	v := confToml.Get(key)
 
 	if reflect.TypeOf(v) == nil {
 		return def, nil
@@ -48,7 +48,7 @@ func GetInt64(key string, def int64) (int64, error) {
 }
 
 func GetInt(key string, def int) (int, error) {
-	v := app_config.Get(key)
+	v := confToml.Get(key)
 
 	if reflect.TypeOf(v) == nil {
 		return def, nil
@@ -65,7 +65,7 @@ func GetInt(key string, def int) (int, error) {
 }
 
 func GetBool(key string, def bool) (bool, error) {
-	v := app_config.Get(key)
+	v := confToml.Get(key)
 
 	if reflect.TypeOf(v) == nil {
 		return def, nil

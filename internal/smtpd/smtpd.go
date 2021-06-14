@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/astaxie/beego"
+	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/libs"
 	"log"
@@ -455,13 +456,80 @@ func (this *SmtpdServer) cmdQuit(input string) bool {
 }
 
 // 外部邮件投递到本地|不需要登陆
-func (this *SmtpdServer) modeIn() {
-
+func (this *SmtpdServer) modeIn(state int, input string) bool {
+	return false
 }
 
 // 本地用户邮件投递到其他邮件地址|需要登陆
-func (this *SmtpdServer) modeOut() {
+func (this *SmtpdServer) modeOut(state int, input string) bool {
+	//CMD_AUTH_LOGIN
+	if this.stateCompare(state, CMD_AUTH_LOGIN) {
+		if this.cmdAuthLoginUser(input) {
+			this.setState(CMD_AUTH_LOGIN_USER)
+		}
+	}
 
+	//CMD_AUTH_LOGIN_USER
+	if this.stateCompare(state, CMD_AUTH_LOGIN_USER) {
+		if this.cmdQuit(input) {
+			return true
+		}
+
+		if this.cmdAuthPlain(input) {
+			this.setState(CMD_AUTH_LOGIN_PWD)
+		} else if this.cmdAuthLoginPwd(input) {
+			this.setState(CMD_AUTH_LOGIN_PWD)
+		}
+	}
+
+	//CMD_AUTH_LOGIN_PWD
+	if this.stateCompare(state, CMD_AUTH_LOGIN_PWD) {
+		if this.cmdQuit(input) {
+			return true
+		}
+
+		if this.cmdMailFrom(input) {
+			this.setState(CMD_MAIL_FROM)
+		}
+	}
+
+	//CMD_MAIL_FROM
+	if this.stateCompare(state, CMD_MAIL_FROM) {
+		if this.cmdQuit(input) {
+			return true
+		}
+
+		if this.cmdRcptTo(input) {
+			this.setState(CMD_RCPT_TO)
+		}
+	}
+
+	//CMD_RCPT_TO
+	if this.stateCompare(state, CMD_RCPT_TO) {
+		if this.cmdQuit(input) {
+			return true
+		}
+
+		if this.cmdData(input) {
+			this.setState(CMD_DATA)
+		}
+	}
+
+	//CMD_DATA
+	if this.stateCompare(state, CMD_DATA) {
+		if this.cmdDataAccept() {
+			this.setState(CMD_DATA_END)
+		}
+	}
+
+	//CMD_DATA_END
+	if this.stateCompare(state, CMD_DATA_END) {
+		if this.cmdQuit(input) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (this *SmtpdServer) handle() {
@@ -526,73 +594,19 @@ func (this *SmtpdServer) handle() {
 
 		}
 
-		//CMD_AUTH_LOGIN
-		if this.stateCompare(state, CMD_AUTH_LOGIN) {
-			if this.cmdAuthLoginUser(input) {
-				this.setState(CMD_AUTH_LOGIN_USER)
-			}
-
+		model_in, _ := config.GetBool("smtpd.mode_in", false)
+		if model_in {
+			this.modeIn(state, input)
 		}
 
-		//CMD_AUTH_LOGIN_USER
-		if this.stateCompare(state, CMD_AUTH_LOGIN_USER) {
-			if this.cmdQuit(input) {
-				break
-			}
-
-			if this.cmdAuthPlain(input) {
-				this.setState(CMD_AUTH_LOGIN_PWD)
-			} else if this.cmdAuthLoginPwd(input) {
-				this.setState(CMD_AUTH_LOGIN_PWD)
-			}
-		}
-
-		//CMD_AUTH_LOGIN_PWD
-		if this.stateCompare(state, CMD_AUTH_LOGIN_PWD) {
-			if this.cmdQuit(input) {
-				break
-			}
-
-			if this.cmdMailFrom(input) {
-				this.setState(CMD_MAIL_FROM)
-			}
-		}
-
-		//CMD_MAIL_FROM
-		if this.stateCompare(state, CMD_MAIL_FROM) {
-			if this.cmdQuit(input) {
-				break
-			}
-
-			if this.cmdRcptTo(input) {
-				this.setState(CMD_RCPT_TO)
-			}
-		}
-
-		//CMD_RCPT_TO
-		if this.stateCompare(state, CMD_RCPT_TO) {
-			if this.cmdQuit(input) {
-				break
-			}
-
-			if this.cmdData(input) {
-				this.setState(CMD_DATA)
-			}
-		}
-
-		//CMD_DATA
-		if this.stateCompare(state, CMD_DATA) {
-			if this.cmdDataAccept() {
-				this.setState(CMD_DATA_END)
-			}
-		}
-
-		//CMD_DATA_END
-		if this.stateCompare(state, CMD_DATA_END) {
-			if this.cmdQuit(input) {
+		mode_out, _ := config.GetBool("smtpd.mode_out", false)
+		if mode_out {
+			isBreak := this.modeOut(state, input)
+			if isBreak {
 				break
 			}
 		}
+
 	}
 }
 
