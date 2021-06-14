@@ -454,6 +454,16 @@ func (this *SmtpdServer) cmdQuit(input string) bool {
 	return false
 }
 
+// 外部邮件投递到本地|不需要登陆
+func (this *SmtpdServer) modeIn() {
+
+}
+
+// 本地用户邮件投递到其他邮件地址|需要登陆
+func (this *SmtpdServer) modeOut() {
+
+}
+
 func (this *SmtpdServer) handle() {
 	for {
 		state := this.getState()
