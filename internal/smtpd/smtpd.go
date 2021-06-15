@@ -112,8 +112,12 @@ type SmtpdServer struct {
 	userID int64
 
 	//run mode
-	modeIn  bool
-	modeOut bool
+	modeIn bool
+
+	// Determine the current mode of operation
+	// 1,modeIn
+	// 2,modeOut
+	runModeIn bool
 }
 
 func (this *SmtpdServer) base64Encode(en string) string {
@@ -467,6 +471,32 @@ func (this *SmtpdServer) cmdQuit(input string) bool {
 
 // 外部邮件投递到本地|不需要登陆
 func (this *SmtpdServer) cmdModeIn(state int, input string) bool {
+
+	//CMD_MAIL_FROM
+	if this.stateCompare(state, CMD_MAIL_FROM) {
+		if this.cmdQuit(input) {
+			return true
+		}
+
+		if this.cmdRcptTo(input) {
+			this.setState(CMD_RCPT_TO)
+		}
+	}
+
+	//CMD_DATA
+	if this.stateCompare(state, CMD_DATA) {
+		if this.cmdDataAccept() {
+			this.setState(CMD_DATA_END)
+		}
+	}
+
+	//CMD_DATA_END
+	if this.stateCompare(state, CMD_DATA_END) {
+		if this.cmdQuit(input) {
+			return true
+		}
+	}
+
 	return false
 }
 
@@ -569,47 +599,38 @@ func (this *SmtpdServer) handle() {
 		}
 
 		//CMD_HELO
-		if this.stateCompare(state, CMD_HELO) {
+		if this.stateCompare(state, CMD_HELO) || this.stateCompare(state, CMD_EHLO) {
 			if this.cmdQuit(input) {
 				break
 			}
 
-			if this.cmdAuthLogin(input) {
+			if this.cmdMailFrom(input) {
+				this.setState(CMD_MAIL_FROM)
+				if this.modeIn {
+					this.runModeIn = true
+				}
+			} else if this.cmdAuthLogin(input) {
 				this.setState(CMD_AUTH_LOGIN)
-			}
-		}
-
-		//CMD_EHLO
-		if this.stateCompare(state, CMD_EHLO) {
-			if this.cmdQuit(input) {
-				break
-			}
-
-			if input == stateList[CMD_STARTTLS] { //CMD_STARTTLS
-				this.write(MSG_STARTTLS)
 			} else {
 
-				if this.cmdMailFrom(input) {
-					this.setState(CMD_MAIL_FROM)
-				}
-
-				if this.cmdAuthLogin(input) {
-					this.setState(CMD_AUTH_LOGIN)
-				}
 			}
 		}
 
-		if this.modeIn {
-			this.cmdModeIn(state, input)
-		}
+		// if input == stateList[CMD_STARTTLS] { //CMD_STARTTLS
+		// 		this.write(MSG_STARTTLS)
+		// }
 
-		if this.modeOut {
+		if this.runModeIn {
+			isBreak := this.cmdModeIn(state, input)
+			if isBreak {
+				break
+			}
+		} else {
 			isBreak := this.cmdModeOut(state, input)
 			if isBreak {
 				break
 			}
 		}
-
 	}
 }
 
@@ -621,8 +642,8 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	this.isLogin = false
 
 	//mode
+	this.runModeIn = false
 	this.modeIn, _ = config.GetBool("smtpd.mode_in", false)
-	this.modeOut, _ = config.GetBool("smtpd.mode_out", false)
 
 	this.write(MSG_INIT)
 	this.setState(CMD_READY)
