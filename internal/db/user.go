@@ -1,9 +1,8 @@
 package db
 
 import (
-	"fmt"
+	_ "fmt"
 	_ "github.com/midoks/imail/internal/libs"
-	// "gorm.io/gorm"
 	"strings"
 	_ "time"
 )
@@ -25,13 +24,19 @@ func (User) TableName() string {
 
 func LoginWithCode(name string, code string) (bool, int64) {
 	list := strings.SplitN(name, "@", 2)
+
 	var user User
 	err := db.First(&user, "name = ?", list[0]).Error
+
 	if err != nil {
 		return false, 0
 	}
-	fmt.Println(user)
-	return true, user.Id
+
+	if user.Code == code {
+		return true, user.Id
+	}
+
+	return false, 0
 }
 
 func UserGetByName(name string) (User, error) {

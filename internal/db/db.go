@@ -40,7 +40,6 @@ func Init() {
   // SetConnMaxLifetime 设置了连接可复用的最大时间。
   sqlDB.SetConnMaxLifetime(time.Hour)
 
-  defer sqlDB.Close()
   if sqlErr != nil {
     fmt.Println(sqlErr)
     return

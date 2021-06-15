@@ -5,7 +5,6 @@ import (
 	// "crypto/tls"
 	"encoding/base64"
 	"fmt"
-	"github.com/astaxie/beego"
 	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/libs"
@@ -111,6 +110,10 @@ type SmtpdServer struct {
 
 	//DB DATA
 	userID int64
+
+	//run mode
+	modeIn  bool
+	modeOut bool
 }
 
 func (this *SmtpdServer) base64Encode(en string) string {
@@ -255,9 +258,11 @@ func (this *SmtpdServer) checkUserLogin() bool {
 	pwd := strings.TrimSpace(this.loginPwd)
 
 	isLogin, id := db.LoginWithCode(name, pwd)
+
 	if !isLogin {
 		return false
 	}
+
 	this.userID = id
 	this.isLogin = true
 	return true
@@ -291,6 +296,10 @@ func (this *SmtpdServer) cmdAuthPlain(input string) bool {
 
 	if len(inputN) == 3 {
 		data := this.base64Decode(inputN[2])
+		mdomain := config.GetString("mail.domain", "xxx.com")
+
+		fmt.Println(mdomain)
+
 		list := strings.SplitN(data, "@cachecha.com", 3)
 
 		this.loginUser = list[0]
@@ -328,8 +337,9 @@ func (this *SmtpdServer) cmdMailFrom(input string) bool {
 
 			if this.isLogin {
 				info := strings.Split(mailFrom, "@")
-				mdomain := beego.AppConfig.String("mail.domain")
-				fmt.Println(info)
+
+				mdomain := config.GetString("mail.domain", "xxx.com")
+				fmt.Println(mdomain, info)
 				if !strings.EqualFold(mdomain, info[1]) {
 					this.write(MSG_BAD_MAIL_ADDR)
 					return false
@@ -374,7 +384,7 @@ func (this *SmtpdServer) cmdRcptTo(input string) bool {
 
 			if !this.isLogin {
 				info := strings.Split(rcptTo, "@")
-				mdomain := beego.AppConfig.String("mail.domain")
+				mdomain := config.GetString("mail.domain", "xxx.com")
 				if !strings.EqualFold(mdomain, info[1]) {
 					this.write(MSG_BAD_OPEN_RELAY)
 					return false
@@ -456,12 +466,12 @@ func (this *SmtpdServer) cmdQuit(input string) bool {
 }
 
 // 外部邮件投递到本地|不需要登陆
-func (this *SmtpdServer) modeIn(state int, input string) bool {
+func (this *SmtpdServer) cmdModeIn(state int, input string) bool {
 	return false
 }
 
 // 本地用户邮件投递到其他邮件地址|需要登陆
-func (this *SmtpdServer) modeOut(state int, input string) bool {
+func (this *SmtpdServer) cmdModeOut(state int, input string) bool {
 	//CMD_AUTH_LOGIN
 	if this.stateCompare(state, CMD_AUTH_LOGIN) {
 		if this.cmdAuthLoginUser(input) {
@@ -574,34 +584,27 @@ func (this *SmtpdServer) handle() {
 			if this.cmdQuit(input) {
 				break
 			}
-			fmt.Println("....stat:CMD_EHLO", state, CMD_STARTTLS)
 
 			if input == stateList[CMD_STARTTLS] { //CMD_STARTTLS
 				this.write(MSG_STARTTLS)
-
 			} else {
 
 				if this.cmdMailFrom(input) {
-					fmt.Println(".....CMD_MAIL_FROM....")
 					this.setState(CMD_MAIL_FROM)
 				}
 
 				if this.cmdAuthLogin(input) {
-					fmt.Println(".....CMD_AUTH_LOGIN....")
 					this.setState(CMD_AUTH_LOGIN)
 				}
 			}
-
 		}
 
-		model_in, _ := config.GetBool("smtpd.mode_in", false)
-		if model_in {
-			this.modeIn(state, input)
+		if this.modeIn {
+			this.cmdModeIn(state, input)
 		}
 
-		mode_out, _ := config.GetBool("smtpd.mode_out", false)
-		if mode_out {
-			isBreak := this.modeOut(state, input)
+		if this.modeOut {
+			isBreak := this.cmdModeOut(state, input)
 			if isBreak {
 				break
 			}
@@ -616,6 +619,10 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	defer conn.Close()
 	this.startTime = time.Now()
 	this.isLogin = false
+
+	//mode
+	this.modeIn, _ = config.GetBool("smtpd.mode_in", false)
+	this.modeOut, _ = config.GetBool("smtpd.mode_out", false)
 
 	this.write(MSG_INIT)
 	this.setState(CMD_READY)
