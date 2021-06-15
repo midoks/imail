@@ -604,10 +604,11 @@ func (this *SmtpdServer) handle() {
 				break
 			}
 
-			if this.cmdMailFrom(input) {
-				this.setState(CMD_MAIL_FROM)
-				if this.modeIn {
+			if this.modeIn {
+				if this.cmdMailFrom(input) {
+					this.setState(CMD_MAIL_FROM)
 					this.runModeIn = true
+
 				}
 			} else if this.cmdAuthLogin(input) {
 				this.setState(CMD_AUTH_LOGIN)
