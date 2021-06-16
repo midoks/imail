@@ -2,13 +2,19 @@ package smtpd
 
 import (
 	"bufio"
-	// "crypto/tls"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/tls"
+	"crypto/x509"
+	"crypto/x509/pkix"
 	"encoding/base64"
+	"encoding/pem"
 	"fmt"
 	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/libs"
 	"log"
+	"math/big"
 	"net"
 	"runtime"
 	"strings"
@@ -122,6 +128,11 @@ type SmtpdServer struct {
 	// Determine the current mode of operation
 	// 1,modeIn
 	runModeIn bool
+
+	//tls
+	tls       bool
+	stateTLS  *tls.ConnectionState
+	TLSConfig *tls.Config // Enable STARTTLS support.
 }
 
 func (this *SmtpdServer) base64Encode(en string) string {
@@ -384,6 +395,11 @@ func (this *SmtpdServer) cmdMailFrom(input string) bool {
 	return false
 }
 func (this *SmtpdServer) cmdStartTtls(input string) bool {
+	if this.tls {
+		this.write(MSG_STARTTLS)
+		return true
+	}
+
 	return false
 }
 
@@ -567,7 +583,7 @@ func (this *SmtpdServer) handle() {
 			}
 		}
 
-		if this.cmdStartTtls {
+		if this.enableStartTtls {
 			if input == stateList[CMD_STARTTLS] { //CMD_STARTTLS
 
 				if this.cmdStartTtls(input) {
@@ -626,13 +642,65 @@ func (this *SmtpdServer) handle() {
 	}
 }
 
+func (this *SmtpdServer) initTLSConfig() {
+
+	max := new(big.Int).Lsh(big.NewInt(1), 128)
+	serialNumber, _ := rand.Int(rand.Reader, max)
+	subject := pkix.Name{
+		Organization:       []string{"燕子李三"},
+		OrganizationalUnit: []string{"Books"},
+		CommonName:         "GO Web",
+	}
+	rootTemplate := x509.Certificate{
+		SerialNumber: serialNumber,
+		Subject:      subject,
+		NotBefore:    time.Now(),
+		NotAfter:     time.Now().Add(365 * time.Hour),
+		KeyUsage:     x509.KeyUsageKeyEncipherment,
+		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		IPAddresses:  []net.IP{net.ParseIP("127.0.0.1")},
+	}
+	pk, _ := rsa.GenerateKey(rand.Reader, 2048)
+	makeCert, _ := x509.CreateCertificate(rand.Reader, &rootTemplate, &rootTemplate, &pk.PublicKey, pk)
+
+	privBlock := &pem.Block{
+		Type:  "PRIVATE KEY",
+		Bytes: x509.MarshalPKCS1PrivateKey(pk),
+	}
+
+	certBlock := &pem.Block{
+		Type:  "CERTIFICATE",
+		Bytes: makeCert,
+	}
+
+	// fmt.Println(string(pem.EncodeToMemory(privBlock)), string(pem.EncodeToMemory(certBlock)))
+	cert, err := tls.X509KeyPair(pem.EncodeToMemory(certBlock), pem.EncodeToMemory(privBlock))
+	if err != nil {
+		log.Fatalf("Cert load failed: %v", err)
+	}
+	this.TLSConfig = &tls.Config{
+		Certificates: []tls.Certificate{cert},
+	}
+
+}
 func (this *SmtpdServer) start(conn net.Conn) {
 	conn.SetReadDeadline(time.Now().Add(time.Minute * 30))
 	this.conn = conn
 	defer conn.Close()
 	this.startTime = time.Now()
 	this.isLogin = false
-	this.enableStartTtls = false
+	this.enableStartTtls = true
+
+	if this.enableStartTtls {
+		var tlsConn *tls.Conn
+		if tlsConn, this.tls = conn.(*tls.Conn); this.tls {
+			tlsConn.Handshake()
+			tlsState := tlsConn.ConnectionState()
+			this.stateTLS = &tlsState
+		}
+	}
+	this.initTLSConfig()
+
 	//mode
 	this.runModeIn = false
 	this.modeIn, _ = config.GetBool("smtpd.mode_in", false)
