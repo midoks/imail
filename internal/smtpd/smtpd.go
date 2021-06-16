@@ -113,12 +113,14 @@ type SmtpdServer struct {
 	//DB DATA
 	userID int64
 
+	//CMD_STARTTLS
+	cmdStartTtls bool
+
 	//run mode
 	modeIn bool
 
 	// Determine the current mode of operation
 	// 1,modeIn
-	// 2,modeOut
 	runModeIn bool
 }
 
@@ -241,7 +243,10 @@ func (this *SmtpdServer) cmdEhlo(input string) bool {
 			this.w("250-AUTH LOGIN PLAIN\r\n")
 			this.w("250-AUTH=LOGIN\r\n")
 			this.w("250-coremail 1Uxr2xKj7kG0xkI17xGrU7I0s8FY2U3Uj8Cz28x1UUUUU7Ic2I0Y2UFRbmXhUCa0xDrUUUUj\r\n")
-			// this.w("250-STARTTLS\r\n")
+			if this.cmdStartTtls {
+				this.w("250-STARTTLS\r\n")
+			}
+
 			this.w("250-SIZE 73400320\r\n")
 			this.w("250 8BITMIME\r\n")
 			return true
@@ -559,9 +564,11 @@ func (this *SmtpdServer) handle() {
 			}
 		}
 
-		// if input == stateList[CMD_STARTTLS] { //CMD_STARTTLS
-		// 		this.write(MSG_STARTTLS)
-		// }
+		if this.cmdStartTtls {
+			// if input == stateList[CMD_STARTTLS] { //CMD_STARTTLS
+			// 		this.write(MSG_STARTTLS)
+			// }
+		}
 
 		if !this.runModeIn {
 			isBreak := this.cmdModeOut(state, input)
@@ -619,7 +626,7 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	defer conn.Close()
 	this.startTime = time.Now()
 	this.isLogin = false
-
+	this.cmdStartTtls = false
 	//mode
 	this.runModeIn = false
 	this.modeIn, _ = config.GetBool("smtpd.mode_in", false)
