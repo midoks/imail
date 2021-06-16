@@ -322,6 +322,19 @@ func (this *SmtpdServer) cmdAuthPlain(input string) bool {
 	return false
 }
 
+func (this *SmtpdServer) isAllowDomain(domain string) bool {
+	mdomain := config.GetString("mail.domain", "xxx.com")
+	domainN := strings.Split(mdomain, ",")
+	fmt.Println(domainN)
+
+	for _, d := range domainN {
+		if strings.EqualFold(d, domain) {
+			return true
+		}
+	}
+	return false
+}
+
 func (this *SmtpdServer) cmdMailFrom(input string) bool {
 	inputN := strings.SplitN(input, ":", 2)
 
@@ -344,9 +357,7 @@ func (this *SmtpdServer) cmdMailFrom(input string) bool {
 			if this.isLogin {
 				info := strings.Split(mailFrom, "@")
 
-				mdomain := config.GetString("mail.domain", "xxx.com")
-				fmt.Println("cmdMailFrom", mdomain, info)
-				if !strings.EqualFold(mdomain, info[1]) {
+				if !this.isAllowDomain(info[1]) {
 					this.write(MSG_BAD_MAIL_ADDR)
 					return false
 				}
@@ -388,14 +399,13 @@ func (this *SmtpdServer) cmdRcptTo(input string) bool {
 			}
 			this.recordcmdRcptTo = rcptTo
 
-			if !this.isLogin {
+			if this.runModeIn { //外部邮件,邮件地址检查
 				info := strings.Split(rcptTo, "@")
-				mdomain := config.GetString("mail.domain", "xxx.com")
-				if !strings.EqualFold(mdomain, info[1]) {
+
+				if !this.isAllowDomain(info[1]) {
 					this.write(MSG_BAD_OPEN_RELAY)
 					return false
 				}
-
 				user, err := db.UserGetByName(info[0])
 				if err != nil {
 					this.write(MSG_BAD_USER)
@@ -432,9 +442,6 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		line := strings.TrimSpace(string(b[:n]))
 		content += fmt.Sprintf("%s\r\n", line)
 
-		// fmt.Println(line)
-		// fmt.Println(content)
-
 		if line != "" {
 			last := line[len(line)-1:]
 			if strings.EqualFold(last, ".") {
@@ -445,20 +452,19 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		}
 	}
 
-	if !this.isLogin {
-		_, err := db.MailPush(this.userID, this.recordCmdMailFrom, this.recordcmdRcptTo, content)
+	if this.runModeIn {
+		_, err := db.MailPush(this.userID, 1, this.recordCmdMailFrom, this.recordcmdRcptTo, content, 3)
 		if err != nil {
 			return false
 		}
 	}
 
 	if this.isLogin {
-		_, err := db.MailPush(this.userID, this.recordCmdMailFrom, this.recordcmdRcptTo, content)
+		_, err := db.MailPush(this.userID, 0, this.recordCmdMailFrom, this.recordcmdRcptTo, content, 0)
 		if err != nil {
 			return false
 		}
 	}
-
 	return true
 }
 
@@ -549,8 +555,6 @@ func (this *SmtpdServer) handle() {
 			if !this.runModeIn {
 				if this.cmdAuthLogin(input) {
 					this.setState(CMD_AUTH_LOGIN)
-				} else {
-
 				}
 			}
 		}
@@ -565,8 +569,7 @@ func (this *SmtpdServer) handle() {
 				break
 			}
 		} else {
-			// 外部邮件投递到本地|不需要登陆
-		}
+		} // 外部邮件投递到本地|不需要登陆
 
 		//CMD_MAIL_FROM
 		if this.stateCompare(state, CMD_MAIL_FROM) {

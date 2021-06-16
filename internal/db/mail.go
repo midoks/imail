@@ -12,12 +12,12 @@ import (
 type Mail struct {
 	Id         int64  `gorm:"primaryKey"`
 	Uid        int64  `gorm:"comment:用户ID"`
-	Type       int64  `gorm:"comment:0:已发送;1:接收"`
+	Type       int    `gorm:"comment:0:发送;1:收到"`
 	MailFrom   string `gorm:"size:50;comment:邮件来源"`
 	MailTo     string `gorm:"size:50;comment:接收邮件"`
 	Content    string `gorm:"comment:邮件内容"`
 	Size       int    `gorm:"size:50;comment:邮件内容大小"`
-	Status     int    `gorm:"comment:邮件状态"`
+	Status     int    `gorm:"comment:0:准备发送;1:发送成功;2:发送失败;3:已接受"`
 	UpdateTime int64  `gorm:"autoCreateTime;comment:更新时间"`
 	CreateTime int64  `gorm:"autoCreateTime;comment:创建时间"`
 }
@@ -122,14 +122,16 @@ func MailPosContentForPop(uid int64, pos int64) (string, int, error) {
 // 	return "", size, err
 // }
 
-func MailPush(uid int64, mail_from string, mail_to string, content string) (int64, error) {
+func MailPush(uid int64, mtype int, mail_from string, mail_to string, content string, status int) (int64, error) {
 
 	user := Mail{
 		Uid:      uid,
+		Type:     mtype,
 		MailFrom: mail_from,
 		MailTo:   mail_to,
 		Content:  content,
 		Size:     len(content),
+		Status:   status,
 	}
 
 	user.UpdateTime = time.Now().Unix()
