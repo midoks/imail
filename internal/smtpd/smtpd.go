@@ -469,37 +469,6 @@ func (this *SmtpdServer) cmdQuit(input string) bool {
 	return false
 }
 
-// 外部邮件投递到本地|不需要登陆
-func (this *SmtpdServer) cmdModeIn(state int, input string) bool {
-
-	//CMD_MAIL_FROM
-	if this.stateCompare(state, CMD_MAIL_FROM) {
-		if this.cmdQuit(input) {
-			return true
-		}
-
-		if this.cmdRcptTo(input) {
-			this.setState(CMD_RCPT_TO)
-		}
-	}
-
-	//CMD_DATA
-	if this.stateCompare(state, CMD_DATA) {
-		if this.cmdDataAccept() {
-			this.setState(CMD_DATA_END)
-		}
-	}
-
-	//CMD_DATA_END
-	if this.stateCompare(state, CMD_DATA_END) {
-		if this.cmdQuit(input) {
-			return true
-		}
-	}
-
-	return false
-}
-
 // 本地用户邮件投递到其他邮件地址|需要登陆
 func (this *SmtpdServer) cmdModeOut(state int, input string) bool {
 	//CMD_AUTH_LOGIN
@@ -530,42 +499,6 @@ func (this *SmtpdServer) cmdModeOut(state int, input string) bool {
 
 		if this.cmdMailFrom(input) {
 			this.setState(CMD_MAIL_FROM)
-		}
-	}
-
-	//CMD_MAIL_FROM
-	if this.stateCompare(state, CMD_MAIL_FROM) {
-		if this.cmdQuit(input) {
-			return true
-		}
-
-		if this.cmdRcptTo(input) {
-			this.setState(CMD_RCPT_TO)
-		}
-	}
-
-	//CMD_RCPT_TO
-	if this.stateCompare(state, CMD_RCPT_TO) {
-		if this.cmdQuit(input) {
-			return true
-		}
-
-		if this.cmdData(input) {
-			this.setState(CMD_DATA)
-		}
-	}
-
-	//CMD_DATA
-	if this.stateCompare(state, CMD_DATA) {
-		if this.cmdDataAccept() {
-			this.setState(CMD_DATA_END)
-		}
-	}
-
-	//CMD_DATA_END
-	if this.stateCompare(state, CMD_DATA_END) {
-		if this.cmdQuit(input) {
-			return true
 		}
 	}
 
@@ -608,12 +541,15 @@ func (this *SmtpdServer) handle() {
 				if this.cmdMailFrom(input) {
 					this.setState(CMD_MAIL_FROM)
 					this.runModeIn = true
+				}
+			}
+
+			if !this.runModeIn {
+				if this.cmdAuthLogin(input) {
+					this.setState(CMD_AUTH_LOGIN)
+				} else {
 
 				}
-			} else if this.cmdAuthLogin(input) {
-				this.setState(CMD_AUTH_LOGIN)
-			} else {
-
 			}
 		}
 
@@ -621,14 +557,51 @@ func (this *SmtpdServer) handle() {
 		// 		this.write(MSG_STARTTLS)
 		// }
 
-		if this.runModeIn {
-			isBreak := this.cmdModeIn(state, input)
+		if !this.runModeIn {
+			isBreak := this.cmdModeOut(state, input)
 			if isBreak {
 				break
 			}
 		} else {
-			isBreak := this.cmdModeOut(state, input)
-			if isBreak {
+			// 外部邮件投递到本地|不需要登陆
+		}
+
+		//CMD_MAIL_FROM
+		if this.stateCompare(state, CMD_MAIL_FROM) {
+			if this.cmdQuit(input) {
+				break
+			}
+
+			if this.cmdRcptTo(input) {
+				this.setState(CMD_RCPT_TO)
+			}
+		}
+
+		//CMD_RCPT_TO
+		if this.stateCompare(state, CMD_RCPT_TO) {
+			if this.cmdQuit(input) {
+				break
+			}
+
+			if this.cmdData(input) {
+				this.setState(CMD_DATA)
+			}
+		}
+
+		//CMD_DATA
+		if this.stateCompare(state, CMD_DATA) {
+			if this.cmdDataAccept() {
+				this.setState(CMD_DATA_END)
+			}
+		}
+
+		if this.cmdQuit(input) {
+			break
+		}
+
+		//CMD_DATA_END
+		if this.stateCompare(state, CMD_DATA_END) {
+			if this.cmdQuit(input) {
 				break
 			}
 		}
