@@ -52,6 +52,7 @@ const (
 	MSG_MAIL_OK         = "250"
 	MSG_BYE             = "221"
 	MSG_BAD_SYNTAX      = "500"
+	MSG_COMMAND_HE_ERR  = "503"
 	MSG_COMMAND_ERR     = "502"
 	MSG_BAD_USER        = "505"
 	MSG_BAD_OPEN_RELAY  = "505.open.relay"
@@ -69,6 +70,7 @@ var msgList = map[string]string{
 	MSG_INIT:            "Anti-spam GT for Coremail System(imail)",
 	MSG_OK:              "ok",
 	MSG_BYE:             "bye",
+	MSG_COMMAND_HE_ERR:  "Error: send HELO/EHLO first",
 	MSG_COMMAND_ERR:     "Error: command not implemented",
 	MSG_COMMAND_TM_ERR:  "Too many error commands",
 	MSG_AUTH_LOGIN_USER: "dXNlcm5hbWU6",
@@ -343,7 +345,7 @@ func (this *SmtpdServer) cmdMailFrom(input string) bool {
 				info := strings.Split(mailFrom, "@")
 
 				mdomain := config.GetString("mail.domain", "xxx.com")
-				fmt.Println(mdomain, info)
+				fmt.Println("cmdMailFrom", mdomain, info)
 				if !strings.EqualFold(mdomain, info[1]) {
 					this.write(MSG_BAD_MAIL_ADDR)
 					return false
@@ -527,7 +529,7 @@ func (this *SmtpdServer) handle() {
 			} else if this.cmdEhlo(input) {
 				this.setState(CMD_EHLO)
 			} else {
-				this.write(MSG_COMMAND_ERR)
+				this.write(MSG_COMMAND_HE_ERR)
 			}
 		}
 
