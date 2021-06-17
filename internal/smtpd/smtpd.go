@@ -413,11 +413,9 @@ func (this *SmtpdServer) cmdStartTtls(input string) bool {
 	this.w("220 Go ahead\n")
 
 	if err := tlsConn.Handshake(); err != nil {
-		// this.logError(err, "couldn't perform handshake")
 		this.w("550 ERROR:Handshake error")
 		return false
 	}
-	fmt.Println(",,,MMM--OK")
 
 	state := tlsConn.ConnectionState()
 
