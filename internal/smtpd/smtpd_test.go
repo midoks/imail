@@ -201,7 +201,7 @@ func TestSendMail(t *testing.T) {
 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, tEmail)
 	auth := PlainAuth("", tEmail, "admin", "127.0.0.1:25")
 	err := SendMailT("127.0.0.1:25", auth, fEmail, []string{tEmail}, []byte(content))
-	fmt.Println(err)
+	fmt.Println("err:", err)
 }
 
 // go test -run TestLocalMail

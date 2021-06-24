@@ -11,6 +11,7 @@ import (
 	"bufio"
 	"crypto/tls"
 	"encoding/base64"
+	// "errors"
 	"fmt"
 	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/db"
@@ -173,22 +174,24 @@ func (this *SmtpdServer) Debug(d bool) {
 	this.debug = d
 }
 
-func (this *SmtpdServer) w(msg string) {
+func (this *SmtpdServer) w(msg string) error {
 	fmt.Println("smtpd:", msg)
-	_, err := this.conn.Write([]byte(msg))
 
-	if err != nil {
-		log.Fatal(err)
+	if !this.tls {
+		_, err := this.conn.Write([]byte(msg))
+		return err
+	} else {
+		_, err := this.writer.Write([]byte(msg))
+		this.writer.Flush()
+		return err
 	}
+
+	return nil
 }
 
-func (this *SmtpdServer) write(code string) {
+func (this *SmtpdServer) write(code string) error {
 	info := fmt.Sprintf("%.3s %s%s", code, msgList[code], GO_EOL)
-	_, err := this.conn.Write([]byte(info))
-
-	if err != nil {
-		log.Fatal(err)
-	}
+	return this.w(info)
 }
 
 func (this *SmtpdServer) getString(state int) (string, error) {
@@ -196,14 +199,35 @@ func (this *SmtpdServer) getString(state int) (string, error) {
 		return "", nil
 	}
 
-	input, err := bufio.NewReader(this.conn).ReadString('\n')
-	if err != nil {
-		return "", err
-	}
+	if this.tls {
 
-	// this.D("getString:", input, ":", err)
-	inputTrim := strings.TrimSpace(input)
-	return inputTrim, err
+		input, err := this.reader.ReadString('\n')
+		inputTrim := strings.TrimSpace(input)
+		// fmt.Println("tls ", inputTrim)
+		return inputTrim, err
+		// for this.scanner.Scan() {
+		// 	input := this.scanner.Text()
+		// 	inputTrim := strings.TrimSpace(input)
+		// 	this.D("inputTrim tls:", input)
+
+		// 	if strings.EqualFold(inputTrim, "") {
+		// 		return "", errors.New("can`t empty!")
+		// 	}
+
+		// 	return inputTrim, nil
+		// }
+	} else {
+		input, err := bufio.NewReader(this.conn).ReadString('\n')
+
+		if err != nil {
+			return "", err
+		}
+
+		this.D("getString:", input, ":", err)
+		inputTrim := strings.TrimSpace(input)
+		return inputTrim, err
+	}
+	return "", nil
 }
 
 func (this *SmtpdServer) getString0() (string, error) {
@@ -262,7 +286,6 @@ func (this *SmtpdServer) cmdEhlo(input string) bool {
 			if this.enableStartTtls {
 				this.w("250-STARTTLS\r\n")
 			}
-
 			this.w("250-SIZE 73400320\r\n")
 			this.w("250 8BITMIME\r\n")
 			return true
@@ -414,7 +437,7 @@ func (this *SmtpdServer) cmdStartTtls(input string) bool {
 	this.w("220 Go ahead\n")
 
 	if err := tlsConn.Handshake(); err != nil {
-		this.w("550 ERROR:Handshake error")
+		this.w("550 ERROR: Handshake error")
 		return false
 	}
 
@@ -566,6 +589,7 @@ func (this *SmtpdServer) cmdModeOut(state int, input string) bool {
 
 func (this *SmtpdServer) handle() {
 	for {
+
 		state := this.getState()
 
 		input, err := this.getString(state)
@@ -614,7 +638,7 @@ func (this *SmtpdServer) handle() {
 			if input == stateList[CMD_STARTTLS] { //CMD_STARTTLS
 
 				if this.cmdStartTtls(input) {
-					this.write(MSG_STARTTLS)
+					// this.write(MSG_STARTTLS)
 				}
 			}
 		}
@@ -834,6 +858,7 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	this.setState(CMD_READY)
 
 	this.handle()
+
 }
 
 func Start(port int) {

@@ -204,6 +204,7 @@ func (c *Client) cmd(expectCode int, format string, args ...interface{}) (int, s
 	c.Text.StartResponse(id)
 	defer c.Text.EndResponse(id)
 	code, msg, err := c.Text.ReadResponse(expectCode)
+	fmt.Println("cmd", code, ":", msg, ":", err, "exp:", expectCode)
 	return code, msg, err
 }
 
