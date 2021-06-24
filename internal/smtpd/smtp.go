@@ -207,6 +207,18 @@ func (c *Client) cmd(expectCode int, format string, args ...interface{}) (int, s
 	return code, msg, err
 }
 
+// cmd is a convenience function that sends a command and returns the response
+func (c *Client) CmdExec(expectCode int, format string, args ...interface{}) (int, string, error) {
+	id, err := c.Text.Cmd(format, args...)
+	if err != nil {
+		return 0, "", err
+	}
+	c.Text.StartResponse(id)
+	defer c.Text.EndResponse(id)
+	code, msg, err := c.Text.ReadResponse(expectCode)
+	return code, msg, err
+}
+
 // helo sends the HELO greeting to the server. It should be used only when the
 // server does not support ehlo.
 func (c *Client) helo() error {
@@ -254,7 +266,7 @@ func (c *Client) StartTLS(config *tls.Config) error {
 	}
 	c.conn = tls.Client(c.conn, config)
 	c.Text = textproto.NewConn(c.conn)
-	fmt.Println("S:", c.Text)
+	// fmt.Println("S:", c.Text)
 	c.tls = true
 	return c.ehlo()
 }
@@ -572,6 +584,7 @@ func (c *Client) Extension(ext string) (bool, string) {
 		return false, ""
 	}
 	ext = strings.ToUpper(ext)
+	// fmt.Println(c.ext)
 	param, ok := c.ext[ext]
 	return ok, param
 }
