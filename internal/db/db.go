@@ -72,7 +72,4 @@ func Init() {
       Status: 1,
     })
   }
-
-  // LoginWithCode("admin@xxx.com", "admin")
-  // MailPush("admin@xxx.com", "midoks@163.com", "tedmm")
 }
