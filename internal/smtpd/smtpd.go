@@ -519,7 +519,7 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 
 		if line != "" {
 			last := line[len(line)-1:]
-			if strings.EqualFold(last, ".") {
+			if strings.EqualFold(last, ".") && len(line) == 1 {
 				content = strings.TrimSpace(content[0 : len(content)-1])
 				this.write(MSG_MAIL_OK)
 				break
