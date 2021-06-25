@@ -267,6 +267,7 @@ func (this *Pop3Server) cmdList(input string) bool {
 
 func (this *Pop3Server) cmdUidl(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
+	fmt.Println("cmdUidl-:", inputN)
 	if this.cmdCompare(inputN[0], CMD_UIDL) {
 		inputLen := len(inputN)
 		if inputLen == 2 {
@@ -287,7 +288,7 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 			this.ok("")
 			list, _ := db.MailListAllForPop(this.userID)
 			for i := 1; i <= len(list); i++ {
-				uid := strconv.FormatInt(list[i-1].Uid, 10)
+				uid := strconv.FormatInt(list[i-1].Id, 10)
 				t := fmt.Sprintf("%d %s\r\n", i, libs.Md5str(uid))
 				this.w(t)
 			}
@@ -375,15 +376,15 @@ func (this *Pop3Server) cmdParseAuthPlain(input string) bool {
 
 	data, err := libs.Base64decode(input)
 	if err == nil {
-		this.D("pop3:", "cmdParseAuthPlain:", data)
+		this.D("pop3 src:", "cmdParseAuthPlain:", data)
 
-		list := strings.SplitN(data, "@cachecha.com", 3)
+		list := strings.SplitN(data, "\x00", 3)
 
 		this.recordCmdUser = list[0]
-		this.recordCmdPass = list[2][1:]
+		this.recordCmdPass = list[2]
 
 		b := this.checkUserLogin()
-		this.D("pop3:", b, this.recordCmdUser, this.recordCmdPass)
+		this.D("pop3 parse:", b, this.recordCmdUser, this.recordCmdPass)
 		if b {
 			this.ok("Authentication successful")
 			return true
@@ -419,7 +420,7 @@ func (this *Pop3Server) handle() {
 			break
 		}
 
-		fmt.Println("pop3:", state, input)
+		fmt.Println("pop3 cmd:", state, input)
 		if this.cmdQuit(input) {
 			break
 		}
