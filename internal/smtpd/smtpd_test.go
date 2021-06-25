@@ -139,6 +139,7 @@ func SendMailT(addr string, a Auth, from string, to []string, msg []byte) error 
 		return err
 	}
 	if ok, _ := c.Extension("STARTTLS"); ok {
+		fmt.Println("c.serverName STARTTLS", c.serverName)
 		config := &tls.Config{ServerName: c.serverName, InsecureSkipVerify: true}
 		if testHookStartTLS != nil {
 			testHookStartTLS(config)
@@ -148,7 +149,6 @@ func SendMailT(addr string, a Auth, from string, to []string, msg []byte) error 
 		}
 	}
 
-	fmt.Println("dd..11")
 	if a != nil && c.ext != nil {
 		if _, ok := c.ext["AUTH"]; !ok {
 			return errors.New("smtp: server doesn't support AUTH")
@@ -168,11 +168,11 @@ func SendMailT(addr string, a Auth, from string, to []string, msg []byte) error 
 	}
 	w, err := c.Data()
 
-	fmt.Println("dd..44")
 	if err != nil {
 		return err
 	}
 	_, err = w.Write(msg)
+
 	if err != nil {
 		return err
 	}
@@ -180,6 +180,7 @@ func SendMailT(addr string, a Auth, from string, to []string, msg []byte) error 
 	if err != nil {
 		return err
 	}
+	fmt.Println("dd.quit err")
 	return c.Quit()
 }
 
@@ -195,11 +196,11 @@ func TestSendMail(t *testing.T) {
 	// 	Certificates: []tls.Certificate{cert},
 	// }
 
-	fEmail := "midoks@163.com"
-	tEmail := "admin@cachecha.com"
+	tEmail := "midoks@163.com"
+	fEmail := "admin@cachecha.com"
 
 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, tEmail)
-	auth := PlainAuth("", tEmail, "admin", "127.0.0.1:25")
+	auth := PlainAuth("", fEmail, "admin", "127.0.0.1")
 	err := SendMailT("127.0.0.1:25", auth, fEmail, []string{tEmail}, []byte(content))
 	fmt.Println("err:", err)
 }

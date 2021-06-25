@@ -1,11 +1,8 @@
 package db
 
 import (
+	// "errors"
 	"fmt"
-	_ "github.com/midoks/imail/internal/libs"
-	// "gorm.io/gorm"
-	// "strings"
-	"errors"
 	"time"
 )
 
@@ -138,7 +135,5 @@ func MailPush(uid int64, mtype int, mail_from string, mail_to string, content st
 	user.CreateTime = time.Now().Unix()
 	result := db.Create(&user)
 
-	fmt.Println(result)
-
-	return 0, errors.New("error")
+	return result.RowsAffected, result.Error
 }

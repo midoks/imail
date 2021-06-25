@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/httplib"
 	"github.com/axgle/mahonia"
+	"net/mail"
 	"os"
 	"strings"
 )
@@ -97,13 +98,25 @@ func ConvertToString(src string, srcCode string, tagCode string) string {
 	return result
 }
 
-func CheckStandardMail(mail string) bool {
-	if mail[0:1] == "<" && mail[len(mail)-1:] == ">" {
+func FilterAddressBody(src string) string {
+	s := strings.Split(src, "BODY")
+	return strings.TrimSpace(s[0])
+}
+
+func CheckStandardMail(src string) bool {
+	smail, err := mail.ParseAddress(src)
+
+	if err != nil {
+		fmt.Println("mmm:", err)
+		return false
+	}
+	fmt.Println("mmm:", smail.Address, smail, err)
+	if src[0:1] == "<" && src[len(src)-1:] == ">" {
 		return true
 	}
 	return false
 }
 
-func GetRealMail(mail string) string {
-	return mail[1 : len(mail)-1]
+func GetRealMail(src string) string {
+	return src[1 : len(src)-1]
 }

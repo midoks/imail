@@ -200,30 +200,15 @@ func (this *SmtpdServer) getString(state int) (string, error) {
 	}
 
 	if this.tls {
-
 		input, err := this.reader.ReadString('\n')
 		inputTrim := strings.TrimSpace(input)
-		// fmt.Println("tls ", inputTrim)
 		return inputTrim, err
-		// for this.scanner.Scan() {
-		// 	input := this.scanner.Text()
-		// 	inputTrim := strings.TrimSpace(input)
-		// 	this.D("inputTrim tls:", input)
-
-		// 	if strings.EqualFold(inputTrim, "") {
-		// 		return "", errors.New("can`t empty!")
-		// 	}
-
-		// 	return inputTrim, nil
-		// }
 	} else {
 		input, err := bufio.NewReader(this.conn).ReadString('\n')
-
+		this.D("getString:", input, ":", err)
 		if err != nil {
 			return "", err
 		}
-
-		this.D("getString:", input, ":", err)
 		inputTrim := strings.TrimSpace(input)
 		return inputTrim, err
 	}
@@ -341,27 +326,30 @@ func (this *SmtpdServer) cmdAuthLoginPwd(input string) bool {
 	return false
 }
 
-func (this *SmtpdServer) cmdAuthPlain(input string) bool {
-	inputN := strings.SplitN(input, " ", 3)
+func (this *SmtpdServer) cmdAuthPlainLogin(input string) bool {
+	if strings.HasPrefix(input, stateList[CMD_AUTH_PLAIN]) {
+		inputN := strings.SplitN(input, " ", 3)
+		// fmt.Println("cmdAuthPlainLogin:", inputN)
+		if len(inputN) == 3 {
+			data := this.base64Decode(inputN[2])
 
-	if len(inputN) == 3 {
-		data := this.base64Decode(inputN[2])
-		mdomain := config.GetString("mail.domain", "xxx.com")
+			mdomain := config.GetString("mail.domain", "xxx.com")
+			fmt.Println(mdomain)
 
-		fmt.Println(mdomain)
+			list := strings.SplitN(data, "\x00", 3)
+			userList := strings.Split(list[1], "@")
 
-		list := strings.SplitN(data, "@cachecha.com", 3)
+			this.loginUser = userList[0]
+			this.loginPwd = list[2]
 
-		this.loginUser = list[0]
-		this.loginPwd = list[2]
-
-		b := this.checkUserLogin()
-		this.D("smtpd:", b, this.loginUser, this.loginPwd)
-		if b {
-			this.write(MSG_AUTH_OK)
-			return true
+			b := this.checkUserLogin()
+			this.D("smtpd:", b, this.loginUser, this.loginPwd)
+			if b {
+				this.write(MSG_AUTH_OK)
+				return true
+			}
+			this.write(MSG_AUTH_FAIL)
 		}
-		this.write(MSG_AUTH_FAIL)
 	}
 	return false
 }
@@ -386,6 +374,7 @@ func (this *SmtpdServer) cmdMailFrom(input string) bool {
 		if this.cmdCompare(inputN[0], CMD_MAIL_FROM) {
 
 			inputN[1] = strings.TrimSpace(inputN[1])
+			inputN[1] = libs.FilterAddressBody(inputN[1])
 
 			if !libs.CheckStandardMail(inputN[1]) {
 				this.write(MSG_BAD_SYNTAX)
@@ -506,15 +495,27 @@ func (this *SmtpdServer) cmdData(input string) bool {
 }
 
 func (this *SmtpdServer) cmdDataAccept() bool {
-	var content string
+	var (
+		content string
+		line    string
+		err     error
+	)
 	content = ""
 	for {
 
-		b := make([]byte, 4096)
-		n, _ := this.conn.Read(b[0:])
+		if this.tls {
+			line, err = this.reader.ReadString('\n')
+			line = strings.TrimSpace(line)
+			fmt.Println(line, err)
 
-		line := strings.TrimSpace(string(b[:n]))
-		content += fmt.Sprintf("%s\r\n", line)
+			content += fmt.Sprintf("%s\r\n", line)
+		} else {
+			b := make([]byte, 4096)
+			n, _ := this.conn.Read(b[0:])
+
+			line = strings.TrimSpace(string(b[:n]))
+			content += fmt.Sprintf("%s\r\n", line)
+		}
 
 		if line != "" {
 			last := line[len(line)-1:]
@@ -566,9 +567,7 @@ func (this *SmtpdServer) cmdModeOut(state int, input string) bool {
 			return true
 		}
 
-		if this.cmdAuthPlain(input) {
-			this.setState(CMD_AUTH_LOGIN_PWD)
-		} else if this.cmdAuthLoginPwd(input) {
+		if this.cmdAuthLoginPwd(input) {
 			this.setState(CMD_AUTH_LOGIN_PWD)
 		}
 	}
@@ -619,6 +618,11 @@ func (this *SmtpdServer) handle() {
 			if this.cmdQuit(input) {
 				break
 			}
+			if this.cmdHelo(input) {
+				this.setState(CMD_HELO)
+			} else if this.cmdEhlo(input) {
+				this.setState(CMD_EHLO)
+			}
 
 			if this.modeIn {
 				if this.cmdMailFrom(input) {
@@ -628,6 +632,11 @@ func (this *SmtpdServer) handle() {
 			}
 
 			if !this.runModeIn {
+
+				if this.cmdAuthPlainLogin(input) {
+					this.setState(CMD_AUTH_LOGIN_PWD)
+				}
+
 				if this.cmdAuthLogin(input) {
 					this.setState(CMD_AUTH_LOGIN)
 				}
