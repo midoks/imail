@@ -139,7 +139,7 @@ func SendMailT(addr string, a Auth, from string, to []string, msg []byte) error 
 		return err
 	}
 	if ok, _ := c.Extension("STARTTLS"); ok {
-		fmt.Println("c.serverName STARTTLS", c.serverName)
+		// fmt.Println("c.serverName STARTTLS", c.serverName)
 		config := &tls.Config{ServerName: c.serverName, InsecureSkipVerify: true}
 		if testHookStartTLS != nil {
 			testHookStartTLS(config)
@@ -157,7 +157,7 @@ func SendMailT(addr string, a Auth, from string, to []string, msg []byte) error 
 			return err
 		}
 	}
-	fmt.Println("dd..22")
+
 	if err = c.Mail(from); err != nil {
 		return err
 	}
@@ -180,7 +180,6 @@ func SendMailT(addr string, a Auth, from string, to []string, msg []byte) error 
 	if err != nil {
 		return err
 	}
-	fmt.Println("dd.quit err")
 	return c.Quit()
 }
 
