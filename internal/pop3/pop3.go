@@ -57,7 +57,7 @@ const (
 	MSG_STAT_OK       = "%d %d"
 	MSG_LOGIN_DISABLE = "Unable to log on"
 	MSG_CMD_NOT_VALID = "Command not valid in this state"
-	MSG_RETR_DATA     = "%s octets\r\n%s\r\n"
+	MSG_RETR_DATA     = "%s octets\r\n%s"
 	MSG_CAPA          = "Capability list follows"
 	MSG_POS_DATA      = "%d %s"
 	MSG_TOP_DATA      = "%s octets\r\n%s"
@@ -365,6 +365,7 @@ func (this *Pop3Server) cmdNoop(input string) bool {
 }
 
 func (this *Pop3Server) cmdAuthPlain(input string) bool {
+	fmt.Println("cmdAuthPlain", input)
 	if this.cmdCompare(input, CMD_AUTH_PLAIN) {
 		this.w(MSG_AUTH_PLAIN)
 		return true
