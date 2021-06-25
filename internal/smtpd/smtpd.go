@@ -562,9 +562,6 @@ func (this *SmtpdServer) handle() {
 
 		input, err := this.getString(state)
 
-		if err == io.EOF {
-			continue
-		}
 		if err != nil {
 			break
 		}
