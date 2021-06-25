@@ -175,7 +175,7 @@ func (this *SmtpdServer) Debug(d bool) {
 }
 
 func (this *SmtpdServer) w(msg string) error {
-	fmt.Println("smtpd:", msg)
+	fmt.Println("smtpd[w]:", msg)
 
 	if !this.tls {
 		_, err := this.conn.Write([]byte(msg))
@@ -505,7 +505,7 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 
 		if this.tls {
 			line, err = this.reader.ReadString('\n')
-			line = strings.TrimSpace(line)
+			// line = strings.TrimSpace(line)
 			fmt.Println(line, err)
 
 			content += fmt.Sprintf("%s\r\n", line)
@@ -513,7 +513,7 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 			b := make([]byte, 4096)
 			n, _ := this.conn.Read(b[0:])
 
-			line = strings.TrimSpace(string(b[:n]))
+			line = string(b[:n])
 			content += fmt.Sprintf("%s\r\n", line)
 		}
 
