@@ -503,8 +503,8 @@ func (this *SmtpdServer) cmdData(input string) bool {
 func (this *SmtpdServer) cmdDataAccept() bool {
 	var (
 		content string
-		line    string
-		last    string
+		// line    string
+		// last    string
 	)
 	content = ""
 
@@ -520,27 +520,36 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		}
 	} else {
 
-		for {
+		data := &bytes.Buffer{}
+		reader := textproto.NewReader(bufio.NewReader(this.conn)).DotReader()
+		_, err := io.CopyN(data, reader, int64(10240000))
+		content = string(data.Bytes())
 
-			b := make([]byte, 4096)
-			n, _ := this.conn.Read(b[0:])
-
-			line = string(b[:n])
-			content += fmt.Sprintf("%s\r\n", line)
-
-			line = strings.TrimSpace(line)
-			if line != "" {
-				last = line[len(line)-1:]
-
-			}
-			fmt.Println("....", last)
-			if strings.EqualFold(last, ".") && len(line) == 1 {
-				fmt.Println("ddd...")
-				content = content[0 : len(content)-1]
-				this.write(MSG_MAIL_OK)
-				break
-			}
+		if err == io.EOF {
+			this.write(MSG_MAIL_OK)
 		}
+
+		// for {
+
+		// 	b := make([]byte, 4096)
+		// 	n, _ := this.conn.Read(b[0:])
+
+		// 	line = string(b[:n])
+		// 	content += fmt.Sprintf("%s\r\n", line)
+
+		// 	line = strings.TrimSpace(line)
+		// 	if line != "" {
+		// 		last = line[len(line)-1:]
+
+		// 	}
+		// 	fmt.Println("....", last)
+		// 	if strings.EqualFold(last, ".") && len(line) == 1 {
+		// 		fmt.Println("ddd...")
+		// 		content = content[0 : len(content)-1]
+		// 		this.write(MSG_MAIL_OK)
+		// 		break
+		// 	}
+		// }
 	}
 
 	if this.runModeIn {
