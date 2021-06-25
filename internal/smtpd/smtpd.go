@@ -21,6 +21,12 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"bytes"
+
+	"io"
+	"net/textproto"
+	// "strconv"
 )
 
 const (
@@ -499,33 +505,41 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		content string
 		line    string
 		last    string
-		err     error
 	)
 	content = ""
-	for {
 
-		if this.tls {
-			line, err = this.reader.ReadString('\n')
-			// line = strings.TrimSpace(line)
-			fmt.Println(line, err)
+	if this.tls {
+		data := &bytes.Buffer{}
+		reader := textproto.NewReader(this.reader).DotReader()
+		_, err := io.CopyN(data, reader, int64(10240000))
 
-			content += fmt.Sprintf("%s\r\n", line)
-		} else {
+		content = string(data.Bytes())
+		// fmt.Println(err, data)
+		if err == io.EOF {
+			this.write(MSG_MAIL_OK)
+		}
+	} else {
+
+		for {
+
 			b := make([]byte, 4096)
 			n, _ := this.conn.Read(b[0:])
 
 			line = string(b[:n])
 			content += fmt.Sprintf("%s\r\n", line)
-		}
 
-		if line != "" {
-			last = line[len(line)-1:]
+			line = strings.TrimSpace(line)
+			if line != "" {
+				last = line[len(line)-1:]
 
-		}
-		if strings.EqualFold(last, ".") && len(line) == 1 {
-			content = content[0 : len(content)-1]
-			this.write(MSG_MAIL_OK)
-			break
+			}
+			fmt.Println("....", last)
+			if strings.EqualFold(last, ".") && len(line) == 1 {
+				fmt.Println("ddd...")
+				content = content[0 : len(content)-1]
+				this.write(MSG_MAIL_OK)
+				break
+			}
 		}
 	}
 
