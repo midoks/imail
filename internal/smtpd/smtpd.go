@@ -211,7 +211,7 @@ func (this *SmtpdServer) getString(state int) (string, error) {
 		return inputTrim, err
 	} else {
 		input, err := bufio.NewReader(this.conn).ReadString('\n')
-		this.D("getString:", input, ":", err)
+		this.D("smtp getString:", input, ":", err)
 		if err != nil {
 			return "", err
 		}
