@@ -11,3 +11,31 @@
 # Short-Description: starts Imail
 # Description:       starts the Imail
 ### END INIT INFO
+
+
+im_start(){
+
+}
+
+im_stop(){
+	
+}
+
+im_reload(){
+	
+}
+
+
+im_status(){
+	
+}
+
+case "$1" in
+    'start') im_start;;
+    'stop') im_stop;;
+    'reload') im_reload;;
+    'restart') 
+        im_stop
+        im_start;;
+    'status') im_status;;
+esac
