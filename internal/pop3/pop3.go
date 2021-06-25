@@ -57,7 +57,7 @@ const (
 	MSG_STAT_OK       = "%d %d"
 	MSG_LOGIN_DISABLE = "Unable to log on"
 	MSG_CMD_NOT_VALID = "Command not valid in this state"
-	MSG_RETR_DATA     = "%s octets\r\n%s"
+	MSG_RETR_DATA     = "%s octets\r\n%s\r\n."
 	MSG_CAPA          = "Capability list follows"
 	MSG_POS_DATA      = "%d %s"
 	MSG_TOP_DATA      = "%s octets\r\n%s"
