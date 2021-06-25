@@ -183,16 +183,9 @@ func (this *SmtpdServer) Debug(d bool) {
 func (this *SmtpdServer) w(msg string) error {
 	fmt.Println("smtpd[w]:", msg)
 
-	if !this.tls {
-		_, err := this.conn.Write([]byte(msg))
-		return err
-	} else {
-		_, err := this.writer.Write([]byte(msg))
-		this.writer.Flush()
-		return err
-	}
-
-	return nil
+	_, err := this.writer.Write([]byte(msg))
+	this.writer.Flush()
+	return err
 }
 
 func (this *SmtpdServer) write(code string) error {
@@ -205,20 +198,11 @@ func (this *SmtpdServer) getString(state int) (string, error) {
 		return "", nil
 	}
 
-	if this.tls {
-		input, err := this.reader.ReadString('\n')
-		inputTrim := strings.TrimSpace(input)
-		return inputTrim, err
-	} else {
-		input, err := bufio.NewReader(this.conn).ReadString('\n')
-		this.D("smtp getString:", input, ":", err)
-		if err != nil {
-			return "", err
-		}
-		inputTrim := strings.TrimSpace(input)
-		return inputTrim, err
-	}
-	return "", nil
+	input, err := this.reader.ReadString('\n')
+	this.D("smtp getString:", input, ":", err)
+	inputTrim := strings.TrimSpace(input)
+	return inputTrim, err
+
 }
 
 func (this *SmtpdServer) getString0() (string, error) {
@@ -501,55 +485,15 @@ func (this *SmtpdServer) cmdData(input string) bool {
 }
 
 func (this *SmtpdServer) cmdDataAccept() bool {
-	var (
-		content string
-		// line    string
-		// last    string
-	)
-	content = ""
 
-	if this.tls {
-		data := &bytes.Buffer{}
-		reader := textproto.NewReader(this.reader).DotReader()
-		_, err := io.CopyN(data, reader, int64(10240000))
+	data := &bytes.Buffer{}
+	reader := textproto.NewReader(this.reader).DotReader()
+	_, err := io.CopyN(data, reader, int64(10240000))
 
-		content = string(data.Bytes())
-		// fmt.Println(err, data)
-		if err == io.EOF {
-			this.write(MSG_MAIL_OK)
-		}
-	} else {
-
-		data := &bytes.Buffer{}
-		reader := textproto.NewReader(bufio.NewReader(this.conn)).DotReader()
-		_, err := io.CopyN(data, reader, int64(10240000))
-		content = string(data.Bytes())
-
-		if err == io.EOF {
-			this.write(MSG_MAIL_OK)
-		}
-
-		// for {
-
-		// 	b := make([]byte, 4096)
-		// 	n, _ := this.conn.Read(b[0:])
-
-		// 	line = string(b[:n])
-		// 	content += fmt.Sprintf("%s\r\n", line)
-
-		// 	line = strings.TrimSpace(line)
-		// 	if line != "" {
-		// 		last = line[len(line)-1:]
-
-		// 	}
-		// 	fmt.Println("....", last)
-		// 	if strings.EqualFold(last, ".") && len(line) == 1 {
-		// 		fmt.Println("ddd...")
-		// 		content = content[0 : len(content)-1]
-		// 		this.write(MSG_MAIL_OK)
-		// 		break
-		// 	}
-		// }
+	content := string(data.Bytes())
+	// fmt.Println(err, data)
+	if err == io.EOF {
+		this.write(MSG_MAIL_OK)
 	}
 
 	if this.runModeIn {
