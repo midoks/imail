@@ -267,7 +267,6 @@ func (this *Pop3Server) cmdList(input string) bool {
 
 func (this *Pop3Server) cmdUidl(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
-	fmt.Println("cmdUidl-:", inputN)
 	if this.cmdCompare(inputN[0], CMD_UIDL) {
 		inputLen := len(inputN)
 		if inputLen == 2 {

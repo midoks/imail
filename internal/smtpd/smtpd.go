@@ -81,7 +81,7 @@ const (
 )
 
 var msgList = map[string]string{
-	MSG_INIT:            "Anti-spam GT for Coremail System(imail)",
+	MSG_INIT:            "Anti-spam GT for Coremail System(imail[20210626])",
 	MSG_OK:              "ok",
 	MSG_BYE:             "bye",
 	MSG_COMMAND_HE_ERR:  "Error: send HELO/EHLO first",
