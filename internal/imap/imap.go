@@ -283,6 +283,21 @@ func (this *ImapServer) cmdStatus(input string) bool {
 	return false
 }
 
+func (this *ImapServer) cmdSelect(input string) bool {
+	inputN := strings.SplitN(input, " ", 3)
+	if len(inputN) == 4 {
+		fmt.Println("cmdStatus-mmm[0]", inputN[0])
+		fmt.Println("cmdStatus-mmm[1]", inputN[1])
+		fmt.Println("cmdStatus-mmm[2]", inputN[2])
+		if this.cmdCompare(inputN[1], CMD_SELECT) {
+			// this.writeArgs(MSG_COMPLELED_LIST, inputN[0], inputN[1])
+			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
+			return true
+		}
+	}
+	return false
+}
+
 func (this *ImapServer) cmdLogout(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
@@ -316,6 +331,7 @@ func (this *ImapServer) handle() {
 		}
 
 		if this.cmdAuth(input) {
+			this.setState(CMD_AUTH)
 		}
 
 		if this.cmdList(input) {
