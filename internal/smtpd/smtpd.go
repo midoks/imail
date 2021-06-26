@@ -203,7 +203,7 @@ func (this *SmtpdServer) w(msg string) error {
 }
 
 func (this *SmtpdServer) write(code string) error {
-	info := fmt.Sprintf("%.3s %s%s", code, msgList[code], GO_EOL)
+	info := fmt.Sprintf("%.3s %s", code, msgList[code])
 	return this.w(info)
 }
 
@@ -967,7 +967,7 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	this.runModeIn = false
 	this.modeIn, _ = config.GetBool("smtpd.mode_in", false)
 
-	this.write(fmt.Sprintf("%s%s", MSG_INIT, GO_EOL))
+	this.write(MSG_INIT)
 	this.setState(CMD_READY)
 
 	this.handle()
