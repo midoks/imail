@@ -69,6 +69,7 @@ const (
 	MSG_BAD_OPEN_RELAY  = "505.open.relay"
 	MSG_BAD_MAIL_ADDR   = "554"
 	MSG_COMMAND_TM_ERR  = "421"
+	MSG_COMMAND_TM_CTC  = "421.ctc"
 	MSG_AUTH_LOGIN_USER = "334.user"
 	MSG_AUTH_LOGIN_PWD  = "334.passwd"
 	MSG_AUTH_OK         = "235"
@@ -83,6 +84,7 @@ var msgList = map[string]string{
 	MSG_BYE:             "bye",
 	MSG_COMMAND_HE_ERR:  "Error: send HELO/EHLO first",
 	MSG_COMMAND_ERR:     "Error: command not implemented",
+	MSG_COMMAND_TM_CTC:  "closing transmission channel",
 	MSG_COMMAND_TM_ERR:  "Too many error commands",
 	MSG_AUTH_LOGIN_USER: "dXNlcm5hbWU6",
 	MSG_AUTH_LOGIN_PWD:  "UGFzc3dvcmQ6",
@@ -577,6 +579,8 @@ func (this *SmtpdServer) handle() {
 		input, err := this.getString(state)
 
 		if err != nil {
+			this.write(MSG_COMMAND_TM_CTC)
+			this.close()
 			break
 		}
 
