@@ -24,6 +24,7 @@ if [ -f /etc/rc.d/init.d/functions ];then
 fi
 
 app_path={APP_PATH}
+SERVICENAME="imail"
 
 im_start(){
     isStart=`ps -ef|grep 'imail web' |grep -v grep|awk '{print $2}'`
@@ -46,34 +47,41 @@ im_start(){
                 echo '------------------------------------------------------'
                 tail -n 20 ${mw_path}/logs/error.log
                 echo '------------------------------------------------------'
-                echo -e "\033[31mError: imail service startup failed.\033[0m"
+                echo -e "\033[31mError: ${SERVICENAME} service startup failed.\033[0m"
                 return;
         fi
         echo -e "\033[32mdone\033[0m"
     else
-        echo "Starting imail(pid $(echo $isStart)) already running"
+        echo "Starting ${SERVICENAME}(pid $(echo $isStart)) already running"
     fi
 }
 
 im_stop(){
-	echo "im_stop"
+	pids=`ps -ef|grep 'imail web' |grep -v grep|awk '{print $2}'`
+    arr=($pids)
+    echo -e "Stopping ${SERVICENAME}... \c"
+    for p in ${arr[@]}
+    do
+            kill -9 $p
+    done
+    echo -e "\033[32mdone\033[0m"
 }
-
-im_reload(){
-	echo "im_reload"
-}
-
 
 im_status(){
-	echo "im_status"
+    isStart=`ps -ef|grep 'imail web' |grep -v grep|awk '{print $2}'`
+    if [ "$isStart" == '' ];then
+      echo -e "${SERVICENAME} not running"
+    else
+      echo -e "${SERVICENAME}(pid $(echo $isStart)) already running"
+    fi
 }
 
 case "$1" in
     'start') im_start;;
     'stop') im_stop;;
-    'reload') im_reload;;
+    'status') im_status;;
+    'reload') ;;
     'restart') 
         im_stop
         im_start;;
-    'status') im_status;;
 esac
