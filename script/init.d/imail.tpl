@@ -80,7 +80,9 @@ case "$1" in
     'start') im_start;;
     'stop') im_stop;;
     'status') im_status;;
-    'reload') ;;
+    'reload') 
+        im_stop
+        im_start;;
     'restart') 
         im_stop
         im_start;;
