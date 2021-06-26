@@ -951,7 +951,7 @@ func (this *SmtpdServer) start(conn net.Conn) {
 
 	this.startTime = time.Now()
 	this.isLogin = false
-	this.enableStartTtls = false
+	this.enableStartTtls = true
 
 	if this.enableStartTtls {
 		var tlsConn *tls.Conn
