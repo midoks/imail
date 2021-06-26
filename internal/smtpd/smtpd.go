@@ -623,11 +623,7 @@ func (this *SmtpdServer) handle() {
 					this.setState(CMD_AUTH_LOGIN_PWD)
 				} else if this.cmdAuthLogin(input) {
 					this.setState(CMD_AUTH_LOGIN)
-				} else {
-					this.write(MSG_BAD_SYNTAX)
 				}
-			} else {
-				this.write(MSG_BAD_SYNTAX)
 			}
 		}
 
