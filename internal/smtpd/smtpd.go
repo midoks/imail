@@ -31,7 +31,6 @@ const (
 	CMD_STARTTLS        = iota
 	CMD_HELO            = iota
 	CMD_EHLO            = iota
-	CMD_COREMAIL        = iota
 	CMD_AUTH_PLAIN      = iota
 	CMD_AUTH_LOGIN      = iota
 	CMD_AUTH_LOGIN_USER = iota
@@ -48,7 +47,6 @@ var stateList = map[int]string{
 	CMD_STARTTLS:       "STARTTLS",
 	CMD_HELO:           "HELO",
 	CMD_EHLO:           "EHLO",
-	CMD_COREMAIL:       "COREMAIL",
 	CMD_AUTH_LOGIN:     "AUTH LOGIN",
 	CMD_AUTH_LOGIN_PWD: "PASSWORD",
 	CMD_AUTH_PLAIN:     "AUTH PLAIN",
@@ -259,17 +257,6 @@ func (this *SmtpdServer) cmdHelo(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 	if len(inputN) == 2 {
 		if this.cmdCompare(inputN[0], CMD_HELO) {
-			this.write(MSG_OK)
-			return true
-		}
-	}
-	return false
-}
-
-func (this *SmtpdServer) cmdCoremail(input string) bool {
-	inputN := strings.SplitN(input, " ", 2)
-	if len(inputN) == 2 {
-		if this.cmdCompare(inputN[0], CMD_COREMAIL) {
 			this.write(MSG_OK)
 			return true
 		}
@@ -616,17 +603,14 @@ func (this *SmtpdServer) handle() {
 
 		//CMD_HELO
 		if this.stateCompare(state, CMD_HELO) || this.stateCompare(state, CMD_EHLO) {
+
 			if this.cmdQuit(input) {
 				break
-			}
-			if this.cmdHelo(input) {
+			} else if this.cmdHelo(input) {
 				this.setState(CMD_HELO)
 			} else if this.cmdEhlo(input) {
 				this.setState(CMD_EHLO)
-			} else if this.cmdCoremail(input) {
-			}
-
-			if this.modeIn {
+			} else if this.modeIn {
 				if this.cmdMailFrom(input) {
 					this.setState(CMD_MAIL_FROM)
 					this.runModeIn = true
@@ -637,11 +621,13 @@ func (this *SmtpdServer) handle() {
 
 				if this.cmdAuthPlainLogin(input) {
 					this.setState(CMD_AUTH_LOGIN_PWD)
-				}
-
-				if this.cmdAuthLogin(input) {
+				} else if this.cmdAuthLogin(input) {
 					this.setState(CMD_AUTH_LOGIN)
+				} else {
+					this.write(MSG_BAD_SYNTAX)
 				}
+			} else {
+				this.write(MSG_BAD_SYNTAX)
 			}
 		}
 
