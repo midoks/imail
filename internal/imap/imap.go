@@ -58,14 +58,15 @@ var stateList = map[int]string{
 }
 
 const (
-	MSG_INIT          = "* OK [CAPABILITY IMAP4 IMAP4rev1 ID AUTH=PLAIN AUTH=LOGIN AUTH=XOAUTH2 NAMESPACE] imail ready"
-	MSG_BAD_SYNTAX    = "%s BAD command not support"
-	MSG_LOGIN_OK      = "%s OK LOGIN completed"
-	MSG_LOGOUT_OK     = "%s OK LOGOUT completed"
-	MSG_LOGIN_DISABLE = "%s NO LOGIN Login error password error"
-	MSG_CMD_NOT_VALID = "Command not valid in this state"
-	MSG_LOGOUT        = "* BYE IMAP4rev1 Server logging out"
-	MSG_COMPLELED     = "%s OK %s completed"
+	MSG_INIT           = "* OK [CAPABILITY IMAP4 IMAP4rev1 ID AUTH=PLAIN AUTH=LOGIN AUTH=XOAUTH2 NAMESPACE] imail ready"
+	MSG_BAD_SYNTAX     = "%s BAD command not support"
+	MSG_LOGIN_OK       = "%s OK LOGIN completed"
+	MSG_LOGOUT_OK      = "%s OK LOGOUT completed"
+	MSG_LOGIN_DISABLE  = "%s NO LOGIN Login error password error"
+	MSG_CMD_NOT_VALID  = "Command not valid in this state"
+	MSG_LOGOUT         = "* BYE IMAP4rev1 Server logging out"
+	MSG_COMPLELED      = "%s OK %s completed"
+	MSG_COMPLELED_LIST = "* %s %s %s"
 )
 
 var GO_EOL = GetGoEol()
@@ -127,13 +128,13 @@ func (this *ImapServer) Debug(d bool) {
 	this.debug = d
 }
 
-func (this *ImapServer) w(msg string) {
-	fmt.Println("w[debug]:", msg)
-	_, err := this.conn.Write([]byte(msg))
+func (this *ImapServer) w(msg string) error {
+	log := fmt.Sprintf("imap[w]:%s", msg)
+	this.D(log)
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	_, err := this.writer.Write([]byte(msg))
+	this.writer.Flush()
+	return err
 }
 
 func (this *ImapServer) writeArgs(code string, args ...interface{}) {
@@ -247,6 +248,41 @@ func (this *ImapServer) cmdId(input string) bool {
 	return false
 }
 
+func (this *ImapServer) cmdList(input string) bool {
+	inputN := strings.SplitN(input, " ", 4)
+	fmt.Println("cmdList", inputN)
+	if len(inputN) == 4 {
+		fmt.Println("cmdList-mmm", inputN)
+		if this.cmdCompare(inputN[1], CMD_LIST) {
+			this.writeArgs("* LIST (\\NoSelect \\HasChildren) \"/\" \"&UXZO1mWHTvZZOQ-\"")
+			this.writeArgs("* LIST (\\HasChildren) \"/\" \"INBOX\"")
+			this.writeArgs("* LIST (\\HasChildren) \"/\" \"Sent Messages\"")
+			this.writeArgs("* LIST (\\HasChildren) \"/\" \"Drafts\"")
+			this.writeArgs("* LIST (\\HasChildren) \"/\" \"Deleted Messages\"")
+			this.writeArgs("* LIST (\\HasChildren) \"/\" \"Junk\"")
+			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
+			return true
+		}
+	}
+	return false
+}
+
+func (this *ImapServer) cmdStatus(input string) bool {
+	inputN := strings.SplitN(input, " ", 4)
+	if len(inputN) == 4 {
+		fmt.Println("cmdStatus-mmm[0]", inputN[0])
+		fmt.Println("cmdStatus-mmm[1]", inputN[1])
+		fmt.Println("cmdStatus-mmm[2]", inputN[2])
+		fmt.Println("cmdStatus-mmm[3]", inputN[3])
+		if this.cmdCompare(inputN[1], CMD_STATUS) {
+			this.writeArgs(MSG_COMPLELED_LIST, inputN[0], inputN[1], inputN[3])
+			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
+			return true
+		}
+	}
+	return false
+}
+
 func (this *ImapServer) cmdLogout(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
@@ -282,8 +318,16 @@ func (this *ImapServer) handle() {
 		if this.cmdAuth(input) {
 		}
 
-		if this.cmdLogout(input) {
+		if this.cmdList(input) {
 
+		}
+
+		if this.cmdStatus(input) {
+
+		}
+
+		if this.cmdLogout(input) {
+			break
 		}
 
 	}
