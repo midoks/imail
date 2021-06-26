@@ -16,3 +16,5 @@ lib/.DS_Store
 vendor/*
 vendor_bak/*
 conf/dkim/*
+scripts/tmp/*
+scripts/package/*
