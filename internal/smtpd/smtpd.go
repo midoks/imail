@@ -581,7 +581,7 @@ func (this *SmtpdServer) handle() {
 		if err != nil {
 			this.write(MSG_COMMAND_TM_CTC)
 			this.close()
-
+			break
 		}
 
 		this.D("smtpd[cmd]:", state, stateList[state], "input:[", input, "]")
