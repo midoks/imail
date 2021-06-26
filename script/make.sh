@@ -9,7 +9,7 @@ chmod +x $_dir/script/init.d/imail
 
 
 if [ -d /etc/init.d ];then
-	cp $_dir/script/init.d/imail >  /etc/init.d/imail
+	cp $_dir/script/init.d/imail /etc/init.d/imail
 	chmod +x /etc/init.d/imail
 fi
 
