@@ -5,6 +5,8 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 curPath=`pwd`
 rootPath=$(dirname "$curPath")
 
+PACK_NAME=imail
+
 
 mkdir -p $curPath/tmp
 mkdir -p $curPath/package
@@ -17,6 +19,6 @@ cp $rootPath/imail $curPath/tmp
 cp -r $rootPath/conf $curPath/tmp
 
 
-cd $curPath/tmp && zip -r -q -o imail-linux-amd64.zip  ./ && mv imail-linux-amd64.zip $curPath/package
+cd $curPath/tmp && zip -r -q -o ${PACK_NAME}-linux-amd64.zip  ./ && mv ${PACK_NAME}-linux-amd64.zip $curPath/package
 
 
