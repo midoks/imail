@@ -967,7 +967,7 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	this.runModeIn = false
 	this.modeIn, _ = config.GetBool("smtpd.mode_in", false)
 
-	this.write(MSG_INIT)
+	this.write(fmt.Sprintf("%s%s", MSG_INIT, GO_EOL))
 	this.setState(CMD_READY)
 
 	this.handle()
