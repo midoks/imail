@@ -109,6 +109,27 @@ func GetGoEol() string {
 	return "\n"
 }
 
+// Protocol represents the protocol used in the SMTP session
+type Protocol string
+
+const (
+	// SMTP
+	SMTP Protocol = "SMTP"
+
+	// Extended SMTP
+	ESMTP = "ESMTP"
+)
+
+// Peer represents the client connecting to the server
+type Peer struct {
+	HeloName   string   // Server name used in HELO/EHLO command
+	Username   string   // Username from authentication, if authenticated
+	Password   string   // Password from authentication, if authenticated
+	Protocol   Protocol // Protocol used, SMTP or ESMTP
+	ServerName string   // A copy of Server.Hostname
+	Addr       net.Addr // Network address
+}
+
 type SmtpdServer struct {
 	method            int
 	debug             bool
@@ -140,6 +161,8 @@ type SmtpdServer struct {
 	// Determine the current mode of operation
 	// 1,modeIn
 	runModeIn bool
+
+	peer Peer
 
 	//tls
 	tls       bool
@@ -181,7 +204,8 @@ func (this *SmtpdServer) Debug(d bool) {
 }
 
 func (this *SmtpdServer) w(msg string) error {
-	fmt.Println("smtpd[w]:", msg)
+	log := fmt.Sprintf("smtpd[w][%s]:%s", this.peer.Addr, msg)
+	fmt.Println(log)
 
 	_, err := this.writer.Write([]byte(msg))
 	this.writer.Flush()
@@ -199,7 +223,7 @@ func (this *SmtpdServer) getString(state int) (string, error) {
 	}
 
 	input, err := this.reader.ReadString('\n')
-	this.D("smtp getString:", input, ":", err)
+	this.D("SmtpdServer getString:", input, ":", err)
 	inputTrim := strings.TrimSpace(input)
 	return inputTrim, err
 
@@ -815,6 +839,12 @@ func (this *SmtpdServer) start(conn net.Conn) {
 	this.scanner = bufio.NewScanner(this.reader)
 
 	defer conn.Close()
+
+	this.peer = Peer{
+		Addr: conn.RemoteAddr(),
+		// ServerName: conn.Hostname,
+	}
+
 	this.startTime = time.Now()
 	this.isLogin = false
 	this.enableStartTtls = false
