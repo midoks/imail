@@ -100,6 +100,7 @@ func ConvertToString(src string, srcCode string, tagCode string) string {
 
 func FilterAddressBody(src string) string {
 	s := strings.Split(src, "BODY")
+	s = strings.Split(s[0], "SIZE")
 	return strings.TrimSpace(s[0])
 }
 

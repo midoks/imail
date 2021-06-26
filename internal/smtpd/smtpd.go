@@ -205,7 +205,7 @@ func (this *SmtpdServer) Debug(d bool) {
 
 func (this *SmtpdServer) w(msg string) error {
 	log := fmt.Sprintf("smtpd[w][%s]:%s", this.peer.Addr, msg)
-	fmt.Println(log)
+	this.D(log)
 
 	_, err := this.writer.Write([]byte(msg))
 	this.writer.Flush()
