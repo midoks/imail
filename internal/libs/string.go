@@ -9,14 +9,14 @@ import (
 	"github.com/axgle/mahonia"
 	"net/mail"
 	"os"
-	"runtime"
+	// "runtime"
 	"strings"
 )
 
 func GetGoEol() string {
-	if "windows" == runtime.GOOS {
-		return "\r\n"
-	}
+	// if "windows" == runtime.GOOS {
+	// 	return "\r\n"
+	// }
 	return "\r\n"
 }
 
