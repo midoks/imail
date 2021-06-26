@@ -9,23 +9,21 @@ import (
 	"math/big"
 
 	"bufio"
+	"bytes"
 	"crypto/tls"
 	"encoding/base64"
-	// "errors"
 	"fmt"
 	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/libs"
+	"io"
 	"log"
 	"net"
+	"net/textproto"
 	"strings"
 	"time"
-
-	"bytes"
-
-	"io"
-	"net/textproto"
 	// "strconv"
+	// "errors"
 )
 
 const (
@@ -631,7 +629,6 @@ func (this *SmtpdServer) handle() {
 
 		if this.enableStartTtls {
 			if input == stateList[CMD_STARTTLS] { //CMD_STARTTLS
-
 				if this.cmdStartTtls(input) {
 					// this.write(MSG_STARTTLS)
 				}
