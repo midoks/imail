@@ -4,17 +4,12 @@ _os=`uname`
 _path=`pwd`
 _dir=`dirname $_path`
 
-if [ "$_os" == "Darwin" ] ; then
-	echo "macosx not need!"
-else
-	# go build imail.go
-	echo $_dir
-
-fi
+sed "s:{APP_PATH}:${_dir}:g" $_dir/script/init.d/imail.tpl > $_dir/script/init.d/imail
+chmod +x $_dir/script/init.d/imail
 
 
-if [ ! -d /etc/init.d/imail ];then
-	cat $_dir/script/init.d/imail.tpl >  /etc/init.d/imail
+if [ -d /etc/init.d ];then
+	cp $_dir/script/init.d/imail >  /etc/init.d/imail
 	chmod +x /etc/init.d/imail
 fi
 
