@@ -203,7 +203,7 @@ func (this *SmtpdServer) w(msg string) error {
 }
 
 func (this *SmtpdServer) write(code string) error {
-	info := fmt.Sprintf("%.3s %s", code, msgList[code])
+	info := fmt.Sprintf("%.3s %s%s", code, msgList[code], GO_EOL)
 	return this.w(info)
 }
 
@@ -213,7 +213,7 @@ func (this *SmtpdServer) getString(state int) (string, error) {
 	}
 	input, err := this.reader.ReadString('\n')
 	inputTrim := strings.TrimSpace(input)
-	this.D("smtp[GS-S][", this.peer.Addr, "]:", inputTrim, ":", err, "[GS-E]")
+	this.D("smtp[r-S][", this.peer.Addr, "]:", inputTrim, ":", err, "[r-E]")
 	return inputTrim, err
 
 }
