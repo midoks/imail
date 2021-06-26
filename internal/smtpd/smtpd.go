@@ -213,7 +213,7 @@ func (this *SmtpdServer) getString(state int) (string, error) {
 	}
 	input, err := this.reader.ReadString('\n')
 	inputTrim := strings.TrimSpace(input)
-	this.D("smtp[r-S][", this.peer.Addr, "]:", inputTrim, ":", err, "[r-E]")
+	this.D("smtp[r][", this.peer.Addr, "]:", inputTrim, ":", err)
 	return inputTrim, err
 
 }
