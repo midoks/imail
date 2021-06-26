@@ -59,7 +59,7 @@ var stateList = map[int]string{
 }
 
 const (
-	MSG_INIT          = "* OK Coremail System IMap Server Ready(imail)"
+	MSG_INIT          = "* OK [CAPABILITY IMAP4 IMAP4rev1 ID AUTH=PLAIN AUTH=LOGIN AUTH=XOAUTH2 NAMESPACE] imail ready"
 	MSG_BAD_SYNTAX    = "%s BAD command not support"
 	MSG_LOGIN_OK      = "%s OK LOGIN completed"
 	MSG_LOGOUT_OK     = "%s OK LOGOUT completed"
@@ -101,6 +101,10 @@ type ImapServer struct {
 	errCount      int
 	recordCmdUser string
 	recordCmdPass string
+
+	reader  *bufio.Reader
+	writer  *bufio.Writer
+	scanner *bufio.Scanner
 
 	selectBox string
 	commands  map[int]HandlerFactory
@@ -148,13 +152,18 @@ func (this *ImapServer) error(code string) {
 	this.w(info)
 }
 
-func (this *ImapServer) getString() (string, error) {
-	input, err := bufio.NewReader(this.conn).ReadString('\n')
-	if err != nil {
-		return "", err
-	}
+func (this *ImapServer) getString(state int) (string, error) {
+	// if state == CMD_DATA {
+	// 	return "", nil
+	// }
+
+	fmt.Println(state)
+
+	input, err := this.reader.ReadString('\n')
 	inputTrim := strings.TrimSpace(input)
+	this.D("imap[r]:", inputTrim, ":", err)
 	return inputTrim, err
+
 }
 
 func (this *ImapServer) getString0() (string, error) {
@@ -216,6 +225,7 @@ func (this *ImapServer) cmdAuth(input string) bool {
 func (this *ImapServer) cmdCapabitity(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 
+	fmt.Println(inputN)
 	if len(inputN) == 2 {
 		if this.cmdCompare(inputN[1], CMD_CAPABILITY) {
 			this.writeArgs("* OK Coremail System IMap Server Ready(imail)")
@@ -223,7 +233,6 @@ func (this *ImapServer) cmdCapabitity(input string) bool {
 			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
 			return true
 		}
-
 	}
 	return false
 }
@@ -254,79 +263,39 @@ func (this *ImapServer) cmdLogout(input string) bool {
 }
 
 func (this *ImapServer) handle() {
-	var char rune
-	var err error
-	r := io.Reader(this.conn)
-	rr := bufio.NewReader(r)
 
-	// for {
-
-	fmt.Println("handle...start")
-
-	// cmd := &Command{}
-	var atom string
 	for {
-		if char, _, err = rr.ReadRune(); err != nil {
+		input, err := this.getString(this.state)
+		fmt.Println("input:", input, "err", err)
+
+		if err != nil {
+			this.close()
 			break
 		}
 
-		if char == '\r' {
-			break
+		if this.cmdCapabitity(input) {
+			this.setState(CMD_CAPABILITY)
 		}
-		// if err = rr.UnreadRune(); err != nil {
-		// 	fmt.Println("ddd", err)
-		// 	break
-		atom += string(char)
-		fmt.Println(atom)
+
+		if this.cmdId(input) {
+
+		}
+
+		if this.cmdAuth(input) {
+
+		}
+
 	}
-
-	// fmt.Println(char, err)
-	// }
-
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
-
-	fmt.Println("handle...end")
-
-	// fields, err := this.ReadLine()
-	// cmd.Parse(fields)
-	// fmt.Println(cmd)
-
-	// state := this.getState()
-	// input, err := this.getString()
-	// if err != nil {
-	// 	break
-	// }
-
-	// fmt.Println("imap:", state, input)
-
-	// if this.cmdLogout(input) {
-	// 	break
-	// }
-
-	// if this.cmdCapabitity(input) {
-	// }
-
-	// if this.cmdId(input) {
-	// }
-
-	// if this.cmdAuth(input) {
-	// 	this.setState(CMD_AUTH)
-	// }
-
-	// if this.stateCompare(state, CMD_AUTH) {
-
-	// }
-
-	// }
 }
 
 func (this *ImapServer) start(conn net.Conn) {
 	conn.SetReadDeadline(time.Now().Add(time.Minute * 10))
 	defer conn.Close()
 	this.conn = conn
+
+	this.reader = bufio.NewReader(conn)
+	this.writer = bufio.NewWriter(conn)
+	this.scanner = bufio.NewScanner(this.reader)
 
 	this.startTime = time.Now()
 
