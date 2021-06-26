@@ -12,9 +12,38 @@
 # Description:       starts the Imail
 ### END INIT INFO
 
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+
+app_path={APP_PATH}
 
 im_start(){
-
+    isStart=`ps -ef|grep 'imail' |grep -v grep|awk '{print $2}'`
+    if [ "$isStart" == '' ];then
+        echo -e "Starting imail... \c"
+        cd $app_path && ./imail
+            isStart=""
+            while [[ "$isStart" == "" ]];
+            do
+                echo -e ".\c"
+                sleep 0.5
+                isStart=$(lsof -n -P -i:25|grep LISTEN|grep -v grep|awk '{print $2}'|xargs)
+                let n+=1
+                if [ $n -gt 15 ];then
+                    break;
+                fi
+            done
+            if [ "$isStart" == '' ];then
+                    echo -e "\033[31mfailed\033[0m"
+                    echo '------------------------------------------------------'
+                    tail -n 20 ${mw_path}/logs/error.log
+                    echo '------------------------------------------------------'
+                    echo -e "\033[31mError: mw service startup failed.\033[0m"
+                    return;
+            fi
+            echo -e "\033[32mdone\033[0m"
+    else
+            echo "Starting imail(pid $(echo $isStart)) already running"
+    fi
 }
 
 im_stop(){
