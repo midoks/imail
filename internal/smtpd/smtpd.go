@@ -211,10 +211,9 @@ func (this *SmtpdServer) getString(state int) (string, error) {
 	if state == CMD_DATA {
 		return "", nil
 	}
-
 	input, err := this.reader.ReadString('\n')
-	this.D("SmtpdServer getString:", input, ":", err)
 	inputTrim := strings.TrimSpace(input)
+	this.D("smtp[GS-S][", this.peer.Addr, "]:", inputTrim, ":", err, "[GS-E]")
 	return inputTrim, err
 
 }
@@ -449,7 +448,7 @@ func (this *SmtpdServer) cmdStartTtls(input string) bool {
 
 func (this *SmtpdServer) cmdRcptTo(input string) bool {
 	inputN := strings.SplitN(input, ":", 2)
-	this.D("cmdRcptTo", inputN[1])
+	this.D("smtpd[cmd][rcpt to]", inputN[1])
 	if len(inputN) == 2 {
 		if this.cmdCompare(inputN[0], CMD_RCPT_TO) {
 			inputN[1] = strings.TrimSpace(inputN[1])
@@ -506,7 +505,7 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 	_, err := io.CopyN(data, reader, int64(10240000))
 
 	content := string(data.Bytes())
-	// fmt.Println(err, data)
+	this.D("smtpd[data]", content)
 	if err == io.EOF {
 		this.write(MSG_MAIL_OK)
 	}
@@ -580,6 +579,122 @@ func (this *SmtpdServer) handle() {
 		if err != nil {
 			break
 		}
+
+		this.D("smtpd[cmd]:", state, stateList[state], "input:[", input, "]")
+
+		//CMD_READY
+		if this.stateCompare(state, CMD_READY) {
+			if this.cmdQuit(input) {
+				break
+			}
+
+			if this.cmdHelo(input) {
+				this.setState(CMD_HELO)
+			} else if this.cmdEhlo(input) {
+				this.setState(CMD_EHLO)
+			} else {
+				this.write(MSG_COMMAND_HE_ERR)
+			}
+		}
+
+		//CMD_HELO
+		if this.stateCompare(state, CMD_HELO) || this.stateCompare(state, CMD_EHLO) {
+			if this.cmdQuit(input) {
+				break
+			}
+			if this.cmdHelo(input) {
+				this.setState(CMD_HELO)
+			} else if this.cmdEhlo(input) {
+				this.setState(CMD_EHLO)
+			}
+
+			if this.modeIn {
+				if this.cmdMailFrom(input) {
+					this.setState(CMD_MAIL_FROM)
+					this.runModeIn = true
+				}
+			}
+
+			if !this.runModeIn {
+
+				if this.cmdAuthPlainLogin(input) {
+					this.setState(CMD_AUTH_LOGIN_PWD)
+				}
+
+				if this.cmdAuthLogin(input) {
+					this.setState(CMD_AUTH_LOGIN)
+				}
+			}
+		}
+
+		if this.enableStartTtls {
+			if input == stateList[CMD_STARTTLS] { //CMD_STARTTLS
+				if this.cmdStartTtls(input) {
+					// this.write(MSG_STARTTLS)
+				}
+			}
+		}
+
+		if !this.runModeIn {
+			isBreak := this.cmdModeOut(state, input)
+			if isBreak {
+				break
+			}
+		} else {
+		} // 外部邮件投递到本地|不需要登陆
+
+		//CMD_MAIL_FROM
+		if this.stateCompare(state, CMD_MAIL_FROM) {
+			if this.cmdQuit(input) {
+				break
+			}
+
+			if this.cmdRcptTo(input) {
+				this.setState(CMD_RCPT_TO)
+			}
+		}
+
+		//CMD_RCPT_TO
+		if this.stateCompare(state, CMD_RCPT_TO) {
+			if this.cmdQuit(input) {
+				break
+			}
+
+			if this.cmdData(input) {
+				this.setState(CMD_DATA)
+			}
+		}
+
+		//CMD_DATA
+		if this.stateCompare(state, CMD_DATA) {
+			if this.cmdDataAccept() {
+				this.setState(CMD_DATA_END)
+			}
+		}
+
+		if this.cmdQuit(input) {
+			break
+		}
+
+		//CMD_DATA_END
+		if this.stateCompare(state, CMD_DATA_END) {
+			if this.cmdQuit(input) {
+				break
+			}
+		}
+	}
+}
+
+func (this *SmtpdServer) handleDemo(input string) {
+	for {
+
+		state := this.getState()
+
+		// input, err := this.getString(state)
+
+		// if err != nil {
+		// 	break
+		// }
 
 		this.D("smtpd:", state, stateList[state], "input:[", input, "]")
 
@@ -685,7 +800,6 @@ func (this *SmtpdServer) handle() {
 		}
 	}
 }
-
 func (this *SmtpdServer) initTLSConfig() {
 
 	max := new(big.Int).Lsh(big.NewInt(1), 128)
@@ -858,6 +972,31 @@ func (this *SmtpdServer) start(conn net.Conn) {
 
 	this.handle()
 
+	// for {
+	// 	for this.scanner.Scan() {
+	// 		line := this.scanner.Text()
+	// 		this.D("received:", strings.TrimSpace(line))
+	// 		this.handleDemo(line)
+	// 	}
+
+	// 	err := this.scanner.Err()
+
+	// 	if err == bufio.ErrTooLong {
+
+	// 		// Advance reader to the next newline
+
+	// 		this.reader.ReadString('\n')
+	// 		this.scanner = bufio.NewScanner(this.reader)
+
+	// 		// Reset and have the client start over.
+
+	// 		// session.reset()
+
+	// 		continue
+	// 	}
+
+	// 	break
+	// }
 }
 
 func Start(port int) {
