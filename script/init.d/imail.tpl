@@ -47,16 +47,16 @@ im_start(){
 }
 
 im_stop(){
-	
+	echo "im_stop"
 }
 
 im_reload(){
-	
+	echo "im_reload"
 }
 
 
 im_status(){
-	
+	echo "im_status"
 }
 
 case "$1" in
