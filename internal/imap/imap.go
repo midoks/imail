@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/midoks/imail/internal/db"
-	"github.com/midoks/imail/internal/imap/cmd"
 	"io"
 	"log"
 	"net"
@@ -274,7 +273,6 @@ func (this *ImapServer) handle() {
 		}
 
 		if this.cmdCapabitity(input) {
-			this.setState(CMD_CAPABILITY)
 		}
 
 		if this.cmdId(input) {
@@ -282,6 +280,9 @@ func (this *ImapServer) handle() {
 		}
 
 		if this.cmdAuth(input) {
+		}
+
+		if this.cmdLogout(input) {
 
 		}
 
@@ -302,14 +303,14 @@ func (this *ImapServer) start(conn net.Conn) {
 	this.ok(MSG_INIT)
 	this.setState(CMD_READY)
 
-	this.commands = map[int]HandlerFactory{
-		CMD_FETCH:  func() Handler { return &cmd.Fetch{} },
-		CMD_NOOP:   func() Handler { return &cmd.Noop{} },
-		CMD_UID:    func() Handler { return &cmd.Uid{} },
-		CMD_LIST:   func() Handler { return &cmd.List{} },
-		CMD_STATUS: func() Handler { return &cmd.Status{} },
-		CMD_SELECT: func() Handler { return &cmd.Select{} },
-	}
+	// this.commands = map[int]HandlerFactory{
+	// 	CMD_FETCH:  func() Handler { return &cmd.Fetch{} },
+	// 	CMD_NOOP:   func() Handler { return &cmd.Noop{} },
+	// 	CMD_UID:    func() Handler { return &cmd.Uid{} },
+	// 	CMD_LIST:   func() Handler { return &cmd.List{} },
+	// 	CMD_STATUS: func() Handler { return &cmd.Status{} },
+	// 	CMD_SELECT: func() Handler { return &cmd.Select{} },
+	// }
 	this.handle()
 }
 
