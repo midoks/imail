@@ -31,6 +31,7 @@ const (
 	CMD_STARTTLS        = iota
 	CMD_HELO            = iota
 	CMD_EHLO            = iota
+	CMD_COREMAIL        = iota
 	CMD_AUTH_PLAIN      = iota
 	CMD_AUTH_LOGIN      = iota
 	CMD_AUTH_LOGIN_USER = iota
@@ -47,6 +48,7 @@ var stateList = map[int]string{
 	CMD_STARTTLS:       "STARTTLS",
 	CMD_HELO:           "HELO",
 	CMD_EHLO:           "EHLO",
+	CMD_COREMAIL:       "COREMAIL",
 	CMD_AUTH_LOGIN:     "AUTH LOGIN",
 	CMD_AUTH_LOGIN_PWD: "PASSWORD",
 	CMD_AUTH_PLAIN:     "AUTH PLAIN",
@@ -257,6 +259,17 @@ func (this *SmtpdServer) cmdHelo(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 	if len(inputN) == 2 {
 		if this.cmdCompare(inputN[0], CMD_HELO) {
+			this.write(MSG_OK)
+			return true
+		}
+	}
+	return false
+}
+
+func (this *SmtpdServer) cmdCoremail(input string) bool {
+	inputN := strings.SplitN(input, " ", 2)
+	if len(inputN) == 2 {
+		if this.cmdCompare(inputN[0], CMD_COREMAIL) {
 			this.write(MSG_OK)
 			return true
 		}
@@ -610,6 +623,7 @@ func (this *SmtpdServer) handle() {
 				this.setState(CMD_HELO)
 			} else if this.cmdEhlo(input) {
 				this.setState(CMD_EHLO)
+			} else if this.cmdCoremail(input) {
 			}
 
 			if this.modeIn {
