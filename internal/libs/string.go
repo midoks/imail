@@ -9,8 +9,16 @@ import (
 	"github.com/axgle/mahonia"
 	"net/mail"
 	"os"
+	"runtime"
 	"strings"
 )
+
+func GetGoEol() string {
+	if "windows" == runtime.GOOS {
+		return "\r\n"
+	}
+	return "\n"
+}
 
 func Md5(buf []byte) string {
 	hash := md5.New()

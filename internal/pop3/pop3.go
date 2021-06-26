@@ -7,7 +7,6 @@ import (
 	"github.com/midoks/imail/internal/libs"
 	"log"
 	"net"
-	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -64,14 +63,7 @@ const (
 	MSG_AUTH_PLAIN    = "+\r\n"
 )
 
-var GO_EOL = GetGoEol()
-
-func GetGoEol() string {
-	if "windows" == runtime.GOOS {
-		return "\r\n"
-	}
-	return "\n"
-}
+var GO_EOL = libs.GetGoEol()
 
 type Pop3Server struct {
 	debug         bool
@@ -364,7 +356,7 @@ func (this *Pop3Server) cmdNoop(input string) bool {
 }
 
 func (this *Pop3Server) cmdAuthPlain(input string) bool {
-	fmt.Println("cmdAuthPlain", input)
+	this.D("cmdAuthPlain", input)
 	if this.cmdCompare(input, CMD_AUTH_PLAIN) {
 		this.w(MSG_AUTH_PLAIN)
 		return true
@@ -420,7 +412,7 @@ func (this *Pop3Server) handle() {
 			break
 		}
 
-		fmt.Println("pop3 cmd:", state, input)
+		this.D("pop3 cmd:", state, input)
 		if this.cmdQuit(input) {
 			break
 		}

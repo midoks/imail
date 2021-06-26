@@ -18,7 +18,6 @@ import (
 	"github.com/midoks/imail/internal/libs"
 	"log"
 	"net"
-	"runtime"
 	"strings"
 	"time"
 
@@ -100,14 +99,7 @@ var msgList = map[string]string{
 	MSG_STARTTLS:        "Ready to start TLS from xxx to mail.xxx.com.",
 }
 
-var GO_EOL = GetGoEol()
-
-func GetGoEol() string {
-	if "windows" == runtime.GOOS {
-		return "\r\n"
-	}
-	return "\n"
-}
+var GO_EOL = libs.GetGoEol()
 
 // Protocol represents the protocol used in the SMTP session
 type Protocol string
