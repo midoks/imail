@@ -14,13 +14,22 @@
 
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 
+# Source function library.
+if [ -f /etc/init.d/functions ];then
+  . /etc/init.d/functions
+fi
+
+if [ -f /etc/rc.d/init.d/functions ];then
+  . /etc/rc.d/init.d/functions
+fi
+
 app_path={APP_PATH}
 
 im_start(){
-    isStart=`ps -ef|grep 'imail start' |grep -v grep|awk '{print $2}'`
+    isStart=`ps -ef|grep 'imail web' |grep -v grep|awk '{print $2}'`
     if [ "$isStart" == '' ];then
         echo -e "Starting imail... \c"
-        cd $app_path && ./imail start
+        cd $app_path && ./imail web
         isStart=""
         while [[ "$isStart" == "" ]];
         do
@@ -37,7 +46,7 @@ im_start(){
                 echo '------------------------------------------------------'
                 tail -n 20 ${mw_path}/logs/error.log
                 echo '------------------------------------------------------'
-                echo -e "\033[31mError: mw service startup failed.\033[0m"
+                echo -e "\033[31mError: imail service startup failed.\033[0m"
                 return;
         fi
         echo -e "\033[32mdone\033[0m"
