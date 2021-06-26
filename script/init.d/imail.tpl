@@ -17,7 +17,7 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 app_path={APP_PATH}
 
 im_start(){
-    isStart=`ps -ef|grep 'imail' |grep -v grep|awk '{print $2}'`
+    isStart=`ps -ef|grep 'imail start' |grep -v grep|awk '{print $2}'`
     if [ "$isStart" == '' ];then
         echo -e "Starting imail... \c"
         cd $app_path && ./imail
