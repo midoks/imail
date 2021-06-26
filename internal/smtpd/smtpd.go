@@ -267,16 +267,17 @@ func (this *SmtpdServer) cmdEhlo(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 	if len(inputN) == 2 {
 		if this.cmdCompare(inputN[0], CMD_EHLO) {
-			this.w("250-mail\r\n")
-			this.w("250-PIPELINING\r\n")
-			this.w("250-AUTH LOGIN PLAIN\r\n")
-			this.w("250-AUTH=LOGIN PLAIN\r\n")
-			this.w("250-coremail 1Uxr2xKj7kG0xkI17xGrU7I0s8FY2U3Uj8Cz28x1UUUUU7Ic2I0Y2UFRbmXhUCa0xDrUUUUj\r\n")
+			this.w(fmt.Sprintf("250-mail%s", GO_EOL))
+			this.w(fmt.Sprintf("250-PIPELINING%s", GO_EOL))
+			this.w(fmt.Sprintf("250-AUTH LOGIN PLAIN%s", GO_EOL))
+			this.w(fmt.Sprintf("250-AUTH=LOGIN PLAIN%s", GO_EOL))
+			this.w(fmt.Sprintf("250-coremail 1Uxr2xKj7kG0xkI17xGrU7I0s8FY2U3Uj8Cz28x1UUUUU7Ic2I0Y2UFRbmXhUCa0xDrUUUUj%s", GO_EOL))
 			if this.enableStartTtls {
-				this.w("250-STARTTLS\r\n")
+				this.w(fmt.Sprintf("250-STARTTLS%s", GO_EOL))
 			}
-			this.w("250-SIZE 73400320\r\n")
-			this.w("250 8BITMIME\r\n")
+
+			this.w(fmt.Sprintf("250-SIZE 73400320%s", GO_EOL))
+			this.w(fmt.Sprintf("250 8BITMIME%s", GO_EOL))
 			return true
 		}
 	}
