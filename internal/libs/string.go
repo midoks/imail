@@ -17,7 +17,7 @@ func GetGoEol() string {
 	if "windows" == runtime.GOOS {
 		return "\r\n"
 	}
-	return "\n"
+	return "\r\n"
 }
 
 func Md5(buf []byte) string {
