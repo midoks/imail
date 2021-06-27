@@ -166,14 +166,14 @@ func BoxUserMessageCountByClassName(uid int64, className string) (int64, error) 
 // }
 
 // // Paging List of POP3 Protocol
-// func BoxListSE(uid int64, className string, start int64, end int64) ([]orm.Params, error) {
+func BoxListSE(uid int64, className string, start int64, end int64) ([]Mail, error) {
+	var result []Mail
 
-// 	cid, _ := ClassGetIdByName(uid, className)
-
-// 	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and cid=? and mid>='%d' and mid<='%d'", BoxTableName(), start, end)
-// 	_, err := db.Raw(sql, uid, cid).Values(&maps)
-// 	return maps, err
-// }
+	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and id>='%d' and id<='%d'", "im_mail", start, end)
+	fmt.Println("BoxListSE..:", sql)
+	db.Raw(sql, uid).Find(&result)
+	return result, err
+}
 
 // // POP3 gets all the data
 // func BoxAll(uid int64, cid int64) []orm.Params {

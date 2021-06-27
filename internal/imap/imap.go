@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -291,9 +292,23 @@ func (this *ImapServer) cmdFecth(input string) bool {
 
 func (this *ImapServer) cmdUid(input string) bool {
 	inputN := strings.SplitN(input, " ", 5)
+	fmt.Println("||..cmdUid", inputN, len(inputN))
 	if len(inputN) == 5 {
 		if this.cmdCompare(inputN[1], CMD_UID) {
 			fmt.Println("cmdUid", inputN)
+
+			if this.cmdCompare(inputN[2], CMD_FETCH) {
+
+				fmt.Println("cmdUid[FETCH]", inputN[3])
+				if strings.Index(inputN[3], ":") > 0 {
+					se := strings.SplitN(inputN[3], ":", 2)
+					start, _ := strconv.ParseInt(se[0], 10, 64)
+					end, _ := strconv.ParseInt(se[1], 10, 64)
+					list, err := db.BoxListSE(this.userID, this.selectBox, start, end)
+
+					fmt.Println(list, err)
+				}
+			}
 
 			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
 			return true
@@ -356,6 +371,10 @@ func (this *ImapServer) handle() {
 
 			}
 
+			if this.cmdUid(input) {
+
+			}
+
 			if this.cmdLogout(input) {
 				break
 			}
@@ -378,14 +397,6 @@ func (this *ImapServer) start(conn net.Conn) {
 	this.ok(MSG_INIT)
 	this.setState(CMD_READY)
 
-	// this.commands = map[int]HandlerFactory{
-	// 	CMD_FETCH:  func() Handler { return &cmd.Fetch{} },
-	// 	CMD_NOOP:   func() Handler { return &cmd.Noop{} },
-	// 	CMD_UID:    func() Handler { return &cmd.Uid{} },
-	// 	CMD_LIST:   func() Handler { return &cmd.List{} },
-	// 	CMD_STATUS: func() Handler { return &cmd.Status{} },
-	// 	CMD_SELECT: func() Handler { return &cmd.Select{} },
-	// }
 	this.handle()
 }
 
