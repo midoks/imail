@@ -1,31 +1,14 @@
 package imap
 
 import (
-	"crypto/tls"
-	"errors"
+	// "crypto/tls"
+	// "errors"
+	"bufio"
 	"fmt"
+	"net"
+	"strings"
 	"testing"
 )
-
-// go test -run TestLocalImap
-// TestLocalImap
-func TestLocalImap(t *testing.T) {
-
-	c, err := Dial("127.0.0.1:143")
-	if err != nil {
-		t.Error("TestLocalImap fail:" + err.Error())
-	}
-	defer c.Close()
-
-	// if supported, _ := c.Extension("AUTH"); supported {
-	// 	t.Fatal("AUTH supported before TLS")
-	// }
-
-	if supported, _ := c.Extension("8BITMIME"); !supported {
-		t.Fatal("8BITMIME not supported")
-	}
-
-}
 
 func imapCmd(domain string, port string, name string, password string) (bool, error) {
 	addr := fmt.Sprintf("%s:%s", domain, port)
@@ -125,10 +108,47 @@ func imapCmd(domain string, port string, name string, password string) (bool, er
 	return false, err
 }
 
-func TestRunImap163(t *testing.T) {
-	imapCmd("imap.163.com", "143", "midoks@163.com", "mm123123")
-}
+// func TestRunImap163(t *testing.T) {
+// 	imapCmd("imap.163.com", "143", "midoks@163.com", "mm123123")
+// }
 
+// go test -run TestRunImap
 func TestRunImap(t *testing.T) {
-	imapCmd("127.0.0.1", "143", "midoks@163.com", "123123")
+	host := "127.0.0.1"
+	port := "143"
+	name := "admin"
+	password := "admin"
+
+	addr := fmt.Sprintf("%s:%s", host, port)
+	conn, err := net.Dial("tcp", addr)
+
+	if err != nil {
+		t.Errorf("link err!")
+	}
+
+	// defer conn.Close()
+
+	cmd := fmt.Sprintf("a1 login %s %s\r\n", name, password)
+	_, err = conn.Write([]byte(cmd))
+
+	if err != nil {
+		t.Errorf("user or password err!")
+	}
+
+	cmd = fmt.Sprintf("a1 select \"%s\"\r\n", "INBOX")
+	_, err = conn.Write([]byte(cmd))
+
+	if err != nil {
+		t.Errorf("select err!")
+	}
+
+	cmd = "D UID FETCH 1:* (UID FLAGS)"
+	_, err = conn.Write([]byte(cmd))
+
+	if err != nil {
+		t.Errorf("D UID FETCH 1:* (UID FLAGS) err!")
+	}
+
+	data, err := bufio.NewReader(conn).ReadString('\n')
+	fmt.Println(data, err)
 }

@@ -56,6 +56,8 @@ const (
 
 var GO_EOL = libs.GetGoEol()
 
+// var GO_EOL = "\n"
+
 // An IMAP reader.
 // type Reader struct {
 // 	MaxLiteralSize uint32 // The maximum literal size.
@@ -176,7 +178,7 @@ func (this *ImapServer) stateCompare(input int, cmd int) bool {
 	return false
 }
 
-func (this *ImapServer) parseArgsConent(format string, content string) string {
+func (this *ImapServer) parseArgsConent(format string, content string, id int64) string {
 
 	format = strings.TrimSpace(format)
 	format = strings.Trim(format, "()")
@@ -190,12 +192,14 @@ func (this *ImapServer) parseArgsConent(format string, content string) string {
 	// fmt.Println("headerString:", header)
 
 	if err != nil {
-		fmt.Errorf("Expected no error while reading mail, got:", err)
+		fmt.Println("Expected no error while reading mail, got:", err)
 	}
 
 	bs, err := component.FetchBodyStructure(header, bufferedBody, true)
 
 	fmt.Println("FetchBodyStructure:", bs.ToString(), err)
+	fmt.Println("parseArgsConent[c]:", content)
+	fmt.Println("parseArgsConent[inputN]:", inputN)
 
 	// contentN := strings.Split(content, "\n\n")
 	// contentL := strings.Split(content, "\n")
@@ -208,8 +212,8 @@ func (this *ImapServer) parseArgsConent(format string, content string) string {
 	for i := 0; i < len(inputN); i++ {
 
 		if strings.EqualFold(inputN[i], "uid") {
-			// list[inputN[i]] = libs.Md5str(mid)
-			list[inputN[i]] = "22"
+			uid_id := fmt.Sprintf("%d", id)
+			list[inputN[i]] = uid_id
 		}
 
 		if strings.EqualFold(inputN[i], "flags") {
@@ -227,11 +231,11 @@ func (this *ImapServer) parseArgsConent(format string, content string) string {
 
 		if strings.EqualFold(inputN[i], "body.peek[header]") {
 			headerString, _ := component.ReadHeaderString(bufio.NewReader(strings.NewReader(content)))
-			list["body[header]"] = fmt.Sprintf("{%d}\r\n%s", len(headerString), headerString) //len(headerString)
+			list["body[header]"] = fmt.Sprintf("{%d}\r\n%s", len(headerString), headerString)
 		}
 
 		if strings.EqualFold(inputN[i], "body.peek[]") {
-			list[inputN[i]] = fmt.Sprintf("{%d}\r\n%s", len(content), content) //len(content)
+			list["body[]"] = fmt.Sprintf("{%d}\r\n%s", len(content), content)
 		}
 	}
 
@@ -239,11 +243,11 @@ func (this *ImapServer) parseArgsConent(format string, content string) string {
 
 	out := ""
 	for i := 0; i < len(inputN); i++ {
-		// fmt.Println("debug3:", i, inputN[i], list[inputN[i]])
+		fmt.Println("debug3:", i, inputN[i], list[inputN[i]])
 		if strings.EqualFold(inputN[i], "body.peek[header]") {
-			out += fmt.Sprintf("%s %s", strings.ToUpper("body[header]"), list["body[header]"].(string))
-		} else if strings.EqualFold(inputN[i], "body[]") {
-			out += fmt.Sprintf("%s %s ", strings.ToUpper("body[]"), list["body[]"].(string))
+			out += fmt.Sprintf("%s %s ", strings.ToUpper("body[header]"), list["body[header]"])
+		} else if strings.EqualFold(inputN[i], "body.peek[]") {
+			out += fmt.Sprintf("%s %s ", strings.ToUpper("body[]"), list["body[]"])
 		} else {
 			// fmt.Println("debug2::--------{", inputN[i], "}")
 			out += fmt.Sprintf("%s %s ", strings.ToUpper(inputN[i]), list[inputN[i]])
@@ -379,23 +383,30 @@ func (this *ImapServer) cmdUid(input string) bool {
 			// fmt.Println("cmdUid[4]", inputN[4])
 			if this.cmdCompare(inputN[2], CMD_FETCH) {
 
-				// fmt.Println("cmdUid[FETCH]", inputN[3])
 				if strings.Index(inputN[3], ":") > 0 {
 					se := strings.SplitN(inputN[3], ":", 2)
 					start, _ := strconv.ParseInt(se[0], 10, 64)
 					end, _ := strconv.ParseInt(se[1], 10, 64)
-					mailList, _ := db.BoxListSE(this.userID, this.selectBox, start, end)
+					mailList, _ := db.BoxListBySE(this.userID, this.selectBox, start, end)
 					for i, m := range mailList {
 
-						// this.writeArgs("* %d FETCH (UID %d)", i+1, m.Id)
-						c := this.parseArgsConent(inputN[4], m.Content)
+						// this.D("cmdUid[cmd]* %ld FETCH (UID %ld)", i+1, m.Id)
+						c := this.parseArgsConent(inputN[4], m.Content, m.Id)
 						this.writeArgs("* %d FETCH "+c, i+1)
 					}
 					// fmt.Println("mailList:", err)
 				}
+
+				if libs.IsNumeric(inputN[3]) {
+					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
+					mailList, _ := db.BoxListByMid(this.userID, this.selectBox, mid)
+					fmt.Println("IsNumeric", mailList)
+					c := this.parseArgsConent(inputN[4], mailList[0].Content, mid)
+					this.writeArgs("* %d FETCH "+c, mid)
+				}
 			}
 
-			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
+			this.writeArgs("%s %s %s Completed", inputN[0], inputN[1], inputN[2])
 			return true
 		}
 	}
