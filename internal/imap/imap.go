@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/midoks/imail/internal/db"
+	"github.com/midoks/imail/internal/imap/component"
 	"github.com/midoks/imail/internal/libs"
 	"io"
 	"log"
@@ -175,6 +176,94 @@ func (this *ImapServer) stateCompare(input int, cmd int) bool {
 	return false
 }
 
+func (this *ImapServer) parseArgsConent(format string, content string) string {
+	format = strings.TrimSpace(format)
+	format = strings.Trim(format, "()")
+
+	inputN := strings.Split(format, " ")
+	list := make(map[string]interface{})
+
+	bufferedBody := bufio.NewReader(strings.NewReader(content))
+	fmt.Println(bufferedBody)
+	header, err := component.ReadHeader(bufferedBody)
+
+	fmt.Println("headerString:", header)
+
+	if err != nil {
+		fmt.Errorf("Expected no error while reading mail, got:", err)
+	}
+
+	bs, err := component.FetchBodyStructure(header, bufferedBody, true)
+	if err == nil {
+		bs.ToString()
+	} else {
+		fmt.Println(err)
+	}
+
+	contentN := strings.Split(content, "\n\n")
+	contentL := strings.Split(content, "\n")
+
+	fmt.Println("cmdCompare::--------\r\n", contentL, len(contentL))
+	fmt.Println("cmdCompare::--------\r\n")
+	fmt.Println("cmdCompare::--------\r\n", contentN, len(contentN))
+	fmt.Println("cmdCompare::--------\r\n")
+
+	for i := 0; i < len(inputN); i++ {
+
+		if strings.EqualFold(inputN[i], "uid") {
+			// list[inputN[i]] = libs.Md5str(mid)
+			list[inputN[i]] = 0
+		}
+
+		if strings.EqualFold(inputN[i], "flags") {
+			list[inputN[i]] = "(\\Flagged)"
+		}
+
+		if strings.EqualFold(inputN[i], "rfc822.size") {
+			nnn := fmt.Sprintf("%d", len(content))
+			list[inputN[i]] = nnn
+		}
+
+		if strings.EqualFold(inputN[i], "bodystructure") {
+			// cccc := fmt.Sprintf("(\"text\" \"html\" (\"charset\" \"UTF-8\") NIL NIL \"8bit\" %d %d NIL NIL NIL)", 12225, 229)
+			// cccc := "(  )"
+
+			// ccc2 := "((\"text\" \"plain\" (\"charset\" \"UTF-8\") NIL NIL \"quoted-printable\" 4542 104 NIL NIL NIL)(\"text\" \"html\" (\"charset\" \"UTF-8\") NIL NIL \"quoted-printable\" 43308 574 NIL NIL NIL) \"alternative\" (\"boundary\" \"--==_mimepart_5d09e7387efec_127483fd2fc2449c43048322e7\" \"charset\" \"UTF-8\") NIL NIL)"
+			// list[inputN[i]] = cccc
+
+			list[inputN[i]] = bs.ToString()
+		}
+
+		if strings.EqualFold(inputN[i], "body.peek[header]") {
+			headerString, _ := component.ReadHeaderString(bufio.NewReader(strings.NewReader(content)))
+			list["body[header]"] = fmt.Sprintf("{%d}\r\n%s", len(headerString), headerString) //len(headerString)
+			// list[inputN[i]] = "{1218} \r\nTo: \"midoks@163.com\" <midoks@163.com> \r\nFrom:  <report-noreply@jiankongbao.com>\r\nSubject: 123123\r\nMessage-ID: <80d0b8ee122340ceb665ad1bf5220a42@localhost.localdomain>"
+		}
+
+		if strings.EqualFold(inputN[i], "body.peek[]") {
+			list[inputN[i]] = fmt.Sprintf("{%d}\r\n%s", len(content), content) //len(content)
+			// list[inputN[i]] = "{1218} \r\nTo: \"midoks@163.com\" <midoks@163.com> \r\nFrom:  <report-noreply@jiankongbao.com>\r\nSubject: 123123\r\nMessage-ID: <80d0b8ee122340ceb665ad1bf5220a42@localhost.localdomain>"
+		}
+	}
+
+	out := ""
+	for i := 0; i < len(inputN); i++ {
+		fmt.Println(i, inputN[i], list[inputN[i]])
+
+		if strings.EqualFold(inputN[i], "body.peek[header]") {
+			out += fmt.Sprintf("%s %s", strings.ToUpper("body[header]"), list["body[header]"].(string))
+		} else if strings.EqualFold(inputN[i], "body[]") {
+			out += fmt.Sprintf("%s %s ", strings.ToUpper("body[]"), list["body[]"].(string))
+		} else {
+			out += fmt.Sprintf("%s %s ", strings.ToUpper(inputN[i]), list[inputN[i]].(string))
+		}
+	}
+
+	out = fmt.Sprintf("(%s)", out)
+	// fmt.Println(out)
+	return out
+}
+
 func (this *ImapServer) cmdAuth(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
 	if this.cmdCompare(inputN[1], CMD_AUTH) {
@@ -291,12 +380,13 @@ func (this *ImapServer) cmdFecth(input string) bool {
 }
 
 func (this *ImapServer) cmdUid(input string) bool {
+
 	inputN := strings.SplitN(input, " ", 5)
-	fmt.Println("||..cmdUid", inputN, len(inputN))
+
 	if len(inputN) == 5 {
 		if this.cmdCompare(inputN[1], CMD_UID) {
+			fmt.Println("||..cmdUid", inputN, len(inputN))
 			fmt.Println("cmdUid", inputN)
-
 			if this.cmdCompare(inputN[2], CMD_FETCH) {
 
 				fmt.Println("cmdUid[FETCH]", inputN[3])
@@ -304,9 +394,16 @@ func (this *ImapServer) cmdUid(input string) bool {
 					se := strings.SplitN(inputN[3], ":", 2)
 					start, _ := strconv.ParseInt(se[0], 10, 64)
 					end, _ := strconv.ParseInt(se[1], 10, 64)
-					list, err := db.BoxListSE(this.userID, this.selectBox, start, end)
+					mailList, err := db.BoxListSE(this.userID, this.selectBox, start, end)
+					for i, m := range mailList {
 
-					fmt.Println(list, err)
+						this.writeArgs("* %d FETCH (UID %d)", i+1, m.Id)
+
+						c := this.parseArgsConent(inputN[3], m.Content)
+
+						this.writeArgs("* %d FETCH "+c, i+1)
+					}
+					fmt.Println("mailList:", mailList, err)
 				}
 			}
 

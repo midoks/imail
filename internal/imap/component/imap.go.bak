@@ -3,7 +3,7 @@ package imap
 import (
 	"bufio"
 	"fmt"
-	// "github.com/midoks/imail/app/models"
+	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/libs/utf7"
 	"log"
 	"net"
@@ -344,7 +344,7 @@ func (this *ImapServer) cmdUid(input string) bool {
 
 				start, _ := strconv.ParseInt(se[0], 10, 64)
 				end, _ := strconv.ParseInt(se[1], 10, 64)
-				list, err := models.BoxListSE(this.userID, this.selectBox, start, end)
+				list, err := db.BoxListSE(this.userID, this.selectBox, start, end)
 				fmt.Println(list)
 				if err == nil {
 					for i := 1; i <= len(list); i++ {
