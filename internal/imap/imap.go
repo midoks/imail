@@ -189,25 +189,14 @@ func (this *ImapServer) parseArgsConent(format string, content string, id int64)
 	bufferedBody := bufio.NewReader(strings.NewReader(content))
 	header, err := component.ReadHeader(bufferedBody)
 
-	// fmt.Println("headerString:", header)
-
 	if err != nil {
 		fmt.Println("Expected no error while reading mail, got:", err)
 	}
 
 	bs, err := component.FetchBodyStructure(header, bufferedBody, true)
 
-	fmt.Println("FetchBodyStructure:", bs.ToString(), err)
-	fmt.Println("parseArgsConent[c]:", content)
-	fmt.Println("parseArgsConent[inputN]:", inputN)
-
-	// contentN := strings.Split(content, "\n\n")
-	// contentL := strings.Split(content, "\n")
-
-	// fmt.Println("cmdCompare::--------\r\n", contentL, len(contentL))
-	// fmt.Println("cmdCompare::--------\r\n")
-	// fmt.Println("cmdCompare::--------\r\n", contentN, len(contentN))
-	// fmt.Println("cmdCompare::--------\r\n")
+	// fmt.Println("FetchBodyStructure:", bs.ToString(), err)
+	// fmt.Println("parseArgsConent[c]:", content)
 
 	for i := 0; i < len(inputN); i++ {
 
@@ -230,7 +219,7 @@ func (this *ImapServer) parseArgsConent(format string, content string, id int64)
 		}
 
 		if strings.EqualFold(inputN[i], "body.peek[header]") {
-			headerString, _ := component.ReadHeaderString(bufio.NewReader(strings.NewReader(content)))
+			headerString, _ := component.ReadHeaderString(bufferedBody)
 			list["body[header]"] = fmt.Sprintf("{%d}\r\n%s", len(headerString), headerString)
 		}
 
@@ -238,8 +227,6 @@ func (this *ImapServer) parseArgsConent(format string, content string, id int64)
 			list["body[]"] = fmt.Sprintf("{%d}\r\n%s", len(content), content)
 		}
 	}
-
-	// fmt.Println("debug1::--------\r\n", list)
 
 	out := ""
 	for i := 0; i < len(inputN); i++ {
@@ -249,7 +236,6 @@ func (this *ImapServer) parseArgsConent(format string, content string, id int64)
 		} else if strings.EqualFold(inputN[i], "body.peek[]") {
 			out += fmt.Sprintf("%s %s ", strings.ToUpper("body[]"), list["body[]"])
 		} else {
-			// fmt.Println("debug2::--------{", inputN[i], "}")
 			out += fmt.Sprintf("%s %s ", strings.ToUpper(inputN[i]), list[inputN[i]])
 		}
 	}
