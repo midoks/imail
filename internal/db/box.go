@@ -4,7 +4,7 @@ import (
 	"fmt"
 	_ "github.com/midoks/imail/internal/libs"
 	// "gorm.io/gorm"
-	// "strings"
+	"strings"
 	// "errors"
 	// "time"
 )
@@ -90,13 +90,21 @@ func BoxUserTotal(uid int64) (int64, int64) {
 // 	return 0, errors.New("error")
 // }
 
-// func BoxUserMessageCountByClassName(uid int64, className string) (int64, error) {
-// 	cid, err := ClassGetIdByName(uid, className)
-// 	if err == nil {
-// 		return BoxUserMessageCountByCid(uid, cid)
-// 	}
-// 	return 0, err
-// }
+// 获取分类下的统计数据
+func BoxUserMessageCountByClassName(uid int64, className string) (int64, error) {
+	fmt.Println("db[BoxUserMessageCountByClassName]", uid, className)
+
+	if strings.EqualFold(className, "INBOX") {
+		count, size := MailStatInfoForPop(uid)
+		fmt.Println("db[BoxUserMessageCountByClassName]", count, size)
+		return count, nil
+	}
+	// cid, err := ClassGetIdByName(uid, className)
+	// if err == nil {
+	// 	return BoxUserMessageCountByCid(uid, cid)
+	// }
+	return 0, nil
+}
 
 // func BoxUserMessageCountByCid(uid int64, cid int64) (int64, error) {
 // 	var boxData Box

@@ -4,30 +4,13 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/midoks/imail/internal/db"
+	"github.com/midoks/imail/internal/libs"
 	"io"
 	"log"
 	"net"
-	"runtime"
 	"strings"
 	"time"
 )
-
-type Parser interface {
-	Parse(fields []interface{}) error
-}
-
-// A command handler.
-type Handler interface {
-	// Parser
-	// Handle this command for a given connection.
-	//
-	// By default, after this function has returned a status response is sent. To
-	// prevent this behavior handlers can use ErrStatusResp or ErrNoStatusResp.
-	// Handle(conn Conn) error
-}
-
-// A function that creates handlers.
-type HandlerFactory func() Handler
 
 const (
 	CMD_READY      = iota
@@ -69,14 +52,7 @@ const (
 	MSG_COMPLELED_LIST = "* %s %s %s"
 )
 
-var GO_EOL = GetGoEol()
-
-func GetGoEol() string {
-	if "windows" == runtime.GOOS {
-		return "\r\n"
-	}
-	return "\n"
-}
+var GO_EOL = libs.GetGoEol()
 
 // An IMAP reader.
 // type Reader struct {
@@ -107,7 +83,7 @@ type ImapServer struct {
 	scanner *bufio.Scanner
 
 	selectBox string
-	commands  map[int]HandlerFactory
+	// commands  map[int]HandlerFactory
 	// user id
 	userID int64
 }
@@ -250,9 +226,7 @@ func (this *ImapServer) cmdId(input string) bool {
 
 func (this *ImapServer) cmdList(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
-	fmt.Println("cmdList", inputN)
 	if len(inputN) == 4 {
-		fmt.Println("cmdList-mmm", inputN)
 		if this.cmdCompare(inputN[1], CMD_LIST) {
 			this.writeArgs("* LIST (\\NoSelect \\HasChildren) \"/\" \"&UXZO1mWHTvZZOQ-\"")
 			this.writeArgs("* LIST (\\HasChildren) \"/\" \"INBOX\"")
@@ -270,10 +244,6 @@ func (this *ImapServer) cmdList(input string) bool {
 func (this *ImapServer) cmdStatus(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
 	if len(inputN) == 4 {
-		fmt.Println("cmdStatus-mmm[0]", inputN[0])
-		fmt.Println("cmdStatus-mmm[1]", inputN[1])
-		fmt.Println("cmdStatus-mmm[2]", inputN[2])
-		fmt.Println("cmdStatus-mmm[3]", inputN[3])
 		if this.cmdCompare(inputN[1], CMD_STATUS) {
 			this.writeArgs(MSG_COMPLELED_LIST, inputN[0], inputN[1], inputN[3])
 			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
@@ -285,12 +255,46 @@ func (this *ImapServer) cmdStatus(input string) bool {
 
 func (this *ImapServer) cmdSelect(input string) bool {
 	inputN := strings.SplitN(input, " ", 3)
-	if len(inputN) == 4 {
-		fmt.Println("cmdStatus-mmm[0]", inputN[0])
-		fmt.Println("cmdStatus-mmm[1]", inputN[1])
-		fmt.Println("cmdStatus-mmm[2]", inputN[2])
+	if len(inputN) == 3 {
 		if this.cmdCompare(inputN[1], CMD_SELECT) {
-			// this.writeArgs(MSG_COMPLELED_LIST, inputN[0], inputN[1])
+			this.selectBox = strings.Trim(inputN[2], "\"")
+			msgCount, _ := db.BoxUserMessageCountByClassName(this.userID, this.selectBox)
+			this.writeArgs("* %d EXISTS", msgCount)
+			this.writeArgs("* 0 RECENT")
+			this.writeArgs("* OK [UIDVALIDITY 1] UIDs valid")
+			this.writeArgs("* FLAGS (\\Answered \\Seen \\Deleted \\Draft \\Flagged)")
+			this.writeArgs("* OK [PERMANENTFLAGS (\\Answered \\Seen \\Deleted \\Draft \\Flagged)] Limited")
+			this.writeArgs("%s OK [READ-WRITE] %s completed", inputN[0], inputN[1])
+			return true
+		}
+	}
+	return false
+}
+
+func (this *ImapServer) cmdFecth(input string) bool {
+	inputN := strings.SplitN(input, " ", 4)
+	if len(inputN) == 4 {
+		if this.cmdCompare(inputN[1], CMD_FETCH) {
+			fmt.Println("cmdFecth", inputN)
+
+			mailList := db.MailListForPop(this.userID)
+			for i, m := range mailList {
+				this.writeArgs("* %d FETCH (UID %d)", i+1, m.Id)
+			}
+
+			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
+			return true
+		}
+	}
+	return false
+}
+
+func (this *ImapServer) cmdUid(input string) bool {
+	inputN := strings.SplitN(input, " ", 5)
+	if len(inputN) == 5 {
+		if this.cmdCompare(inputN[1], CMD_UID) {
+			fmt.Println("cmdUid", inputN)
+
 			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
 			return true
 		}
@@ -315,7 +319,8 @@ func (this *ImapServer) cmdLogout(input string) bool {
 func (this *ImapServer) handle() {
 
 	for {
-		input, err := this.getString(this.state)
+		state := this.state
+		input, err := this.getString(state)
 		fmt.Println("input:", input, "err", err)
 
 		if err != nil {
@@ -334,16 +339,26 @@ func (this *ImapServer) handle() {
 			this.setState(CMD_AUTH)
 		}
 
-		if this.cmdList(input) {
+		if this.stateCompare(state, CMD_AUTH) {
+			if this.cmdList(input) {
 
-		}
+			}
 
-		if this.cmdStatus(input) {
+			if this.cmdStatus(input) {
 
-		}
+			}
 
-		if this.cmdLogout(input) {
-			break
+			if this.cmdSelect(input) {
+
+			}
+
+			if this.cmdFecth(input) {
+
+			}
+
+			if this.cmdLogout(input) {
+				break
+			}
 		}
 
 	}

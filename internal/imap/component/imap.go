@@ -447,7 +447,7 @@ func (this *ImapServer) handle() {
 			break
 		}
 
-		fmt.Println("imap:", state, input)
+		this.D("imap[cmd]:", state, input)
 
 		if this.cmdLogout(input) {
 			break
