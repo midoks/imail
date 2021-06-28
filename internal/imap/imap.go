@@ -256,7 +256,7 @@ func (this *ImapServer) cmdAuth(input string) bool {
 
 		user := strings.Trim(inputN[2], "\"")
 		pwd := strings.Trim(inputN[3], "\"")
-		// fmt.Println(user, pwd)
+
 		isLogin, id := db.LoginWithCode(user, pwd)
 		if isLogin {
 			this.userID = id
@@ -270,8 +270,7 @@ func (this *ImapServer) cmdAuth(input string) bool {
 
 func (this *ImapServer) cmdCapabitity(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
-
-	fmt.Println(inputN)
+	// fmt.Println(inputN)
 	if len(inputN) == 2 {
 		if this.cmdCompare(inputN[1], CMD_CAPABILITY) {
 			this.writeArgs("* OK Coremail System IMap Server Ready(imail)")
@@ -431,7 +430,7 @@ func (this *ImapServer) handle() {
 	for {
 		state := this.state
 		input, err := this.getString(state)
-		fmt.Println("input:", input, "err", err)
+		this.D("imap[handle]:", input, "err", err)
 
 		if err != nil {
 			this.close()
