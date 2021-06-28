@@ -26,6 +26,7 @@ const (
 	CMD_FETCH      = iota
 	CMD_UID        = iota
 	CMD_COPY       = iota
+	CMD_STORE      = iota
 	CMD_NOOP       = iota
 )
 
@@ -40,6 +41,7 @@ var stateList = map[int]string{
 	CMD_SELECT:     "SELECT",
 	CMD_FETCH:      "FETCH",
 	CMD_COPY:       "COPY",
+	CMD_STORE:      "STORE",
 	CMD_UID:        "UID",
 	CMD_NOOP:       "NOOP",
 }
@@ -378,9 +380,9 @@ func (this *ImapServer) cmdUid(input string) bool {
 
 	if len(inputN) == 5 {
 		if this.cmdCompare(inputN[1], CMD_UID) {
-			// fmt.Println("cmdUid[2]", inputN[2])
-			// fmt.Println("cmdUid[3]", inputN[3])
-			// fmt.Println("cmdUid[4]", inputN[4])
+			fmt.Println("cmdUid[2]", inputN[2])
+			fmt.Println("cmdUid[3]", inputN[3])
+			fmt.Println("cmdUid[4]", inputN[4])
 			if this.cmdCompare(inputN[2], CMD_FETCH) {
 
 				if strings.Index(inputN[3], ":") > 0 {
@@ -409,6 +411,26 @@ func (this *ImapServer) cmdUid(input string) bool {
 					inputN[4] = strings.Trim(inputN[4], "\"")
 					if strings.EqualFold(inputN[4], "Deleted Messages") {
 						db.MailSoftDeleteById(mid)
+					}
+				}
+			}
+
+			if this.cmdCompare(inputN[2], CMD_STORE) {
+				inputN := strings.SplitN(input, " ", 6)
+				if libs.IsNumeric(inputN[3]) {
+					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
+					inputN[5] = strings.Trim(inputN[5], "()")
+					inputN[5] = strings.Trim(inputN[5], "\\")
+					if strings.EqualFold(inputN[5], "Seen") && strings.HasPrefix(inputN[4], "+") {
+						db.MailSeenById(mid)
+					} else {
+						db.MailUnSeenById(mid)
+					}
+
+					if strings.EqualFold(inputN[5], "FLAGGED") && strings.HasPrefix(inputN[4], "+") {
+						db.MailSetFlagsById(mid, 1)
+					} else {
+						db.MailSetFlagsById(mid, 0)
 					}
 				}
 			}
