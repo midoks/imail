@@ -201,7 +201,7 @@ func (this *ImapServer) parseArgsConent(format string, data db.Mail) string {
 	bs, err := component.FetchBodyStructure(header, bufferedBody, true)
 
 	// fmt.Println("FetchBodyStructure:", bs.ToString(), err)
-	fmt.Println("parseArgsConent[c][Mail]:", data)
+	// fmt.Println("parseArgsConent[c][Mail]:", data)
 
 	for i := 0; i < len(inputN); i++ {
 
@@ -242,6 +242,7 @@ func (this *ImapServer) parseArgsConent(format string, data db.Mail) string {
 
 		if strings.EqualFold(inputN[i], "body.peek[]") {
 			list["body[]"] = fmt.Sprintf("{%d}\r\n%s", len(content), content)
+			db.MailSeenById(id)
 		}
 	}
 
