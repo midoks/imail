@@ -380,9 +380,9 @@ func (this *ImapServer) cmdUid(input string) bool {
 
 	if len(inputN) == 5 {
 		if this.cmdCompare(inputN[1], CMD_UID) {
-			fmt.Println("cmdUid[2]", inputN[2])
-			fmt.Println("cmdUid[3]", inputN[3])
-			fmt.Println("cmdUid[4]", inputN[4])
+			// fmt.Println("cmdUid[2]", inputN[2])
+			// fmt.Println("cmdUid[3]", inputN[3])
+			// fmt.Println("cmdUid[4]", inputN[4])
 			if this.cmdCompare(inputN[2], CMD_FETCH) {
 
 				if strings.Index(inputN[3], ":") > 0 {
@@ -391,7 +391,6 @@ func (this *ImapServer) cmdUid(input string) bool {
 					end, _ := strconv.ParseInt(se[1], 10, 64)
 					mailList, _ := db.BoxListBySE(this.userID, this.selectBox, start, end)
 					for i, m := range mailList {
-						// this.D("cmdUid[cmd]* %ld FETCH (UID %ld)", i+1, m.Id)
 						c := this.parseArgsConent(inputN[4], m)
 						this.writeArgs("* %d FETCH "+c, i+1)
 					}
