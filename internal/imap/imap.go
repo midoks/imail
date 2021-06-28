@@ -29,6 +29,7 @@ const (
 	CMD_COPY       = iota
 	CMD_STORE      = iota
 	CMD_NAMESPACE  = iota
+	CMD_SEARCH     = iota
 	CMD_NOOP       = iota
 )
 
@@ -46,6 +47,7 @@ var stateList = map[int]string{
 	CMD_COPY:       "COPY",
 	CMD_STORE:      "STORE",
 	CMD_NAMESPACE:  "NAMESPACE",
+	CMD_SEARCH:     "SEARCH",
 	CMD_UID:        "UID",
 	CMD_NOOP:       "NOOP",
 }
@@ -301,6 +303,17 @@ func (this *ImapServer) cmdId(input string) bool {
 	return false
 }
 
+func (this *ImapServer) cmdNoop(input string) bool {
+	inputN := strings.SplitN(input, " ", 2)
+	if len(inputN) == 2 {
+		if this.cmdCompare(inputN[1], CMD_NOOP) {
+			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
+			return true
+		}
+	}
+	return false
+}
+
 func (this *ImapServer) cmdNameSpace(input string) bool {
 
 	inputN := strings.SplitN(input, " ", 2)
@@ -407,6 +420,27 @@ func (this *ImapServer) cmdUid(input string) bool {
 				}
 			}
 
+			if this.cmdCompare(inputN[2], CMD_SEARCH) {
+
+				if strings.Index(inputN[4], ":") > 0 {
+					se := strings.SplitN(inputN[4], ":", 2)
+					start, _ := strconv.ParseInt(se[0], 10, 64)
+					end, _ := strconv.ParseInt(se[1], 10, 64)
+					mailList, _ := db.BoxListBySE(this.userID, this.selectBox, start, end)
+					for i, m := range mailList {
+						c := this.parseArgsConent(inputN[4], m)
+						this.writeArgs("* %d SEARCH "+c, i+1)
+					}
+				}
+
+				if libs.IsNumeric(inputN[3]) {
+					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
+					mailList, _ := db.BoxListByMid(this.userID, this.selectBox, mid)
+					c := this.parseArgsConent(inputN[4], mailList[0])
+					this.writeArgs("* %d SEARCH "+c, mid)
+				}
+			}
+
 			if this.cmdCompare(inputN[2], CMD_COPY) {
 				if libs.IsNumeric(inputN[3]) {
 					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
@@ -477,7 +511,9 @@ func (this *ImapServer) handle() {
 		}
 
 		if this.cmdId(input) {
+		}
 
+		if this.cmdNoop(input) {
 		}
 
 		if this.cmdAuth(input) {
