@@ -14,7 +14,9 @@ type Mail struct {
 	MailTo     string `gorm:"size:50;comment:接收邮件"`
 	Content    string `gorm:"comment:邮件内容"`
 	Size       int    `gorm:"size:50;comment:邮件内容大小"`
-	Status     int    `gorm:"comment:0:准备发送;1:发送成功;2:发送失败;3:已接受"`
+	Status     int    `gorm:"comment:0:准备发送;1:发送成功;2:发送失败;3:已接收"`
+	IsRead     int    `gorm:"default:0;comment:是否已读"`
+	IsDelete   int    `gorm:"default:0;comment:是否删除"`
 	UpdateTime int64  `gorm:"autoCreateTime;comment:更新时间"`
 	CreateTime int64  `gorm:"autoCreateTime;comment:创建时间"`
 }
@@ -118,6 +120,11 @@ func MailPosContentForPop(uid int64, pos int64) (string, int, error) {
 // 	}
 // 	return "", size, err
 // }
+
+func MailSoftDeleteById(id int64) bool {
+	db.Model(&Mail{}).Where("id = ?", id).Update("is_delete", 1)
+	return false
+}
 
 func MailPush(uid int64, mtype int, mail_from string, mail_to string, content string, status int) (int64, error) {
 

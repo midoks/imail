@@ -25,6 +25,7 @@ const (
 	CMD_SELECT     = iota
 	CMD_FETCH      = iota
 	CMD_UID        = iota
+	CMD_COPY       = iota
 	CMD_NOOP       = iota
 )
 
@@ -38,6 +39,7 @@ var stateList = map[int]string{
 	CMD_STATUS:     "STATUS",
 	CMD_SELECT:     "SELECT",
 	CMD_FETCH:      "FETCH",
+	CMD_COPY:       "COPY",
 	CMD_UID:        "UID",
 	CMD_NOOP:       "NOOP",
 }
@@ -230,7 +232,7 @@ func (this *ImapServer) parseArgsConent(format string, content string, id int64)
 
 	out := ""
 	for i := 0; i < len(inputN); i++ {
-		fmt.Println("debug3:", i, inputN[i], list[inputN[i]])
+		// fmt.Println("debug3:", i, inputN[i], list[inputN[i]])
 		if strings.EqualFold(inputN[i], "body.peek[header]") {
 			out += fmt.Sprintf("%s %s ", strings.ToUpper("body[header]"), list["body[header]"])
 		} else if strings.EqualFold(inputN[i], "body.peek[]") {
@@ -389,6 +391,20 @@ func (this *ImapServer) cmdUid(input string) bool {
 					fmt.Println("IsNumeric", mailList)
 					c := this.parseArgsConent(inputN[4], mailList[0].Content, mid)
 					this.writeArgs("* %d FETCH "+c, mid)
+				}
+			}
+
+			if this.cmdCompare(inputN[2], CMD_COPY) {
+				fmt.Println("CMD_COPY,11..11")
+				if libs.IsNumeric(inputN[3]) {
+					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
+					inputN[4] = strings.Trim(inputN[4], "\"")
+					fmt.Println("CMD_COPY,2..2")
+					fmt.Println("CMD_COPY,2..2...|", inputN[4], "Deleted Messages")
+					if strings.EqualFold(inputN[4], "Deleted Messages") {
+						fmt.Println("CMD_COPY,1..1")
+						db.MailSoftDeleteById(mid)
+					}
 				}
 			}
 

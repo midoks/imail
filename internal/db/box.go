@@ -168,13 +168,36 @@ func BoxUserMessageCountByClassName(uid int64, className string) (int64, error) 
 // // Paging List of POP3 Protocol
 func BoxListBySE(uid int64, className string, start int64, end int64) ([]Mail, error) {
 	var result []Mail
+
+	fmt.Println("BoxListBySE:", className)
+
 	var sql string
 	if end > 0 {
 		sql = fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and id>='%d' and id<='%d'", "im_mail", start, end)
 	} else {
 		sql = fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and id>='%d'", "im_mail", start)
 	}
-	// fmt.Println("BoxListBySE..:", sql)
+
+	if strings.EqualFold(className, "Sent Messages") {
+		sql = fmt.Sprintf("%s and type='%d' and is_delete='0' ", sql, 0)
+	}
+
+	if strings.EqualFold(className, "INBOX") {
+		sql = fmt.Sprintf("%s and type='%d' and is_delete='0' ", sql, 1)
+	}
+
+	if strings.EqualFold(className, "Deleted Messages") {
+		sql = fmt.Sprintf("%s and is_delete='1' ", sql)
+	}
+
+	if strings.EqualFold(className, "Drafts") {
+		return result, nil
+	}
+
+	if strings.EqualFold(className, "Junk") {
+		return result, nil
+	}
+	fmt.Println("BoxListBySE:", sql)
 	db.Raw(sql, uid).Find(&result)
 	return result, err
 }
