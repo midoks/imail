@@ -417,6 +417,10 @@ func (this *ImapServer) cmdUid(input string) bool {
 					} else {
 						db.MailSetFlagsById(mid, 0)
 					}
+
+					if strings.EqualFold(inputN[5], "DELETED") && strings.HasPrefix(inputN[4], "+") {
+						db.MailHardDeleteById(mid)
+					}
 				}
 			}
 

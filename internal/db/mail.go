@@ -127,6 +127,11 @@ func MailSoftDeleteById(id int64) bool {
 	return false
 }
 
+func MailHardDeleteById(id int64) bool {
+	db.Where("id = ?", id).Delete(&Mail{})
+	return false
+}
+
 func MailSeenById(id int64) bool {
 	db.Model(&Mail{}).Where("id = ?", id).Update("is_read", 1)
 	return false
