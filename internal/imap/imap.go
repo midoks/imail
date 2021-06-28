@@ -18,6 +18,7 @@ const (
 	CMD_READY      = iota
 	CMD_AUTH       = iota
 	CMD_LIST       = iota
+	CMD_XLIST      = iota
 	CMD_LOGOUT     = iota
 	CMD_CAPABILITY = iota
 	CMD_ID         = iota
@@ -27,6 +28,7 @@ const (
 	CMD_UID        = iota
 	CMD_COPY       = iota
 	CMD_STORE      = iota
+	CMD_NAMESPACE  = iota
 	CMD_NOOP       = iota
 )
 
@@ -35,6 +37,7 @@ var stateList = map[int]string{
 	CMD_AUTH:       "LOGIN",
 	CMD_LOGOUT:     "LOGOUT",
 	CMD_LIST:       "LIST",
+	CMD_XLIST:      "XLIST",
 	CMD_CAPABILITY: "CAPABILITY",
 	CMD_ID:         "ID",
 	CMD_STATUS:     "STATUS",
@@ -42,6 +45,7 @@ var stateList = map[int]string{
 	CMD_FETCH:      "FETCH",
 	CMD_COPY:       "COPY",
 	CMD_STORE:      "STORE",
+	CMD_NAMESPACE:  "NAMESPACE",
 	CMD_UID:        "UID",
 	CMD_NOOP:       "NOOP",
 }
@@ -239,7 +243,7 @@ func (this *ImapServer) parseArgsConent(format string, data db.Mail) string {
 	out := ""
 	for i := 0; i < len(inputN); i++ {
 		if strings.EqualFold(inputN[i], "body.peek[header]") {
-			out += fmt.Sprintf("%s %s", strings.ToUpper("body[header]"), list["body[header]"])
+			out += fmt.Sprintf("%s %s ", strings.ToUpper("body[header]"), list["body[header]"])
 		} else if strings.EqualFold(inputN[i], "body.peek[]") {
 			out += fmt.Sprintf("%s %s", strings.ToUpper("body[]"), list["body[]"])
 		} else {
@@ -297,16 +301,29 @@ func (this *ImapServer) cmdId(input string) bool {
 	return false
 }
 
+func (this *ImapServer) cmdNameSpace(input string) bool {
+
+	inputN := strings.SplitN(input, " ", 2)
+	if len(inputN) == 2 {
+		if this.cmdCompare(inputN[1], CMD_NAMESPACE) {
+			this.writeArgs("* NAMESPACE ((\"\" \"/\")) NIL NIL")
+			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
+			return true
+		}
+	}
+	return false
+}
+
 func (this *ImapServer) cmdList(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
 	if len(inputN) == 4 {
-		if this.cmdCompare(inputN[1], CMD_LIST) {
-			this.writeArgs("* LIST (\\NoSelect \\HasChildren) \"/\" \"&UXZO1mWHTvZZOQ-\"")
-			this.writeArgs("* LIST (\\HasChildren) \"/\" \"INBOX\"")
-			this.writeArgs("* LIST (\\HasChildren) \"/\" \"Sent Messages\"")
-			this.writeArgs("* LIST (\\HasChildren) \"/\" \"Drafts\"")
-			this.writeArgs("* LIST (\\HasChildren) \"/\" \"Deleted Messages\"")
-			this.writeArgs("* LIST (\\HasChildren) \"/\" \"Junk\"")
+		if this.cmdCompare(inputN[1], CMD_LIST) || this.cmdCompare(inputN[1], CMD_XLIST) {
+			this.writeArgs("* %s (\\NoSelect \\HasChildren) \"/\" \"&UXZO1mWHTvZZOQ-\"", inputN[1])
+			this.writeArgs("* %s (\\HasChildren) \"/\" \"INBOX\"", inputN[1])
+			this.writeArgs("* %s (\\HasChildren) \"/\" \"Sent Messages\"", inputN[1])
+			this.writeArgs("* %s (\\HasChildren) \"/\" \"Drafts\"", inputN[1])
+			this.writeArgs("* %s (\\HasChildren) \"/\" \"Deleted Messages\"", inputN[1])
+			this.writeArgs("* %s (\\HasChildren) \"/\" \"Junk\"", inputN[1])
 			this.writeArgs(MSG_COMPLELED, inputN[0], inputN[1])
 			return true
 		}
@@ -468,6 +485,11 @@ func (this *ImapServer) handle() {
 		}
 
 		if this.stateCompare(state, CMD_AUTH) {
+
+			if this.cmdNameSpace(input) {
+
+			}
+
 			if this.cmdList(input) {
 
 			}
