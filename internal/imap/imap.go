@@ -62,18 +62,6 @@ var GO_EOL = libs.GetGoEol()
 
 // var GO_EOL = "\n"
 
-// An IMAP reader.
-// type Reader struct {
-// 	MaxLiteralSize uint32 // The maximum literal size.
-
-// 	reader
-
-// 	continues chan<- bool
-
-// 	brackets   int
-// 	inRespCode bool
-// }
-
 type ImapServer struct {
 	io.Reader
 	io.RuneScanner
@@ -287,7 +275,6 @@ func (this *ImapServer) cmdAuth(input string) bool {
 
 func (this *ImapServer) cmdCapabitity(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
-	// fmt.Println(inputN)
 	if len(inputN) == 2 {
 		if this.cmdCompare(inputN[1], CMD_CAPABILITY) {
 			this.writeArgs("* OK Coremail System IMap Server Ready(imail)")
@@ -361,7 +348,6 @@ func (this *ImapServer) cmdFecth(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
 	if len(inputN) == 4 {
 		if this.cmdCompare(inputN[1], CMD_FETCH) {
-			// fmt.Println("cmdFecth", inputN)
 			mailList := db.MailListForPop(this.userID)
 			for i, m := range mailList {
 				this.writeArgs("* %d FETCH (UID %d)", i+1, m.Id)
@@ -510,6 +496,7 @@ func (this *ImapServer) handle() {
 func (this *ImapServer) start(conn net.Conn) {
 	conn.SetReadDeadline(time.Now().Add(time.Minute * 10))
 	defer conn.Close()
+
 	this.conn = conn
 
 	this.reader = bufio.NewReader(conn)
