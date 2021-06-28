@@ -450,7 +450,6 @@ func (this *ImapServer) handle() {
 	for {
 		state := this.state
 		input, err := this.getString(state)
-		this.D("imap[handle]:", input, "err", err)
 
 		if err != nil {
 			this.close()
