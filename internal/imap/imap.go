@@ -180,7 +180,10 @@ func (this *ImapServer) stateCompare(input int, cmd int) bool {
 	return false
 }
 
-func (this *ImapServer) parseArgsConent(format string, content string, id int64) string {
+func (this *ImapServer) parseArgsConent(format string, data db.Mail) string {
+
+	content := data.Content
+	id := data.Id
 
 	format = strings.TrimSpace(format)
 	format = strings.Trim(format, "()")
@@ -198,7 +201,7 @@ func (this *ImapServer) parseArgsConent(format string, content string, id int64)
 	bs, err := component.FetchBodyStructure(header, bufferedBody, true)
 
 	// fmt.Println("FetchBodyStructure:", bs.ToString(), err)
-	// fmt.Println("parseArgsConent[c]:", content)
+	fmt.Println("parseArgsConent[c][Mail]:", data)
 
 	for i := 0; i < len(inputN); i++ {
 
@@ -208,7 +211,19 @@ func (this *ImapServer) parseArgsConent(format string, content string, id int64)
 		}
 
 		if strings.EqualFold(inputN[i], "flags") {
-			list[inputN[i]] = "(\\Flagged)"
+			flags := "("
+			if data.IsRead > 0 {
+				flags += "\\Seen"
+			} else {
+				flags += "\\UNSEEN"
+			}
+
+			if data.IsFlags > 0 {
+				flags += "\\Flagged"
+			}
+
+			flags += ")"
+			list[inputN[i]] = flags
 		}
 
 		if strings.EqualFold(inputN[i], "rfc822.size") {
@@ -344,8 +359,7 @@ func (this *ImapServer) cmdFecth(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
 	if len(inputN) == 4 {
 		if this.cmdCompare(inputN[1], CMD_FETCH) {
-			fmt.Println("cmdFecth", inputN)
-
+			// fmt.Println("cmdFecth", inputN)
 			mailList := db.MailListForPop(this.userID)
 			for i, m := range mailList {
 				this.writeArgs("* %d FETCH (UID %d)", i+1, m.Id)
@@ -376,7 +390,7 @@ func (this *ImapServer) cmdUid(input string) bool {
 					mailList, _ := db.BoxListBySE(this.userID, this.selectBox, start, end)
 					for i, m := range mailList {
 						// this.D("cmdUid[cmd]* %ld FETCH (UID %ld)", i+1, m.Id)
-						c := this.parseArgsConent(inputN[4], m.Content, m.Id)
+						c := this.parseArgsConent(inputN[4], m)
 						this.writeArgs("* %d FETCH "+c, i+1)
 					}
 				}
@@ -384,7 +398,7 @@ func (this *ImapServer) cmdUid(input string) bool {
 				if libs.IsNumeric(inputN[3]) {
 					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
 					mailList, _ := db.BoxListByMid(this.userID, this.selectBox, mid)
-					c := this.parseArgsConent(inputN[4], mailList[0].Content, mid)
+					c := this.parseArgsConent(inputN[4], mailList[0])
 					this.writeArgs("* %d FETCH "+c, mid)
 				}
 			}
