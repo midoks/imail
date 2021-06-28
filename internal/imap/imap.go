@@ -239,9 +239,9 @@ func (this *ImapServer) parseArgsConent(format string, data db.Mail) string {
 	out := ""
 	for i := 0; i < len(inputN); i++ {
 		if strings.EqualFold(inputN[i], "body.peek[header]") {
-			out += fmt.Sprintf("%s %s ", strings.ToUpper("body[header]"), list["body[header]"])
+			out += fmt.Sprintf("%s %s", strings.ToUpper("body[header]"), list["body[header]"])
 		} else if strings.EqualFold(inputN[i], "body.peek[]") {
-			out += fmt.Sprintf("%s %s ", strings.ToUpper("body[]"), list["body[]"])
+			out += fmt.Sprintf("%s %s", strings.ToUpper("body[]"), list["body[]"])
 		} else {
 			out += fmt.Sprintf("%s %s ", strings.ToUpper(inputN[i]), list[inputN[i]])
 		}
