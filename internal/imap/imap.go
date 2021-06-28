@@ -364,7 +364,6 @@ func (this *ImapServer) cmdUid(input string) bool {
 
 	if len(inputN) == 5 {
 		if this.cmdCompare(inputN[1], CMD_UID) {
-			// fmt.Println("||..cmdUid", inputN, len(inputN))
 			// fmt.Println("cmdUid[2]", inputN[2])
 			// fmt.Println("cmdUid[3]", inputN[3])
 			// fmt.Println("cmdUid[4]", inputN[4])
@@ -376,25 +375,21 @@ func (this *ImapServer) cmdUid(input string) bool {
 					end, _ := strconv.ParseInt(se[1], 10, 64)
 					mailList, _ := db.BoxListBySE(this.userID, this.selectBox, start, end)
 					for i, m := range mailList {
-
 						// this.D("cmdUid[cmd]* %ld FETCH (UID %ld)", i+1, m.Id)
 						c := this.parseArgsConent(inputN[4], m.Content, m.Id)
 						this.writeArgs("* %d FETCH "+c, i+1)
 					}
-					// fmt.Println("mailList:", err)
 				}
 
 				if libs.IsNumeric(inputN[3]) {
 					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
 					mailList, _ := db.BoxListByMid(this.userID, this.selectBox, mid)
-					// fmt.Println("IsNumeric", mailList)
 					c := this.parseArgsConent(inputN[4], mailList[0].Content, mid)
 					this.writeArgs("* %d FETCH "+c, mid)
 				}
 			}
 
 			if this.cmdCompare(inputN[2], CMD_COPY) {
-				// fmt.Println("CMD_COPY,11..11")
 				if libs.IsNumeric(inputN[3]) {
 					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
 					inputN[4] = strings.Trim(inputN[4], "\"")
