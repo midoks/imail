@@ -388,21 +388,18 @@ func (this *ImapServer) cmdUid(input string) bool {
 				if libs.IsNumeric(inputN[3]) {
 					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
 					mailList, _ := db.BoxListByMid(this.userID, this.selectBox, mid)
-					fmt.Println("IsNumeric", mailList)
+					// fmt.Println("IsNumeric", mailList)
 					c := this.parseArgsConent(inputN[4], mailList[0].Content, mid)
 					this.writeArgs("* %d FETCH "+c, mid)
 				}
 			}
 
 			if this.cmdCompare(inputN[2], CMD_COPY) {
-				fmt.Println("CMD_COPY,11..11")
+				// fmt.Println("CMD_COPY,11..11")
 				if libs.IsNumeric(inputN[3]) {
 					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
 					inputN[4] = strings.Trim(inputN[4], "\"")
-					fmt.Println("CMD_COPY,2..2")
-					fmt.Println("CMD_COPY,2..2...|", inputN[4], "Deleted Messages")
 					if strings.EqualFold(inputN[4], "Deleted Messages") {
-						fmt.Println("CMD_COPY,1..1")
 						db.MailSoftDeleteById(mid)
 					}
 				}

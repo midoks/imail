@@ -169,7 +169,7 @@ func BoxUserMessageCountByClassName(uid int64, className string) (int64, error) 
 func BoxListBySE(uid int64, className string, start int64, end int64) ([]Mail, error) {
 	var result []Mail
 
-	fmt.Println("BoxListBySE:", className)
+	// fmt.Println("BoxListBySE:", className)
 
 	var sql string
 	if end > 0 {
@@ -197,7 +197,7 @@ func BoxListBySE(uid int64, className string, start int64, end int64) ([]Mail, e
 	if strings.EqualFold(className, "Junk") {
 		return result, nil
 	}
-	fmt.Println("BoxListBySE:", sql)
+	// fmt.Println("BoxListBySE:", sql)
 	db.Raw(sql, uid).Find(&result)
 	return result, err
 }

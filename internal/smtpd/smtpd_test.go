@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 )
 
 var localhostCert = []byte(`-----BEGIN CERTIFICATE-----
@@ -195,10 +196,12 @@ func TestSendMail(t *testing.T) {
 	// 	Certificates: []tls.Certificate{cert},
 	// }
 
+	now := time.Now().Format("2006-01-02 15:04:05")
+
 	tEmail := "midoks@163.com"
 	fEmail := "admin@cachecha.com"
 
-	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, tEmail)
+	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail[%s]\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, now, tEmail)
 	auth := PlainAuth("", fEmail, "admin", "127.0.0.1")
 	err := SendMailT("127.0.0.1:25", auth, fEmail, []string{tEmail}, []byte(content))
 	fmt.Println("err:", err)
