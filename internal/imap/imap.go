@@ -195,7 +195,7 @@ func (this *ImapServer) parseArgsConent(format string, data db.Mail) string {
 	header, err := component.ReadHeader(bufferedBody)
 
 	if err != nil {
-		fmt.Println("Expected no error while reading mail, got:", err)
+		fmt.Println("component.ReadHeader:", err)
 	}
 
 	bs, err := component.FetchBodyStructure(header, bufferedBody, true)
@@ -248,7 +248,6 @@ func (this *ImapServer) parseArgsConent(format string, data db.Mail) string {
 
 	out := ""
 	for i := 0; i < len(inputN); i++ {
-		// fmt.Println("debug3:", i, inputN[i], list[inputN[i]])
 		if strings.EqualFold(inputN[i], "body.peek[header]") {
 			out += fmt.Sprintf("%s %s ", strings.ToUpper("body[header]"), list["body[header]"])
 		} else if strings.EqualFold(inputN[i], "body.peek[]") {
