@@ -427,10 +427,11 @@ func (this *ImapServer) cmdUid(input string) bool {
 					start, _ := strconv.ParseInt(se[0], 10, 64)
 					end, _ := strconv.ParseInt(se[1], 10, 64)
 					mailList, _ := db.BoxListBySE(this.userID, this.selectBox, start, end)
-					for i, m := range mailList {
-						c := this.parseArgsConent(inputN[4], m)
-						this.writeArgs("* %d SEARCH "+c, i+1)
+					idString := ""
+					for _, m := range mailList {
+						idString += fmt.Sprintf(" %d", m.Id)
 					}
+					this.writeArgs("* SEARCH%s", idString)
 				}
 
 				if libs.IsNumeric(inputN[3]) {
@@ -475,7 +476,7 @@ func (this *ImapServer) cmdUid(input string) bool {
 				}
 			}
 
-			this.writeArgs("%s %s %s Completed", inputN[0], inputN[1], inputN[2])
+			this.writeArgs("%s OK %s %s Completed", inputN[0], inputN[1], inputN[2])
 			return true
 		}
 	}
