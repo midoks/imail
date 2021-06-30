@@ -18,6 +18,7 @@ type Mail struct {
 	IsRead     int    `gorm:"default:0;comment:是否已读"`
 	IsDelete   int    `gorm:"default:0;comment:是否删除"`
 	IsFlags    int    `gorm:"default:0;comment:是否星标"`
+	isJunk     int    `gorm:"default:0;comment:是否无用"`
 	UpdateTime int64  `gorm:"autoCreateTime;comment:更新时间"`
 	CreateTime int64  `gorm:"autoCreateTime;comment:创建时间"`
 }
