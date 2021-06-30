@@ -9,9 +9,6 @@ import (
 	"github.com/midoks/imail/internal/imap"
 	"github.com/midoks/imail/internal/pop3"
 	"github.com/midoks/imail/internal/smtpd"
-
-	// "io/ioutil"
-	// "net"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -118,43 +115,6 @@ func main() {
 	go pprof()
 
 	db.Init()
-
-	// smptd_enable, err := config.GetBool("smtpd.enable", false)
-
-	// if smptd_enable {
-	// 	smptd_port, err := config.GetInt("smtpd.port", 25)
-
-	// 	if err == nil {
-	// 		go smtpd.Start(smptd_port)
-	// 		fmt.Println("listen smtpd success!")
-	// 	} else {
-	// 		fmt.Println("listen smtpd erorr:", err)
-	// 	}
-
-	// }
-
-	// pop3_enable, err := config.GetBool("pop3.enable", false)
-
-	// if pop3_enable {
-	// 	pop3_port, err := config.GetInt("pop3.port", 110)
-	// 	if err == nil {
-	// 		go pop3.Start(pop3_port)
-	// 		fmt.Println("listen pop3 success!")
-	// 	} else {
-	// 		fmt.Println("listen pop3 erorr:", err)
-	// 	}
-	// }
-
-	// imap_enable, err := config.GetBool("imap.enable", false)
-	// if imap_enable {
-	// 	imap_port, err := config.GetInt("imap.port", 143)
-	// 	if err == nil {
-	// 		go imap.Start(imap_port)
-	// 		fmt.Println("listen imap success!")
-	// 	} else {
-	// 		fmt.Println("listen imap erorr:", err)
-	// 	}
-	// }
 
 	startService("smtpd")
 	startService("pop3")
