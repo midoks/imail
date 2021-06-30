@@ -49,9 +49,6 @@ func startService(name string) {
 		ssl_port, err := config.GetInt(config_ssl_port, 25)
 		if err == nil {
 			fmt.Printf("listen ssl %s success!\n", name)
-			if strings.EqualFold(name, "smtpd") {
-				go smtpd.StartSSL(ssl_port)
-			}
 
 			if strings.EqualFold(name, "smtpd") {
 				go smtpd.StartSSL(ssl_port)
