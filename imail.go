@@ -6,7 +6,7 @@ import (
 	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/db"
 	// "github.com/midoks/imail/internal/dkim"
-	ipserver "github.com/midoks/imail/internal/imap"
+	"github.com/midoks/imail/internal/imap"
 	"github.com/midoks/imail/internal/pop3"
 	"github.com/midoks/imail/internal/smtpd"
 
@@ -19,8 +19,55 @@ import (
 	"runtime/debug"
 	"runtime/trace"
 	"strconv"
-	// "strings"
+	"strings"
 )
+
+func startService(name string) {
+	config_enable := fmt.Sprintf("%s.enable", name)
+	enable, err := config.GetBool(config_enable, false)
+	if err == nil && enable {
+
+		config_port := fmt.Sprintf("%s.port", name)
+		port, err := config.GetInt(config_port, 25)
+		if err == nil {
+			fmt.Printf("listen %s success!\n", name)
+
+			if strings.EqualFold(name, "smtpd") {
+				go smtpd.Start(port)
+			} else if strings.EqualFold(name, "pop3") {
+				go pop3.Start(port)
+			} else if strings.EqualFold(name, "pop3") {
+				go imap.Start(port)
+			}
+		} else {
+			fmt.Printf("listen %s erorr:%s\n", name, err)
+		}
+	}
+
+	config_ssl_enable := fmt.Sprintf("%s.ssl_enable", name)
+	ssl_enable, err := config.GetBool(config_ssl_enable, false)
+	if err == nil && ssl_enable {
+
+		config_ssl_port := fmt.Sprintf("%s.ssl_port", name)
+		ssl_port, err := config.GetInt(config_ssl_port, 25)
+		if err == nil {
+			fmt.Printf("listen ssl %s success!\n", name)
+			if strings.EqualFold(name, "smtpd") {
+				go smtpd.StartSSL(ssl_port)
+			}
+
+			if strings.EqualFold(name, "smtpd") {
+				go smtpd.StartSSL(ssl_port)
+			} else if strings.EqualFold(name, "pop3") {
+				go pop3.StartSSL(ssl_port)
+			} else if strings.EqualFold(name, "pop3") {
+				go imap.StartSSL(ssl_port)
+			}
+		} else {
+			fmt.Printf("listen ssl %s erorr:%s\n", name, err)
+		}
+	}
+}
 
 func main() {
 	// go mod init
@@ -72,42 +119,46 @@ func main() {
 
 	db.Init()
 
-	smptd_enable, err := config.GetBool("smtpd.enable", false)
+	// smptd_enable, err := config.GetBool("smtpd.enable", false)
 
-	if smptd_enable {
-		smptd_port, err := config.GetInt("smtpd.port", 25)
+	// if smptd_enable {
+	// 	smptd_port, err := config.GetInt("smtpd.port", 25)
 
-		if err == nil {
-			go smtpd.Start(smptd_port)
-			fmt.Println("listen smtpd success!")
-		} else {
-			fmt.Println("listen smtpd erorr:", err)
-		}
+	// 	if err == nil {
+	// 		go smtpd.Start(smptd_port)
+	// 		fmt.Println("listen smtpd success!")
+	// 	} else {
+	// 		fmt.Println("listen smtpd erorr:", err)
+	// 	}
 
-	}
+	// }
 
-	pop3_enable, err := config.GetBool("pop3.enable", false)
+	// pop3_enable, err := config.GetBool("pop3.enable", false)
 
-	if pop3_enable {
-		pop3_port, err := config.GetInt("pop3.port", 110)
-		if err == nil {
-			go pop3.Start(pop3_port)
-			fmt.Println("listen pop3 success!")
-		} else {
-			fmt.Println("listen pop3 erorr:", err)
-		}
-	}
+	// if pop3_enable {
+	// 	pop3_port, err := config.GetInt("pop3.port", 110)
+	// 	if err == nil {
+	// 		go pop3.Start(pop3_port)
+	// 		fmt.Println("listen pop3 success!")
+	// 	} else {
+	// 		fmt.Println("listen pop3 erorr:", err)
+	// 	}
+	// }
 
-	imap_enable, err := config.GetBool("imap.enable", false)
-	if imap_enable {
-		imap_port, err := config.GetInt("imap.port", 143)
-		if err == nil {
-			go ipserver.Start(imap_port)
-			fmt.Println("listen imap success!")
-		} else {
-			fmt.Println("listen imap erorr:", err)
-		}
-	}
+	// imap_enable, err := config.GetBool("imap.enable", false)
+	// if imap_enable {
+	// 	imap_port, err := config.GetInt("imap.port", 143)
+	// 	if err == nil {
+	// 		go imap.Start(imap_port)
+	// 		fmt.Println("listen imap success!")
+	// 	} else {
+	// 		fmt.Println("listen imap erorr:", err)
+	// 	}
+	// }
+
+	startService("smtpd")
+	startService("pop3")
+	startService("imap")
 
 	http_enable, err := config.GetBool("http.enable", false)
 	if http_enable {

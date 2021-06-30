@@ -496,3 +496,22 @@ func Start(port int) {
 		go srv.start(conn)
 	}
 }
+
+func StartSSL(port int) {
+	addr := fmt.Sprintf(":%d", port)
+	ln, err := net.Listen("tcp", addr)
+	if err != nil {
+		panic(err)
+		return
+	}
+	defer ln.Close()
+
+	for {
+		conn, err := ln.Accept()
+		if err != nil {
+			continue
+		}
+		srv := Pop3Server{}
+		go srv.start(conn)
+	}
+}

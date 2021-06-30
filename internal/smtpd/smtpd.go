@@ -220,21 +220,6 @@ func (this *SmtpdServer) getString(state int) (string, error) {
 
 }
 
-func (this *SmtpdServer) getString0() (string, error) {
-
-	buffer := make([]byte, 2048)
-
-	n, err := this.conn.Read(buffer)
-	if err != nil {
-		log.Fatal(this.conn.RemoteAddr().String(), " connection error: ", err)
-		return "", err
-	}
-
-	input := string(buffer[:n])
-	inputTrim := strings.TrimSpace(input)
-	return inputTrim, err
-}
-
 func (this *SmtpdServer) close() {
 	this.conn.Close()
 }
