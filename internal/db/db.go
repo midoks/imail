@@ -50,6 +50,7 @@ func Init() {
   db.AutoMigrate(&Box{})
   db.AutoMigrate(&Class{})
   db.AutoMigrate(&Role{})
+  db.AutoMigrate(&Queue{})
 
   //创建默认账户
   var user User

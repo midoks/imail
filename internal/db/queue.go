@@ -6,7 +6,7 @@ import (
 // "time"
 )
 
-type Queuee struct {
+type Queue struct {
 	Id         int64  `gorm:"primaryKey"`
 	Uid        int64  `gorm:"comment:用户ID"`
 	Type       int    `gorm:"comment:0:发送;1:收到"`
@@ -19,10 +19,10 @@ type Queuee struct {
 	CreateTime int64  `gorm:"autoCreateTime;comment:创建时间"`
 }
 
-func QueueeTableName() string {
+func QueueTableName() string {
 	return "im_queue"
 }
 
 func (Queuee) TableName() string {
-	return QueueeTableName()
+	return QueueTableName()
 }
