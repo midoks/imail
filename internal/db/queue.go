@@ -23,6 +23,6 @@ func QueueTableName() string {
 	return "im_queue"
 }
 
-func (Queuee) TableName() string {
+func (Queue) TableName() string {
 	return QueueTableName()
 }
