@@ -417,7 +417,8 @@ func (this *SmtpdServer) cmdStartTtls(input string) bool {
 	this.w("220 Go ahead\n")
 
 	if err := tlsConn.Handshake(); err != nil {
-		this.w("550 ERROR: Handshake error")
+		errmsg := fmt.Sprintf("550 ERROR: Handshake error:%s", err)
+		this.w(errmsg)
 		return false
 	}
 
@@ -830,8 +831,10 @@ func (this *SmtpdServer) start(conn net.Conn) {
 			tlsState := tlsConn.ConnectionState()
 			this.stateTLS = &tlsState
 		}
+
 	}
 	this.initTLSConfig()
+	this.cmdStartTtls("")
 
 	//mode
 	this.runModeIn = false
@@ -870,6 +873,7 @@ func StartSSL(port int) {
 		panic(err)
 		return
 	}
+	// ln.SetKeepAlivesEnabled(false)
 	defer ln.Close()
 
 	for {

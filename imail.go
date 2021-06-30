@@ -48,7 +48,7 @@ func startService(name string) {
 		config_ssl_port := fmt.Sprintf("%s.ssl_port", name)
 		ssl_port, err := config.GetInt(config_ssl_port, 25)
 		if err == nil {
-			fmt.Printf("listen ssl %s success!\n", name)
+			fmt.Printf("listen %s ssl success!\n", name)
 
 			if strings.EqualFold(name, "smtpd") {
 				go smtpd.StartSSL(ssl_port)
@@ -58,7 +58,7 @@ func startService(name string) {
 				go imap.StartSSL(ssl_port)
 			}
 		} else {
-			fmt.Printf("listen ssl %s erorr:%s\n", name, err)
+			fmt.Printf("listen %s ssl erorr:%s\n", name, err)
 		}
 	}
 }
