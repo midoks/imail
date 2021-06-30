@@ -460,13 +460,13 @@ func (this *ImapServer) cmdUid(input string) bool {
 					inputN[5] = strings.Trim(inputN[5], "\\")
 					if strings.EqualFold(inputN[5], "Seen") && strings.HasPrefix(inputN[4], "+") {
 						db.MailSeenById(mid)
-					} else {
+					} else if strings.EqualFold(inputN[5], "Seen") && strings.HasPrefix(inputN[4], "-") {
 						db.MailUnSeenById(mid)
 					}
 
 					if strings.EqualFold(inputN[5], "FLAGGED") && strings.HasPrefix(inputN[4], "+") {
 						db.MailSetFlagsById(mid, 1)
-					} else {
+					} else if strings.EqualFold(inputN[5], "FLAGGED") && strings.HasPrefix(inputN[4], "-") {
 						db.MailSetFlagsById(mid, 0)
 					}
 
