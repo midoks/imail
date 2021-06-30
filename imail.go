@@ -100,7 +100,7 @@ func main() {
 
 	imap_enable, err := config.GetBool("imap.enable", false)
 	if imap_enable {
-		imap_port, err := config.GetInt("imap.port", 120)
+		imap_port, err := config.GetInt("imap.port", 143)
 		if err == nil {
 			go ipserver.Start(imap_port)
 			fmt.Println("listen imap success!")
