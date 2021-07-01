@@ -839,7 +839,7 @@ func (this *SmtpdServer) start(conn net.Conn) {
 		}
 
 	}
-	this.initTLSConfig()
+	// this.initTLSConfig()
 
 	//mode
 	this.runModeIn = false
@@ -856,89 +856,50 @@ func (this *SmtpdServer) start(conn net.Conn) {
 
 }
 
-func (this *SmtpdServer) StartM(conn net.Conn) {
-	conn.SetReadDeadline(time.Now().Add(time.Minute * 30))
-	this.conn = conn
-
-	this.reader = bufio.NewReader(conn)
-	this.writer = bufio.NewWriter(conn)
-	this.scanner = bufio.NewScanner(this.reader)
-
-	defer conn.Close()
-
-	this.peer = Peer{
-		Addr: conn.RemoteAddr(),
-		// ServerName: conn.Hostname,
+func (this *SmtpdServer) StartPort(port int) {
+	addr := fmt.Sprintf(":%d", port)
+	ln, err := net.Listen("tcp", addr)
+	if err != nil {
+		panic(err)
+		return
 	}
+	defer ln.Close()
 
-	this.startTime = time.Now()
-	this.isLogin = false
-	this.enableStartTtls = true
-
-	if this.enableStartTtls {
-		var tlsConn *tls.Conn
-		if tlsConn, this.tls = conn.(*tls.Conn); this.tls {
-			tlsConn.Handshake()
-			tlsState := tlsConn.ConnectionState()
-			this.stateTLS = &tlsState
+	for {
+		conn, err := ln.Accept()
+		if err != nil {
+			continue
 		}
-
+		go this.start(conn)
 	}
+}
+
+func (this *SmtpdServer) StartSSLPort(port int) {
 	this.initTLSConfig()
 
-	//mode
-	this.runModeIn = false
-	this.modeIn, _ = config.GetBool("smtpd.mode_in", false)
-
-	this.write(MSG_INIT)
-	this.setState(CMD_READY)
-
-	if this.AutoSSL {
-		this.cmdStartTtls("")
+	addr := fmt.Sprintf(":%d", port)
+	ln, err := tls.Listen("tcp", addr, this.TLSConfig)
+	if err != nil {
+		panic(err)
+		return
 	}
+	defer ln.Close()
 
-	this.handle()
-
+	for {
+		conn, err := ln.Accept()
+		if err != nil {
+			continue
+		}
+		go this.start(conn)
+	}
 }
 
 func Start(port int) {
-	addr := fmt.Sprintf(":%d", port)
-	ln, err := net.Listen("tcp", addr)
-	if err != nil {
-		panic(err)
-		return
-	}
-	defer ln.Close()
-
-	for {
-		conn, err := ln.Accept()
-		if err != nil {
-			continue
-		}
-
-		srv := SmtpdServer{}
-		go srv.start(conn)
-	}
+	srv := SmtpdServer{}
+	srv.StartPort(port)
 }
 
 func StartSSL(port int) {
-	addr := fmt.Sprintf(":%d", port)
-	ln, err := net.Listen("tcp", addr)
-	if err != nil {
-		panic(err)
-		return
-	}
-	// ln.SetKeepAlivesEnabled(false)
-	defer ln.Close()
-
-	for {
-		conn, err := ln.Accept()
-		if err != nil {
-			continue
-		}
-
-		srv_ssl := SmtpdServer{}
-		srv_ssl.AutoSSL = true
-		go srv_ssl.start(conn)
-	}
+	srvSSL := SmtpdServer{}
+	srvSSL.StartSSLPort(port)
 }
