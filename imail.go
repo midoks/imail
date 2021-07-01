@@ -6,9 +6,11 @@ import (
 	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/db"
 	// "github.com/midoks/imail/internal/dkim"
+	"github.com/fsnotify/fsnotify"
 	"github.com/midoks/imail/internal/imap"
 	"github.com/midoks/imail/internal/pop3"
 	"github.com/midoks/imail/internal/smtpd"
+	// "log"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -61,6 +63,40 @@ func startService(name string) {
 			fmt.Printf("listen %s ssl erorr:%s\n", name, err)
 		}
 	}
+}
+
+func StartMonitor(path string) {
+
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		fmt.Println("StartMonitor:err", err)
+	}
+	defer watcher.Close()
+
+	done := make(chan bool)
+	go func() {
+		for {
+			select {
+			case e := <-watcher.Events:
+
+				if e.Op&fsnotify.Chmod == fsnotify.Chmod {
+					fmt.Printf("%s had change content!", path)
+				}
+
+			case err = <-watcher.Errors:
+				if err != nil {
+					fmt.Println("错误:", err)
+				}
+
+			}
+		}
+	}()
+
+	err = watcher.Add(path)
+	if err != nil {
+		fmt.Println("Failed to watch directory: ", err)
+	}
+	<-done
 }
 
 func main() {

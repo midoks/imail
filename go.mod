@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/astaxie/beego v1.12.3
 	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
+	github.com/fsnotify/fsnotify v1.4.7
 	github.com/gin-gonic/gin v1.7.2
 	github.com/pelletier/go-toml v1.2.0
 	golang.org/x/text v0.3.6

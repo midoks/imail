@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/libs"
-	"log"
+	// "log"
+	"crypto/tls"
 	"net"
 	"strconv"
 	"strings"
@@ -74,8 +75,15 @@ type Pop3Server struct {
 	recordCmdUser string
 	recordCmdPass string
 
+	reader  *bufio.Reader
+	writer  *bufio.Writer
+	scanner *bufio.Scanner
+
 	// user id
 	userID int64
+
+	LinkSSL   bool
+	TLSConfig *tls.Config // Enable STARTTLS support.
 }
 
 func (this *Pop3Server) setState(state int) {
@@ -87,6 +95,10 @@ func (this *Pop3Server) getState() int {
 }
 
 func (this *Pop3Server) D(a ...interface{}) (n int, err error) {
+	if this.LinkSSL {
+		fmt.Print("[SSL]")
+		return fmt.Println(a...)
+	}
 	return fmt.Println(a...)
 }
 
@@ -94,12 +106,13 @@ func (this *Pop3Server) Debug(d bool) {
 	this.debug = d
 }
 
-func (this *Pop3Server) w(msg string) {
-	_, err := this.conn.Write([]byte(msg))
+func (this *Pop3Server) w(msg string) error {
+	log := fmt.Sprintf("pop3[w]:%s", msg)
+	this.D(log)
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	_, err := this.writer.Write([]byte(msg))
+	this.writer.Flush()
+	return err
 }
 
 func (this *Pop3Server) writeArgs(code string, args ...interface{}) {
@@ -123,26 +136,11 @@ func (this *Pop3Server) error(code string) {
 }
 
 func (this *Pop3Server) getString() (string, error) {
-	input, err := bufio.NewReader(this.conn).ReadString('\n')
-	if err != nil {
-		return "", err
-	}
+	input, err := this.reader.ReadString('\n')
 	inputTrim := strings.TrimSpace(input)
+	this.D("pop3[r]:", inputTrim, ":", err)
 	return inputTrim, err
-}
 
-func (this *Pop3Server) getString0() (string, error) {
-	buffer := make([]byte, 2048)
-
-	n, err := this.conn.Read(buffer)
-	if err != nil {
-		log.Fatal(this.conn.RemoteAddr().String(), " connection error: ", err)
-		return "", err
-	}
-
-	input := string(buffer[:n])
-	inputTrim := strings.TrimSpace(input)
-	return inputTrim, err
 }
 
 func (this *Pop3Server) close() {
@@ -465,10 +463,23 @@ func (this *Pop3Server) handle() {
 	}
 }
 
+func (this *Pop3Server) initTLSConfig() {
+	this.TLSConfig = libs.InitAutoMakeTLSConfig()
+}
+
+func (this *Pop3Server) ready() {
+	this.initTLSConfig()
+
+}
+
 func (this *Pop3Server) start(conn net.Conn) {
 	conn.SetReadDeadline(time.Now().Add(time.Minute * 10))
 	defer conn.Close()
 	this.conn = conn
+
+	this.reader = bufio.NewReader(conn)
+	this.writer = bufio.NewWriter(conn)
+	this.scanner = bufio.NewScanner(this.reader)
 
 	this.startTime = time.Now()
 
@@ -478,7 +489,7 @@ func (this *Pop3Server) start(conn net.Conn) {
 	this.handle()
 }
 
-func Start(port int) {
+func (this *Pop3Server) StartPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -492,14 +503,15 @@ func Start(port int) {
 		if err != nil {
 			continue
 		}
-		srv := Pop3Server{}
-		go srv.start(conn)
+		go this.start(conn)
 	}
 }
 
-func StartSSL(port int) {
+func (this *Pop3Server) StartSSLPort(port int) {
+	this.ready()
+	this.LinkSSL = true
 	addr := fmt.Sprintf(":%d", port)
-	ln, err := net.Listen("tcp", addr)
+	ln, err := tls.Listen("tcp", addr, this.TLSConfig)
 	if err != nil {
 		panic(err)
 		return
@@ -511,7 +523,16 @@ func StartSSL(port int) {
 		if err != nil {
 			continue
 		}
-		srv := Pop3Server{}
-		go srv.start(conn)
+		go this.start(conn)
 	}
+}
+
+func Start(port int) {
+	srv := Pop3Server{}
+	srv.StartPort(port)
+}
+
+func StartSSL(port int) {
+	srv := Pop3Server{}
+	srv.StartSSLPort(port)
 }
