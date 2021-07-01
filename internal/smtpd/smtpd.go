@@ -157,7 +157,7 @@ type SmtpdServer struct {
 	peer Peer
 
 	//tls
-	AutoSSL   bool
+	LinkSSL   bool
 	tls       bool
 	stateTLS  *tls.ConnectionState
 	TLSConfig *tls.Config // Enable STARTTLS support.
@@ -189,7 +189,7 @@ func (this *SmtpdServer) getState() int {
 }
 
 func (this *SmtpdServer) D(a ...interface{}) (n int, err error) {
-	if this.AutoSSL {
+	if this.LinkSSL {
 		fmt.Print("[SSL]")
 		return fmt.Println(a...)
 	}
@@ -811,6 +811,19 @@ func (this *SmtpdServer) initTLSConfig() {
 
 }
 
+func (this *SmtpdServer) ready() {
+	this.initTLSConfig()
+
+	this.startTime = time.Now()
+	this.isLogin = false
+	this.enableStartTtls = true
+
+	//mode
+	this.runModeIn = false
+	this.modeIn, _ = config.GetBool("smtpd.mode_in", false)
+
+}
+
 func (this *SmtpdServer) start(conn net.Conn) {
 	conn.SetReadDeadline(time.Now().Add(time.Minute * 30))
 	this.conn = conn
@@ -821,15 +834,6 @@ func (this *SmtpdServer) start(conn net.Conn) {
 
 	defer conn.Close()
 
-	this.peer = Peer{
-		Addr: conn.RemoteAddr(),
-		// ServerName: conn.Hostname,
-	}
-
-	this.startTime = time.Now()
-	this.isLogin = false
-	this.enableStartTtls = true
-
 	if this.enableStartTtls {
 		var tlsConn *tls.Conn
 		if tlsConn, this.tls = conn.(*tls.Conn); this.tls {
@@ -837,26 +841,23 @@ func (this *SmtpdServer) start(conn net.Conn) {
 			tlsState := tlsConn.ConnectionState()
 			this.stateTLS = &tlsState
 		}
-
 	}
-	// this.initTLSConfig()
 
-	//mode
-	this.runModeIn = false
-	this.modeIn, _ = config.GetBool("smtpd.mode_in", false)
+	this.peer = Peer{
+		Addr: conn.RemoteAddr(),
+		// ServerName: conn.Hostname,
+	}
 
 	this.write(MSG_INIT)
 	this.setState(CMD_READY)
-
-	if this.AutoSSL {
-		this.cmdStartTtls("")
-	}
 
 	this.handle()
 
 }
 
 func (this *SmtpdServer) StartPort(port int) {
+	this.ready()
+
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -875,7 +876,8 @@ func (this *SmtpdServer) StartPort(port int) {
 }
 
 func (this *SmtpdServer) StartSSLPort(port int) {
-	this.initTLSConfig()
+	this.ready()
+	this.LinkSSL = true
 
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := tls.Listen("tcp", addr, this.TLSConfig)

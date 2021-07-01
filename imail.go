@@ -27,13 +27,13 @@ func startService(name string) {
 		config_port := fmt.Sprintf("%s.port", name)
 		port, err := config.GetInt(config_port, 25)
 		if err == nil {
-			fmt.Printf("listen %s success!\n", name)
+			fmt.Printf("listen %s port:%d success!\n", name, port)
 
 			if strings.EqualFold(name, "smtpd") {
 				go smtpd.Start(port)
 			} else if strings.EqualFold(name, "pop3") {
 				go pop3.Start(port)
-			} else if strings.EqualFold(name, "pop3") {
+			} else if strings.EqualFold(name, "imap") {
 				go imap.Start(port)
 			}
 		} else {
@@ -48,13 +48,13 @@ func startService(name string) {
 		config_ssl_port := fmt.Sprintf("%s.ssl_port", name)
 		ssl_port, err := config.GetInt(config_ssl_port, 25)
 		if err == nil {
-			fmt.Printf("listen %s ssl success!\n", name)
+			fmt.Printf("listen %s ssl port:%d success!\n", name, ssl_port)
 
 			if strings.EqualFold(name, "smtpd") {
 				go smtpd.StartSSL(ssl_port)
 			} else if strings.EqualFold(name, "pop3") {
 				go pop3.StartSSL(ssl_port)
-			} else if strings.EqualFold(name, "pop3") {
+			} else if strings.EqualFold(name, "imap") {
 				go imap.StartSSL(ssl_port)
 			}
 		} else {
