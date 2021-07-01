@@ -459,6 +459,10 @@ func (this *ImapServer) cmdUid(input string) bool {
 					if strings.EqualFold(inputN[4], "Deleted Messages") {
 						db.MailSoftDeleteById(mid)
 					}
+
+					if strings.EqualFold(inputN[4], "Junk") {
+						db.MailSetJunkById(mid, 1)
+					}
 				}
 			}
 
@@ -722,7 +726,7 @@ func (this *ImapServer) StartPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
-		panic(err)
+		fmt.Println("StartSSLPort:", err)
 		return
 	}
 	defer ln.Close()
@@ -742,7 +746,7 @@ func (this *ImapServer) StartSSLPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := tls.Listen("tcp", addr, this.TLSConfig)
 	if err != nil {
-		panic(err)
+		fmt.Println("StartSSLPort:", err)
 		return
 	}
 	defer ln.Close()

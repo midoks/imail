@@ -195,7 +195,7 @@ func BoxListBySE(uid int64, className string, start int64, end int64) ([]Mail, e
 	}
 
 	if strings.EqualFold(className, "Junk") {
-		return result, nil
+		sql = fmt.Sprintf("%s and is_junk='1' and is_delete='0'", sql)
 	}
 	// fmt.Println("BoxListBySE:", sql)
 	db.Raw(sql, uid).Find(&result)

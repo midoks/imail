@@ -148,6 +148,11 @@ func MailSetFlagsById(id int64, status int64) bool {
 	return false
 }
 
+func MailSetJunkById(id int64, status int64) bool {
+	db.Model(&Mail{}).Where("id = ?", id).Update("is_delete", status)
+	return false
+}
+
 func MailPush(uid int64, mtype int, mail_from string, mail_to string, content string, status int) (int64, error) {
 
 	user := Mail{
