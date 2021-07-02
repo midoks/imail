@@ -134,23 +134,21 @@ type SmtpdServer struct {
 	//DB DATA
 	userID int64
 
-	//CMD_STARTTLS
-	enableStartTtls bool
-
 	//run mode
 	modeIn bool
 
 	// Determine the current mode of operation
-	// 1,modeIn
+	// open mail in mode
 	runModeIn bool
 
 	peer Peer
 
 	//tls
-	LinkSSL   bool
-	tls       bool
-	stateTLS  *tls.ConnectionState
-	TLSConfig *tls.Config // Enable STARTTLS support.
+	enableStartTtls bool
+	LinkSSL         bool
+	tls             bool
+	stateTLS        *tls.ConnectionState
+	TLSConfig       *tls.Config // Enable STARTTLS support.
 }
 
 func (this *SmtpdServer) base64Encode(en string) string {
