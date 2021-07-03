@@ -718,7 +718,7 @@ func (this *SmtpdServer) StartPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
-		panic(err)
+		fmt.Println("StartPort", err)
 		return
 	}
 	defer ln.Close()
