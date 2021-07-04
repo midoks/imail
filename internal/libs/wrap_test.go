@@ -1,4 +1,4 @@
-package smtpd
+package libs
 
 import (
 	"testing"
@@ -16,7 +16,7 @@ func TestWrap(t *testing.T) {
 	}
 
 	for k, v := range cases {
-		if string(wrap([]byte(k))) != v {
+		if string(Wrap([]byte(k))) != v {
 			t.Fatal("Didn't wrap correctly.")
 		}
 	}

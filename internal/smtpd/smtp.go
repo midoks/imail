@@ -431,7 +431,7 @@ func DnsQuery(domain string) (string, error) {
 }
 
 // Delivery of mail to external mail
-func Delivery(from string, to string, msg []byte) error {
+func Delivery(addr string, from string, to string, msg []byte) error {
 	port := "25"
 	if err := validateLine(from); err != nil {
 		return err
@@ -441,16 +441,29 @@ func Delivery(from string, to string, msg []byte) error {
 		return err
 	}
 
-	domain := strings.Split(to, "@")
-	mxHost, err := DnsQuery(domain[1])
-	fmt.Println(mxHost, err)
+	if strings.EqualFold(addr, "") {
+		domain := strings.Split(to, "@")
+		mxHost, err := DnsQuery(domain[1])
+		fmt.Println(mxHost, err)
 
-	addr := fmt.Sprintf("%s:%s", mxHost, port)
-	fmt.Println("addr:", addr)
+		addr := fmt.Sprintf("%s:%s", mxHost, port)
+		fmt.Println("addr:", addr)
+	}
+
 	c, err := Dial(addr)
 	if err != nil {
 		return err
 	}
+	// domain := strings.Split(to, "@")
+	// mxHost, err := DnsQuery(domain[1])
+	// fmt.Println(mxHost, err)
+
+	// addr := fmt.Sprintf("%s:%s", mxHost, port)
+	// fmt.Println("addr:", addr)
+	// c, err := Dial(addr)
+	// if err != nil {
+	// 	return err
+	// }
 	defer c.Close()
 	if err = c.hello(); err != nil {
 		return err

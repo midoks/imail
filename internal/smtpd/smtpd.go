@@ -122,7 +122,6 @@ type SmtpdServer struct {
 	errCount          int
 	loginUser         string
 	loginPwd          string
-	recordCmdHelo     string
 	recordCmdMailFrom string
 	recordcmdRcptTo   string
 	recordCmdData     string
@@ -235,6 +234,9 @@ func (this *SmtpdServer) cmdHelo(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 	if len(inputN) == 2 {
 		if this.cmdCompare(inputN[0], CMD_HELO) {
+			this.peer.HeloName = inputN[1]
+
+			this.D("smtpd[helo]:", inputN[1])
 			this.write(MSG_OK)
 			return true
 		}
@@ -479,6 +481,57 @@ func (this *SmtpdServer) cmdData(input string) bool {
 	return false
 }
 
+func (this *SmtpdServer) addEnvelopeDataAcceptLine(data []byte) []byte {
+	tlsDetails := ""
+
+	tlsVersions := map[uint16]string{
+		tls.VersionSSL30: "SSL3.0",
+		tls.VersionTLS10: "TLS1.0",
+		tls.VersionTLS11: "TLS1.1",
+		tls.VersionTLS12: "TLS1.2",
+		tls.VersionTLS13: "TLS1.3",
+	}
+
+	if this.stateTLS != nil {
+		version := "unknown"
+
+		if val, ok := tlsVersions[this.stateTLS.Version]; ok {
+			version = val
+		}
+
+		cipher := tls.CipherSuiteName(this.stateTLS.CipherSuite)
+
+		tlsDetails = fmt.Sprintf(
+			"\r\n\t(version=%s cipher=%s);",
+			version,
+			cipher,
+		)
+	}
+
+	peerIP := ""
+	if addr, ok := this.peer.Addr.(*net.TCPAddr); ok {
+		peerIP = addr.IP.String()
+	}
+
+	line := libs.Wrap([]byte(fmt.Sprintf(
+		"Received: from %s ([%s]) by %s with %s;%s\r\n\t%s\r\n",
+		this.peer.HeloName,
+		peerIP,
+		this.peer.ServerName,
+		this.peer.Protocol,
+		tlsDetails,
+		time.Now().Format("Mon, 02 Jan 2006 15:04:05 -0700 (MST)"),
+	)))
+
+	data = append(data, line...)
+
+	// Move the new Received line up front
+	copy(data[len(line):], data[0:len(data)-len(line)])
+	copy(data, line)
+	return data
+
+}
+
 func (this *SmtpdServer) cmdDataAccept() bool {
 
 	data := &bytes.Buffer{}
@@ -486,19 +539,22 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 	_, err := io.CopyN(data, reader, int64(10240000))
 
 	content := string(data.Bytes())
-	this.D("smtpd[data]", content)
+	this.D("smtpd[data]:", content)
 	if err == io.EOF {
 		this.write(MSG_MAIL_OK)
 	}
 
 	if this.runModeIn {
-		_, err := db.MailPush(this.userID, 1, this.recordCmdMailFrom, this.recordcmdRcptTo, content, 3)
+		fmt.Println("smtpd[data][peer]:", this.peer)
+		revContent := string(this.addEnvelopeDataAcceptLine(data.Bytes()))
+		_, err := db.MailPush(this.userID, 1, this.recordCmdMailFrom, this.recordcmdRcptTo, revContent, 3)
 		if err != nil {
 			return false
 		}
 	}
 
 	if this.isLogin {
+
 		_, err := db.MailPush(this.userID, 0, this.recordCmdMailFrom, this.recordcmdRcptTo, content, 0)
 		if err != nil {
 			return false

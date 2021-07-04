@@ -1,7 +1,7 @@
-package smtpd
+package libs
 
 // Wrap a byte slice paragraph for use in SMTP header
-func wrap(sl []byte) []byte {
+func Wrap(sl []byte) []byte {
 	length := 0
 	for i := 0; i < len(sl); i++ {
 		if length > 76 && sl[i] == ' ' {

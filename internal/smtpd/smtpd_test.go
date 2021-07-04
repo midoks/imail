@@ -113,7 +113,7 @@ func TestMailDelivery(t *testing.T) {
 	fromEmail := "admin@cachecha.com"
 
 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fromEmail, toEmail)
-	err := Delivery(fromEmail, toEmail, []byte(content))
+	err := Delivery("", fromEmail, toEmail, []byte(content))
 	if err != nil {
 		fmt.Println("err:", err)
 		t.Error("TestMailDelivery fail:" + err.Error())
@@ -204,6 +204,20 @@ func TestSendMail(t *testing.T) {
 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail[%s]\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, now, tEmail)
 	auth := PlainAuth("", fEmail, "admin", "127.0.0.1")
 	err := SendMailT("127.0.0.1:25", auth, fEmail, []string{tEmail}, []byte(content))
+	fmt.Println("err:", err)
+}
+
+// go test -run TestReceivedMail
+func TestReceivedMail(t *testing.T) {
+
+	now := time.Now().Format("2006-01-02 15:04:05")
+
+	fEmail := "midoks@163.com"
+	tEmail := "admin@cachecha.com"
+
+	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail[%s]\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, now, tEmail)
+
+	err := Delivery("127.0.0.1:25", "midoks@163.com", "admin@cachecha.com", []byte(content))
 	fmt.Println("err:", err)
 }
 
