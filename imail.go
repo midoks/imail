@@ -115,14 +115,6 @@ func main() {
 	startService("pop3")
 	startService("imap")
 
-	//debug log
-	log.Trace("Trace")
-	log.Debug("Debug")
-	log.Warn("Warn")
-	log.Info("info")
-	log.Error("error")
-	// log.Fatal("Fatal")
-
 	http_enable, err := config.GetBool("http.enable", false)
 	if http_enable {
 		http_port, err := config.GetInt("http.port", 80)
