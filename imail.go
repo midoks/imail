@@ -9,9 +9,9 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/midoks/imail/internal/debug"
 	"github.com/midoks/imail/internal/imap"
+	"github.com/midoks/imail/internal/log"
 	"github.com/midoks/imail/internal/pop3"
 	"github.com/midoks/imail/internal/smtpd"
-	// "log"
 	"strings"
 )
 
@@ -139,12 +139,13 @@ func main() {
 	// err := smtpd.SendMail("smtp.gmail.com", "587", auth, "yuludejia@gmail.com", []string{"midoks@163.com"}, msg)
 	// fmt.Println("err:", err)
 
+	log.Init()
+	db.Init()
+
 	runmode := config.GetString("runmode", "dev")
 	if strings.EqualFold(runmode, "dev") {
 		go debug.Pprof()
 	}
-
-	db.Init()
 
 	startService("smtpd")
 	startService("pop3")
@@ -154,12 +155,18 @@ func main() {
 	if http_enable {
 		http_port, err := config.GetInt("http.port", 80)
 		if err == nil {
-			app.Start(http_port)
-			fmt.Println("listen http success!")
+			go app.Start(http_port)
+			log.Info("listen http success!")
 		} else {
-			fmt.Println("listen http erorr:", err)
+			log.Error("listen http erorr:", err)
 		}
-
 	}
-	fmt.Println("end", err)
+
+	//debug log
+	log.Trace("Trace")
+	log.Debug("Debug")
+	log.Warn("Warn")
+	log.Info("info")
+	log.Error("error")
+	log.Fatal("Fatal")
 }
