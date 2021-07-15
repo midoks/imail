@@ -2,7 +2,6 @@ package config
 
 import (
 	"errors"
-	"fmt"
 	"github.com/pelletier/go-toml"
 	"reflect"
 	"unsafe"
@@ -16,11 +15,9 @@ func Load(path string) error {
 	confToml, err = toml.LoadFile(path) //load config file
 
 	if err != nil {
-		fmt.Println("config init error:", err, confToml)
+		panic("config init error")
 		return err
 	}
-
-	fmt.Println("config file init success!")
 	return nil
 }
 
