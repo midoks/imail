@@ -14,18 +14,19 @@ import (
 var (
 	logFilePath = "./logs"
 	logFileName = "system.log"
+	logger      *logrus.Logger
 )
 
 func Init() {
 	fileName := path.Join(logFilePath, logFileName)
-	fmt.Println(fileName)
-	// 写入文件
-	src, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModeAppend)
+
+	src, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
 		fmt.Println("err", err)
 	}
-	logger := logrus.New()
-	logger.SetLevel(logrus.TraceLevel)
+	logger = logrus.New()
+	logger.SetLevel(logrus.InfoLevel)
+	logger.SetFormatter(&logrus.TextFormatter{})
 	logger.Out = src
 
 	// 设置 rotatelogs
@@ -37,12 +38,11 @@ func Init() {
 		// 设置最大保存时间(7天)
 		rotatelogs.WithMaxAge(7*24*time.Hour),
 		// 设置日志切割时间间隔(1天)
-		rotatelogs.WithRotationTime(24*time.Hour),
+		rotatelogs.WithRotationTime(1*time.Minute),
 	)
 
-	// fmt.Println(logger)
-
 	writeMap := lfshook.WriterMap{
+		logrus.TraceLevel: logWriter,
 		logrus.InfoLevel:  logWriter,
 		logrus.FatalLevel: logWriter,
 		logrus.DebugLevel: logWriter,
@@ -51,7 +51,7 @@ func Init() {
 		logrus.PanicLevel: logWriter,
 	}
 
-	logger.AddHook(lfshook.NewHook(writeMap, &logrus.JSONFormatter{
+	logger.AddHook(lfshook.NewHook(writeMap, &logrus.TextFormatter{
 		TimestampFormat: "2006-01-02 15:04:05",
 	}))
 
@@ -83,32 +83,66 @@ func Init() {
 	// 	}).Info()
 	// }
 
+	// 日志格式
+	// logger.WithFields().Info()
+	logger.WithFields(logrus.Fields{
+		"animal": "walrus",
+	}).Info("A walrus appears")
+
 }
 
 func Trace(args ...interface{}) {
-	logrus.Trace(args...)
+	logger.Trace(args...)
 }
 
 func Debug(args ...interface{}) {
-	logrus.Debug(args...)
+	logger.Debug(args...)
 }
 
 func Info(args ...interface{}) {
-	logrus.Info(args...)
+	logger.Info(args...)
 }
 
 func Warn(args ...interface{}) {
-	logrus.Warn(args...)
+	logger.Warn(args...)
 }
 
 func Error(args ...interface{}) {
-	logrus.Error(args...)
+	logger.Error(args...)
 }
 
 func Fatal(args ...interface{}) {
-	logrus.Fatal(args...)
+	logger.Fatal(args...)
 }
 
 func Panic(args ...interface{}) {
-	logrus.Panic(args...)
+	logger.Panic(args...)
+}
+
+func Tracef(format string, args ...interface{}) {
+	logger.Tracef(format, args...)
+}
+
+func Debugf(format string, args ...interface{}) {
+	logger.Debugf(format, args...)
+}
+
+func Infof(format string, args ...interface{}) {
+	logger.Infof(format, args...)
+}
+
+func Warnf(format string, args ...interface{}) {
+	logger.Warnf(format, args...)
+}
+
+func Errorf(format string, args ...interface{}) {
+	logger.Errorf(format, args...)
+}
+
+func Fatalf(format string, args ...interface{}) {
+	logger.Fatalf(format, args...)
+}
+
+func Panicf(format string, args ...interface{}) {
+	logger.Panicf(format, args...)
 }

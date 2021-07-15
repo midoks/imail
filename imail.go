@@ -23,7 +23,7 @@ func startService(name string) {
 		config_port := fmt.Sprintf("%s.port", name)
 		port, err := config.GetInt(config_port, 25)
 		if err == nil {
-			fmt.Printf("listen %s port:%d success!\n", name, port)
+			log.Infof("listen %s port:%d success!", name, port)
 
 			if strings.EqualFold(name, "smtpd") {
 				go smtpd.Start(port)
@@ -33,7 +33,7 @@ func startService(name string) {
 				go imap.Start(port)
 			}
 		} else {
-			fmt.Printf("listen %s erorr:%s\n", name, err)
+			log.Errorf("listen %s erorr:%s", name, err)
 		}
 	}
 
@@ -44,7 +44,7 @@ func startService(name string) {
 		config_ssl_port := fmt.Sprintf("%s.ssl_port", name)
 		ssl_port, err := config.GetInt(config_ssl_port, 25)
 		if err == nil {
-			fmt.Printf("listen %s ssl port:%d success!\n", name, ssl_port)
+			log.Infof("listen %s ssl port:%d success!", name, ssl_port)
 
 			if strings.EqualFold(name, "smtpd") {
 				go smtpd.StartSSL(ssl_port)
@@ -54,7 +54,7 @@ func startService(name string) {
 				go imap.StartSSL(ssl_port)
 			}
 		} else {
-			fmt.Printf("listen %s ssl erorr:%s\n", name, err)
+			log.Errorf("listen %s ssl erorr:%s", name, err)
 		}
 	}
 }
@@ -97,49 +97,13 @@ func main() {
 	// go mod init
 	// go mod tidy
 	// go mod vendor
+	log.Init()
 
 	err := config.Load("conf/app.conf")
 	if err != nil {
-		return
+		log.Panicf("config file load err")
 	}
-	// err := dkim.MakeDkimConfFile("biqu.xyz")
-	// fmt.Println(err)
 
-	// tomail := "627293072@qq.com"
-
-	// msg := []byte("from:admin@cachecha.com\r\n" +
-	// 	"to: " + tomail + "\r\n" +
-	// 	"Subject: hello,imail!\r\n" +
-	// 	"Content-Type:multipart/mixed;boundary=a\r\n" +
-	// 	"Mime-Version:1.0\r\n" +
-	// 	"\r\n" +
-	// 	"--a\r\n" +
-	// 	"Content-type:text/plain;charset=utf-8\r\n" +
-	// 	"Content-Transfer-Encoding:quoted-printable\r\n" +
-	// 	"\r\n" +
-	// 	"此处为正文内容D!\r\n")
-
-	// err := smtpd.Delivery("admin@cachecha.com", tomail, msg)
-	// fmt.Println("err:", err)
-
-	// auth := smtpd.PlainAuth("", "yuludejia@gmail.com", "pmroenyllybhlwub", "smtp.gmail.com")
-
-	// msg := []byte("from:yuludejia@gmail.com\r\n" +
-	// 	"to: midoks@163.com\r\n" +
-	// 	"Subject: hello,subject!\r\n" +
-	// 	"Content-Type:multipart/mixed;boundary=a\r\n" +
-	// 	"Mime-Version:1.0\r\n" +
-	// 	"\r\n" +
-	// 	"--a\r\n" +
-	// 	"Content-type:text/plain;charset=utf-8\r\n" +
-	// 	"Content-Transfer-Encoding:quoted-printable\r\n" +
-	// 	"\r\n" +
-	// 	"此处为正文内容D!\r\n")
-
-	// err := smtpd.SendMail("smtp.gmail.com", "587", auth, "yuludejia@gmail.com", []string{"midoks@163.com"}, msg)
-	// fmt.Println("err:", err)
-
-	log.Init()
 	db.Init()
 
 	runmode := config.GetString("runmode", "dev")
@@ -151,22 +115,22 @@ func main() {
 	startService("pop3")
 	startService("imap")
 
-	http_enable, err := config.GetBool("http.enable", false)
-	if http_enable {
-		http_port, err := config.GetInt("http.port", 80)
-		if err == nil {
-			go app.Start(http_port)
-			log.Info("listen http success!")
-		} else {
-			log.Error("listen http erorr:", err)
-		}
-	}
-
 	//debug log
 	log.Trace("Trace")
 	log.Debug("Debug")
 	log.Warn("Warn")
 	log.Info("info")
 	log.Error("error")
-	log.Fatal("Fatal")
+	// log.Fatal("Fatal")
+
+	http_enable, err := config.GetBool("http.enable", false)
+	if http_enable {
+		http_port, err := config.GetInt("http.port", 80)
+		if err == nil {
+			log.Info("listen http success!")
+			app.Start(http_port)
+		} else {
+			log.Errorf("listen http erorr:%s", err)
+		}
+	}
 }

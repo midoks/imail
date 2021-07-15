@@ -2,8 +2,8 @@ package db
 
 import (
   "fmt"
-
   "github.com/midoks/imail/internal/config"
+  "github.com/midoks/imail/internal/log"
   "gorm.io/driver/mysql"
   "gorm.io/gorm"
   "time"
@@ -26,11 +26,11 @@ func Init() {
   db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
   if err != nil {
-    fmt.Println("init db err,link error:", err)
+    log.Errorf("init db err,link error:%s", err)
     return
   }
 
-  fmt.Println("init db success!")
+  log.Info("init db success!")
 
   sqlDB, sqlErr := db.DB()
   // SetMaxIdleConns 设置空闲连接池中连接的最大数量
@@ -41,7 +41,7 @@ func Init() {
   sqlDB.SetConnMaxLifetime(time.Hour)
 
   if sqlErr != nil {
-    fmt.Println(sqlErr)
+    log.Error("[DB]", sqlErr)
     return
   }
 

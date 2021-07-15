@@ -2,11 +2,11 @@ package pop3
 
 import (
 	"bufio"
+	"crypto/tls"
 	"fmt"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/libs"
-	// "log"
-	"crypto/tls"
+	"github.com/midoks/imail/internal/log"
 	"net"
 	"strconv"
 	"strings"
@@ -94,12 +94,12 @@ func (this *Pop3Server) getState() int {
 	return this.state
 }
 
-func (this *Pop3Server) D(a ...interface{}) (n int, err error) {
+func (this *Pop3Server) D(args ...interface{}) {
 	if this.LinkSSL {
-		fmt.Print("[SSL]")
-		return fmt.Println(a...)
+		log.Infof("[SSL]:%s", args...)
+		return
 	}
-	return fmt.Println(a...)
+	log.Info(args...)
 }
 
 func (this *Pop3Server) Debug(d bool) {
@@ -107,7 +107,7 @@ func (this *Pop3Server) Debug(d bool) {
 }
 
 func (this *Pop3Server) w(msg string) error {
-	log := fmt.Sprintf("pop3[w]:%s", msg)
+	log := fmt.Sprintf("POP[w]:%s", msg)
 	this.D(log)
 
 	_, err := this.writer.Write([]byte(msg))
@@ -493,7 +493,7 @@ func (this *Pop3Server) StartPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
-		panic(err)
+		log.Panicf("pop[start]:%s", err)
 		return
 	}
 	defer ln.Close()
@@ -513,7 +513,7 @@ func (this *Pop3Server) StartSSLPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := tls.Listen("tcp", addr, this.TLSConfig)
 	if err != nil {
-		panic(err)
+		log.Panicf("pop[start][ssl]:%s", err)
 		return
 	}
 	defer ln.Close()
