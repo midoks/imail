@@ -97,13 +97,13 @@ func main() {
 	// go mod init
 	// go mod tidy
 	// go mod vendor
-	log.Init()
 
 	err := config.Load("conf/app.conf")
 	if err != nil {
-		log.Panicf("config file load err")
+		panic("config file load err")
 	}
 
+	log.Init()
 	db.Init()
 
 	runmode := config.GetString("runmode", "dev")

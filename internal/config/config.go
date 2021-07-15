@@ -2,7 +2,7 @@ package config
 
 import (
 	"errors"
-	"github.com/midoks/imail/internal/log"
+	"fmt"
 	"github.com/pelletier/go-toml"
 	"reflect"
 	"unsafe"
@@ -16,11 +16,11 @@ func Load(path string) error {
 	confToml, err = toml.LoadFile(path) //load config file
 
 	if err != nil {
-		log.Infof("config init error:", err, confToml)
+		fmt.Println("config init error:", err, confToml)
 		return err
 	}
 
-	log.Infof("config file init success!")
+	fmt.Println("config file init success!")
 	return nil
 }
 

@@ -96,10 +96,10 @@ func (this *Pop3Server) getState() int {
 
 func (this *Pop3Server) D(args ...interface{}) {
 	if this.LinkSSL {
-		log.Infof("[SSL]:%s", args...)
+		log.Debugf("[SSL]:%s", args...)
 		return
 	}
-	log.Info(args...)
+	log.Debug(args...)
 }
 
 func (this *Pop3Server) Debug(d bool) {

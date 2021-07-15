@@ -4,10 +4,12 @@ import (
 	"fmt"
 	// "github.com/gin-gonic/gin"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
+	"github.com/midoks/imail/internal/config"
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
 	"os"
 	"path"
+	"strings"
 	"time"
 )
 
@@ -25,9 +27,16 @@ func Init() {
 		fmt.Println("err", err)
 	}
 	logger = logrus.New()
-	logger.SetLevel(logrus.InfoLevel)
+
 	logger.SetFormatter(&logrus.TextFormatter{})
 	logger.Out = src
+
+	runmode := config.GetString("runmode", "dev")
+	if strings.EqualFold(runmode, "dev") {
+		logger.SetLevel(logrus.DebugLevel)
+	} else {
+		logger.SetLevel(logrus.InfoLevel)
+	}
 
 	// 设置 rotatelogs
 	logWriter, err := rotatelogs.New(

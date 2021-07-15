@@ -9,6 +9,7 @@ import (
 	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/libs"
+	"github.com/midoks/imail/internal/log"
 	"io"
 	"net"
 	"net/textproto"
@@ -175,12 +176,12 @@ func (this *SmtpdServer) getState() int {
 	return this.state
 }
 
-func (this *SmtpdServer) D(a ...interface{}) (n int, err error) {
+func (this *SmtpdServer) D(args ...interface{}) {
 	if this.LinkSSL {
-		fmt.Print("[SSL]")
-		return fmt.Println(a...)
+		log.Debugf("[SSL]:%s", args...)
+		return
 	}
-	return fmt.Println(a...)
+	log.Debug(args...)
 }
 
 func (this *SmtpdServer) Debug(d bool) {
