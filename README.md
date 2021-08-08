@@ -14,3 +14,14 @@ imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件
 ### WIKI
 - https://github.com/midoks/imail/wiki
 
+### API文档
+
+为了更加专注编辑程序逻辑。前端和后端彻底分离。本项目只写接口。
+欢迎大家提供意见。
+
+- https://github.com/midoks/imail/wiki/API%E6%96%87%E6%A1%A3
+
+### 前端项目
+
+- 
+
