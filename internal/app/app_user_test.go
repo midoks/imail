@@ -5,6 +5,12 @@ import (
 	"testing"
 )
 
-func TestUserRegister(c *gin.Context) {
+// go test -run TestUserRegister
+func TestUserRegister(t *testing.T) {
+
+}
+
+// go test -run TestUserLogin
+func TestUserLogin(t *testing.T) {
 
 }

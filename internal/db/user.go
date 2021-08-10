@@ -39,6 +39,22 @@ func LoginWithCode(name string, code string) (bool, int64) {
 	return false, 0
 }
 
+func LoginByUserPassword(name string, password string) (bool, int64) {
+
+	var user User
+	err := db.First(&user, "name = ?", name).Error
+
+	if err != nil {
+		return false, 0
+	}
+
+	if user.Password == password {
+		return true, user.Id
+	}
+
+	return false, 0
+}
+
 func UserGetByName(name string) (User, error) {
 	list := strings.SplitN(name, "@", 2)
 	var user User

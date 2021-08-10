@@ -9,7 +9,7 @@ func Start(port int) {
 
 	r := gin.Default()
 	r.GET("/", IndexWeb)
-	r.GET("/login", LoginWeb)
+	r.GET("/login", UserLogin)
 
 	//监听端口默认为8080
 	listen_port := fmt.Sprintf(":%d", port)
