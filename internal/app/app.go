@@ -13,6 +13,5 @@ func Start(port int) {
 
 	//监听端口默认为8080
 	listen_port := fmt.Sprintf(":%d", port)
-	// fmt.Println(listen_port)
 	r.Run(listen_port)
 }
