@@ -1,7 +1,6 @@
 package app
 
 import (
-	// "fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/midoks/imail/internal/db"
 )
