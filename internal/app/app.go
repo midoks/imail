@@ -12,8 +12,14 @@ func IndexWeb(c *gin.Context) {
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
+
 	r.GET("/", IndexWeb)
-	r.GET("/login", UserLogin)
+
+	v1 := r.Group("v1")
+	{
+		v1.POST("/login", UserLogin)
+	}
+
 	return r
 }
 
