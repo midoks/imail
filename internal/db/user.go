@@ -1,8 +1,8 @@
 package db
 
 import (
-	_ "fmt"
-	_ "github.com/midoks/imail/internal/libs"
+	// "fmt"
+	"github.com/midoks/imail/internal/libs"
 	"strings"
 	_ "time"
 )
@@ -39,7 +39,7 @@ func LoginWithCode(name string, code string) (bool, int64) {
 	return false, 0
 }
 
-func LoginByUserPassword(name string, password string) (bool, int64) {
+func LoginByUserPassword(name string, password string, rand string) (bool, int64) {
 
 	var user User
 	err := db.First(&user, "name = ?", name).Error
@@ -48,7 +48,8 @@ func LoginByUserPassword(name string, password string) (bool, int64) {
 		return false, 0
 	}
 
-	if user.Password == password {
+	passMd5 := libs.Md5str(user.Password + rand)
+	if passMd5 == password {
 		return true, user.Id
 	}
 
