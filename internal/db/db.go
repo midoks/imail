@@ -46,6 +46,7 @@ func Init() {
   }
 
   db.AutoMigrate(&User{})
+  db.AutoMigrate(&UserLoginVerify{})
   db.AutoMigrate(&Mail{})
   db.AutoMigrate(&Box{})
   db.AutoMigrate(&Class{})

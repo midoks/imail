@@ -1,7 +1,7 @@
 package app
 
 import (
-	// "fmt"
+	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/midoks/imail/internal/db"
@@ -13,16 +13,26 @@ func UserRegister(c *gin.Context) {
 }
 
 func GetUserCode(c *gin.Context) {
-	sess := sessions.Default(c)
-
 	rand := libs.RandString(10)
 	token := libs.Md5str(rand)
 
-	sess.Set("rand", rand)
-	sess.Set("token", token)
-	sess.Save()
+	name := c.Query("name")
 
-	c.JSON(200, gin.H{"rand": rand, "token": token})
+	fmt.Println("name:", name)
+
+	if name == "" {
+		c.JSON(200, gin.H{"code": -1, "rand": rand, "token": token})
+		return
+	}
+
+	db.UserLoginVerifyAdd(name, rand, token)
+
+	// sess := sessions.Default(c)
+	// sess.Set("rand", rand)
+	// sess.Set("token", token)
+	// sess.Save()
+
+	c.JSON(200, gin.H{"code": "0", "rand": rand, "token": token})
 
 }
 
