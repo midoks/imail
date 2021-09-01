@@ -5,5 +5,10 @@
 if [ ! -f go.mod ]; then
 	go mod init
 fi
+
 go mod tidy
-go mod vendor
+
+if [ ! -d vendor ]; then
+	go mod vendor
+fi
+

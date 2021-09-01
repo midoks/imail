@@ -5,8 +5,10 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/astaxie/beego/httplib"
+	// "github.com/astaxie/beego/httplib"
 	"github.com/axgle/mahonia"
+	"io/ioutil"
+	"net/http"
 	"net/mail"
 	"os"
 	// "runtime"
@@ -75,14 +77,14 @@ func RemoveDuplicatesAndEmpty(a []string) (ret []string) {
 }
 
 func GetHttpData(url string) (string, error) {
-	req := httplib.Get(url)
-
-	str, err := req.String()
+	resp, err := http.Get(url)
 	if err != nil {
 		return "", errors.New("资源获取错误!")
 	}
+	defer resp.Body.Close()
 
-	return str, nil
+	body, err := ioutil.ReadAll(resp.Body)
+	return string(body), err
 }
 
 func PathExists(path string) (bool, error) {
