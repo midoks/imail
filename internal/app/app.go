@@ -2,9 +2,9 @@ package app
 
 import (
 	"fmt"
-	// "github.com/gin-contrib/sessions"
-	// "github.com/gin-contrib/sessions/cookie"
-	// "github.com/gin-contrib/sessions/redis"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/db"
@@ -36,13 +36,15 @@ func SetupRouter() *gin.Engine {
 	r := gin.Default()
 	r.Use(FixTestMiddleware())
 
-	store := cookie.NewStore([]byte("SESSION_SECRET"))
-	store, _ := redis.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))
-	store.Options(sessions.Options{MaxAge: 60 * 10})
+	store, err := redis.NewStore(10, "tcp", "127.0.0.1:6379", "", []byte("secret"))
+	if err != nil {
+		store = cookie.NewStore([]byte("SESSION_SECRET"))
+	}
+	store.Options(sessions.Options{MaxAge: 60 * 60})
 	r.Use(sessions.Sessions("sessionid", store))
 
+	//router
 	r.GET("/", IndexWeb)
-
 	v1 := r.Group("v1")
 	{
 		v1.GET("/get_code", GetUserCode)
@@ -53,7 +55,6 @@ func SetupRouter() *gin.Engine {
 }
 
 func Start(port int) {
-	// db.Init()
 	r := SetupRouter()
 
 	//监听端口默认为8080
