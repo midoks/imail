@@ -26,6 +26,24 @@ func GetUserCode(c *gin.Context) {
 	c.JSON(200, gin.H{"code": "0", "rand": rand, "token": token})
 }
 
+// update user code for mail client
+func UpdateUserCodeByName(c *gin.Context) {
+	name := c.PostForm("name")
+
+	if name == "" {
+		c.JSON(200, gin.H{"code": "-1", "msg": "name cannot be empty！"})
+	}
+
+	if db.UserCheckIsExist(name) {
+		rand := libs.RandString(10)
+		db.UserUpdateCodeGetByName(name, rand)
+		c.JSON(200, gin.H{"code": "0", "co": rand})
+	} else {
+		c.JSON(200, gin.H{"code": "-2", "msg": "name does not exist！"})
+	}
+
+}
+
 func UserLogin(c *gin.Context) {
 	name := c.PostForm("name")
 	password := c.PostForm("password")

@@ -57,8 +57,22 @@ func LoginByUserPassword(name string, password string, rand string) (bool, int64
 	return false, 0
 }
 
+func UserCheckIsExist(name string) bool {
+	var user User
+	err := db.First(&user, "name = ?", name).Error
+	if err == nil {
+		return true
+	}
+	return false
+}
+
 func UserUpdateTokenGetByName(name string, token string) bool {
 	db.Model(&User{}).Where("name = ?", name).Update("token", token)
+	return true
+}
+
+func UserUpdateCodeGetByName(name string, code string) bool {
+	db.Model(&User{}).Where("name = ?", name).Update("code", code)
 	return true
 }
 

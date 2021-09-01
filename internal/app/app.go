@@ -47,6 +47,7 @@ func SetupRouter() *gin.Engine {
 	v1 := r.Group("v1")
 	{
 		v1.GET("/get_code", GetUserCode)
+		v1.POST("/update_user_code", UpdateUserCodeByName)
 		v1.POST("/login", UserLogin)
 	}
 
