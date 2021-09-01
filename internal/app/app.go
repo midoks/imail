@@ -2,32 +2,29 @@ package app
 
 import (
 	"fmt"
-	"github.com/gin-contrib/sessions"
+	// "github.com/gin-contrib/sessions"
 	// "github.com/gin-contrib/sessions/cookie"
 	// "github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
+	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/db"
+	"github.com/midoks/imail/internal/log"
 	"net/http"
-	"strings"
+	// "strings"
 )
 
-func AuthMiddleware() gin.HandlerFunc {
+func FixTestMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if strings.HasPrefix(c.Request.URL.Path, "/login") ||
-			strings.HasPrefix(c.Request.URL.Path, "/signup") {
-			return
-		}
-		if strings.HasPrefix(c.Request.URL.Path, "/static") {
-			return
-		}
+		if !db.CheckDb() {
+			err := config.Load("../../conf/app.conf")
+			if err != nil {
+				panic("config file load err")
+			}
 
-		session := sessions.Default(c)
-		bunny := session.Get("authenticated")
-		if bunny == nil || bunny == false {
-			c.Redirect(http.StatusPermanentRedirect, "/")
-		} else {
-			c.Next()
+			log.Init()
+			db.Init()
 		}
-
+		// fmt.Println("FixTestMiddleware")
 	}
 }
 
@@ -37,6 +34,7 @@ func IndexWeb(c *gin.Context) {
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
+	r.Use(FixTestMiddleware())
 
 	// store := cookie.NewStore([]byte("SESSION_SECRET"))
 
@@ -56,7 +54,7 @@ func SetupRouter() *gin.Engine {
 }
 
 func Start(port int) {
-
+	// db.Init()
 	r := SetupRouter()
 
 	//监听端口默认为8080

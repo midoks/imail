@@ -5,6 +5,7 @@ import (
 	// "github.com/midoks/imail/internal/libs"
 	// "strings"
 	"errors"
+
 	"time"
 )
 
@@ -22,12 +23,12 @@ func (UserLoginVerify) TableName() string {
 }
 
 func UserLoginVerifyGet(name string) (UserLoginVerify, error) {
-	var u UserLoginVerify
-	db.Where("name = ?", name).First(&u)
-	if u.Name == "" {
-		return u, errors.New("record not found")
+	var ulv UserLoginVerify
+	db.Where("name = ?", name).First(&ulv)
+	if ulv.Name == "" {
+		return ulv, errors.New("record not found")
 	}
-	return u, nil
+	return ulv, nil
 }
 
 func UserLoginVerifyAdd(name string, rand string, token string) (int64, error) {

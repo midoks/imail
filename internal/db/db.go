@@ -75,3 +75,10 @@ func Init() {
     })
   }
 }
+
+func CheckDb() bool {
+  if db != nil {
+    return true
+  }
+  return false
+}

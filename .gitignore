@@ -19,3 +19,4 @@ conf/dkim/*
 tmp/*
 logs/*
 go.mod
+internal/app/logs/*

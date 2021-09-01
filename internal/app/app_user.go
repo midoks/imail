@@ -1,8 +1,8 @@
 package app
 
 import (
-	"fmt"
-	"github.com/gin-contrib/sessions"
+	// "fmt"
+	// "github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/libs"
@@ -17,9 +17,6 @@ func GetUserCode(c *gin.Context) {
 	token := libs.Md5str(rand)
 
 	name := c.Query("name")
-
-	fmt.Println("name:", name)
-
 	if name == "" {
 		c.JSON(200, gin.H{"code": -1, "rand": rand, "token": token})
 		return
@@ -43,21 +40,22 @@ func UserLogin(c *gin.Context) {
 
 	// fmt.Println("UserLogin:", name, password, token)
 
-	sess := sessions.Default(c)
-	sessRand := sess.Get("rand")
-	sessToken := sess.Get("token")
+	r, _ := db.UserLoginVerifyGet(name)
 
-	if sessRand == nil {
+	sessRand := r.Rand
+	sessToken := r.Token
+
+	if sessRand == "" {
 		c.JSON(200, gin.H{"code": "-1", "msg": "need to get code!"})
 		return
 	}
 
-	if sessToken.(string) != token {
+	if sessToken != token {
 		c.JSON(200, gin.H{"code": "-1", "msg": "token is error!"})
 		return
 	}
 
-	b, _ := db.LoginByUserPassword(name, password, sessRand.(string))
+	b, _ := db.LoginByUserPassword(name, password, sessRand)
 	if b {
 		c.JSON(200, gin.H{"code": "0", "msg": "login success!"})
 	} else {
