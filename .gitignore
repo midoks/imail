@@ -18,5 +18,4 @@ vendor_bak/*
 conf/dkim/*
 tmp/*
 logs/*
-go.mod
 internal/app/logs/*
