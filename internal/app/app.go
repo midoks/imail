@@ -36,11 +36,10 @@ func SetupRouter() *gin.Engine {
 	r := gin.Default()
 	r.Use(FixTestMiddleware())
 
-	// store := cookie.NewStore([]byte("SESSION_SECRET"))
-
-	// store, _ := redis.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))
-	// store.Options(sessions.Options{MaxAge: 60 * 10})
-	// r.Use(sessions.Sessions("sessionid", store))
+	store := cookie.NewStore([]byte("SESSION_SECRET"))
+	store, _ := redis.NewStore(10, "tcp", "localhost:6379", "", []byte("secret"))
+	store.Options(sessions.Options{MaxAge: 60 * 10})
+	r.Use(sessions.Sessions("sessionid", store))
 
 	r.GET("/", IndexWeb)
 
