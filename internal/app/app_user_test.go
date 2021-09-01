@@ -1,17 +1,13 @@
 package app
 
 import (
-	// "fmt"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"github.com/midoks/imail/internal/libs"
 	"github.com/stretchr/testify/assert"
-	// "io/ioutil"
-	// "net/http"
 	"net/http/httptest"
 	"net/url"
 	"strings"
-	// "bytes"
-	"encoding/json"
-	"github.com/midoks/imail/internal/libs"
 	"testing"
 )
 
@@ -88,5 +84,9 @@ func TestUserLogin(t *testing.T) {
 
 	w = PostForm("/v1/login", postBody, r)
 
+	var result map[string]string
+	_ = json.Unmarshal([]byte(w.Body.String()), &result)
+
 	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, 32, len(result["token"]))
 }

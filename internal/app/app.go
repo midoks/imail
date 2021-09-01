@@ -10,7 +10,6 @@ import (
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/log"
 	"net/http"
-	// "strings"
 )
 
 func FixTestMiddleware() gin.HandlerFunc {

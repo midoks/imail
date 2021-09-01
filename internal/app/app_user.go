@@ -23,14 +23,7 @@ func GetUserCode(c *gin.Context) {
 	}
 
 	db.UserLoginVerifyAdd(name, rand, token)
-
-	// sess := sessions.Default(c)
-	// sess.Set("rand", rand)
-	// sess.Set("token", token)
-	// sess.Save()
-
 	c.JSON(200, gin.H{"code": "0", "rand": rand, "token": token})
-
 }
 
 func UserLogin(c *gin.Context) {
@@ -56,8 +49,11 @@ func UserLogin(c *gin.Context) {
 	}
 
 	b, _ := db.LoginByUserPassword(name, password, sessRand)
+	loginToken := libs.Md5str(libs.RandString(10))
+
+	db.UserUpdateTokenGetByName(name, loginToken)
 	if b {
-		c.JSON(200, gin.H{"code": "0", "msg": "login success!"})
+		c.JSON(200, gin.H{"code": "0", "msg": "login success!", "token": loginToken})
 	} else {
 		c.JSON(200, gin.H{"code": "-1", "msg": "login fail!"})
 	}
