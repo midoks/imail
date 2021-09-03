@@ -38,7 +38,7 @@ chmod +x $TAGRT_DIR/imail/scripts/init.d/imail
 
 
 if [ -d /etc/init.d ];then
-	cp $TAGRT_DIR/imail/scripts/init.d/imail /etc/init.d/imail
+	cp -rf $TAGRT_DIR/imail/scripts/init.d/imail /etc/init.d/imail
 	chmod +x /etc/init.d/imail
 fi
 
