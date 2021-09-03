@@ -2,7 +2,6 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 
 
-
 cd /usr/local
 
 
@@ -14,7 +13,6 @@ else
 fi
 
 cd imail
-
 
 
 go mod tidy
