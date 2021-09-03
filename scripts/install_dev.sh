@@ -11,3 +11,8 @@ cd imail
 
 
 
+go mod tidy
+
+if [ ! -d vendor ]; then
+	go mod vendor
+fi
