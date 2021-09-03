@@ -7,13 +7,11 @@ cd /usr/local
 
 if [ ! -d /usr/local/imail ]; then
 	git clone https://github.com/midoks/imail
+	cd imail
 else
 	cd imail
 	git pull https://github.com/midoks/imail
 fi
-
-cd imail
-
 
 go mod tidy
 
