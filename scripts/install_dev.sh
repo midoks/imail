@@ -29,12 +29,12 @@ _os=`uname`
 _path=`pwd`
 _dir=`dirname $_path`
 
-sed "s:{APP_PATH}:${_dir}:g" $TAGRT_DIR/imail/script/init.d/imail.tpl > $TAGRT_DIR/imail/script/init.d/imail
-chmod +x $TAGRT_DIR/imail/script/init.d/imail
+sed "s:{APP_PATH}:${_dir}:g" $TAGRT_DIR/imail/scripts/init.d/imail.tpl > $TAGRT_DIR/imail/scripts/init.d/imail
+chmod +x $TAGRT_DIR/imail/scripts/init.d/imail
 
 
 if [ -d /etc/init.d ];then
-	cp $TAGRT_DIR/imail/script/init.d/imail /etc/init.d/imail
+	cp $TAGRT_DIR/imail/scripts/init.d/imail /etc/init.d/imail
 	chmod +x /etc/init.d/imail
 fi
 
