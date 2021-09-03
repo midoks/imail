@@ -19,4 +19,8 @@ if [ ! -d vendor ]; then
 	go mod vendor
 fi
 
-go build ./
+if [ ! -f imail ];then
+	go build ./
+fi
+
+sh scripts/make.sh
