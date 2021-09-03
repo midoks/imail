@@ -21,6 +21,13 @@ imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件
 
 - https://github.com/midoks/imail/wiki/API%E6%96%87%E6%A1%A3
 
+
+### 快速开发
+```
+curl -fsSL  https://raw.githubusercontent.com/midoks/imail/master/scripts/install_dev.sh | sh
+
+```
+
 ### 前端项目
 
 由于精力有限。新开的这个项目，不知道有机会写不～。
