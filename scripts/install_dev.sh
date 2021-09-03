@@ -24,4 +24,18 @@ if [ ! -f imail ];then
 	go build ./
 fi
 
-sh $TAGRT_DIR/imail/scripts/make.sh
+
+_os=`uname`
+_path=`pwd`
+_dir=`dirname $_path`
+
+sed "s:{APP_PATH}:${_dir}:g" $_dir/script/init.d/imail.tpl > $_dir/script/init.d/imail
+chmod +x $_dir/script/init.d/imail
+
+
+if [ -d /etc/init.d ];then
+	cp $_dir/script/init.d/imail /etc/init.d/imail
+	chmod +x /etc/init.d/imail
+fi
+
+echo `dirname $_path`
