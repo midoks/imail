@@ -4,7 +4,7 @@ _os=`uname`
 _path=`pwd`
 _dir=`dirname $_path`
 
-sed "s:{APP_PATH}:${_dir}:g" $_dir/scripts/init.d/imail.tpl > $_dir/script/init.d/imail
+sed "s:{APP_PATH}:${_dir}:g" $_dir/scripts/init.d/imail.tpl > $_dir/scripts/init.d/imail
 chmod +x $_dir/scripts/init.d/imail
 
 
