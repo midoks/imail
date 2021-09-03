@@ -2,14 +2,15 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 
 
-cd /usr/local
+TAGRT_DIR=/usr/local
+cd $TAGRT_DIR
 
 
-if [ ! -d /usr/local/imail ]; then
+if [ ! -d $TAGRT_DIR/imail ]; then
 	git clone https://github.com/midoks/imail
-	cd imail
+	cd $TAGRT_DIR/imail
 else
-	cd imail
+	cd $TAGRT_DIR/imail
 	git pull https://github.com/midoks/imail
 fi
 
@@ -23,4 +24,4 @@ if [ ! -f imail ];then
 	go build ./
 fi
 
-sh scripts/make.sh
+sh $TAGRT_DIR/imail/scripts/make.sh
