@@ -29,7 +29,9 @@ _os=`uname`
 _path=`pwd`
 _dir=`dirname $_path`
 
-sed "s:{APP_PATH}:${_dir}:g" $TAGRT_DIR/imail/scripts/init.d/imail.tpl > $TAGRT_DIR/imail/scripts/init.d/imail
+IMAIL_PATH=$_dir/imail
+
+sed "s:{APP_PATH}/:${IMAIL_PATH}:g" $TAGRT_DIR/imail/scripts/init.d/imail.tpl > $TAGRT_DIR/imail/scripts/init.d/imail
 chmod +x $TAGRT_DIR/imail/scripts/init.d/imail
 
 
