@@ -31,6 +31,8 @@ _dir=`dirname $_path`
 
 IMAIL_PATH=$_dir/imail
 
+echo $IMAIL_PATH
+
 sed "s:{APP_PATH}/:${IMAIL_PATH}:g" $TAGRT_DIR/imail/scripts/init.d/imail.tpl > $TAGRT_DIR/imail/scripts/init.d/imail
 chmod +x $TAGRT_DIR/imail/scripts/init.d/imail
 
