@@ -21,6 +21,7 @@ if [ ! -d vendor ]; then
 fi
 
 if [ ! -f imail ];then
+	rm -rf imail
 	go build ./
 fi
 
