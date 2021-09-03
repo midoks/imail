@@ -5,7 +5,13 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 
 cd /usr/local
 
-git clone https://github.com/midoks/imail
+
+if [ ! -d /usr/local/imail ]; then
+	git clone https://github.com/midoks/imail
+else
+	cd imail
+	git pull https://github.com/midoks/imail
+fi
 
 cd imail
 
