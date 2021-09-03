@@ -181,6 +181,7 @@ func (this *SmtpdServer) D(args ...interface{}) {
 		log.Debugf("[SSL]:%s", args...)
 		return
 	}
+	fmt.Println(args...)
 	log.Debug(args...)
 }
 

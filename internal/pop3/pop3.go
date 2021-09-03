@@ -99,6 +99,7 @@ func (this *Pop3Server) D(args ...interface{}) {
 		log.Debugf("[SSL]:%s", args...)
 		return
 	}
+	fmt.Println(args...)
 	log.Debug(args...)
 }
 
