@@ -3,6 +3,7 @@ module github.com/midoks/imail
 go 1.16
 
 require (
+	github.com/Shopify/go-rspamd v1.2.0
 	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/gin-contrib/sessions v0.0.3

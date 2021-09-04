@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/Shopify/go-rspamd"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-contrib/sessions/redis"
@@ -43,6 +44,19 @@ func SetupRouter() *gin.Engine {
 	r.Use(sessions.Sessions("sessionid", store))
 
 	//router
+	r.GET("/test", func(c *gin.Context) {
+
+		client := rspamd.New("https://contentscanner.com")
+		// pong, _ := client.Ping(client.Ctx)
+
+		f, _ := os.Open("/path/to/email")
+		email := rspamd.NewEmailFromReader(f).QueueId(1)
+		checkRes, _ := client.Check(ctx, email)
+		fmt.Println(client)
+		c.String(http.StatusOK, "hello world")
+
+	})
+
 	r.GET("/", IndexWeb)
 	v1 := r.Group("v1")
 	{
