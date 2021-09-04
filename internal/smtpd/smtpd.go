@@ -105,12 +105,13 @@ const (
 
 // Peer represents the client connecting to the server
 type Peer struct {
-	HeloName   string   // Server name used in HELO/EHLO command
-	Username   string   // Username from authentication, if authenticated
-	Password   string   // Password from authentication, if authenticated
-	Protocol   Protocol // Protocol used, SMTP or ESMTP
-	ServerName string   // A copy of Server.Hostname
-	Addr       net.Addr // Network address
+	HeloName         string   // Server name used in HELO/EHLO command
+	Username         string   // Username from authentication, if authenticated
+	Password         string   // Password from authentication, if authenticated
+	Protocol         Protocol // Protocol used, SMTP or ESMTP
+	ServerName       string   // A copy of Server.Hostname
+	Addr             net.Addr // Network address
+	ReceivedMailAddr string   // Received Mail Address
 }
 
 type SmtpdServer struct {
@@ -515,15 +516,23 @@ func (this *SmtpdServer) addEnvelopeDataAcceptLine(data []byte) []byte {
 		peerIP = addr.IP.String()
 	}
 
+	mdomain := config.GetString("mail.domain", "xxx.com")
+	serverTagName := fmt.Sprintf("smtp.%s (NewMx)", mdomain)
+
 	line := libs.Wrap([]byte(fmt.Sprintf(
-		"Received: from %s ([%s]) by %s with %s;%s\r\n\t%s\r\n",
-		this.peer.HeloName,
+		"Received: from %s (unknown[%s])\n\tby %s with SMTP id\n\tfor <%s>; %s\r\n",
 		peerIP,
-		this.peer.ServerName,
-		this.peer.Protocol,
-		tlsDetails,
+		peerIP,
+		serverTagName,
+		this.recordCmdMailFrom,
 		time.Now().Format("Mon, 02 Jan 2006 15:04:05 -0700 (MST)"),
 	)))
+
+	fmt.Println("HeloName", this.peer.HeloName)
+	fmt.Println("peerIP", peerIP)
+	fmt.Println("this.peer.ServerName", this.peer.ServerName)
+	fmt.Println("this.peer.Protocol", this.peer.Protocol)
+	fmt.Println("tlsDetails", tlsDetails)
 
 	data = append(data, line...)
 

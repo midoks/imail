@@ -212,8 +212,8 @@ func TestReceivedMail(t *testing.T) {
 
 	now := time.Now().Format("2006-01-02 15:04:05")
 
-	fEmail := "midoks@163.com"
-	tEmail := "admin@cachecha.com"
+	fEmail := "admin@cachecha.com"
+	tEmail := "midoks@163.com"
 
 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail[%s]\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, now, tEmail)
 
