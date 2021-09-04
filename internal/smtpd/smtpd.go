@@ -520,19 +520,14 @@ func (this *SmtpdServer) addEnvelopeDataAcceptLine(data []byte) []byte {
 	serverTagName := fmt.Sprintf("smtp.%s (NewMx)", mdomain)
 
 	line := libs.Wrap([]byte(fmt.Sprintf(
-		"Received: from %s (unknown[%s])\n\tby %s with SMTP id\n\tfor <%s>; %s\r\n",
+		"Received: from %s (unknown[%s])\n\tby %s with SMTP id\n\tfor <%s>; %s %s\r\n",
 		peerIP,
 		peerIP,
 		serverTagName,
 		this.recordCmdMailFrom,
 		time.Now().Format("Mon, 02 Jan 2006 15:04:05 -0700 (MST)"),
+		tlsDetails,
 	)))
-
-	fmt.Println("HeloName", this.peer.HeloName)
-	fmt.Println("peerIP", peerIP)
-	fmt.Println("this.peer.ServerName", this.peer.ServerName)
-	fmt.Println("this.peer.Protocol", this.peer.Protocol)
-	fmt.Println("tlsDetails", tlsDetails)
 
 	data = append(data, line...)
 
