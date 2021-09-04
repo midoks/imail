@@ -28,3 +28,5 @@ fi
 cd $TAGRT_DIR/imail/scripts
 
 sh make.sh
+
+systemctl daemon-reload
