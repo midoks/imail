@@ -49,9 +49,9 @@ func SetupRouter() *gin.Engine {
 		client := rspamd.New("https://contentscanner.com")
 		// pong, _ := client.Ping(client.Ctx)
 
-		f, _ := os.Open("/path/to/email")
-		email := rspamd.NewEmailFromReader(f).QueueId(1)
-		checkRes, _ := client.Check(ctx, email)
+		// f, _ := os.Open("/path/to/email")
+		// email := rspamd.NewEmailFromReader(f).QueueId(1)
+		// checkRes, _ := client.Check(ctx, email)
 		fmt.Println(client)
 		c.String(http.StatusOK, "hello world")
 
