@@ -12,7 +12,7 @@ imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件
 - [API](https://github.com/midoks/imail/wiki/API%E6%96%87%E6%A1%A3)
 
 
-### 
+### 计划功能
 
 - [x] 接收功能
 - [] 发送功能
