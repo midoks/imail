@@ -2,16 +2,16 @@ package main
 
 import (
 	"fmt"
+	"github.com/fsnotify/fsnotify"
 	"github.com/midoks/imail/internal/app"
 	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/db"
-	// "github.com/midoks/imail/internal/dkim"
-	"github.com/fsnotify/fsnotify"
 	"github.com/midoks/imail/internal/debug"
 	"github.com/midoks/imail/internal/imap"
 	"github.com/midoks/imail/internal/log"
 	"github.com/midoks/imail/internal/pop3"
 	"github.com/midoks/imail/internal/smtpd"
+	"github.com/midoks/imail/internal/task"
 	"strings"
 )
 
@@ -100,11 +100,12 @@ func main() {
 
 	err := config.Load("conf/app.conf")
 	if err != nil {
-		panic("config file load err")
+		panic("imail config file load err")
 	}
 
 	log.Init()
 	db.Init()
+	task.Init()
 
 	runmode := config.GetString("runmode", "dev")
 	if strings.EqualFold(runmode, "dev") {
