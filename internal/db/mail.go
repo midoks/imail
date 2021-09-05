@@ -38,7 +38,7 @@ func MailStatInfoForPop(uid int64) (int64, int64) {
 		Size  int64
 	}
 	var result Result
-	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", MailTableName())
+	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=? and type=1", MailTableName())
 	num := db.Raw(sql, uid).Scan(&result)
 
 	if num.Error != nil {
@@ -52,7 +52,7 @@ func MailStatInfoForPop(uid int64) (int64, int64) {
 func MailListForPop(uid int64) []Mail {
 
 	var result []Mail
-	sql := fmt.Sprintf("SELECT id,size FROM `%s` WHERE uid=? order by create_time desc", MailTableName())
+	sql := fmt.Sprintf("SELECT id,size FROM `%s` WHERE uid=? and type=1 order by create_time desc", MailTableName())
 	num := db.Raw(sql, uid).Find(&result)
 
 	fmt.Println("MailListForPop:", num, result)
@@ -62,7 +62,7 @@ func MailListForPop(uid int64) []Mail {
 
 func MailListPosForPop(uid int64, pos int64) ([]Mail, error) {
 	var result []Mail
-	sql := fmt.Sprintf("SELECT id,size FROM `%s` WHERE uid=? order by id limit %d,%d", MailTableName(), pos-1, 1)
+	sql := fmt.Sprintf("SELECT id,size FROM `%s` WHERE uid=? and type=1 order by id limit %d,%d", MailTableName(), pos-1, 1)
 	ret := db.Raw(sql, uid).Scan(&result)
 
 	fmt.Println(sql, result)
@@ -75,7 +75,7 @@ func MailListPosForPop(uid int64, pos int64) ([]Mail, error) {
 func MailListAllForPop(uid int64) ([]Mail, error) {
 
 	var result []Mail
-	sql := fmt.Sprintf("SELECT id,size FROM `%s` WHERE uid=? order by id", MailTableName())
+	sql := fmt.Sprintf("SELECT id,size FROM `%s` WHERE uid=? and type=1 order by id", MailTableName())
 	ret := db.Raw(sql, uid).Scan(&result)
 
 	fmt.Println(sql, result)
