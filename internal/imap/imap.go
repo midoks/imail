@@ -262,7 +262,7 @@ func (this *ImapServer) parseArgsConent(format string, data db.Mail) string {
 
 func (this *ImapServer) cmdAuth(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
-	if this.cmdCompare(inputN[1], CMD_AUTH) {
+	if len(inputN) == 4 && this.cmdCompare(inputN[1], CMD_AUTH) {
 		if len(inputN) < 4 {
 			this.writeArgs(MSG_BAD_SYNTAX, inputN[0])
 			return false
