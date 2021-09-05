@@ -15,10 +15,8 @@ else
 fi
 
 go mod tidy
+go mod vendor
 
-if [ ! -d vendor ]; then
-	go mod vendor
-fi
 
 if [ ! -f imail ];then
 	rm -rf imail
