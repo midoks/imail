@@ -355,8 +355,9 @@ func (this *Pop3Server) cmdNoop(input string) bool {
 }
 
 func (this *Pop3Server) cmdAuthPlain(input string) bool {
-	this.D("pop3[cmdAuthPlain]", input)
+
 	if this.cmdCompare(input, CMD_AUTH_PLAIN) {
+		this.D("pop3[cmdAuthPlain]", input)
 		this.w(MSG_AUTH_PLAIN)
 		return true
 	}
