@@ -12,7 +12,9 @@ import (
 	"github.com/midoks/imail/internal/pop3"
 	"github.com/midoks/imail/internal/smtpd"
 	"github.com/midoks/imail/internal/task"
+	"os"
 	"strings"
+	"syscall"
 )
 
 func startService(name string) {
@@ -94,11 +96,16 @@ func StartMonitor(path string) {
 }
 
 func main() {
-	// go mod init
-	// go mod tidy
-	// go mod vendor
 
-	err := config.Load("conf/app.conf")
+	logFile, err := os.OpenFile("./logs/run_away.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, 0660)
+	if err != nil {
+		fmt.Println(err)
+		panic("Exception capture:Failed to open exception log file")
+	}
+	// 将进程标准出错重定向至文件，进程崩溃时运行时将向该文件记录协程调用栈信息
+	syscall.Dup2(int(logFile.Fd()), int(os.Stderr.Fd()))
+
+	err = config.Load("conf/app.conf")
 	if err != nil {
 		panic("imail config file load err")
 	}

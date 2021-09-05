@@ -9,7 +9,7 @@ import (
 type Mail struct {
 	Id         int64  `gorm:"primaryKey"`
 	Uid        int64  `gorm:"comment:用户ID"`
-	Type       int    `gorm:"comment:0:发送;1:收到"`
+	Type       int    `gorm:"comment:0:发送;1:接到"`
 	MailFrom   string `gorm:"size:50;comment:邮件来源"`
 	MailTo     string `gorm:"size:50;comment:接收邮件"`
 	Content    string `gorm:"comment:邮件内容"`
