@@ -433,51 +433,35 @@ func DnsQuery(domain string) (string, error) {
 // Delivery of mail to external mail
 func Delivery(addr string, from string, to string, msg []byte) error {
 	port := "25"
-	if err := validateLine(from); err != nil {
+	var err error
+	if err = validateLine(from); err != nil {
 		return err
 	}
 
-	if err := validateLine(to); err != nil {
+	if err = validateLine(to); err != nil {
 		return err
 	}
 
 	if strings.EqualFold(addr, "") {
 		domain := strings.Split(to, "@")
 		mxHost, err := DnsQuery(domain[1])
-		fmt.Println(mxHost, err)
 
-		addr := fmt.Sprintf("%s:%s", mxHost, port)
-		fmt.Println("addr:", addr)
+		if err != nil {
+			return err
+		}
+
+		addr = fmt.Sprintf("%s:%s", mxHost, port)
 	}
 
 	c, err := Dial(addr)
 	if err != nil {
 		return err
 	}
-	// domain := strings.Split(to, "@")
-	// mxHost, err := DnsQuery(domain[1])
-	// fmt.Println(mxHost, err)
 
-	// addr := fmt.Sprintf("%s:%s", mxHost, port)
-	// fmt.Println("addr:", addr)
-	// c, err := Dial(addr)
-	// if err != nil {
-	// 	return err
-	// }
 	defer c.Close()
 	if err = c.hello(); err != nil {
 		return err
 	}
-
-	// if ok, _ := c.Extension("STARTTLS"); ok {
-	// 	config := &tls.Config{ServerName: c.serverName}
-	// 	if testHookStartTLS != nil {
-	// 		testHookStartTLS(config)
-	// 	}
-	// 	if err = c.StartTLS(config); err != nil {
-	// 		return err
-	// 	}
-	// }
 
 	if err = c.Mail(from); err != nil {
 		return err
@@ -486,12 +470,6 @@ func Delivery(addr string, from string, to string, msg []byte) error {
 	if err = c.Rcpt(to); err != nil {
 		return err
 	}
-
-	// for _, addr := range to {
-	// 	if err = c.Rcpt(addr); err != nil {
-	// 		return err
-	// 	}
-	// }
 
 	w, err := c.Data()
 	if err != nil {

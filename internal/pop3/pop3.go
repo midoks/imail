@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"crypto/tls"
 	"fmt"
+	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/libs"
 	"github.com/midoks/imail/internal/log"
@@ -99,8 +100,12 @@ func (this *Pop3Server) D(args ...interface{}) {
 		log.Debugf("[SSL]:%s", args...)
 		return
 	}
-	fmt.Println(args...)
-	log.Debug(args...)
+
+	pop3Debug, _ := config.GetBool("pop3.debug", false)
+	if pop3Debug {
+		fmt.Println(args...)
+		log.Debug(args...)
+	}
 }
 
 func (this *Pop3Server) Debug(d bool) {

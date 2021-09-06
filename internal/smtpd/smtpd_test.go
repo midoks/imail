@@ -106,16 +106,16 @@ func TestDnsQuery(t *testing.T) {
 	}
 }
 
-// go test -run TestDnsQuery
+// go test -run TestMailDelivery
 //MailDelivery
 func TestMailDelivery(t *testing.T) {
-	toEmail := "midoks@163.com"
+	toEmail := "627293072@qq.com"
 	fromEmail := "admin@cachecha.com"
 
 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fromEmail, toEmail)
+	fmt.Println(content)
 	err := Delivery("", fromEmail, toEmail, []byte(content))
 	if err != nil {
-		fmt.Println("err:", err)
 		t.Error("TestMailDelivery fail:" + err.Error())
 	} else {
 		t.Log("TestMailDelivery ok")

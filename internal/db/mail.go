@@ -53,10 +53,17 @@ func MailListForPop(uid int64) []Mail {
 
 	var result []Mail
 	sql := fmt.Sprintf("SELECT id,size FROM `%s` WHERE uid=? and type=1 order by create_time desc", MailTableName())
-	num := db.Raw(sql, uid).Find(&result)
+	_ = db.Raw(sql, uid).Find(&result)
 
-	fmt.Println("MailListForPop:", num, result)
+	// fmt.Println("MailListForPop:", num, result)
+	return result
+}
 
+func MailSendListForStatus(limit int64) []Mail {
+
+	var result []Mail
+	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE status=0 and type=0 order by create_time limit %d", MailTableName(), limit)
+	_ = db.Raw(sql).Find(&result)
 	return result
 }
 
@@ -65,7 +72,7 @@ func MailListPosForPop(uid int64, pos int64) ([]Mail, error) {
 	sql := fmt.Sprintf("SELECT id,size FROM `%s` WHERE uid=? and type=1 order by id limit %d,%d", MailTableName(), pos-1, 1)
 	ret := db.Raw(sql, uid).Scan(&result)
 
-	fmt.Println(sql, result)
+	// fmt.Println(sql, result)
 	if ret.Error != nil {
 		return nil, ret.Error
 	}
@@ -77,8 +84,7 @@ func MailListAllForPop(uid int64) ([]Mail, error) {
 	var result []Mail
 	sql := fmt.Sprintf("SELECT id,size FROM `%s` WHERE uid=? and type=1 order by id", MailTableName())
 	ret := db.Raw(sql, uid).Scan(&result)
-
-	fmt.Println(sql, result)
+	// fmt.Println(sql, result)
 	if ret.Error != nil {
 		return nil, ret.Error
 	}
@@ -97,60 +103,39 @@ func MailPosContentForPop(uid int64, pos int64) (string, int, error) {
 	return result[0].Content, result[0].Size, nil
 }
 
-// func BoxPosTop(uid int64, pos int64, line int64) ([]Mail, error) {
-// 	var result []Mail
-// 	sql := fmt.Sprintf("SELECT id,size FROM `%s` WHERE uid=? order by id limit %d,%d", MailTableName(), pos-1, 1)
-// 	ret := db.Raw(sql, uid).Scan(&result)
-
-// 	fmt.Println(sql, result)
-// 	if ret.Error != nil {
-// 		return nil, ret.Error
-// 	}
-// 	return result, nil
-// }
-
-// func BoxPosTop(uid int64, pos int64, line int64) (string, string, error) {
-// 	text, size, err := BoxPosContent(uid, pos)
-
-// 	if err != nil {
-// 		return "", size, err
-// 	}
-
-// 	textSplit := strings.SplitN(text, "\r\n\r\n", 2)
-// 	if line == 0 {
-// 		return textSplit[0] + "\r\n.\r\n", size, nil
-// 	}
-// 	return "", size, err
-// }
-
 func MailSoftDeleteById(id int64) bool {
 	db.Model(&Mail{}).Where("id = ?", id).Update("is_delete", 1)
-	return false
+	return true
 }
 
 func MailHardDeleteById(id int64) bool {
 	db.Where("id = ?", id).Delete(&Mail{})
-	return false
+	return true
 }
 
 func MailSeenById(id int64) bool {
 	db.Model(&Mail{}).Where("id = ?", id).Update("is_read", 1)
-	return false
+	return true
 }
 
 func MailUnSeenById(id int64) bool {
 	db.Model(&Mail{}).Where("id = ?", id).Update("is_read", 0)
-	return false
+	return true
 }
 
 func MailSetFlagsById(id int64, status int64) bool {
 	db.Model(&Mail{}).Where("id = ?", id).Update("is_flags", status)
-	return false
+	return true
 }
 
 func MailSetJunkById(id int64, status int64) bool {
 	db.Model(&Mail{}).Where("id = ?", id).Update("is_delete", status)
-	return false
+	return true
+}
+
+func MailSetStatusById(id int64, status int64) bool {
+	db.Model(&Mail{}).Where("id = ?", id).Update("status", status)
+	return true
 }
 
 func MailPush(uid int64, mtype int, mail_from string, mail_to string, content string, status int) (int64, error) {
