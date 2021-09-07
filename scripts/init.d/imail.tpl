@@ -27,10 +27,10 @@ app_path={APP_PATH}
 SERVICENAME="imail"
 
 im_start(){
-    isStart=`ps -ef|grep 'imail web' |grep -v grep|awk '{print $2}'`
+    isStart=`ps -ef|grep 'imail service' |grep -v grep|awk '{print $2}'`
     if [ "$isStart" == '' ];then
         echo -e "Starting imail... \c"
-        cd $app_path && ./imail web &
+        cd $app_path && ./imail service &
         isStart=""
         while [[ "$isStart" == "" ]];
         do
@@ -57,7 +57,7 @@ im_start(){
 }
 
 im_stop(){
-	pids=`ps -ef|grep 'imail web' |grep -v grep|awk '{print $2}'`
+	pids=`ps -ef|grep 'imail service' |grep -v grep|awk '{print $2}'`
     arr=($pids)
     echo -e "Stopping ${SERVICENAME}... \c"
     for p in ${arr[@]}
@@ -68,7 +68,7 @@ im_stop(){
 }
 
 im_status(){
-    isStart=`ps -ef|grep 'imail web' |grep -v grep|awk '{print $2}'`
+    isStart=`ps -ef|grep 'imail service' |grep -v grep|awk '{print $2}'`
     if [ "$isStart" == '' ];then
       echo -e "${SERVICENAME} not running"
     else
