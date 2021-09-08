@@ -698,7 +698,6 @@ func (this *SmtpdServer) handle() {
 		}
 
 		if this.runModeIn {
-			this.D("当前运行模式：投递模式")
 
 			//CMD_MAIL_FROM
 			if this.stateCompare(state, CMD_MAIL_FROM) {
@@ -717,7 +716,6 @@ func (this *SmtpdServer) handle() {
 			}
 
 		} else {
-			this.D("当前运行模式: 发送模式[需要认证]")
 
 			if this.cmdAuthPlainLogin(input) {
 				this.setState(CMD_AUTH_LOGIN_PWD)
