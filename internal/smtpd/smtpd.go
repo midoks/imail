@@ -658,6 +658,8 @@ func (this *SmtpdServer) handle() {
 				if this.cmdMailFrom(input) {
 					this.setState(CMD_MAIL_FROM)
 					this.runModeIn = true
+				} else {
+					this.runModeIn = false
 				}
 			}
 
