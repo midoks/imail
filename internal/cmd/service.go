@@ -15,6 +15,7 @@ import (
 	"github.com/midoks/imail/internal/smtpd"
 	"github.com/midoks/imail/internal/task"
 	"github.com/urfave/cli"
+	"os"
 	"strings"
 )
 
@@ -30,18 +31,27 @@ var Service = cli.Command{
 
 func runAllService(c *cli.Context) error {
 
+	log.Init()
+
 	confFile := c.String("config")
 	if confFile == "" {
 		confFile = "conf/app.conf"
 	}
 
+	if _, err := os.Stat(confFile); err != nil {
+		if os.IsNotExist(err) {
+			return errors.New("imail config is not exist!")
+		} else {
+			return err
+		}
+	}
+
 	err := config.Load(confFile)
 	if err != nil {
-		log.Errorf("imail config file load err:%s", err)
+		log.Infof("imail config file load err:%s", err)
 		return errors.New("imail config file load err")
 	}
 
-	log.Init()
 	db.Init()
 	task.Init()
 
@@ -162,7 +172,7 @@ func StartMonitor(path string) {
 
 			case err = <-watcher.Errors:
 				if err != nil {
-					fmt.Println("错误:", err)
+					fmt.Println("err:", err)
 				}
 
 			}

@@ -31,11 +31,15 @@ func Init() {
 	logger.SetFormatter(&logrus.TextFormatter{})
 	logger.Out = src
 
-	runmode := config.GetString("runmode", "dev")
-	if strings.EqualFold(runmode, "dev") {
-		logger.SetLevel(logrus.DebugLevel)
+	if config.IsLoaded() {
+		runmode := config.GetString("runmode", "dev")
+		if strings.EqualFold(runmode, "dev") {
+			logger.SetLevel(logrus.DebugLevel)
+		} else {
+			logger.SetLevel(logrus.InfoLevel)
+		}
 	} else {
-		logger.SetLevel(logrus.InfoLevel)
+		logger.SetLevel(logrus.DebugLevel)
 	}
 
 	// 设置 rotatelogs

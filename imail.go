@@ -32,7 +32,7 @@ func main() {
 	}
 
 	if err := app.Run(os.Args); err != nil {
-		log.Fatal("Failed to start application: %v", err)
+		log.Infof("Failed to start application: %v", err)
 	}
 
 	// cmd.ServiceDebug()

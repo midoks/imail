@@ -10,15 +10,23 @@ import (
 var confToml *toml.Tree
 var err error
 
+var IsLoadedVar bool
+
 func Load(path string) error {
 
 	confToml, err = toml.LoadFile(path) //load config file
 
 	if err != nil {
 		panic("config init error")
+		IsLoadedVar = false
 		return err
 	}
+	IsLoadedVar = true
 	return nil
+}
+
+func IsLoaded() bool {
+	return IsLoadedVar
 }
 
 func GetString(key string, def string) string {
