@@ -16,5 +16,9 @@ var Check = cli.Command{
 }
 
 func doCheck(c *cli.Context) error {
+	//smtp,pop3,imap check
+
+	//dkim check
+
 	return nil
 }
