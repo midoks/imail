@@ -140,7 +140,8 @@ type Client struct {
 // Dial returns a new Client connected to an SMTP server at addr.
 // The addr must include a port, as in "mail.example.com:smtp".
 func Dial(addr string) (*Client, error) {
-	conn, err := net.Dial("tcp", addr)
+	// conn, err := net.Dial("tcp", addr)
+	conn, err := net.DialTimeout("tcp", addr, time.Second*3)
 	if err != nil {
 		return nil, err
 	}
