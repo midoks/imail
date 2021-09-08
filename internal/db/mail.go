@@ -82,7 +82,7 @@ func MailListPosForPop(uid int64, pos int64) ([]Mail, error) {
 func MailListAllForPop(uid int64) ([]Mail, error) {
 
 	var result []Mail
-	sql := fmt.Sprintf("SELECT id,size FROM `%s` WHERE uid=? and type=1 order by id", MailTableName())
+	sql := fmt.Sprintf("SELECT id,size FROM `%s` WHERE uid=? and type=1 order by id limit 100", MailTableName())
 	ret := db.Raw(sql, uid).Scan(&result)
 	// fmt.Println(sql, result)
 	if ret.Error != nil {
@@ -93,7 +93,7 @@ func MailListAllForPop(uid int64) ([]Mail, error) {
 
 func MailPosContentForPop(uid int64, pos int64) (string, int, error) {
 	var result []Mail
-	sql := fmt.Sprintf("SELECT uid,content,size FROM `%s` WHERE uid=? order by id limit %d,%d", MailTableName(), pos-1, 1)
+	sql := fmt.Sprintf("SELECT uid,content,size FROM `%s` WHERE uid=? and type=1 order by id limit %d,%d", MailTableName(), pos-1, 1)
 	ret := db.Raw(sql, uid).Scan(&result)
 
 	if ret.Error != nil {
