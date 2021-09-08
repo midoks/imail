@@ -42,6 +42,9 @@ func makeDkim(c *cli.Context) error {
 	}
 	domain := config.GetString("mail.domain", "xxx.com")
 	content, err := dkim.MakeDkimConfFile(domain)
+
 	fmt.Println(content)
+	fmt.Println(fmt.Sprintf("_dmarc in TXT ( v=DMARC1;p=quarantine;rua=mailto:admin@%s )", domain))
+	fmt.Println(fmt.Sprintf("%s TXT ( v=spf1 a mx ~all )", domain))
 	return err
 }

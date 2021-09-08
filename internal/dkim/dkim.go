@@ -8,7 +8,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"io"
+	"github.com/midoks/imail/internal/libs"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -123,18 +123,10 @@ func MakeDkimFile(domain string) (string, error) {
 
 	pubContent := fmt.Sprintf("default._domainkey\tIN\tTXT\t(\r\nv=DKIM1;k=rsa;p=%s\r\n)\r\n----- DKIM key default for %s", pub, domain)
 
-	pubFile := fmt.Sprintf("conf/dkim/%s/default.txt", domain)
-	file, err = os.Create(pubFile)
-	if err != nil {
-		return "", err
-	}
+	err = libs.WriteFile(fmt.Sprintf("conf/dkim/%s/default.txt", domain), pubContent)
+	err = libs.WriteFile(fmt.Sprintf("conf/dkim/%s/default.val", domain), fmt.Sprintf("v=DKIM1;k=rsa;p=%s", pub))
 
-	_, err = io.WriteString(file, pubContent)
-	if err != nil {
-		return pubContent, err
-	}
-
-	return pubContent, nil
+	return pubContent, err
 }
 
 func MakeDkimConfFile(domain string) (string, error) {

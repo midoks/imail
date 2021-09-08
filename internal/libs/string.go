@@ -5,14 +5,12 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	// "github.com/astaxie/beego/httplib"
 	"github.com/axgle/mahonia"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"net/mail"
 	"os"
-	// "runtime"
-	"math/rand"
 	"strings"
 	"time"
 )
@@ -96,6 +94,17 @@ func PathExists(path string) (bool, error) {
 		return false, nil
 	}
 	return false, err
+}
+
+func WriteFile(file string, content string) error {
+	return ioutil.WriteFile(file, []byte(content), 0666)
+}
+
+func ReadFile(file string) (string, error) {
+	f, err := os.OpenFile(file, os.O_RDONLY, 0600)
+	defer f.Close()
+	b, err := ioutil.ReadAll(f)
+	return string(b), err
 }
 
 func Base64encode(in string) string {
