@@ -29,5 +29,8 @@ text-align:left">很抱歉您发送的邮件被退回，以下是该邮件的相
 </table>
 
 <p style="font-size:14px; font-family:verdana; margin:0 0 10px; line-height:22px; text-align:left">此外，您还可以 <a href="https://github.com/midoks/imail/wiki/%E9%80%80%E4%BF%A1" target="_blank">点击这里</a> 获取更多关于退信的帮助信息。</p>
+
+<hr>
+<p style="font-size:14px; font-family:verdana; margin:0 0 10px; line-height:22px; text-align:left">云服务器的25外接端口，有可能被封，需要和云服务官方联系开通</p>
 </body>
 </html>
