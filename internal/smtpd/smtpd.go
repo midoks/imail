@@ -401,6 +401,36 @@ func (this *SmtpdServer) cmdMailFrom(input string) bool {
 	}
 	return false
 }
+
+func (this *SmtpdServer) cmdModeInMailFrom(input string) bool {
+	inputN := strings.SplitN(input, ":", 2)
+
+	if len(inputN) == 2 {
+		if this.cmdCompare(inputN[0], CMD_MAIL_FROM) {
+
+			inputN[1] = strings.TrimSpace(inputN[1])
+			inputN[1] = libs.FilterAddressBody(inputN[1])
+
+			if !libs.CheckStandardMail(inputN[1]) {
+				this.write(MSG_BAD_SYNTAX)
+				return false
+			}
+
+			mailFrom := libs.GetRealMail(inputN[1])
+			if !libs.IsEmailRe(mailFrom) {
+				this.write(MSG_BAD_USER)
+				return false
+			}
+
+			this.recordCmdMailFrom = mailFrom
+			this.write(MSG_MAIL_OK)
+
+			return true
+		}
+	}
+	return false
+}
+
 func (this *SmtpdServer) cmdStartTtls(input string) bool {
 	// if this.tls {
 	// 	this.write(MSG_STARTTLS)
@@ -626,13 +656,14 @@ func (this *SmtpdServer) handle() {
 			break
 		}
 
+		if this.cmdQuit(input) {
+			break
+		}
+
 		this.D("smtpd[cmd]:", state, stateList[state], "input:[", input, "]")
 
 		//CMD_READY
 		if this.stateCompare(state, CMD_READY) {
-			if this.cmdQuit(input) {
-				break
-			}
 
 			if this.cmdHelo(input) {
 				this.setState(CMD_HELO)
@@ -646,73 +677,76 @@ func (this *SmtpdServer) handle() {
 		//CMD_HELO
 		if this.stateCompare(state, CMD_HELO) || this.stateCompare(state, CMD_EHLO) {
 
-			if this.cmdQuit(input) {
-				break
-			} else if this.cmdHelo(input) {
+			if this.cmdHelo(input) {
 				this.setState(CMD_HELO)
 			} else if this.cmdEhlo(input) {
 				this.setState(CMD_EHLO)
 			}
 
+			this.runModeIn = false
 			if this.modeIn {
-				if this.cmdMailFrom(input) {
+				if this.cmdModeInMailFrom(input) {
 					this.setState(CMD_MAIL_FROM)
 					this.runModeIn = true
-				} else {
-					this.runModeIn = false
 				}
 			}
-
-			if this.cmdAuthPlainLogin(input) {
-				this.setState(CMD_AUTH_LOGIN_PWD)
-				this.runModeIn = true
-			} else if this.cmdAuthLogin(input) {
-				this.setState(CMD_AUTH_LOGIN)
-				this.runModeIn = true
-			}
-
-		}
-		if this.runModeIn {
-			this.D("当前运行模式：投递模式")
-		} else {
-			this.D("当前运行模式: 发送模式[需要认证]")
 		}
 
-		if this.enableStartTtls {
-			if input == stateList[CMD_STARTTLS] { //CMD_STARTTLS
+		if this.enableStartTtls { //CMD_STARTTLS
+			if input == stateList[CMD_STARTTLS] {
 				if this.cmdStartTtls(input) {
 					// this.write(MSG_STARTTLS)
 				}
 			}
 		}
 
-		if !this.runModeIn {
+		if this.runModeIn {
+			this.D("当前运行模式：投递模式")
+
+			//CMD_MAIL_FROM
+			if this.stateCompare(state, CMD_MAIL_FROM) {
+
+				if this.cmdRcptTo(input) {
+					this.setState(CMD_RCPT_TO)
+				}
+			}
+
+			//CMD_RCPT_TO
+			if this.stateCompare(state, CMD_RCPT_TO) {
+
+				if this.cmdData(input) {
+					this.setState(CMD_DATA)
+				}
+			}
+
+		} else {
+			this.D("当前运行模式: 发送模式[需要认证]")
+
+			if this.cmdAuthPlainLogin(input) {
+				this.setState(CMD_AUTH_LOGIN_PWD)
+			} else if this.cmdAuthLogin(input) {
+				this.setState(CMD_AUTH_LOGIN)
+			}
+
 			isBreak := this.cmdModeOut(state, input)
 			if isBreak {
 				break
 			}
-		} else {
-		} // 外部邮件投递到本地|不需要登陆
 
-		//CMD_MAIL_FROM
-		if this.stateCompare(state, CMD_MAIL_FROM) {
-			if this.cmdQuit(input) {
-				break
+			//CMD_MAIL_FROM
+			if this.stateCompare(state, CMD_MAIL_FROM) {
+
+				if this.cmdRcptTo(input) {
+					this.setState(CMD_RCPT_TO)
+				}
 			}
 
-			if this.cmdRcptTo(input) {
-				this.setState(CMD_RCPT_TO)
-			}
-		}
+			//CMD_RCPT_TO
+			if this.stateCompare(state, CMD_RCPT_TO) {
 
-		//CMD_RCPT_TO
-		if this.stateCompare(state, CMD_RCPT_TO) {
-			if this.cmdQuit(input) {
-				break
-			}
-
-			if this.cmdData(input) {
-				this.setState(CMD_DATA)
+				if this.cmdData(input) {
+					this.setState(CMD_DATA)
+				}
 			}
 		}
 
@@ -723,15 +757,9 @@ func (this *SmtpdServer) handle() {
 			}
 		}
 
-		if this.cmdQuit(input) {
-			break
-		}
-
 		//CMD_DATA_END
 		if this.stateCompare(state, CMD_DATA_END) {
-			if this.cmdQuit(input) {
-				break
-			}
+			this.setState(CMD_READY)
 		}
 	}
 }

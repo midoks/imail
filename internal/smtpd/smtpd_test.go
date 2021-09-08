@@ -122,7 +122,7 @@ func TestMailDelivery(t *testing.T) {
 	}
 }
 
-func SendMailT(addr string, a Auth, from string, to []string, msg []byte) error {
+func SendMailTest(addr string, a Auth, from string, to []string, msg []byte) error {
 	if err := validateLine(from); err != nil {
 		return err
 	}
@@ -203,7 +203,7 @@ func TestSendMail(t *testing.T) {
 
 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail[%s]\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, now, tEmail)
 	auth := PlainAuth("", fEmail, "admin", "127.0.0.1")
-	err := SendMailT("127.0.0.1:25", auth, fEmail, []string{tEmail}, []byte(content))
+	err := SendMailTest("127.0.0.1:25", auth, fEmail, []string{tEmail}, []byte(content))
 	fmt.Println("err:", err)
 }
 
