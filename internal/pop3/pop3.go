@@ -235,26 +235,12 @@ func (this *Pop3Server) cmdList(input string) bool {
 			this.writeArgs(MSG_STAT_OK, count, size)
 
 			mailList := db.MailListForPop(this.userID)
-			// fmt.Println(mailList)
 			for i, m := range mailList {
-				// fmt.Println(i, m.Size)
 				this.writeInfo(MSG_STAT_OK, i+1, m.Size)
 			}
 			this.w(".\r\n")
 			return true
 		}
-		// else if inputLen == 2 {
-		// 	pos, err := strconv.ParseInt(inputN[1], 10, 64)
-		// 	if err == nil {
-		// 		if pos > 0 {
-		// 			list, err := db.BoxPos(this.userID, pos)
-		// 			if err == nil {
-		// 				this.writeArgs(MSG_POS_DATA, pos, list[0]["mid"])
-		// 				return true
-		// 			}
-		// 		}
-		// 	}
-		// }
 		this.error(MSG_BAD_SYNTAX)
 	}
 
@@ -266,9 +252,9 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 	if this.cmdCompare(inputN[0], CMD_UIDL) {
 		inputLen := len(inputN)
 		if inputLen == 2 {
+
 			pos, err := strconv.ParseInt(inputN[1], 10, 64)
 			if err == nil {
-
 				if pos > 0 {
 					list, err := db.MailListPosForPop(this.userID, pos)
 					// fmt.Println(list)
@@ -280,6 +266,7 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 				}
 			}
 		} else if inputLen == 1 {
+
 			this.ok("")
 			list, _ := db.MailListAllForPop(this.userID)
 			for i := 1; i <= len(list); i++ {
@@ -296,27 +283,6 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 }
 
 func (this *Pop3Server) cmdTop(input string) bool {
-	// inputN := strings.SplitN(input, " ", 2)
-	// if this.cmdCompare(inputN[0], CMD_TOP) {
-	// 	if len(inputN) == 2 {
-	// 		inputArgs := strings.SplitN(inputN[1], " ", 2)
-	// 		if len(inputArgs) == 2 {
-	// 			pos, err := strconv.ParseInt(inputArgs[0], 10, 64)
-	// 			if err == nil {
-	// 				line, err2 := strconv.ParseInt(inputArgs[1], 10, 64)
-	// 				if err2 == nil {
-	// 					content, size, err3 := db.BoxPosTop(this.userID, pos, line)
-	// 					if err3 == nil {
-	// 						// this.ok(content)
-	// 						this.writeArgs(MSG_TOP_DATA, size, content)
-	// 						return true
-	// 					}
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// 	this.error(MSG_BAD_SYNTAX)
-	// }
 	return false
 }
 
