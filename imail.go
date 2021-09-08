@@ -10,7 +10,7 @@ import (
 	"syscall"
 )
 
-const Version = "0.0.2-dev11"
+const Version = "0.0.3-dev"
 
 func init() {
 	config.App.Version = Version
@@ -35,6 +35,7 @@ func main() {
 	app.Commands = []cli.Command{
 		cmd.Service,
 		cmd.Dkim,
+		cmd.Check,
 	}
 
 	if err := app.Run(os.Args); err != nil {
