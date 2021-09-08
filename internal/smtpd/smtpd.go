@@ -182,8 +182,12 @@ func (this *SmtpdServer) D(args ...interface{}) {
 		log.Debugf("[SSL]:%s", args...)
 		return
 	}
-	fmt.Println(args...)
-	log.Debug(args...)
+
+	smtp3Debug, _ := config.GetBool("smtp.debug", false)
+	if smtp3Debug {
+		fmt.Println(args...)
+		log.Debug(args...)
+	}
 }
 
 func (this *SmtpdServer) Debug(d bool) {
