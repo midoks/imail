@@ -10,7 +10,7 @@ import (
 	"syscall"
 )
 
-const Version = "0.0.2-dev7"
+const Version = "0.0.2-dev8"
 
 func init() {
 	config.App.Version = Version

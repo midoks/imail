@@ -659,14 +659,16 @@ func (this *SmtpdServer) handle() {
 					this.setState(CMD_MAIL_FROM)
 					this.runModeIn = true
 				}
-			} else {
-
-				if this.cmdAuthPlainLogin(input) {
-					this.setState(CMD_AUTH_LOGIN_PWD)
-				} else if this.cmdAuthLogin(input) {
-					this.setState(CMD_AUTH_LOGIN)
-				}
 			}
+
+			if this.cmdAuthPlainLogin(input) {
+				this.setState(CMD_AUTH_LOGIN_PWD)
+				this.runModeIn = true
+			} else if this.cmdAuthLogin(input) {
+				this.setState(CMD_AUTH_LOGIN)
+				this.runModeIn = true
+			}
+
 		}
 		if this.runModeIn {
 			this.D("当前运行模式：投递模式")
