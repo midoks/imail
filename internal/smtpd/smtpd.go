@@ -740,7 +740,7 @@ func (this *SmtpdServer) ready() {
 
 	//mode
 	this.runModeIn = false
-	this.modeIn, _ = config.GetBool("smtpd.mode_in", false)
+	this.modeIn, _ = config.GetBool("smtpd.mode_in", true)
 
 }
 
