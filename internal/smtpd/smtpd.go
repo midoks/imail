@@ -801,9 +801,6 @@ func (this *SmtpdServer) StartPort(port int) {
 }
 
 func (this *SmtpdServer) StartSSLPort(port int) {
-	this.ready()
-	this.LinkSSL = true
-
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := tls.Listen("tcp", addr, this.TLSConfig)
 	if err != nil {
@@ -817,6 +814,9 @@ func (this *SmtpdServer) StartSSLPort(port int) {
 		if err != nil {
 			continue
 		}
+
+		this.ready()
+		this.LinkSSL = true
 		go this.start(conn)
 	}
 }
