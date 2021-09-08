@@ -23,7 +23,8 @@ func TaskQueueeSendMail() {
 			db.MailSetStatusById(val.Id, 2)
 			err := smtpd.Delivery("", val.MailFrom, val.MailTo, []byte(val.Content))
 			if err != nil {
-				content, _ := libs.GetMailReturnToSender(val.MailFrom, val.MailTo, err.Error())
+
+				content, _ := libs.GetMailReturnToSender(val.MailFrom, val.MailTo, val.Content, err.Error())
 				db.MailPush(val.Uid, 1, postmaster, val.MailFrom, content, 1)
 			}
 			db.MailSetStatusById(val.Id, 1)

@@ -4,11 +4,34 @@ import (
 	"fmt"
 	"github.com/midoks/imail/internal/config"
 	"io/ioutil"
+	"regexp"
 	"strings"
 	"time"
 )
 
-func GetMailReturnToSender(to string, err_to_mail string, msg string) (string, error) {
+func GetMailSubject(content string) string {
+	var err error
+	valid := regexp.MustCompile(`Subject: (.*)`)
+	match := valid.FindAllStringSubmatch(content, -1)
+
+	val := match[0][0]
+	tmp := strings.Split(val, ":")
+	val = strings.TrimSpace(tmp[1])
+
+	if strings.Contains(val, "=?utf-8?B?") {
+		val = strings.Replace(val, "=?utf-8?B?", "", -1)
+		val = strings.Replace(val, "?=", "", -1)
+		val = strings.TrimSpace(val)
+		val, err = Base64decode(val)
+		// if err != nil {
+		fmt.Println(val, err)
+		// }
+	}
+	return val
+}
+
+func GetMailReturnToSender(to string, err_to_mail string, err_content string, msg string) (string, error) {
+	sendSubject := GetMailSubject(err_content)
 
 	domain := config.GetString("mail.domain", "xxx.com")
 	postmaster := fmt.Sprintf("postmaster@%s", domain)
@@ -29,6 +52,7 @@ func GetMailReturnToSender(to string, err_to_mail string, msg string) (string, e
 
 	contentHtml := strings.Replace(string(dataHtml), "{TILTE}", "邮箱退信", -1)
 	contentHtml = strings.Replace(contentHtml, "{ERR_MSG}", msg, -1)
+	contentHtml = strings.Replace(contentHtml, "{SEND_SUBJECT}", sendSubject, -1)
 	contentHtml = strings.Replace(contentHtml, "{ERR_TO_MAIL}", err_to_mail, -1)
 
 	content := strings.Replace(string(data), "{MAIL_FROM}", postmaster, -1)
