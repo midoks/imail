@@ -668,6 +668,11 @@ func (this *SmtpdServer) handle() {
 				}
 			}
 		}
+		if this.runModeIn {
+			this.D("当前运行模式：投递模式")
+		} else {
+			this.D("当前运行模式: 接收模式")
+		}
 
 		if this.enableStartTtls {
 			if input == stateList[CMD_STARTTLS] { //CMD_STARTTLS
