@@ -377,7 +377,7 @@ func (this *SmtpdServer) cmdMailFrom(input string) bool {
 				return false
 			}
 
-			if this.isLogin && !this.runModeIn {
+			if this.isLogin {
 				info := strings.Split(mailFrom, "@")
 
 				if !this.isAllowDomain(info[1]) {
