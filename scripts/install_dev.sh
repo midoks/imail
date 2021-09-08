@@ -18,10 +18,9 @@ go mod tidy
 go mod vendor
 
 
-if [ ! -f imail ];then
-	rm -rf imail
-	go build ./
-fi
+rm -rf imail
+go build ./
+
 
 cd $TAGRT_DIR/imail/scripts
 
