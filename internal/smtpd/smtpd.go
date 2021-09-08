@@ -322,13 +322,10 @@ func (this *SmtpdServer) cmdAuthLoginPwd(input string) bool {
 func (this *SmtpdServer) cmdAuthPlainLogin(input string) bool {
 	if strings.HasPrefix(input, stateList[CMD_AUTH_PLAIN]) {
 		inputN := strings.SplitN(input, " ", 3)
-		// fmt.Println("cmdAuthPlainLogin:", inputN)
 		if len(inputN) == 3 {
 			data := this.base64Decode(inputN[2])
 
-			mdomain := config.GetString("mail.domain", "xxx.com")
-			fmt.Println(mdomain)
-
+			// mdomain := config.GetString("mail.domain", "xxx.com")
 			list := strings.SplitN(data, "\x00", 3)
 			userList := strings.Split(list[1], "@")
 
@@ -350,7 +347,7 @@ func (this *SmtpdServer) cmdAuthPlainLogin(input string) bool {
 func (this *SmtpdServer) isAllowDomain(domain string) bool {
 	mdomain := config.GetString("mail.domain", "xxx.com")
 	domainN := strings.Split(mdomain, ",")
-	fmt.Println(domainN)
+	// fmt.Println(domainN)
 
 	for _, d := range domainN {
 		if strings.EqualFold(d, domain) {
@@ -655,14 +652,14 @@ func (this *SmtpdServer) handle() {
 				this.setState(CMD_HELO)
 			} else if this.cmdEhlo(input) {
 				this.setState(CMD_EHLO)
-			} else if this.modeIn {
+			}
+
+			if this.modeIn {
 				if this.cmdMailFrom(input) {
 					this.setState(CMD_MAIL_FROM)
 					this.runModeIn = true
 				}
-			}
-
-			if !this.runModeIn {
+			} else {
 
 				if this.cmdAuthPlainLogin(input) {
 					this.setState(CMD_AUTH_LOGIN_PWD)
