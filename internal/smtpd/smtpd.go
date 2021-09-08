@@ -582,16 +582,13 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 	}
 
 	if this.runModeIn {
-		fmt.Println("smtpd[data][peer]:", this.peer)
+		this.D("smtpd[data][peer]:", this.peer)
 		revContent := string(this.addEnvelopeDataAcceptLine(data.Bytes()))
 		_, err := db.MailPush(this.userID, 1, this.recordCmdMailFrom, this.recordcmdRcptTo, revContent, 3)
 		if err != nil {
 			return false
 		}
-	}
-
-	if this.isLogin {
-
+	} else {
 		_, err := db.MailPush(this.userID, 0, this.recordCmdMailFrom, this.recordcmdRcptTo, content, 0)
 		if err != nil {
 			return false
