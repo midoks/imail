@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	// "fmt"
 	"errors"
 	"fmt"
 	"github.com/fsnotify/fsnotify"

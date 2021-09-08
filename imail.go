@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/midoks/imail/internal/cmd"
+	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/log"
 	"github.com/urfave/cli"
 	"os"
@@ -10,6 +11,10 @@ import (
 )
 
 const Version = "0.0.2"
+
+func init() {
+	config.App.Version = Version
+}
 
 func main() {
 
@@ -25,15 +30,16 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Imail"
-	app.Version = Version
+	app.Version = config.App.Version
 	app.Usage = "A simple mail service"
 	app.Commands = []cli.Command{
 		cmd.Service,
+		cmd.Dkim,
 	}
 
 	if err := app.Run(os.Args); err != nil {
 		log.Infof("Failed to start application: %v", err)
 	}
 
-	// cmd.ServiceDebug()
+	cmd.ServiceDebug()
 }

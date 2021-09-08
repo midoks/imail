@@ -59,10 +59,10 @@ func MailListForPop(uid int64) []Mail {
 	return result
 }
 
-func MailSendListForStatus(limit int64) []Mail {
+func MailSendListForStatus(status int64, limit int64) []Mail {
 
 	var result []Mail
-	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE status=0 and type=0 order by create_time limit %d", MailTableName(), limit)
+	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE status=%d and type=0 order by create_time limit %d", MailTableName(), status, limit)
 	_ = db.Raw(sql).Find(&result)
 	return result
 }

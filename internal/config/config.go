@@ -12,6 +12,12 @@ var err error
 
 var IsLoadedVar bool
 
+var (
+	App struct {
+		Version string
+	}
+)
+
 func Load(path string) error {
 
 	confToml, err = toml.LoadFile(path) //load config file
