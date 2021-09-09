@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"crypto/tls"
 	"fmt"
+	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/imap/component"
 	"github.com/midoks/imail/internal/libs"
+	"github.com/midoks/imail/internal/log"
 	"io"
-	"log"
 	"net"
 	"strconv"
 	"strings"
@@ -101,8 +102,13 @@ func (this *ImapServer) getState() int {
 	return this.state
 }
 
-func (this *ImapServer) D(a ...interface{}) (n int, err error) {
-	return fmt.Println(a...)
+func (this *ImapServer) D(args ...interface{}) {
+
+	imapDebug, _ := config.GetBool("imap.debug", false)
+	if imapDebug {
+		fmt.Println(args...)
+		log.Debug(args...)
+	}
 }
 
 func (this *ImapServer) Debug(d bool) {
