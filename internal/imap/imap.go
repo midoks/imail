@@ -140,11 +140,6 @@ func (this *ImapServer) error(code string) {
 }
 
 func (this *ImapServer) getString(state int) (string, error) {
-	// if state == CMD_DATA {
-	// 	return "", nil
-	// }
-
-	fmt.Println(state)
 
 	input, err := this.reader.ReadString('\n')
 	inputTrim := strings.TrimSpace(input)
@@ -387,7 +382,7 @@ func (this *ImapServer) cmdFecth(input string) bool {
 	inputN := strings.SplitN(input, " ", 4)
 	if len(inputN) == 4 {
 		if this.cmdCompare(inputN[1], CMD_FETCH) {
-			mailList := db.MailListForPop(this.userID)
+			mailList := db.MailListForImap(this.userID)
 			for i, m := range mailList {
 				this.writeArgs("* %d FETCH (UID %d)", i+1, m.Id)
 			}
@@ -414,7 +409,7 @@ func (this *ImapServer) cmdUid(input string) bool {
 					se := strings.SplitN(inputN[3], ":", 2)
 					start, _ := strconv.ParseInt(se[0], 10, 64)
 					end, _ := strconv.ParseInt(se[1], 10, 64)
-					mailList, _ := db.BoxListBySE(this.userID, this.selectBox, start, end)
+					mailList, _ := db.BoxListByImap(this.userID, this.selectBox, start, end)
 					for i, m := range mailList {
 						c := this.parseArgsConent(inputN[4], m)
 						this.writeArgs("* %d FETCH "+c, i+1)
@@ -435,7 +430,7 @@ func (this *ImapServer) cmdUid(input string) bool {
 					se := strings.SplitN(inputN[4], ":", 2)
 					start, _ := strconv.ParseInt(se[0], 10, 64)
 					end, _ := strconv.ParseInt(se[1], 10, 64)
-					mailList, _ := db.BoxListBySE(this.userID, this.selectBox, start, end)
+					mailList, _ := db.BoxListByImap(this.userID, this.selectBox, start, end)
 					idString := ""
 					for _, m := range mailList {
 						idString += fmt.Sprintf(" %d", m.Id)
@@ -611,10 +606,11 @@ func (this *ImapServer) StartPort(port int) {
 
 func (this *ImapServer) StartSSLPort(port int) {
 	this.initTLSConfig()
+
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := tls.Listen("tcp", addr, this.TLSConfig)
 	if err != nil {
-		fmt.Println("StartSSLPort:", err)
+		this.D("imap[StartSSLPort]", err)
 		return
 	}
 	defer ln.Close()

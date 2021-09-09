@@ -31,21 +31,27 @@ func (Mail) TableName() string {
 	return MailTableName()
 }
 
-//用户统计邮件信息[POP3]
+func MailStatInfoForImap(uid int64) (int64, int64) {
+	return MailStatInfo(uid, 1)
+}
+
 func MailStatInfoForPop(uid int64) (int64, int64) {
+	return MailStatInfo(uid, 0)
+}
+
+func MailStatInfo(uid int64, mtype int64) (int64, int64) {
 	type Result struct {
 		Count int64
 		Size  int64
 	}
 	var result Result
-	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=? and type=1", MailTableName())
+	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=? and type=%d", MailTableName(), mtype)
 	num := db.Raw(sql, uid).Scan(&result)
 
 	if num.Error != nil {
 		return 0, 0
 	}
 
-	// fmt.Println("MailListForPop:", num, result)
 	return result.Count, result.Size
 }
 
@@ -55,7 +61,15 @@ func MailListForPop(uid int64) []Mail {
 	sql := fmt.Sprintf("SELECT id,size FROM `%s` WHERE uid=? and type=1 order by create_time desc", MailTableName())
 	_ = db.Raw(sql, uid).Find(&result)
 
-	// fmt.Println("MailListForPop:", num, result)
+	return result
+}
+
+func MailListForImap(uid int64) []Mail {
+
+	var result []Mail
+	sql := fmt.Sprintf("SELECT id,size FROM `%s` WHERE uid=? order by create_time desc", MailTableName())
+	_ = db.Raw(sql, uid).Find(&result)
+
 	return result
 }
 

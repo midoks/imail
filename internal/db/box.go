@@ -32,7 +32,7 @@ func BoxUserList(uid int64) (int64, int64) {
 	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", BoxTableName())
 	num := db.Raw(sql, uid).Find(&resultBox)
 
-	fmt.Println(num, resultBox)
+	fmt.Println(uid, num, resultBox)
 
 	// count, err := strconv.ParseInt(maps[0]["count"].(string), 10, 64)
 	// if err != nil {
@@ -92,17 +92,10 @@ func BoxUserTotal(uid int64) (int64, int64) {
 
 // 获取分类下的统计数据
 func BoxUserMessageCountByClassName(uid int64, className string) (int64, error) {
-	fmt.Println("db[BoxUserMessageCountByClassName]", uid, className)
-
 	if strings.EqualFold(className, "INBOX") {
-		count, size := MailStatInfoForPop(uid)
-		fmt.Println("db[BoxUserMessageCountByClassName]", count, size)
+		count, _ := MailStatInfoForImap(uid)
 		return count, nil
 	}
-	// cid, err := ClassGetIdByName(uid, className)
-	// if err == nil {
-	// 	return BoxUserMessageCountByCid(uid, cid)
-	// }
 	return 0, nil
 }
 
@@ -165,11 +158,9 @@ func BoxUserMessageCountByClassName(uid int64, className string) (int64, error) 
 // 	return maps, err
 // }
 
-// // Paging List of POP3 Protocol
-func BoxListBySE(uid int64, className string, start int64, end int64) ([]Mail, error) {
+// // Paging List of Imap Protocol
+func BoxListByImap(uid int64, className string, start int64, end int64) ([]Mail, error) {
 	var result []Mail
-
-	// fmt.Println("BoxListBySE:", className)
 
 	var sql string
 	if end > 0 {
@@ -197,7 +188,8 @@ func BoxListBySE(uid int64, className string, start int64, end int64) ([]Mail, e
 	if strings.EqualFold(className, "Junk") {
 		sql = fmt.Sprintf("%s and is_junk='1' and is_delete='0'", sql)
 	}
-	fmt.Println("BoxListBySE:", sql)
+
+	fmt.Println("BoxListByImap:", sql, className)
 	db.Raw(sql, uid).Find(&result)
 	return result, err
 }
