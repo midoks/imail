@@ -15,7 +15,7 @@ import (
 var Check = cli.Command{
 	Name:        "check",
 	Usage:       "This command Check domain configuration",
-	Description: `Check domain configuration`,
+	Description: `check domain configuration`,
 	Action:      doCheck,
 	Flags: []cli.Flag{
 		stringFlag("config, c", "", "Custom configuration file path"),
@@ -94,6 +94,9 @@ func doCheck(c *cli.Context) error {
 			}
 		}
 	}
+
+	// tt, _ := net.LookupTXT(fmt.Sprintf("default._domainkey.%s", "qq.com"))
+	// fmt.Println(tt)
 
 	return nil
 }
