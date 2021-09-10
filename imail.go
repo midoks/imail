@@ -10,7 +10,7 @@ import (
 	"syscall"
 )
 
-const Version = "0.0.3-dev"
+const Version = "0.0.3-dev1"
 
 func init() {
 	config.App.Version = Version
@@ -42,5 +42,5 @@ func main() {
 		log.Infof("Failed to start application: %v", err)
 	}
 
-	cmd.ServiceDebug()
+	// cmd.ServiceDebug()
 }
