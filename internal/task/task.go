@@ -9,9 +9,10 @@ import (
 	"github.com/midoks/imail/internal/smtpd"
 	"github.com/robfig/cron"
 	// "sync"
+	"bytes"
+
 	"context"
-	"os"
-	// "time"
+	// "os"
 )
 
 func TaskQueueeSendMail() {
@@ -37,17 +38,33 @@ func TaskQueueeSendMail() {
 }
 
 func TaskRspamdCheck() {
-	fmt.Println("TaskRspamdCheck")
-	client := rspamd.New("http://127.0.0.1:11334")
-	pong, err := client.Ping(context.Background())
-	fmt.Println(pong, err)
 
-	f, err := os.Open("/Users/midoks/Desktop/t.eml")
-	fmt.Println(f, err)
+	result := db.MailListForRspamd(1)
 
-	email := rspamd.NewEmailFromReader(f)
-	checkRes, _ := client.Check(context.Background(), email)
-	fmt.Println(checkRes)
+	for _, val := range result {
+
+		client := rspamd.New("http://127.0.0.1:11334")
+		pong, err := client.Ping(context.Background())
+
+		if err == nil {
+
+			f := bytes.NewBuffer([]byte(val.Content))
+			email := rspamd.NewEmailFromReader(f)
+			checkRes, _ := client.Check(context.Background(), email)
+
+			// fmt.Println(checkRes.MessageID)
+			for _, symVal := range checkRes.Symbols {
+
+				if symVal.Score > 0 {
+					fmt.Println(symVal.Name, symVal.Score, symVal.Description)
+				}
+			}
+
+			fmt.Println("mail[", val.Id, "] Score:", checkRes.Score)
+		} else {
+			fmt.Println(pong, err)
+		}
+	}
 }
 
 func Init() {
@@ -58,7 +75,7 @@ func Init() {
 		TaskQueueeSendMail()
 	})
 
-	c.AddFunc("*/1 * * * * * ", func() {
+	c.AddFunc("*/10 * * * * * ", func() {
 		TaskRspamdCheck()
 	})
 

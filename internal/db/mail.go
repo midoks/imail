@@ -19,6 +19,7 @@ type Mail struct {
 	IsDelete   int    `gorm:"default:0;comment:是否删除"`
 	IsFlags    int    `gorm:"default:0;comment:是否星标"`
 	IsJunk     int    `gorm:"default:0;comment:是否无用"`
+	IsCheck    int    `gorm:"default:0;comment:是否通过检查"`
 	UpdateTime int64  `gorm:"autoCreateTime;comment:更新时间"`
 	CreateTime int64  `gorm:"autoCreateTime;comment:创建时间"`
 }
@@ -74,10 +75,9 @@ func MailListForImap(uid int64) []Mail {
 }
 
 func MailSendListForStatus(status int64, limit int64) []Mail {
-
 	var result []Mail
 	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE status=%d and type=0 order by create_time limit %d", MailTableName(), status, limit)
-	_ = db.Raw(sql).Find(&result)
+	db.Raw(sql).Find(&result)
 	return result
 }
 
@@ -91,6 +91,13 @@ func MailListPosForPop(uid int64, pos int64) ([]Mail, error) {
 		return nil, ret.Error
 	}
 	return result, nil
+}
+
+func MailListForRspamd(limit int64) []Mail {
+	var result []Mail
+	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE type=1 and is_check=0 order by id limit %d", MailTableName(), limit)
+	db.Raw(sql).Find(&result)
+	return result
 }
 
 func MailListAllForPop(uid int64) ([]Mail, error) {
