@@ -95,7 +95,7 @@ func MailListPosForPop(uid int64, pos int64) ([]Mail, error) {
 
 func MailListForRspamd(limit int64) []Mail {
 	var result []Mail
-	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE type=1 and is_check=0 order by id limit %d", MailTableName(), limit)
+	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE type=1 and is_check=0 order by id desc limit %d", MailTableName(), limit)
 	db.Raw(sql).Find(&result)
 	return result
 }
