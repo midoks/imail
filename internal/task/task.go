@@ -2,17 +2,17 @@ package task
 
 import (
 	"fmt"
-	"github.com/Shopify/go-rspamd"
 	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/libs"
+	"github.com/midoks/imail/internal/rspamd"
 	"github.com/midoks/imail/internal/smtpd"
 	"github.com/robfig/cron"
 	// "sync"
 	"bytes"
-
 	"context"
 	// "os"
+	"strings"
 )
 
 func TaskQueueeSendMail() {
@@ -40,30 +40,37 @@ func TaskQueueeSendMail() {
 func TaskRspamdCheck() {
 
 	result := db.MailListForRspamd(1)
+	rspamdEnable, _ := config.GetBool("rspamd.enable", false)
+	rspamdUrl := config.GetString("rspamd.domain", "xxx.com")
+	// rspamdUser := config.GetString("rspamd.user", "")
+	rspamdPassword := config.GetString("rspamd.password", "")
+	if rspamdEnable {
+		for _, val := range result {
 
-	for _, val := range result {
-
-		client := rspamd.New("http://127.0.0.1:11334")
-		// client := rspamd.New("http://rspamd.cachecha.com")
-		// client := rspamd.New("http://rspamd.cachecha.com", rspamd.Credentials("", "admin"))
-		pong, err := client.Ping(context.Background())
-		// fmt.Println("ddd:", pong, err, val)
-		if err == nil {
-
-			f := bytes.NewBuffer([]byte(val.Content))
-			email := rspamd.NewEmailFromReader(f)
-			checkRes, _ := client.Check(context.Background(), email)
-			fmt.Println(checkRes)
-			// fmt.Println(checkRes.MessageID)
-			for _, symVal := range checkRes.Symbols {
-
-				if symVal.Score > 0 {
-					fmt.Println(symVal.Name, symVal.Score, symVal.Description)
-				}
+			client := rspamd.New(rspamdUrl)
+			if !strings.EqualFold(rspamdPassword, "") {
+				client.SetAuth(rspamdPassword)
 			}
-			fmt.Println("mail[", val.Id, "] Score:", checkRes.Score)
-		} else {
-			fmt.Println(pong, err)
+
+			pong, err := client.Ping(context.Background())
+			// fmt.Println("dddsdd:", pong, err, val)
+			if err == nil {
+
+				f := bytes.NewBuffer([]byte(val.Content))
+				email := rspamd.NewEmailFromReader(f)
+				checkRes, err := client.Check(context.Background(), email)
+				if err == nil {
+					// fmt.Println(checkRes.MessageID)
+					for _, symVal := range checkRes.Symbols {
+						if symVal.Score > 0 {
+							fmt.Println(symVal.Name, symVal.Score, symVal.Description)
+						}
+					}
+					fmt.Println("mail[", val.Id, "] Score:", checkRes.Score)
+				}
+			} else {
+				fmt.Println(pong, err)
+			}
 		}
 	}
 }
