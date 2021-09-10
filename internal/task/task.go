@@ -44,14 +44,16 @@ func TaskRspamdCheck() {
 	for _, val := range result {
 
 		client := rspamd.New("http://127.0.0.1:11334")
+		// client := rspamd.New("http://rspamd.cachecha.com")
+		// client := rspamd.New("http://rspamd.cachecha.com", rspamd.Credentials("", "admin"))
 		pong, err := client.Ping(context.Background())
-
+		// fmt.Println("ddd:", pong, err, val)
 		if err == nil {
 
 			f := bytes.NewBuffer([]byte(val.Content))
 			email := rspamd.NewEmailFromReader(f)
 			checkRes, _ := client.Check(context.Background(), email)
-
+			fmt.Println(checkRes)
 			// fmt.Println(checkRes.MessageID)
 			for _, symVal := range checkRes.Symbols {
 
@@ -59,7 +61,6 @@ func TaskRspamdCheck() {
 					fmt.Println(symVal.Name, symVal.Score, symVal.Description)
 				}
 			}
-
 			fmt.Println("mail[", val.Id, "] Score:", checkRes.Score)
 		} else {
 			fmt.Println(pong, err)
