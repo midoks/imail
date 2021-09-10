@@ -28,4 +28,8 @@ sh make.sh
 
 systemctl daemon-reload
 
+service imail restart
+
 cd $TAGRT_DIR/imail && ./imail -v
+
+
