@@ -5,14 +5,11 @@ import (
 	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/libs"
-	"github.com/midoks/imail/internal/rspamd"
+	"github.com/midoks/imail/internal/log"
 	"github.com/midoks/imail/internal/smtpd"
 	"github.com/robfig/cron"
 	// "sync"
-	"bytes"
-	"context"
 	// "os"
-	"strings"
 )
 
 func TaskQueueeSendMail() {
@@ -41,37 +38,17 @@ func TaskRspamdCheck() {
 
 	result := db.MailListForRspamd(1)
 	rspamdEnable, _ := config.GetBool("rspamd.enable", false)
-	rspamdUrl := config.GetString("rspamd.domain", "xxx.com")
-	// rspamdUser := config.GetString("rspamd.user", "")
-	rspamdPassword := config.GetString("rspamd.password", "")
-	fmt.Println("TaskRspamdCheck:", rspamdEnable)
 	if rspamdEnable {
-
 		for _, val := range result {
-
-			client := rspamd.New(rspamdUrl)
-			if !strings.EqualFold(rspamdPassword, "") {
-				client.SetAuth(rspamdPassword)
-			}
-
-			pong, err := client.Ping(context.Background())
-			// fmt.Println("dddsdd:", pong, err, val)
+			_, err, score := libs.RspamdCheck(val.Content)
+			// fmt.Println("RspamdCheck:", val.Id, err)
 			if err == nil {
-
-				f := bytes.NewBuffer([]byte(val.Content))
-				email := rspamd.NewEmailFromReader(f)
-				checkRes, err := client.Check(context.Background(), email)
-				if err == nil {
-					// fmt.Println(checkRes.MessageID)
-					for _, symVal := range checkRes.Symbols {
-						if symVal.Score > 0 {
-							fmt.Println(symVal.Name, symVal.Score, symVal.Description)
-						}
-					}
-					fmt.Println("mail[", val.Id, "] Score:", checkRes.Score)
-				}
+				db.MailSetIsCheckById(val.Id, 1)
+				log.Infof("mail[%d] check is pass! score:%f", val.Id, score)
 			} else {
-				fmt.Println(pong, err)
+				db.MailSetIsCheckById(val.Id, 1)
+				db.MailSetJunkById(val.Id, 1)
+				log.Errorf("mail[%d] check is spam! score:%f", val.Id, score)
 			}
 		}
 	}

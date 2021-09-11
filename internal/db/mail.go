@@ -154,6 +154,11 @@ func MailSetJunkById(id int64, status int64) bool {
 	return true
 }
 
+func MailSetIsCheckById(id int64, status int64) bool {
+	db.Model(&Mail{}).Where("id = ?", id).Update("is_check", status)
+	return true
+}
+
 func MailSetStatusById(id int64, status int64) bool {
 	db.Model(&Mail{}).Where("id = ?", id).Update("status", status)
 	return true

@@ -75,6 +75,19 @@ func GetInt(key string, def int) (int, error) {
 	return vInt, nil
 }
 
+func GetFloat64(key string, def float64) (float64, error) {
+	v := confToml.Get(key)
+
+	if reflect.TypeOf(v) == nil {
+		return def, nil
+	}
+
+	if reflect.TypeOf(v).String() != "float64" {
+		return def, errors.New(key + " type is error, expect is float64 type!")
+	}
+	return v.(float64), nil
+}
+
 func GetBool(key string, def bool) (bool, error) {
 	v := confToml.Get(key)
 
