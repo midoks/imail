@@ -180,5 +180,5 @@ func MailPush(uid int64, mtype int, mail_from string, mail_to string, content st
 	user.CreateTime = time.Now().Unix()
 	result := db.Create(&user)
 
-	return result.RowsAffected, result.Error
+	return user.Id, result.Error
 }

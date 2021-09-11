@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
+	// "fmt"
 	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/rspamd"
 	"strings"
@@ -30,11 +30,11 @@ func RspamdCheck(content string) (bool, error, float64) {
 			email := rspamd.NewEmailFromReader(f)
 			checkRes, err := client.Check(context.Background(), email)
 			if err == nil {
-				for _, symVal := range checkRes.Symbols {
-					if symVal.Score > 0 {
-						fmt.Println(symVal.Name, symVal.Score, symVal.Description)
-					}
-				}
+				// for _, symVal := range checkRes.Symbols {
+				// 	if symVal.Score > 0 {
+				// 		fmt.Println(symVal.Name, symVal.Score, symVal.Description)
+				// 	}
+				// }
 				if checkRes.Score > rspamdJCS {
 					return true, errors.New("Judged as spam"), checkRes.Score
 				}
