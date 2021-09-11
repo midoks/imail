@@ -44,8 +44,9 @@ func TaskRspamdCheck() {
 	rspamdUrl := config.GetString("rspamd.domain", "xxx.com")
 	// rspamdUser := config.GetString("rspamd.user", "")
 	rspamdPassword := config.GetString("rspamd.password", "")
-
+	fmt.Println("TaskRspamdCheck:", rspamdEnable)
 	if rspamdEnable {
+
 		for _, val := range result {
 
 			client := rspamd.New(rspamdUrl)

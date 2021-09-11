@@ -51,6 +51,8 @@ func runAllService(c *cli.Context) error {
 		return errors.New("imail config file load err")
 	}
 
+	go ConfigFileStartMonitor(confFile)
+
 	db.Init()
 	task.Init()
 
@@ -77,10 +79,13 @@ func runAllService(c *cli.Context) error {
 }
 
 func ServiceDebug() {
-	err := config.Load("conf/app.conf")
+	confFile := "conf/app.conf"
+	err := config.Load(confFile)
 	if err != nil {
 		panic("imail config file load err")
 	}
+
+	go ConfigFileStartMonitor(confFile)
 
 	log.Init()
 	db.Init()
@@ -151,11 +156,21 @@ func startService(name string) {
 	}
 }
 
-func StartMonitor(path string) {
+func reloadService(path string) {
+	fmt.Println("reloadService:", path)
 
+	err := config.Load(path)
+	if err != nil {
+		info := fmt.Sprintf("imail config file reload err:%s", err)
+		fmt.Println(info)
+		return
+	}
+}
+
+func ConfigFileStartMonitor(path string) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		fmt.Println("StartMonitor:err", err)
+		fmt.Println("fsnotify.NewWatcher err:", err)
 	}
 	defer watcher.Close()
 
@@ -166,14 +181,12 @@ func StartMonitor(path string) {
 			case e := <-watcher.Events:
 
 				if e.Op&fsnotify.Chmod == fsnotify.Chmod {
-					fmt.Printf("%s had change content!", path)
+					reloadService(path)
 				}
-
 			case err = <-watcher.Errors:
 				if err != nil {
-					fmt.Println("err:", err)
+					fmt.Println("watcher.Errors:", err)
 				}
-
 			}
 		}
 	}()
