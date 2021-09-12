@@ -33,11 +33,11 @@ func Init() error {
     log.Info("init db success!")
 
     sqlDB, err := db.DB()
-    // SetMaxIdleConns 设置空闲连接池中连接的最大数量
+    // SetMaxIdleConns sets the maximum number of connections in the free connection pool
     sqlDB.SetMaxIdleConns(10)
-    // SetMaxOpenConns 设置打开数据库连接的最大数量。
+    // SetMaxOpenConns sets the maximum number of open database connections.
     sqlDB.SetMaxOpenConns(100)
-    // SetConnMaxLifetime 设置了连接可复用的最大时间。
+    // SetConnMaxLifetime Sets the maximum time that the connection can be reused.
     sqlDB.SetConnMaxLifetime(time.Hour)
 
     if err != nil {
