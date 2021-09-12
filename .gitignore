@@ -19,3 +19,4 @@ conf/dkim/*
 tmp/*
 logs/*
 internal/app/logs/*
+conf/app.conf
