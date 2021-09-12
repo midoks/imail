@@ -585,13 +585,14 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		// this.D("smtpd[data][peer]:", this.peer)
 		revContent := string(this.addEnvelopeDataAcceptLine(data.Bytes()))
 		fid, err := db.MailPush(this.userID, 1, this.recordCmdMailFrom, this.recordcmdRcptTo, revContent, 3)
-		fmt.Println("runModeIn:", fid, err)
+		libs.ExecPython("send.py", fid)
 		if err != nil {
 			return false
 		}
 	} else {
 		fid, err := db.MailPush(this.userID, 0, this.recordCmdMailFrom, this.recordcmdRcptTo, content, 0)
 		fmt.Println("dd:", fid, err)
+		libs.ExecPython("receive.py", fid)
 		if err != nil {
 			return false
 		}
