@@ -63,6 +63,6 @@ echo $golist
 
 # build_app linux amd64
 # build_app linux 386
-# build_app darwin amd64
-build_app windows amd64
+build_app darwin amd64
+# build_app windows amd64
 

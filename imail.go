@@ -7,8 +7,6 @@ import (
 	"github.com/midoks/imail/internal/log"
 	"github.com/urfave/cli"
 	"os"
-	"runtime"
-	"strings"
 	"syscall"
 )
 
