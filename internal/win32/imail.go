@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-const Version = "0.0.3-dev1"
+const Version = "0.0.4"
 
 func init() {
 	config.App.Version = Version
