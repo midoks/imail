@@ -589,7 +589,7 @@ func (this *ImapServer) StartPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
-		fmt.Println("StartSSLPort:", err)
+		fmt.Println("[imap]StartSSLPort:", err)
 		return
 	}
 	defer ln.Close()

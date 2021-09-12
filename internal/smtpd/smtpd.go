@@ -833,10 +833,12 @@ func (this *SmtpdServer) StartPort(port int) {
 }
 
 func (this *SmtpdServer) StartSSLPort(port int) {
+	this.LinkSSL = true
+	this.ready()
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := tls.Listen("tcp", addr, this.TLSConfig)
 	if err != nil {
-		fmt.Println("StartSSLPort", err)
+		fmt.Println("[smtp]StartSSLPort", err)
 		return
 	}
 	defer ln.Close()
@@ -846,9 +848,6 @@ func (this *SmtpdServer) StartSSLPort(port int) {
 		if err != nil {
 			continue
 		}
-
-		this.ready()
-		this.LinkSSL = true
 		go this.start(conn)
 	}
 }

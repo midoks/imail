@@ -53,7 +53,11 @@ func runAllService(c *cli.Context) error {
 
 	go ConfigFileStartMonitor(confFile)
 
-	db.Init()
+	err = db.Init()
+	if err != nil {
+		return err
+	}
+
 	task.Init()
 
 	runmode := config.GetString("runmode", "dev")
@@ -79,6 +83,8 @@ func runAllService(c *cli.Context) error {
 }
 
 func ServiceDebug() {
+	log.Init()
+
 	confFile := "conf/app.conf"
 	err := config.Load(confFile)
 	if err != nil {
@@ -87,8 +93,11 @@ func ServiceDebug() {
 
 	go ConfigFileStartMonitor(confFile)
 
-	log.Init()
-	db.Init()
+	err = db.Init()
+	if err != nil {
+		return
+	}
+
 	task.Init()
 
 	runmode := config.GetString("runmode", "dev")

@@ -37,3 +37,7 @@ curl -fsSL  https://raw.githubusercontent.com/midoks/imail/master/scripts/instal
 
 - 计划开发[imail前端](https://github.com/midoks/imail-web),由于精力有限。建立的这个项目，不知道有机会写不～。
 
+## 授权许可
+
+本项目采用 MIT 开源授权许可证，完整的授权说明已放置在 [LICENSE](https://github.com/midoks/imail/blob/main/LICENSE) 文件中。
+
