@@ -1,14 +1,11 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/libs"
-	"github.com/midoks/imail/internal/log"
 	"github.com/urfave/cli"
 	"net"
-	"os"
 	"strings"
 )
 
@@ -23,24 +20,12 @@ var Check = cli.Command{
 }
 
 func doCheck(c *cli.Context) error {
-	confFile := c.String("config")
-	if confFile == "" {
-		confFile = "conf/app.conf"
-	}
 
-	if _, err := os.Stat(confFile); err != nil {
-		if os.IsNotExist(err) {
-			return errors.New("imail config is not exist!")
-		} else {
-			return err
-		}
-	}
-
-	err := config.Load(confFile)
+	_, err := initConfig(c)
 	if err != nil {
-		log.Infof("imail config file load err:%s", err)
-		return errors.New("imail config file load err")
+		return err
 	}
+
 	domain := config.GetString("mail.domain", "xxx.com")
 
 	//mx

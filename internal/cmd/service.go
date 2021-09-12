@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/midoks/imail/internal/app"
@@ -9,12 +8,12 @@ import (
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/debug"
 	"github.com/midoks/imail/internal/imap"
+	"github.com/midoks/imail/internal/libs"
 	"github.com/midoks/imail/internal/log"
 	"github.com/midoks/imail/internal/pop3"
 	"github.com/midoks/imail/internal/smtpd"
 	"github.com/midoks/imail/internal/task"
 	"github.com/urfave/cli"
-	"os"
 	"strings"
 )
 
@@ -32,23 +31,9 @@ func runAllService(c *cli.Context) error {
 
 	log.Init()
 
-	confFile := c.String("config")
-	if confFile == "" {
-		confFile = "conf/app.conf"
-	}
-
-	if _, err := os.Stat(confFile); err != nil {
-		if os.IsNotExist(err) {
-			return errors.New("imail config is not exist!")
-		} else {
-			return err
-		}
-	}
-
-	err := config.Load(confFile)
+	confFile, err := initConfig(c)
 	if err != nil {
-		log.Infof("imail config file load err:%s", err)
-		return errors.New("imail config file load err")
+		return err
 	}
 
 	go ConfigFileStartMonitor(confFile)
@@ -86,6 +71,12 @@ func ServiceDebug() {
 	log.Init()
 
 	confFile := "conf/app.conf"
+	_, f := libs.IsExists(confFile)
+	if !f {
+		definedConf, _ := libs.ReadFile("conf/app.defined.conf")
+		libs.WriteFile(confFile, definedConf)
+	}
+
 	err := config.Load(confFile)
 	if err != nil {
 		panic("imail config file load err")
