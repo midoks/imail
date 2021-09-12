@@ -7,6 +7,7 @@ import (
 	"github.com/midoks/imail/internal/log"
 	"github.com/urfave/cli"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -43,10 +44,15 @@ func durationFlag(name string, value time.Duration, usage string) cli.DurationFl
 	}
 }
 
-func initConfig(c *cli.Context) (string, error) {
-	confFile := c.String("config")
-	if confFile == "" {
-		confFile = "conf/app.conf"
+func initConfig(c *cli.Context, defineConf string) (string, error) {
+	confFile := ""
+	if !strings.EqualFold(defineConf, "") {
+		confFile = defineConf
+	} else {
+		confFile = c.String("config")
+		if confFile == "" {
+			confFile = "conf/app.conf"
+		}
 	}
 
 	_, f := libs.IsExists(confFile)

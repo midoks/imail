@@ -19,7 +19,7 @@ var Dkim = cli.Command{
 
 func makeDkim(c *cli.Context) error {
 
-	_, err := initConfig(c)
+	_, err := initConfig(c, "")
 	if err != nil {
 		return err
 	}

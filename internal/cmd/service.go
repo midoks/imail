@@ -8,7 +8,6 @@ import (
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/debug"
 	"github.com/midoks/imail/internal/imap"
-	"github.com/midoks/imail/internal/libs"
 	"github.com/midoks/imail/internal/log"
 	"github.com/midoks/imail/internal/pop3"
 	"github.com/midoks/imail/internal/smtpd"
@@ -31,7 +30,7 @@ func runAllService(c *cli.Context) error {
 
 	log.Init()
 
-	confFile, err := initConfig(c)
+	confFile, err := initConfig(c, "")
 	if err != nil {
 		return err
 	}
@@ -70,14 +69,7 @@ func runAllService(c *cli.Context) error {
 func ServiceDebug() {
 	log.Init()
 
-	confFile := "conf/app.conf"
-	_, f := libs.IsExists(confFile)
-	if !f {
-		definedConf, _ := libs.ReadFile("conf/app.defined.conf")
-		libs.WriteFile(confFile, definedConf)
-	}
-
-	err := config.Load(confFile)
+	confFile, err := initConfig(nil, "conf/app.conf")
 	if err != nil {
 		panic("imail config file load err")
 	}
