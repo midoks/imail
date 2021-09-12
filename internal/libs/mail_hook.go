@@ -1,6 +1,7 @@
 package libs
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -13,10 +14,10 @@ func ExecPython(scriptName string, id int64) (string, error) {
 	_, b := IsExists(fileName)
 	// fmt.Println(fileName, b)
 	if !b {
-		return
+		return "", errors.New("file is not exist!")
 	}
 
 	cmd := exec.Command("python", fileName, string(id))
 	out, err := cmd.CombinedOutput()
-	return out, err
+	return string(out), err
 }

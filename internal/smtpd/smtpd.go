@@ -591,7 +591,6 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		}
 	} else {
 		fid, err := db.MailPush(this.userID, 0, this.recordCmdMailFrom, this.recordcmdRcptTo, content, 0)
-		fmt.Println("dd:", fid, err)
 		libs.ExecPython("receive.py", fid)
 		if err != nil {
 			return false
