@@ -96,11 +96,11 @@ func Init() {
 	// 	}).Info()
 	// }
 
-	// 日志格式
+	// log debug
 	// logger.WithFields().Info()
-	logger.WithFields(logrus.Fields{
-		"animal": "walrus",
-	}).Info("A walrus appears")
+	// logger.WithFields(logrus.Fields{
+	// 	"animal": "walrus",
+	// }).Info("A walrus appears")
 
 }
 
