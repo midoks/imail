@@ -27,6 +27,10 @@ build_app(){
 	
 	cp -r $rootPath/conf $rootPath/tmp/build
 	cp -r $rootPath/scripts $rootPath/tmp/build
+	cp -r $rootPath/logs $rootPath/tmp/build
+	cp -r $rootPath/hook $rootPath/tmp/build
+
+	cd $rootPath/tmp/build/logs && rm -rf ./*.log
 
 	if [ $1 == "windows" ];then
 		cp $rootPath/imail.exe $rootPath/tmp/build
