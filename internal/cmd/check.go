@@ -80,8 +80,5 @@ func doCheck(c *cli.Context) error {
 		}
 	}
 
-	// tt, _ := net.LookupTXT(fmt.Sprintf("default._domainkey.%s", "qq.com"))
-	// fmt.Println(tt)
-
 	return nil
 }
