@@ -26,11 +26,15 @@ build_app(){
 	# cd $rootPath && go build imail.go && /usr/local/bin/strip imail
 	
 	cp -r $rootPath/conf $rootPath/tmp/build
+	cd $rootPath/tmp/build/conf/dkim && rm -rf ./* && echo "#dkim" > ./README.md
+
 	cp -r $rootPath/scripts $rootPath/tmp/build
 	cp -r $rootPath/logs $rootPath/tmp/build
 	cp -r $rootPath/hook $rootPath/tmp/build
 
 	cd $rootPath/tmp/build/logs && rm -rf ./*.log
+	cd $rootPath/tmp/build && xattr -c *
+
 
 	if [ $1 == "windows" ];then
 		cp $rootPath/imail.exe $rootPath/tmp/build
@@ -41,6 +45,7 @@ build_app(){
 		cp $rootPath/imail $rootPath/tmp/build
 	fi
 
+
 	cd $rootPath/tmp/build && zip -r -q -o ${PACK_NAME}-$1-$2.zip  ./ && mv ${PACK_NAME}-$1-$2.zip $rootPath/tmp/package
 }
 
@@ -48,8 +53,8 @@ golist=`go tool dist list`
 
 echo $golist
 
-build_app linux amd64
+# build_app linux amd64
 # build_app linux 386
-# build_app darwin amd64
+build_app darwin amd64
 # build_app windows amd64
 
