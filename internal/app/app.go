@@ -10,6 +10,7 @@ import (
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/log"
 	"net/http"
+	"time"
 )
 
 func FixTestMiddleware() gin.HandlerFunc {
@@ -23,7 +24,31 @@ func FixTestMiddleware() gin.HandlerFunc {
 			log.Init()
 			db.Init()
 		}
-		// fmt.Println("FixTestMiddleware")
+	}
+}
+
+func LogMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		startTime := time.Now()
+
+		//Processing requests
+		c.Next()
+
+		endTime := time.Now()
+		latencyTime := endTime.Sub(startTime)
+		reqMethod := c.Request.Method
+		reqUrl := c.Request.RequestURI
+		statusCode := c.Writer.Status()
+		clientIP := c.ClientIP()
+
+		logger := log.GetLogger()
+		logger.Infof("| %3d | %13v | %15s | %s | %s |",
+			statusCode,
+			latencyTime,
+			clientIP,
+			reqMethod,
+			reqUrl,
+		)
 	}
 }
 
@@ -34,6 +59,7 @@ func IndexWeb(c *gin.Context) {
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 	r.Use(FixTestMiddleware())
+	r.Use(LogMiddleware())
 
 	store, err := redis.NewStore(10, "tcp", "127.0.0.1:6379", "", []byte("secret"))
 	if err != nil {
