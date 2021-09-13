@@ -52,9 +52,12 @@ func BoxUserMessageCountByClassName(uid int64, className string) (int64, error) 
 	if strings.EqualFold(className, "INBOX") {
 		count, _ := MailStatInfo(uid, 1)
 		return count, nil
+	} else if strings.EqualFold(className, "Sent Messages") {
+		count, _ := MailStatInfo(uid, 0)
+		return count, nil
 	} else {
-		//count, _ := MailStatInfo(uid, 0)
-		//return count, nil
+		count, _ := MailStatInfo(uid, 1)
+		return count, nil
 	}
 	return 0, nil
 }
