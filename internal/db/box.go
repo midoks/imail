@@ -117,7 +117,7 @@ func BoxListByImap(uid int64, className string, start int64, end int64) ([]Mail,
 		sql = fmt.Sprintf("%s and is_junk='1' and is_delete='0'", sql)
 	}
 
-	fmt.Println("BoxListByImap:", sql, className)
+	// fmt.Println("BoxListByImap:", sql, className)
 	db.Raw(sql, uid).Find(&result)
 	return result, err
 }
