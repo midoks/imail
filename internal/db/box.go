@@ -47,19 +47,44 @@ func BoxUserTotal(uid int64) (int64, int64) {
 	return 0, 0
 }
 
-// 获取分类下的统计数据
-func BoxUserMessageCountByClassName(uid int64, className string) (int64, error) {
-	if strings.EqualFold(className, "INBOX") {
-		count, _ := MailStatInfo(uid, 1)
-		return count, nil
-	} else if strings.EqualFold(className, "Sent Messages") {
-		count, _ := MailStatInfo(uid, 0)
-		return count, nil
-	} else {
-		count, _ := MailStatInfo(uid, 1)
-		return count, nil
+//Get statistics under classification
+func BoxUserMessageCountByClassName(uid int64, className string) (int64, int64) {
+	type Result struct {
+		Count int64
+		Size  int64
 	}
-	return 0, nil
+	var result Result
+
+	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", MailTableName())
+
+	if strings.EqualFold(className, "Sent Messages") {
+		sql = fmt.Sprintf("%s and type='%d' and is_delete='0' ", sql, 0)
+	}
+
+	if strings.EqualFold(className, "INBOX") {
+		sql = fmt.Sprintf("%s and type='%d' and is_delete='0' ", sql, 1)
+	}
+
+	if strings.EqualFold(className, "Deleted Messages") {
+		sql = fmt.Sprintf("%s and is_delete='1' ", sql)
+	}
+
+	if strings.EqualFold(className, "Drafts") {
+		return 0, 0
+	}
+
+	if strings.EqualFold(className, "Junk") {
+		sql = fmt.Sprintf("%s and is_junk='1' and is_delete='0'", sql)
+	}
+
+	fmt.Println("BoxUserMessageCountByClassName:", sql, className)
+
+	num := db.Raw(sql, uid).Scan(&result)
+	if num.Error != nil {
+		return 0, 0
+	}
+
+	return result.Count, result.Size
 }
 
 // // Paging List of Imap Protocol
