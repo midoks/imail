@@ -77,8 +77,7 @@ func BoxUserMessageCountByClassName(uid int64, className string) (int64, int64) 
 		sql = fmt.Sprintf("%s and is_junk='1' and is_delete='0'", sql)
 	}
 
-	fmt.Println("BoxUserMessageCountByClassName:", sql, className)
-
+	// fmt.Println("BoxUserMessageCountByClassName:", sql, className)
 	num := db.Raw(sql, uid).Scan(&result)
 	if num.Error != nil {
 		return 0, 0
