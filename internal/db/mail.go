@@ -32,8 +32,8 @@ func (Mail) TableName() string {
 	return MailTableName()
 }
 
-func MailStatInfoForImap(uid int64) (int64, int64) {
-	return MailStatInfo(uid, 1)
+func MailStatInfoForImap(uid int64, mtype int64) (int64, int64) {
+	return MailStatInfo(uid, mtype)
 }
 
 func MailStatInfoForPop(uid int64) (int64, int64) {

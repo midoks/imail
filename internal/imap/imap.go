@@ -92,6 +92,12 @@ type ImapServer struct {
 	userID int64
 
 	TLSConfig *tls.Config // Enable STARTTLS support.
+
+	//Turn off function related
+	nl        net.Listener
+	nlConn    net.Conn
+	nlSSL     net.Listener
+	nlConnSSL net.Conn
 }
 
 func (this *ImapServer) setState(state int) {
@@ -586,50 +592,92 @@ func (this *ImapServer) start(conn net.Conn) {
 }
 
 func (this *ImapServer) StartPort(port int) {
+	var err error
 	addr := fmt.Sprintf(":%d", port)
-	ln, err := net.Listen("tcp", addr)
+	this.nl, err = net.Listen("tcp", addr)
 	if err != nil {
 		fmt.Println("[imap]StartSSLPort:", err)
 		return
 	}
-	defer ln.Close()
+
+	defer this.nl.Close()
 
 	for {
-		conn, err := ln.Accept()
+		this.nlConn, err = this.nl.Accept()
+		fmt.Println(this.nlConn)
 		if err != nil {
-			continue
+			fmt.Println("imap[StartPort][conn]", err)
+			return
+		} else {
+			this.start(this.nlConn)
 		}
-		srv := ImapServer{}
-		go srv.start(conn)
 	}
 }
 
 func (this *ImapServer) StartSSLPort(port int) {
+	var err error
 	this.initTLSConfig()
 
 	addr := fmt.Sprintf(":%d", port)
-	ln, err := tls.Listen("tcp", addr, this.TLSConfig)
+	this.nlSSL, err = tls.Listen("tcp", addr, this.TLSConfig)
 	if err != nil {
 		this.D("imap[StartSSLPort]", err)
 		return
 	}
-	defer ln.Close()
+	defer this.nlSSL.Close()
 
-	for {
-		conn, err := ln.Accept()
-		if err != nil {
-			continue
-		}
-		go this.start(conn)
+	this.nlConnSSL, err = this.nlSSL.Accept()
+	if err != nil {
+		fmt.Println("imap[StartSSLPort][conn]", err)
+		return
 	}
+	this.start(this.nlConnSSL)
+
+}
+
+func (this *ImapServer) Close() error {
+	var err error
+
+	err = this.nl.Close()
+	if err != nil {
+		fmt.Println("ImapServer[nl][close]", err)
+	}
+
+	if this.nlConn != nil {
+		err = this.nlConn.Close()
+		fmt.Println("ImapServer[nlConn][close]", err)
+		return err
+	}
+
+	err = this.nlSSL.Close()
+	if err != nil {
+		fmt.Println("ImapServer[nlSSL][close]", err)
+	}
+
+	if this.nlConnSSL != nil {
+
+		err = this.nlConnSSL.Close()
+		fmt.Println("ImapServer[nlConnSSL][close]", err)
+		return err
+	}
+
+	return nil
+}
+
+var srv ImapServer
+
+func init() {
+	srv = ImapServer{}
+}
+
+func Close() error {
+	return srv.Close()
 }
 
 func Start(port int) {
-	srv := ImapServer{}
 	srv.StartPort(port)
 }
 
 func StartSSL(port int) {
-	srv := ImapServer{}
 	srv.StartSSLPort(port)
 }

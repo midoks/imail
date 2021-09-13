@@ -50,7 +50,10 @@ func BoxUserTotal(uid int64) (int64, int64) {
 // 获取分类下的统计数据
 func BoxUserMessageCountByClassName(uid int64, className string) (int64, error) {
 	if strings.EqualFold(className, "INBOX") {
-		count, _ := MailStatInfoForImap(uid)
+		count, _ := MailStatInfo(uid, 1)
+		return count, nil
+	} else {
+		count, _ := MailStatInfo(uid, 0)
 		return count, nil
 	}
 	return 0, nil

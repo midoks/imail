@@ -157,9 +157,18 @@ func reloadService(path string) {
 		fmt.Println(info)
 		return
 	}
+
+	// fmt.Println("imap reload start")
+	// err = imap.Close()
+	// fmt.Println("[reloadService]err", err)
+	// fmt.Println("startService")
+	// startService("imap")
+	// fmt.Println("imap reload end")
+
 }
 
 func ConfigFileStartMonitor(path string) {
+	fmt.Println("ConfigFileStartMonitor:", path)
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		fmt.Println("fsnotify.NewWatcher err:", err)
@@ -173,6 +182,7 @@ func ConfigFileStartMonitor(path string) {
 			case e := <-watcher.Events:
 
 				if e.Op&fsnotify.Chmod == fsnotify.Chmod {
+					// fmt.Println("reloadService")
 					reloadService(path)
 				}
 			case err = <-watcher.Errors:
