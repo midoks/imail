@@ -206,9 +206,6 @@ func (this *ImapServer) parseArgsConent(format string, data db.Mail) string {
 
 	bs, err := component.FetchBodyStructure(header, bufferedBody, true)
 
-	// fmt.Println("FetchBodyStructure:", bs.ToString(), err)
-	// fmt.Println("parseArgsConent[c][Mail]:", data)
-
 	for i := 0; i < len(inputN); i++ {
 
 		if strings.EqualFold(inputN[i], "uid") {
@@ -406,9 +403,7 @@ func (this *ImapServer) cmdUid(input string) bool {
 
 	if len(inputN) == 5 {
 		if this.cmdCompare(inputN[1], CMD_UID) {
-			// fmt.Println("cmdUid[2]", inputN[2])
-			// fmt.Println("cmdUid[3]", inputN[3])
-			// fmt.Println("cmdUid[4]", inputN[4])
+
 			if this.cmdCompare(inputN[2], CMD_FETCH) {
 
 				if strings.Index(inputN[3], ":") > 0 {
@@ -538,27 +533,21 @@ func (this *ImapServer) handle() {
 		if this.stateCompare(state, CMD_AUTH) {
 
 			if this.cmdNameSpace(input) {
-
 			}
 
 			if this.cmdList(input) {
-
 			}
 
 			if this.cmdStatus(input) {
-
 			}
 
 			if this.cmdSelect(input) {
-
 			}
 
 			if this.cmdFecth(input) {
-
 			}
 
 			if this.cmdUid(input) {
-
 			}
 
 			if this.cmdLogout(input) {
