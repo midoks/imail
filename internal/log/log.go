@@ -41,7 +41,7 @@ func Init() {
 		logger.SetLevel(logrus.DebugLevel)
 	}
 
-	// 设置 rotatelogs
+	// setting rotatelogs
 	logWriter, err := rotatelogs.New(
 		// Split file name
 		fileName+".%Y%m%d.log",
