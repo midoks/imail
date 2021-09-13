@@ -53,8 +53,8 @@ func BoxUserMessageCountByClassName(uid int64, className string) (int64, error) 
 		count, _ := MailStatInfo(uid, 1)
 		return count, nil
 	} else {
-		count, _ := MailStatInfo(uid, 0)
-		return count, nil
+		//count, _ := MailStatInfo(uid, 0)
+		//return count, nil
 	}
 	return 0, nil
 }
