@@ -82,7 +82,7 @@ func SetupRouter() *gin.Engine {
 func Start(port int) {
 	r := SetupRouter()
 
-	//监听端口默认为8080
+	//Listening port
 	listen_port := fmt.Sprintf(":%d", port)
 	r.Run(listen_port)
 }
