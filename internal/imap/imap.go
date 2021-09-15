@@ -33,6 +33,7 @@ const (
 	CMD_NAMESPACE  = iota
 	CMD_SEARCH     = iota
 	CMD_NOOP       = iota
+	CMD_EXPUNGE    = iota
 )
 
 var stateList = map[int]string{
@@ -52,6 +53,7 @@ var stateList = map[int]string{
 	CMD_SEARCH:     "SEARCH",
 	CMD_UID:        "UID",
 	CMD_NOOP:       "NOOP",
+	CMD_EXPUNGE:    "EXPUNGE",
 }
 
 const (
@@ -480,12 +482,24 @@ func (this *ImapServer) cmdUid(input string) bool {
 					}
 
 					if strings.EqualFold(inputN[5], "DELETED") && strings.HasPrefix(inputN[4], "+") {
-						db.MailHardDeleteById(mid)
+						db.MailSoftDeleteById(mid)
 					}
 				}
 			}
 
 			this.writeArgs("%s OK %s %s Completed", inputN[0], inputN[1], inputN[2])
+			return true
+		}
+	}
+	return false
+}
+
+func (this *ImapServer) cmdExpunge(input string) bool {
+	inputN := strings.SplitN(input, " ", 2)
+	if len(inputN) == 2 {
+		if this.cmdCompare(inputN[1], CMD_EXPUNGE) {
+			// this.writeArgs(CMD_EXPUNGE, inputN[0])
+			this.writeArgs("%s OK %s Completed", inputN[0], inputN[1])
 			return true
 		}
 	}
@@ -548,6 +562,9 @@ func (this *ImapServer) handle() {
 			}
 
 			if this.cmdUid(input) {
+			}
+
+			if this.cmdExpunge(input) {
 			}
 
 			if this.cmdLogout(input) {
