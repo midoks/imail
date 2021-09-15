@@ -124,13 +124,14 @@ func MailPosContentForPop(uid int64, pos int64) (string, int, error) {
 	return result[0].Content, result[0].Size, nil
 }
 
-func MailSoftDeleteById(id int64) bool {
-	db.Model(&Mail{}).Where("id = ?", id).Update("is_delete", 1)
+func MailSoftDeleteById(id int64, status int64) bool {
+	db.Model(&Mail{}).Where("id = ?", id).Update("is_delete", status)
+	fmt.Println("MailSoftDeleteById", id, status)
 	return true
 }
 
 func MailHardDeleteById(id int64) bool {
-	db.Where("id = ?", id).Delete(&Mail{})
+	db.Where("id = ? and is_delete=1", id).Delete(&Mail{})
 	return true
 }
 
@@ -150,7 +151,8 @@ func MailSetFlagsById(id int64, status int64) bool {
 }
 
 func MailSetJunkById(id int64, status int64) bool {
-	db.Model(&Mail{}).Where("id = ?", id).Update("is_delete", status)
+	fmt.Println("MailSetJunkById", id, status)
+	db.Model(&Mail{}).Where("id = ?", id).Update("is_junk", status)
 	return true
 }
 

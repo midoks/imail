@@ -30,9 +30,9 @@ func BoxUserList(uid int64) (int64, int64) {
 
 	var resultBox Box
 	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", BoxTableName())
-	num := db.Raw(sql, uid).Find(&resultBox)
+	db.Raw(sql, uid).Find(&resultBox)
 
-	fmt.Println(uid, num, resultBox)
+	// fmt.Println(uid, num, resultBox)
 	return 0, 0
 }
 
@@ -40,10 +40,9 @@ func BoxUserTotal(uid int64) (int64, int64) {
 
 	var resultBox Box
 	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", BoxTableName())
-	num := db.Raw(sql, uid).Find(&resultBox)
+	db.Raw(sql, uid).Find(&resultBox)
 
-	fmt.Println(num, resultBox)
-
+	// fmt.Println(num, resultBox)
 	return 0, 0
 }
 
@@ -74,7 +73,7 @@ func BoxUserMessageCountByClassName(uid int64, className string) (int64, int64) 
 	}
 
 	if strings.EqualFold(className, "Junk") {
-		sql = fmt.Sprintf("%s and is_junk='1' and is_delete='0'", sql)
+		sql = fmt.Sprintf("%s and is_junk='1'", sql)
 	}
 
 	// fmt.Println("BoxUserMessageCountByClassName:", sql, className)
@@ -114,7 +113,7 @@ func BoxListByImap(uid int64, className string, start int64, end int64) ([]Mail,
 	}
 
 	if strings.EqualFold(className, "Junk") {
-		sql = fmt.Sprintf("%s and is_junk='1' and is_delete='0'", sql)
+		sql = fmt.Sprintf("%s and is_junk='1'", sql)
 	}
 
 	// fmt.Println("BoxListByImap:", sql, className)

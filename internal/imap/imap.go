@@ -76,7 +76,6 @@ type ImapServer struct {
 	io.Reader
 	io.RuneScanner
 	// *Writer
-	debug         bool
 	conn          net.Conn
 	state         int
 	startTime     time.Time
@@ -114,13 +113,9 @@ func (this *ImapServer) D(args ...interface{}) {
 
 	imapDebug, _ := config.GetBool("imap.debug", false)
 	if imapDebug {
-		fmt.Println(args...)
+		// fmt.Println(args...)
 		log.Debug(args...)
 	}
-}
-
-func (this *ImapServer) Debug(d bool) {
-	this.debug = d
 }
 
 func (this *ImapServer) w(msg string) error {
@@ -374,8 +369,8 @@ func (this *ImapServer) cmdSelect(input string) bool {
 			this.writeArgs("* %d EXISTS", msgCount)
 			this.writeArgs("* 0 RECENT")
 			this.writeArgs("* OK [UIDVALIDITY 1] UIDs valid")
-			this.writeArgs("* FLAGS (\\Answered \\Seen \\Deleted \\Draft \\Flagged)")
-			this.writeArgs("* OK [PERMANENTFLAGS (\\Answered \\Seen \\Deleted \\Draft \\Flagged)] Limited")
+			this.writeArgs("* FLAGS (\\Answered \\Seen \\Deleted \\Draft)")
+			this.writeArgs("* OK [PERMANENTFLAGS (\\Answered \\Seen \\Deleted \\Draft)] Limited")
 			this.writeArgs("%s OK [READ-WRITE] %s completed", inputN[0], inputN[1])
 			return true
 		}
@@ -453,18 +448,23 @@ func (this *ImapServer) cmdUid(input string) bool {
 				if libs.IsNumeric(inputN[3]) {
 					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
 					inputN[4] = strings.Trim(inputN[4], "\"")
-					if strings.EqualFold(inputN[4], "Deleted Messages") {
-						db.MailSoftDeleteById(mid)
-					}
 
-					if strings.EqualFold(inputN[4], "Junk") {
+					fmt.Println("copy", mid, inputN[4])
+					if strings.EqualFold(inputN[4], "Deleted Messages") {
+						db.MailSoftDeleteById(mid, 1)
+					} else if strings.EqualFold(inputN[4], "INBOX") {
+						db.MailSoftDeleteById(mid, 0)
+						db.MailSetJunkById(mid, 0)
+					} else if strings.EqualFold(inputN[4], "Junk") {
 						db.MailSetJunkById(mid, 1)
 					}
 				}
 			}
 
 			if this.cmdCompare(inputN[2], CMD_STORE) {
+				fmt.Println("CMD_STORE", input)
 				inputN := strings.SplitN(input, " ", 6)
+
 				if libs.IsNumeric(inputN[3]) {
 					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
 					inputN[5] = strings.Trim(inputN[5], "()")
@@ -482,7 +482,7 @@ func (this *ImapServer) cmdUid(input string) bool {
 					}
 
 					if strings.EqualFold(inputN[5], "DELETED") && strings.HasPrefix(inputN[4], "+") {
-						db.MailSoftDeleteById(mid)
+						db.MailSoftDeleteById(mid, 1)
 					}
 				}
 			}
@@ -498,7 +498,6 @@ func (this *ImapServer) cmdExpunge(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 	if len(inputN) == 2 {
 		if this.cmdCompare(inputN[1], CMD_EXPUNGE) {
-			// this.writeArgs(CMD_EXPUNGE, inputN[0])
 			this.writeArgs("%s OK %s Completed", inputN[0], inputN[1])
 			return true
 		}
@@ -610,7 +609,6 @@ func (this *ImapServer) StartPort(port int) {
 
 	for {
 		this.nlConn, err = this.nl.Accept()
-		fmt.Println(this.nlConn)
 		if err != nil {
 			fmt.Println("imap[StartPort][conn]", err)
 			return
