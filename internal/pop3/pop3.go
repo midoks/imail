@@ -143,6 +143,11 @@ func (this *Pop3Server) error(code string) {
 
 func (this *Pop3Server) getString() (string, error) {
 	input, err := this.reader.ReadString('\n')
+
+	if err != nil {
+		return "", err
+	}
+
 	inputTrim := strings.TrimSpace(input)
 	this.D("pop3[r]:", inputTrim, ":", err)
 	return inputTrim, err
@@ -328,7 +333,7 @@ func (this *Pop3Server) cmdNoop(input string) bool {
 func (this *Pop3Server) cmdAuthPlain(input string) bool {
 
 	if this.cmdCompare(input, CMD_AUTH_PLAIN) {
-		this.D("pop3[cmdAuthPlain]", input)
+		this.D("pop3[cmdAuthPlain]:", input)
 		this.w(MSG_AUTH_PLAIN)
 		return true
 	}
@@ -339,7 +344,7 @@ func (this *Pop3Server) cmdParseAuthPlain(input string) bool {
 
 	data, err := libs.Base64decode(input)
 	if err == nil {
-		this.D("pop3[cmdParseAuthPlain][src]:", "cmdParseAuthPlain:", data)
+		this.D("pop3[AuthPlain][Iuput]:", data)
 
 		list := strings.SplitN(data, "\x00", 3)
 
@@ -347,7 +352,7 @@ func (this *Pop3Server) cmdParseAuthPlain(input string) bool {
 		this.recordCmdPass = list[2]
 
 		b := this.checkUserLogin()
-		this.D("pop3[cmdParseAuthPlain][parse]:", b, this.recordCmdUser, this.recordCmdPass)
+		this.D("pop3[AuthPlain]:", b, this.recordCmdUser, this.recordCmdPass)
 		if b {
 			this.ok("Authentication successful")
 			return true
