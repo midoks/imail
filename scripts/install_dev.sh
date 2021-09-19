@@ -3,6 +3,7 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 
 
 TAGRT_DIR=/usr/local/imail_dev
+mkdir -p $TAGRT_DIR
 cd $TAGRT_DIR
 
 
@@ -30,6 +31,6 @@ systemctl daemon-reload
 
 service imail restart
 
-cd $TAGRT_DIR/imail_dev && ./imail -v
+cd $TAGRT_DIR/imail && ./imail -v
 
 
