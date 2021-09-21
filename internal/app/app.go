@@ -16,7 +16,7 @@ import (
 func FixTestMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if !db.CheckDb() {
-			err := config.Load("conf/app.conf")
+			err := config.Load("conf/app.defined.conf")
 			if err != nil {
 				panic("config file load err")
 			}
