@@ -17,23 +17,23 @@ import (
 )
 
 const (
-	CMD_READY      = iota
-	CMD_AUTH       = iota
-	CMD_LIST       = iota
-	CMD_XLIST      = iota
-	CMD_LOGOUT     = iota
-	CMD_CAPABILITY = iota
-	CMD_ID         = iota
-	CMD_STATUS     = iota
-	CMD_SELECT     = iota
-	CMD_FETCH      = iota
-	CMD_UID        = iota
-	CMD_COPY       = iota
-	CMD_STORE      = iota
-	CMD_NAMESPACE  = iota
-	CMD_SEARCH     = iota
-	CMD_NOOP       = iota
-	CMD_EXPUNGE    = iota
+	CMD_READY = iota
+	CMD_AUTH
+	CMD_LIST
+	CMD_XLIST
+	CMD_LOGOUT
+	CMD_CAPABILITY
+	CMD_ID
+	CMD_STATUS
+	CMD_SELECT
+	CMD_FETCH
+	CMD_UID
+	CMD_COPY
+	CMD_STORE
+	CMD_NAMESPACE
+	CMD_SEARCH
+	CMD_NOOP
+	CMD_EXPUNGE
 )
 
 var stateList = map[int]string{
