@@ -212,12 +212,12 @@ func TestReceivedMail(t *testing.T) {
 
 	now := time.Now().Format("2006-01-02 15:04:05")
 
-	fEmail := "admin@cachecha.com"
-	tEmail := "midoks@163.com"
+	fEmail := "midoks@163.com"
+	tEmail := "admin@cachecha.com"
 
 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail[%s]\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, now, tEmail)
 
-	err := Delivery("127.0.0.1:25", "midoks@163.com", "admin@cachecha.com", []byte(content))
+	err := Delivery("127.0.0.1:25", fEmail, tEmail, []byte(content))
 	fmt.Println("err:", err)
 }
 
