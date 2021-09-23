@@ -42,7 +42,7 @@ curl -fsSL  https://raw.githubusercontent.com/midoks/imail/master/scripts/instal
 
 ## 前端项目
 
-- 计划开发[imail前端](https://github.com/midoks/imail-web),由于精力有限。建立的这个项目，不知道有机会写不～。
+计划开发[imail前端](https://github.com/midoks/imail-web),由于精力有限。建立的这个项目，不知道有机会写不～。
 
 ## 授权许可
 
