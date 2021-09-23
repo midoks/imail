@@ -105,7 +105,7 @@ func BoxListByImap(uid int64, className string, start int64, end int64) ([]Mail,
 	}
 
 	if strings.EqualFold(className, "Deleted Messages") {
-		sql = fmt.Sprintf("%s and is_delete='1' ", sql)
+		sql = fmt.Sprintf("%s and is_delete='1' and is_junk<>'1' ", sql)
 	}
 
 	if strings.EqualFold(className, "Drafts") {
