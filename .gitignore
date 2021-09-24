@@ -13,6 +13,7 @@
 imail
 lib/.DS_Store
 .DS_Store
+.idea
 vendor/*
 vendor_bak/*
 conf/dkim/*
