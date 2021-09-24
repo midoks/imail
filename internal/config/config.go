@@ -1,10 +1,13 @@
 package config
 
 import (
-	"errors"
-	"github.com/pelletier/go-toml"
-	"reflect"
-	"unsafe"
+    "errors"
+    "fmt"
+    "github.com/pelletier/go-toml"
+    "net"
+    "reflect"
+    "strings"
+    "unsafe"
 )
 
 var confToml *toml.Tree
@@ -28,7 +31,37 @@ func Load(path string) error {
 		return err
 	}
 	IsLoadedVar = true
+	http_enable, err := GetBool("http.enable", false)
+	if err == nil && http_enable {
+		ipWhiteList := strings.Split(GetString("http.ip_white", "*"), ",")
+		if InSliceString("*", ipWhiteList) {
+			return nil
+		}
+		for _, ip := range ipWhiteList {
+			if strings.Contains(ip, "/") {
+				_, _, err = net.ParseCIDR(ip)
+				if err != nil {
+					return err
+				}
+			} else {
+				if net.ParseIP(ip) == nil {
+					return errors.New(fmt.Sprint(ip, ", Invalid whitelist"))
+				}
+			}
+
+		}
+
+	}
 	return nil
+}
+
+func InSliceString(v string, sl []string) bool {
+    for _, vv := range sl {
+        if vv == v {
+            return true
+        }
+    }
+    return false
 }
 
 func IsLoaded() bool {
