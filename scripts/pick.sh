@@ -57,15 +57,17 @@ build_app(){
 	# tar.gz
 	cd $rootPath/tmp/build && tar -zcvf ${PACK_NAME}-$1-$2.tar.gz ./ && mv ${PACK_NAME}-$1-$2.tar.gz $rootPath/tmp/package
 	# bz
-	cd $rootPath/tmp/build && tar -jcvf ${PACK_NAME}-$1-$2.tar.bz2 ./ && mv ${PACK_NAME}-$1-$2.tar.bz2 $rootPath/tmp/package
+	#cd $rootPath/tmp/build && tar -jcvf ${PACK_NAME}-$1-$2.tar.bz2 ./ && mv ${PACK_NAME}-$1-$2.tar.bz2 $rootPath/tmp/package
 }
 
 golist=`go tool dist list`
 
 echo $golist
 
-# build_app linux amd64
-# build_app linux 386
+build_app linux amd64
+build_app linux 386
+build_app linux armv7
 build_app darwin amd64
-# build_app windows amd64
+build_app windows 386
+build_app windows amd64
 
