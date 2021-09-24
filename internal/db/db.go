@@ -1,10 +1,12 @@
 package db
 
 import (
+    "errors"
     "fmt"
     "github.com/midoks/imail/internal/config"
     "github.com/midoks/imail/internal/log"
     "gorm.io/driver/mysql"
+    "gorm.io/driver/sqlite"
     "gorm.io/gorm"
     "time"
 )
@@ -13,18 +15,25 @@ var db *gorm.DB
 var err error
 
 func Init() error {
+    switch config.GetString("db.type", "") {
+    case "mysql":
+        dbUser := config.GetString("db.user", "root")
+        dbPasswd := config.GetString("db.password", "root")
+        dbHost := config.GetString("db.host", "127.0.0.1")
+        dbPort, _ := config.GetInt64("db.port", 3306)
 
-    dbUser := config.GetString("db.user", "root")
-    dbPasswd := config.GetString("db.password", "root")
-    dbHost := config.GetString("db.host", "127.0.0.1")
-    dbPort, _ := config.GetInt64("db.port", 3306)
+        dbName := config.GetString("db.name", "imail")
+        dbCharset := config.GetString("db.charset", "utf8mb4")
 
-    dbName := config.GetString("db.name", "imail")
-    dbCharset := config.GetString("db.charset", "utf8mb4")
-
-    dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True", dbUser, dbPasswd, dbHost, dbPort, dbName, dbCharset)
-    db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
+        dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True", dbUser, dbPasswd, dbHost, dbPort, dbName, dbCharset)
+        db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+    case "sqlite3":
+        dbPath := config.GetString("db.path", "./data/imail.db3")
+        db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+    default:
+        log.Errorf("database type not found")
+        return errors.New("database type not found")
+    }
     if err != nil {
         log.Errorf("init db err,link error:%s", err)
         return err
