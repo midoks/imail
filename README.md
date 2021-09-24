@@ -13,11 +13,14 @@ imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件
 
 ### 版本版本
 
-- 0.0.4
+0.0.4
 
-```
-* 优化IMAP功能。
-```
+- 添加支持sqlite - [xmapst](https://github.com/xmapst)
+- 添加API白名单 - [xmapst](https://github.com/xmapst)
+- 优化redis连接 - [xmapst](https://github.com/xmapst)
+- 解决邮件移动问题[exp:收件箱->垃圾箱->收件箱]
+
+
 
 ## 计划功能
 
