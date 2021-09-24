@@ -31,6 +31,9 @@ build_app(){
 	
 	cp -r $rootPath/conf $rootPath/tmp/build
 	cd $rootPath/tmp/build/conf/dkim && rm -rf ./* && echo "#dkim" > ./README.md
+	cd $rootPath/tmp/build/conf/ && rm -rf ./app.conf
+	mkdir -p $rootPath/tmp/build/data && echo "#data" > $rootPath/tmp/build/data/README.md
+
 
 	cp -r $rootPath/scripts $rootPath/tmp/build
 	cp -r $rootPath/logs $rootPath/tmp/build
