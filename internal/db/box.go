@@ -57,11 +57,11 @@ func BoxUserMessageCountByClassName(uid int64, className string) (int64, int64) 
 	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", MailTableName())
 
 	if strings.EqualFold(className, "Sent Messages") {
-		sql = fmt.Sprintf("%s and type='%d' and is_delete='0' ", sql, 0)
+		sql = fmt.Sprintf("%s and type='%d' and is_delete='0'", sql, 0)
 	}
 
 	if strings.EqualFold(className, "INBOX") {
-		sql = fmt.Sprintf("%s and type='%d' and is_delete='0' ", sql, 1)
+		sql = fmt.Sprintf("%s and type='%d' and is_delete='0' and is_junk='0' and is_flags='0'", sql, 1)
 	}
 
 	if strings.EqualFold(className, "Deleted Messages") {
@@ -101,11 +101,11 @@ func BoxListByImap(uid int64, className string, start int64, end int64) ([]Mail,
 	}
 
 	if strings.EqualFold(className, "INBOX") {
-		sql = fmt.Sprintf("%s and type='%d' and is_delete='0' ", sql, 1)
+		sql = fmt.Sprintf("%s and type='%d' and is_delete='0' and is_junk='0'", sql, 1)
 	}
 
 	if strings.EqualFold(className, "Deleted Messages") {
-		sql = fmt.Sprintf("%s and is_delete='1' and is_junk<>'1' ", sql)
+		sql = fmt.Sprintf("%s and is_delete='1' ", sql)
 	}
 
 	if strings.EqualFold(className, "Drafts") {

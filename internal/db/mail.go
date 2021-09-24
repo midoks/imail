@@ -112,6 +112,17 @@ func MailListAllForPop(uid int64) ([]Mail, error) {
 	return result, nil
 }
 
+func MailDeletedListAllForImap(uid int64) ([]Mail, error) {
+
+	var result []Mail
+	sql := fmt.Sprintf("SELECT id FROM `%s` WHERE uid=? and is_delete=1 order by id limit 10", MailTableName())
+	ret := db.Raw(sql, uid).Scan(&result)
+	if ret.Error != nil {
+		return nil, ret.Error
+	}
+	return result, nil
+}
+
 func MailPosContentForPop(uid int64, pos int64) (string, int, error) {
 	var result []Mail
 	sql := fmt.Sprintf("SELECT uid,content,size FROM `%s` WHERE uid=? and type=1 order by id limit %d,%d", MailTableName(), pos-1, 1)
@@ -125,8 +136,19 @@ func MailPosContentForPop(uid int64, pos int64) (string, int, error) {
 }
 
 func MailSoftDeleteById(id int64, status int64) bool {
+	//MailHardDeleteById(id)
+
+	var result []Mail
+	sql := fmt.Sprintf("SELECT id FROM `%s` WHERE is_delete=1 and id='%d' order by id limit 10", MailTableName(), id)
+	ret := db.Raw(sql).Scan(&result)
+	if ret.Error == nil {
+		if len(result) > 0 {
+			MailHardDeleteById(id)
+			return false
+		}
+	}
+
 	db.Model(&Mail{}).Where("id = ?", id).Update("is_delete", status)
-	fmt.Println("MailSoftDeleteById", id, status)
 	return true
 }
 
@@ -151,7 +173,7 @@ func MailSetFlagsById(id int64, status int64) bool {
 }
 
 func MailSetJunkById(id int64, status int64) bool {
-	fmt.Println("MailSetJunkById", id, status)
+	// fmt.Println("MailSetJunkById", id, status)
 	db.Model(&Mail{}).Where("id = ?", id).Update("is_junk", status)
 	return true
 }
