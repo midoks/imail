@@ -1,23 +1,28 @@
 package app
 
 import (
-	"fmt"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
-	"github.com/gin-contrib/sessions/redis"
-	"github.com/gin-gonic/gin"
-	"github.com/midoks/imail/internal/config"
-	"github.com/midoks/imail/internal/db"
-	"github.com/midoks/imail/internal/log"
-	uuid "github.com/satori/go.uuid"
-	"net/http"
-	"time"
+    "fmt"
+    "github.com/gin-contrib/sessions"
+    "github.com/gin-contrib/sessions/cookie"
+    "github.com/gin-contrib/sessions/redis"
+    "github.com/gin-gonic/gin"
+    "github.com/midoks/imail/internal/config"
+    "github.com/midoks/imail/internal/db"
+    "github.com/midoks/imail/internal/denyip"
+    "github.com/midoks/imail/internal/log"
+    uuid "github.com/satori/go.uuid"
+    "net"
+    "net/http"
+    "strings"
+    "time"
 )
+
+var checker *denyip.Checker
 
 func FixTestMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if !db.CheckDb() {
-			err := config.Load("conf/app.defined.conf")
+			err := config.Load("conf/app.conf")
 			if err != nil {
 				panic("config file load err")
 			}
@@ -85,13 +90,64 @@ func RequestIDMiddleware() gin.HandlerFunc {
 	}
 }
 
+const xForwardedFor = "X-Forwarded-For"
+
+func getRemoteIP(req *http.Request) []string {
+	var ipList []string
+
+	xff := req.Header.Get(xForwardedFor)
+	xffs := strings.Split(xff, ",")
+
+	for i := len(xffs) - 1; i >= 0; i-- {
+		xffsTrim := strings.TrimSpace(xffs[i])
+
+		if len(xffsTrim) > 0 {
+			ipList = append(ipList, xffsTrim)
+		}
+	}
+
+	host, _, err := net.SplitHostPort(req.RemoteAddr)
+	if err != nil {
+		remoteAddrTrim := strings.TrimSpace(req.RemoteAddr)
+		if len(remoteAddrTrim) > 0 {
+			ipList = append(ipList, remoteAddrTrim)
+		}
+	} else {
+		ipTrim := strings.TrimSpace(host)
+		if len(ipTrim) > 0 {
+			ipList = append(ipList, ipTrim)
+		}
+	}
+
+	return ipList
+}
+
+func IPWhiteMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ipWhiteList := strings.Split(config.GetString("http.ip_white", "*"), ",")
+		if !config.InSliceString("*", ipWhiteList) && len(ipWhiteList) != 0 {
+			reqIPAddr := getRemoteIP(c.Request)
+			reeIPadLenOffset := len(reqIPAddr) - 1
+			for i := reeIPadLenOffset; i >= 0; i-- {
+				err := checker.IsAuthorized(reqIPAddr[i])
+				if err != nil {
+					log.Error(err)
+					c.String(http.StatusForbidden, err.Error())
+					return
+				}
+			}
+		}
+		c.Next()
+	}
+}
+
 func IndexWeb(c *gin.Context) {
 	c.String(http.StatusOK, "hello world")
 }
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
-	r.Use(FixTestMiddleware(), RequestIDMiddleware(), LogMiddleware())
+	r.Use(FixTestMiddleware(), RequestIDMiddleware(), LogMiddleware(), IPWhiteMiddleware())
 
 	store, err := redis.NewStoreWithDB(
 		10, "tcp",
@@ -118,6 +174,14 @@ func SetupRouter() *gin.Engine {
 }
 
 func Start(port int) {
+	ipWhiteList := strings.Split(config.GetString("http.ip_white", "*"), ",")
+	if !config.InSliceString("*", ipWhiteList) && len(ipWhiteList) != 0 {
+		var err error
+		checker, err = denyip.NewChecker(ipWhiteList)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 	r := SetupRouter()
 
 	//Listening port
