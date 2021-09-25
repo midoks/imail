@@ -53,7 +53,7 @@ func PostForm(uri string, param url.Values, router *gin.Engine) *httptest.Respon
 	return w
 }
 
-func initToken() string {
+func D_initToken() string {
 	r := SetupRouter()
 	if token != "" {
 		return token
