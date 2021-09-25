@@ -138,12 +138,12 @@ func MailPosContentForPop(uid int64, pos int64) (string, int, error) {
 func MailSoftDeleteById(id int64, status int64) bool {
 
 	var result []Mail
-	sql := fmt.Sprintf("SELECT id FROM `%s` WHERE is_delete=1 and id='%d' order by id limit 10", MailTableName(), id)
+	sql := fmt.Sprintf("SELECT id FROM `%s` WHERE is_delete=1 and id='%d' order by id limit 1", MailTableName(), id)
 	ret := db.Raw(sql).Scan(&result)
 	if ret.Error == nil {
-		if len(result) > 0 {
+		if len(result) > 0 && status == 1 {
 			MailHardDeleteById(id)
-			return false
+			return true
 		}
 	}
 
