@@ -35,4 +35,12 @@ wget -O "imail-$_os-$_go.tar.gz" $url
 tar zxvf "imail-$_os-$_go.tar.gz"
 rm -rf "imail-$_os-$_go.tar.gz"
 
+cd $TAGRT_DIR/scripts
+sh make.sh
+
+systemctl daemon-reload
+service imail restart
+
+cd $TAGRT_DIR && ./imail -v
+
 
