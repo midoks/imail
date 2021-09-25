@@ -81,7 +81,7 @@ func initToken() string {
 }
 
 // go test -run TestIndex
-func D_TestIndex(t *testing.T) {
+func TestIndex(t *testing.T) {
 	r := SetupRouter()
 	w := Get("/", r)
 	assert.Equal(t, 200, w.Code)
