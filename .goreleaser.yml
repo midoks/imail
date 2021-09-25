@@ -28,4 +28,5 @@ changelog:
   sort: asc
   filters:
     exclude:
-      - "hook"
+      - '^docs:'
+      - '^test:'
