@@ -18,19 +18,19 @@ import (
 )
 
 const (
-	CMD_READY           = iota
-	CMD_STARTTLS        = iota
-	CMD_HELO            = iota
-	CMD_EHLO            = iota
-	CMD_AUTH_PLAIN      = iota
-	CMD_AUTH_LOGIN      = iota
-	CMD_AUTH_LOGIN_USER = iota
-	CMD_AUTH_LOGIN_PWD  = iota
-	CMD_MAIL_FROM       = iota
-	CMD_RCPT_TO         = iota
-	CMD_DATA            = iota
-	CMD_DATA_END        = iota
-	CMD_QUIT            = iota
+	CMD_READY = iota
+	CMD_STARTTLS
+	CMD_HELO
+	CMD_EHLO
+	CMD_AUTH_PLAIN
+	CMD_AUTH_LOGIN
+	CMD_AUTH_LOGIN_USER
+	CMD_AUTH_LOGIN_PWD
+	CMD_MAIL_FROM
+	CMD_RCPT_TO
+	CMD_DATA
+	CMD_DATA_END
+	CMD_QUIT
 )
 
 var stateList = map[int]string{
@@ -185,7 +185,7 @@ func (this *SmtpdServer) D(args ...interface{}) {
 
 	smtp3Debug, _ := config.GetBool("smtpd.debug", false)
 	if smtp3Debug {
-		fmt.Println(args...)
+		// fmt.Println(args...)
 		log.Debug(args...)
 	}
 }
