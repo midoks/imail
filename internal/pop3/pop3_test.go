@@ -29,7 +29,6 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 	}
 
 	CMD_USER := fmt.Sprintf("USER %s\r\n", name)
-	fmt.Println("CMD:", CMD_USER)
 	_, err = conn.Write([]byte(CMD_USER))
 	if err != nil {
 		return false, err
@@ -39,8 +38,6 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 	if err != nil {
 		return false, err
 	}
-
-	fmt.Println("S:", data)
 
 	CMD_PWD := fmt.Sprintf("PASS %s\r\n", password)
 	fmt.Println("CMD:", CMD_PWD)
@@ -96,9 +93,6 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 		}
 	}
 
-	fmt.Println("S:", data)
-
-	fmt.Println("CMD:UIDL 1")
 	_, err = conn.Write([]byte("UIDL 1\r\n"))
 	data, err = bufio.NewReader(conn).ReadString('\n')
 	if err != nil {
@@ -109,9 +103,6 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 		return false, errors.New(data)
 	}
 
-	fmt.Println("S:", data)
-
-	fmt.Println("TOP 1 0")
 	_, err = conn.Write([]byte("TOP 1 0\r\n"))
 	var content string
 	for {
@@ -131,31 +122,6 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 		}
 	}
 	data = content
-	fmt.Println("S:", data)
-
-	// fmt.Println("CMD:RETR 1")
-	// _, err = conn.Write([]byte("RETR 1\r\n"))
-
-	// for {
-
-	// 	b := make([]byte, 4096)
-
-	// 	n, err := conn.Read(b[0:])
-	// 	fmt.Println(n, err)
-	// 	if err != nil {
-	// 		log.Println("SS:directive error:", err)
-	// 		break
-	// 	}
-
-	// 	v := strings.TrimSpace(string(b[:n]))
-
-	// 	fmt.Println("line:", v)
-	// 	last := string(v[len(v)-1:])
-
-	// 	if strings.EqualFold(last, ".") {
-	// 		break
-	// 	}
-	// }
 
 	conn.Write([]byte("QUIT\r\n"))
 
@@ -163,20 +129,19 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 	if err != nil {
 		return false, err
 	}
-	fmt.Println("S:", data)
 
 	return true, nil
 }
 
 // go test -v pop3_test.go -test.run TestRunPop3
 func TestRunPop3(t *testing.T) {
-	PopCmd("pop3.163.com", "110", "midoks", "mm123123")
+	// PopCmd("pop3.163.com", "110", "midoks", "mm123123")
 }
 
 // go test -v pop3_test.go -test.run TestRunLocalPop3
-func TestRunLocalPop3(t *testing.T) {
+func D_TestRunLocalPop3(t *testing.T) {
 
-	_, err := PopCmd("127.0.0.1", "10110", "midoks", "123123")
+	_, err := PopCmd("127.0.0.1", "110", "admin", "admin")
 	if err != nil {
 		fmt.Println("cmd:", err)
 	}

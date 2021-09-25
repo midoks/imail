@@ -108,7 +108,7 @@ func TestDnsQuery(t *testing.T) {
 
 // go test -run TestMailDelivery
 //MailDelivery
-func TestMailDelivery(t *testing.T) {
+func D_TestMailDelivery(t *testing.T) {
 	toEmail := "627293072@qq.com"
 	fromEmail := "admin@cachecha.com"
 
@@ -185,7 +185,7 @@ func SendMailTest(addr string, a Auth, from string, to []string, msg []byte) err
 }
 
 // go test -run TestSendMail
-func TestSendMail(t *testing.T) {
+func D_TestSendMail(t *testing.T) {
 
 	// cert, err := tls.X509KeyPair(localhostCert, localhostKey)
 	// if err != nil {
@@ -208,7 +208,7 @@ func TestSendMail(t *testing.T) {
 }
 
 // go test -run TestReceivedMail
-func TestReceivedMail(t *testing.T) {
+func D_TestReceivedMail(t *testing.T) {
 
 	now := time.Now().Format("2006-01-02 15:04:05")
 
@@ -223,7 +223,7 @@ func TestReceivedMail(t *testing.T) {
 
 // go test -run TestLocalMail
 // TestLocalMail
-func TestLocalMail(t *testing.T) {
+func D_TestLocalMail(t *testing.T) {
 
 	c, err := Dial("127.0.0.1:25")
 	if err != nil {
@@ -252,40 +252,3 @@ func TestLocalMail(t *testing.T) {
 	}
 
 }
-
-// err := dkim.MakeDkimConfFile("biqu.xyz")
-// fmt.Println(err)
-
-// tomail := "627293072@qq.com"
-
-// msg := []byte("from:admin@cachecha.com\r\n" +
-// 	"to: " + tomail + "\r\n" +
-// 	"Subject: hello,imail!\r\n" +
-// 	"Content-Type:multipart/mixed;boundary=a\r\n" +
-// 	"Mime-Version:1.0\r\n" +
-// 	"\r\n" +
-// 	"--a\r\n" +
-// 	"Content-type:text/plain;charset=utf-8\r\n" +
-// 	"Content-Transfer-Encoding:quoted-printable\r\n" +
-// 	"\r\n" +
-// 	"此处为正文内容D!\r\n")
-
-// err := smtpd.Delivery("admin@cachecha.com", tomail, msg)
-// fmt.Println("err:", err)
-
-// auth := smtpd.PlainAuth("", "yuludejia@gmail.com", "pmroenyllybhlwub", "smtp.gmail.com")
-
-// msg := []byte("from:yuludejia@gmail.com\r\n" +
-// 	"to: midoks@163.com\r\n" +
-// 	"Subject: hello,subject!\r\n" +
-// 	"Content-Type:multipart/mixed;boundary=a\r\n" +
-// 	"Mime-Version:1.0\r\n" +
-// 	"\r\n" +
-// 	"--a\r\n" +
-// 	"Content-type:text/plain;charset=utf-8\r\n" +
-// 	"Content-Transfer-Encoding:quoted-printable\r\n" +
-// 	"\r\n" +
-// 	"此处为正文内容D!\r\n")
-
-// err := smtpd.SendMail("smtp.gmail.com", "587", auth, "yuludejia@gmail.com", []string{"midoks@163.com"}, msg)
-// fmt.Println("err:", err)

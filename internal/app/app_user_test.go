@@ -12,6 +12,8 @@ import (
 	"testing"
 )
 
+// go test -v ./internal/app
+
 var token string
 
 //map to string
@@ -91,35 +93,35 @@ func TestUserRegister(t *testing.T) {
 
 }
 
-// go test -run TestUserLogin
-func TestUserLogin(t *testing.T) {
-	r := SetupRouter()
+/// go test -run TestUserLogin
+// func D_TestUserLogin(t *testing.T) {
+// 	r := SetupRouter()
 
-	user := "admin"
-	password := "admin"
+// 	user := "admin"
+// 	password := "admin"
 
-	w := Get("/v1/get_code?name="+user, r)
-	var wcode map[string]string
-	_ = json.Unmarshal([]byte(w.Body.String()), &wcode)
+// 	w := Get("/v1/get_code?name="+user, r)
+// 	var wcode map[string]string
+// 	_ = json.Unmarshal([]byte(w.Body.String()), &wcode)
 
-	// fmt.Println(wcode["token"])
-	// fmt.Println(wcode["rand"])
+// 	// fmt.Println(wcode["token"])
+// 	// fmt.Println(wcode["rand"])
 
-	postBody := make(url.Values)
-	postBody.Add("name", user)
-	postBody.Add("token", wcode["token"])
-	postBody.Add("password", libs.Md5str(libs.Md5str(password)+wcode["rand"]))
+// 	postBody := make(url.Values)
+// 	postBody.Add("name", user)
+// 	postBody.Add("token", wcode["token"])
+// 	postBody.Add("password", libs.Md5str(libs.Md5str(password)+wcode["rand"]))
 
-	// fmt.Println("in", password, wcode["rand"])
+// 	// fmt.Println("in", password, wcode["rand"])
 
-	w = PostForm("/v1/login", postBody, r)
+// 	w = PostForm("/v1/login", postBody, r)
 
-	var result map[string]string
-	_ = json.Unmarshal([]byte(w.Body.String()), &result)
+// 	var result map[string]string
+// 	_ = json.Unmarshal([]byte(w.Body.String()), &result)
 
-	assert.Equal(t, 200, w.Code)
-	assert.Equal(t, 32, len(result["token"]))
-}
+// 	assert.Equal(t, 200, w.Code)
+// 	assert.Equal(t, 32, len(result["token"]))
+// }
 
 // go test -run TestToken
 func TestToken(t *testing.T) {

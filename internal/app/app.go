@@ -1,35 +1,33 @@
 package app
 
 import (
-    "fmt"
-    "github.com/gin-contrib/sessions"
-    "github.com/gin-contrib/sessions/cookie"
-    "github.com/gin-contrib/sessions/redis"
-    "github.com/gin-gonic/gin"
-    "github.com/midoks/imail/internal/config"
-    "github.com/midoks/imail/internal/db"
-    "github.com/midoks/imail/internal/denyip"
-    "github.com/midoks/imail/internal/log"
-    uuid "github.com/satori/go.uuid"
-    "net"
-    "net/http"
-    "strings"
-    "time"
+	"fmt"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-contrib/sessions/redis"
+	"github.com/gin-gonic/gin"
+	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/db"
+	"github.com/midoks/imail/internal/denyip"
+	"github.com/midoks/imail/internal/log"
+	uuid "github.com/satori/go.uuid"
+	"net"
+	"net/http"
+	"strings"
+	"time"
 )
 
 var checker *denyip.Checker
 
-func FixTestMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if !db.CheckDb() {
-			err := config.Load("conf/app.conf")
-			if err != nil {
-				panic("config file load err")
-			}
-
-			log.Init()
-			db.Init()
+func FixTestMiddleware() {
+	if !db.CheckDb() {
+		err := config.Load("../../conf/app.defined.conf")
+		if err != nil {
+			panic("config file load err")
 		}
+
+		log.Init()
+		db.Init()
 	}
 }
 
@@ -147,20 +145,24 @@ func IndexWeb(c *gin.Context) {
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
-	r.Use(FixTestMiddleware(), RequestIDMiddleware(), LogMiddleware(), IPWhiteMiddleware())
 
-	store, err := redis.NewStoreWithDB(
-		10, "tcp",
-		config.GetString("redis.address", "127.0.0.1:6379"),
-		config.GetString("redis.password", ""),
-		config.GetString("redis.db", "0"),
-		[]byte("secret"),
-	)
-	if err != nil {
-		store = cookie.NewStore([]byte("SESSION_SECRET"))
+	FixTestMiddleware()
+	r.Use(RequestIDMiddleware(), LogMiddleware(), IPWhiteMiddleware())
+
+	if b, _ := config.GetBool("redis.enable", false); b {
+		store, err := redis.NewStoreWithDB(
+			10, "tcp",
+			config.GetString("redis.address", "127.0.0.1:6379"),
+			config.GetString("redis.password", ""),
+			config.GetString("redis.db", "0"),
+			[]byte("secret"),
+		)
+		if err != nil {
+			store = cookie.NewStore([]byte("SESSION_SECRET"))
+		}
+		store.Options(sessions.Options{MaxAge: 60 * 60})
+		r.Use(sessions.Sessions("sessionid", store))
 	}
-	store.Options(sessions.Options{MaxAge: 60 * 60})
-	r.Use(sessions.Sessions("sessionid", store))
 
 	r.GET("/", IndexWeb)
 	v1 := r.Group("v1")
