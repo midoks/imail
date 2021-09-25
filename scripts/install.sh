@@ -1,46 +1,91 @@
 #!/bin/bash
 
-PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+check_go_environment() {
+	if test ! -x "$(command -v go)"; then
+		printf "\e[1;31mmissing go running environment\e[0m\n"
+		exit 1
+	fi
+}
 
-_os=`uname`
-_os=$(echo $_os | tr '[A-Z]' '[a-z]')
-_ver="0.0.4"
+load_vars() {
+	OS=$(uname | tr '[:upper:]' '[:lower:]')
 
-which go
-if [ "0" != $? ]; then
-	echo "missing go running environment!"
-	exit
-fi
+	VERSION=$(get_latest_release "midoks/imail")
 
-echo "package main
+	TARGET_DIR="/usr/local/imail"
+}
+
+get_latest_release() {
+    curl -sL "https://api.github.com/repos/$1/releases/latest" | grep '"tag_name":' | cut -d'"' -f4
+}
+
+get_arch() {
+	echo "package main
 import (
 	\"fmt\"
 	\"runtime\"
 )
-func main() { fmt.Println(runtime.GOARCH) }" > /tmp/t.go
+func main() { fmt.Println(runtime.GOARCH) }" > /tmp/go_arch.go
 
-_arch=`cd /tmp && go run t.go`
+	ARCH=$(go run /tmp/go_arch.go)
+}
+
+get_download_url() {
+	DOWNLOAD_URL="https://github.com/midoks/imail/releases/download/$VERSION/imail-$OS-$ARCH.tar.gz"
+}
+
+# download file
+download_file() {
+    url="${1}"
+    destination="${2}"
+
+    printf "Fetching ${url} \n\n"
+
+    if test -x "$(command -v curl)"; then
+        code=$(curl --connect-timeout 15 -w '%{http_code}' -L "${url}" -o "${destination}")
+    elif test -x "$(command -v wget)"; then
+        code=$(wget -t2 -T15 -O "${destination}" --server-response "${url}" 2>&1 | awk '/^  HTTP/{print $2}' | tail -1)
+    else
+        printf "\e[1;31mNeither curl nor wget was available to perform http requests.\e[0m\n"
+        exit 1
+    fi
+
+    if [ "${code}" != 200 ]; then
+        printf "\e[1;31mRequest failed with code %s\e[0m\n" $code
+        exit 1
+    else 
+	    printf "\n\e[1;33mDownload succeeded\e[0m\n"
+    fi
+}
 
 
-url="https://github.com/midoks/imail/releases/download/0.0.4/imail-$_os-$_arch.tar.gz"
+main() {
+	check_go_environment
 
-echo $_os
-echo $_arch
+	load_vars
 
-TAGRT_DIR=/usr/local/imail
-mkdir -p $TAGRT_DIR
-cd $TAGRT_DIR
+	get_arch
 
-wget -O "imail-$_os-$_arch.tar.gz" $url
-tar zxvf "imail-$_os-$_arch.tar.gz"
-rm -rf "imail-$_os-$_arch.tar.gz"
+	get_download_url
 
-cd $TAGRT_DIR/scripts
-sh make.sh
+	DOWNLOAD_FILE="$(mktemp).tar.gz"
+	download_file $DOWNLOAD_URL $DOWNLOAD_FILE
 
-systemctl daemon-reload
-service imail restart
+	if [ ! -d "$TARGET_DIR" ]; then
+		mkdir -p "$TARGET_DIR"
+	fi
 
-cd $TAGRT_DIR && ./imail -v
+	tar -C "$TARGET_DIR" -zxf $DOWNLOAD_FILE
+	rm -rf $DOWNLOAD_FILE
 
+	pushd "$TARGET_DIR/scripts" >/dev/null 2>&1
+	bash make.sh
 
+	systemctl daemon-reload
+	service imail restart
+
+	cd .. && ./imail -v	
+	popd >/dev/null 2>&1
+}
+
+main "$@" || exit 1
