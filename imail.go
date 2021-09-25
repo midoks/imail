@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-const Version = "0.0.4"
+const Version = "0.0.5-dev"
 
 func init() {
 	config.App.Version = Version
