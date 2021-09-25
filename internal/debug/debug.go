@@ -40,6 +40,7 @@ func traceStop(w http.ResponseWriter, r *http.Request) {
 
 // go tool trace trace.out
 // Run pprof analyzer
+// http://127.0.0.1:6060/debug/pprof/
 func Pprof() {
 	go func() {
 		//Close GC
