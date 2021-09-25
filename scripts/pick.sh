@@ -21,10 +21,16 @@ build_app(){
 	export CGO_ENABLED=0 GOOS=$1 GOARCH=$2
 	# export CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 
+	if [ $1 == "darwin" ];then
+		export CGO_ENABLED=1
+	fi
+
 	if [ $1 == "windows" ];then
+		export CGO_ENABLED=0
 		cd $rootPath/internal/win32 && go build imail.go
 	else
-		cd $rootPath && go build imail.go
+		# -ldflags="-s -w"
+		cd $rootPath && go build  imail.go
 		# cd $rootPath && go build imail.go && /usr/local/bin/strip imail
 	fi
 	

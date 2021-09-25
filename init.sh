@@ -9,4 +9,4 @@ fi
 go mod tidy
 go mod vendor
 
-
+goreleaser --snapshot --skip-publish --rm-dist

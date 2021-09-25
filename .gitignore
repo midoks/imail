@@ -22,3 +22,5 @@ logs/*
 internal/app/logs/*
 conf/app.conf
 *.db3
+
+dist/
