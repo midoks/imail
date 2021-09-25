@@ -22,7 +22,7 @@ func ExecPython(scriptName string, id int64) (string, error) {
 		return "", errors.New("file is not exist!")
 	}
 
-	cmd := exec.Command("python", fileName, string(id))
+	cmd := exec.Command("python", fileName, fmt.Sprint(id))
 	out, err := cmd.CombinedOutput()
 	return string(out), err
 }
