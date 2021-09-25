@@ -19,21 +19,21 @@ import (
 )
 func main() { fmt.Println(runtime.GOARCH) }" > /tmp/t.go
 
-_go=`cd /tmp && go run t.go`
+_arch=`cd /tmp && go run t.go`
 
 
-url="https://github.com/midoks/imail/releases/download/0.0.4/imail-$_os-$_go.tar.gz"
+url="https://github.com/midoks/imail/releases/download/0.0.4/imail-$_os-$_arch.tar.gz"
 
 echo $_os
-echo $_go
+echo $_arch
 
 TAGRT_DIR=/usr/local/imail
 mkdir -p $TAGRT_DIR
 cd $TAGRT_DIR
 
-wget -O "imail-$_os-$_go.tar.gz" $url
-tar zxvf "imail-$_os-$_go.tar.gz"
-rm -rf "imail-$_os-$_go.tar.gz"
+wget -O "imail-$_os-$_arch.tar.gz" $url
+tar zxvf "imail-$_os-$_arch.tar.gz"
+rm -rf "imail-$_os-$_arch.tar.gz"
 
 cd $TAGRT_DIR/scripts
 sh make.sh
