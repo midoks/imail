@@ -149,12 +149,12 @@ func startService(name string) {
 }
 
 func reloadService(path string) {
-	fmt.Println("reloadService:", path)
+	log.Infof("reloadService:%s", path)
 
 	err := config.Load(path)
 	if err != nil {
 		info := fmt.Sprintf("imail config file reload err:%s", err)
-		fmt.Println(info)
+		log.Error(info)
 		return
 	}
 

@@ -16,7 +16,7 @@ func gc(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("StartGC"))
 }
 
-//运行trace
+//start trace
 func traceStart(w http.ResponseWriter, r *http.Request) {
 	f, err := os.Create("trace.out")
 	if err != nil {
@@ -31,7 +31,7 @@ func traceStart(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("StartTrancs")
 }
 
-//停止trace
+//stop trace
 func traceStop(w http.ResponseWriter, r *http.Request) {
 	trace.Stop()
 	w.Write([]byte("TrancStop"))
@@ -39,22 +39,21 @@ func traceStop(w http.ResponseWriter, r *http.Request) {
 }
 
 // go tool trace trace.out
-//运行pprof分析器
+// Run pprof analyzer
 func Pprof() {
 	go func() {
-		//关闭GC
+		//Close GC
+
 		debug.SetGCPercent(-1)
+
 		http.HandleFunc("/go_nums", func(w http.ResponseWriter, r *http.Request) {
 			num := strconv.FormatInt(int64(runtime.NumGoroutine()), 10)
 			w.Write([]byte(num))
 		})
-		//运行trace
+
 		http.HandleFunc("/start", traceStart)
-		//停止trace
 		http.HandleFunc("/stop", traceStop)
-		//手动GC
 		http.HandleFunc("/gc", gc)
-		//网站开始监听
 		http.ListenAndServe(":6060", nil)
 	}()
 }
