@@ -113,7 +113,7 @@ func imapCmd(domain string, port string, name string, password string) (bool, er
 // }
 
 // go test -run TestRunImap
-func TestRunImap(t *testing.T) {
+func D_TestRunImap(t *testing.T) {
 	host := "127.0.0.1"
 	port := "143"
 	name := "admin"
