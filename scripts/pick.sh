@@ -61,7 +61,7 @@ build_app(){
 	# zip
 	cd $rootPath/tmp/build && zip -r -q -o ${PACK_NAME}-$1-$2.zip  ./ && mv ${PACK_NAME}-$1-$2.zip $rootPath/tmp/package
 	# tar.gz
-	cd $rootPath/tmp/build && tar -zcvf ${PACK_NAME}-$1-$2.tar.gz ./ && mv ${PACK_NAME}-$1-$2.tar.gz $rootPath/tmp/package
+	#cd $rootPath/tmp/build && tar -zcvf ${PACK_NAME}-$1-$2.tar.gz ./ && mv ${PACK_NAME}-$1-$2.tar.gz $rootPath/tmp/package
 	# bz
 	#cd $rootPath/tmp/build && tar -jcvf ${PACK_NAME}-$1-$2.tar.bz2 ./ && mv ${PACK_NAME}-$1-$2.tar.bz2 $rootPath/tmp/package
 }
