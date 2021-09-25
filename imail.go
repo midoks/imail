@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/midoks/imail/internal/cmd"
 	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/libs"
 	"github.com/midoks/imail/internal/log"
 	"github.com/urfave/cli"
 	"os"
-	"syscall"
 )
 
 const Version = "0.0.4"
@@ -26,7 +26,7 @@ func main() {
 
 	// Redirect the process standard error to the file.
 	// When the process crashes, the runtime will record the co process call stack information to the file
-	syscall.Dup2(int(logFile.Fd()), int(os.Stderr.Fd()))
+	libs.Dup2(int(logFile.Fd()), int(os.Stderr.Fd()))
 
 	app := cli.NewApp()
 	app.Name = "Imail"

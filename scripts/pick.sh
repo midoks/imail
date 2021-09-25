@@ -27,7 +27,7 @@ build_app(){
 
 	if [ $1 == "windows" ];then
 		export CGO_ENABLED=0
-		cd $rootPath/internal/win32 && go build imail.go
+		cd $rootPath && go build imail.go
 	else
 		# -ldflags="-s -w"
 		cd $rootPath && go build  imail.go
@@ -50,7 +50,7 @@ build_app(){
 
 
 	if [ $1 == "windows" ];then
-		cp $rootPath/internal/win32/imail.exe $rootPath/tmp/build
+		cp $rootPath/imail.exe $rootPath/tmp/build
 		rm -rf $rootPath/tmp/build/imail
 	else
 		rm -rf $rootPath/imail.exe
