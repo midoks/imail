@@ -29,6 +29,7 @@ const (
 	CMD_FETCH
 	CMD_UID
 	CMD_COPY
+	CMD_CLOSE
 	CMD_STORE
 	CMD_NAMESPACE
 	CMD_SEARCH
@@ -53,6 +54,7 @@ var stateList = map[int]string{
 	CMD_SEARCH:     "SEARCH",
 	CMD_UID:        "UID",
 	CMD_NOOP:       "NOOP",
+	CMD_CLOSE:      "CLOSE",
 	CMD_EXPUNGE:    "EXPUNGE",
 }
 
@@ -68,9 +70,14 @@ const (
 	MSG_COMPLELED_LIST = "* %s %s %s"
 )
 
+// var GO_EOL = "\n"
 var GO_EOL = libs.GetGoEol()
 
-// var GO_EOL = "\n"
+// https://datatracker.ietf.org/doc/html/rfc3501#page-48
+type UIDVNW struct {
+	Copy    bool
+	Expunge bool
+}
 
 type ImapServer struct {
 	io.Reader
@@ -99,6 +106,8 @@ type ImapServer struct {
 	nlConn    net.Conn
 	nlSSL     net.Listener
 	nlConnSSL net.Conn
+
+	uidVnw UIDVNW
 }
 
 func (this *ImapServer) setState(state int) {
@@ -113,7 +122,7 @@ func (this *ImapServer) D(args ...interface{}) {
 
 	imapDebug, _ := config.GetBool("imap.debug", false)
 	if imapDebug {
-		fmt.Println(args...)
+		// fmt.Println(args...)
 		log.Debug(args...)
 	}
 }
@@ -183,7 +192,7 @@ func (this *ImapServer) stateCompare(input int, cmd int) bool {
 	return false
 }
 
-func (this *ImapServer) parseArgsConent(format string, data db.Mail) string {
+func (this *ImapServer) parseArgsConent(format string, data db.Mail) (string, error) {
 
 	content := data.Content
 	id := data.Id
@@ -198,7 +207,7 @@ func (this *ImapServer) parseArgsConent(format string, data db.Mail) string {
 	header, err := component.ReadHeader(bufferedBody)
 
 	if err != nil {
-		fmt.Println("component.ReadHeader:", err)
+		return "", err
 	}
 
 	bs, err := component.FetchBodyStructure(header, bufferedBody, true)
@@ -258,7 +267,7 @@ func (this *ImapServer) parseArgsConent(format string, data db.Mail) string {
 	}
 
 	out = fmt.Sprintf("(%s)", out)
-	return out
+	return out, nil
 }
 
 func (this *ImapServer) cmdAuth(input string) bool {
@@ -394,22 +403,21 @@ func (this *ImapServer) cmdFecth(input string) bool {
 	return false
 }
 
+// https://datatracker.ietf.org/doc/html/rfc3501#page-48
 func (this *ImapServer) cmdUid(input string) bool {
 
 	inputN := strings.SplitN(input, " ", 5)
-
 	if len(inputN) == 5 {
 		if this.cmdCompare(inputN[1], CMD_UID) {
 
 			if this.cmdCompare(inputN[2], CMD_FETCH) {
-
 				if strings.Index(inputN[3], ":") > 0 {
 					se := strings.SplitN(inputN[3], ":", 2)
 					start, _ := strconv.ParseInt(se[0], 10, 64)
 					end, _ := strconv.ParseInt(se[1], 10, 64)
 					mailList, _ := db.BoxListByImap(this.userID, this.selectBox, start, end)
 					for i, m := range mailList {
-						c := this.parseArgsConent(inputN[4], m)
+						c, _ := this.parseArgsConent(inputN[4], m)
 						this.writeArgs("* %d FETCH "+c, i+1)
 					}
 				}
@@ -417,12 +425,10 @@ func (this *ImapServer) cmdUid(input string) bool {
 				if libs.IsNumeric(inputN[3]) {
 					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
 					mailList, _ := db.BoxListByMid(this.userID, this.selectBox, mid)
-					c := this.parseArgsConent(inputN[4], mailList[0])
+					c, _ := this.parseArgsConent(inputN[4], mailList[0])
 					this.writeArgs("* %d FETCH "+c, mid)
 				}
-			}
-
-			if this.cmdCompare(inputN[2], CMD_SEARCH) {
+			} else if this.cmdCompare(inputN[2], CMD_SEARCH) {
 
 				if strings.Index(inputN[4], ":") > 0 {
 					se := strings.SplitN(inputN[4], ":", 2)
@@ -439,17 +445,14 @@ func (this *ImapServer) cmdUid(input string) bool {
 				if libs.IsNumeric(inputN[3]) {
 					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
 					mailList, _ := db.BoxListByMid(this.userID, this.selectBox, mid)
-					c := this.parseArgsConent(inputN[4], mailList[0])
+					c, _ := this.parseArgsConent(inputN[4], mailList[0])
 					this.writeArgs("* %d SEARCH "+c, mid)
 				}
-			}
+			} else if this.cmdCompare(inputN[2], CMD_COPY) {
 
-			if this.cmdCompare(inputN[2], CMD_COPY) {
 				if libs.IsNumeric(inputN[3]) {
 					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
 					inputN[4] = strings.Trim(inputN[4], "\"")
-
-					fmt.Println("copy", mid, inputN[4])
 					if strings.EqualFold(inputN[4], "Deleted Messages") {
 						db.MailSoftDeleteById(mid, 1)
 					} else if strings.EqualFold(inputN[4], "INBOX") {
@@ -458,13 +461,12 @@ func (this *ImapServer) cmdUid(input string) bool {
 					} else if strings.EqualFold(inputN[4], "Junk") {
 						db.MailSetJunkById(mid, 1)
 					}
+
+					this.uidVnw.Copy = true
 				}
-			}
+			} else if this.cmdCompare(inputN[2], CMD_STORE) {
 
-			if this.cmdCompare(inputN[2], CMD_STORE) {
-				fmt.Println("CMD_STORE", input)
 				inputN := strings.SplitN(input, " ", 6)
-
 				if libs.IsNumeric(inputN[3]) {
 					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
 					inputN[5] = strings.Trim(inputN[5], "()")
@@ -481,13 +483,15 @@ func (this *ImapServer) cmdUid(input string) bool {
 						db.MailSetFlagsById(mid, 0)
 					}
 
-					if strings.EqualFold(inputN[5], "DELETED") && strings.HasPrefix(inputN[4], "+") {
+					if strings.EqualFold(inputN[5], "DELETED") &&
+						strings.HasPrefix(inputN[4], "+") && !this.uidVnw.Copy {
+						this.uidVnw.Copy = false
 						db.MailSoftDeleteById(mid, 1)
 					}
 				}
 			}
 
-			this.writeArgs("%s OK %s %s Completed", inputN[0], inputN[1], inputN[2])
+			this.writeArgs("%s OK %s %s completed", inputN[0], inputN[1], inputN[2])
 			return true
 		}
 	}
@@ -498,6 +502,21 @@ func (this *ImapServer) cmdExpunge(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 	if len(inputN) == 2 {
 		if this.cmdCompare(inputN[1], CMD_EXPUNGE) {
+			mailList, _ := db.MailDeletedListAllForImap(this.userID)
+			for _, m := range mailList {
+				this.writeArgs("* %d EXPUNGE", m.Id)
+			}
+			this.writeArgs("%s OK %s completed", inputN[0], inputN[1])
+			return true
+		}
+	}
+	return false
+}
+
+func (this *ImapServer) cmdClose(input string) bool {
+	inputN := strings.SplitN(input, " ", 2)
+	if len(inputN) == 2 {
+		if this.cmdCompare(inputN[1], CMD_CLOSE) {
 			this.writeArgs("%s OK %s Completed", inputN[0], inputN[1])
 			return true
 		}
@@ -530,43 +549,28 @@ func (this *ImapServer) handle() {
 			break
 		}
 
+		// fmt.Println("input:", input)
 		if this.cmdCapabitity(input) {
-		}
-
-		if this.cmdId(input) {
-		}
-
-		if this.cmdNoop(input) {
-		}
-
-		if this.cmdAuth(input) {
+		} else if this.cmdId(input) {
+		} else if this.cmdNoop(input) {
+		} else if this.cmdAuth(input) {
 			this.setState(CMD_AUTH)
 		}
 
 		if this.stateCompare(state, CMD_AUTH) {
 
 			if this.cmdNameSpace(input) {
-			}
-
-			if this.cmdList(input) {
-			}
-
-			if this.cmdStatus(input) {
-			}
-
-			if this.cmdSelect(input) {
-			}
-
-			if this.cmdFecth(input) {
-			}
-
-			if this.cmdUid(input) {
-			}
-
-			if this.cmdExpunge(input) {
-			}
-
-			if this.cmdLogout(input) {
+			} else if this.cmdList(input) {
+			} else if this.cmdStatus(input) {
+			} else if this.cmdSelect(input) {
+			} else if this.cmdFecth(input) {
+			} else if this.cmdUid(input) {
+			} else if this.cmdExpunge(input) {
+			} else if this.cmdClose(input) {
+				this.close()
+				break
+			} else if this.cmdLogout(input) {
+				this.close()
 				break
 			}
 		}
@@ -632,7 +636,7 @@ func (this *ImapServer) StartSSLPort(port int) {
 
 	this.nlConnSSL, err = this.nlSSL.Accept()
 	if err != nil {
-		fmt.Println("imap[StartSSLPort][conn]", err)
+		this.D("imap[StartSSLPort][conn]", err)
 		return
 	}
 	this.start(this.nlConnSSL)
@@ -644,24 +648,21 @@ func (this *ImapServer) Close() error {
 
 	err = this.nl.Close()
 	if err != nil {
-		fmt.Println("ImapServer[nl][close]", err)
+		return err
 	}
 
 	if this.nlConn != nil {
 		err = this.nlConn.Close()
-		fmt.Println("ImapServer[nlConn][close]", err)
 		return err
 	}
 
 	err = this.nlSSL.Close()
 	if err != nil {
-		fmt.Println("ImapServer[nlSSL][close]", err)
+		return err
 	}
 
 	if this.nlConnSSL != nil {
-
 		err = this.nlConnSSL.Close()
-		fmt.Println("ImapServer[nlConnSSL][close]", err)
 		return err
 	}
 
