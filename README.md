@@ -1,7 +1,7 @@
 <p align="center">
   <img alt="imail logo" src="https://avatars2.githubusercontent.com/u/4169529?v=3&s=200" height="140" />
-  <h3 align="center">GoReleaser</h3>
-  <p align="center">Deliver Go binaries as fast and easily as possible.</p>
+  <h3 align="center">imail</h3>
+  <p align="center">imail 是一款极易搭建的自助邮件服务。</p>
 </p>
 
 ---
