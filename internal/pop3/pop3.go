@@ -15,21 +15,21 @@ import (
 )
 
 const (
-	CMD_READY      = iota
-	CMD_AUTH_PLAIN = iota
-	CMD_USER       = iota
-	CMD_PASS       = iota
-	CMD_STAT       = iota
-	CMD_LIST       = iota
-	CMD_RETR       = iota
-	CMD_DELE       = iota
-	CMD_NOOP       = iota
-	CMD_RSET       = iota
-	CMD_TOP        = iota
-	CMD_UIDL       = iota
-	CMD_APOP       = iota
-	CMD_QUIT       = iota
-	CMD_CAPA       = iota
+	CMD_READY = iota
+	CMD_AUTH_PLAIN
+	CMD_USER
+	CMD_PASS
+	CMD_STAT
+	CMD_LIST
+	CMD_RETR
+	CMD_DELE
+	CMD_NOOP
+	CMD_RSET
+	CMD_TOP
+	CMD_UIDL
+	CMD_APOP
+	CMD_QUIT
+	CMD_CAPA
 )
 
 var stateList = map[int]string{
@@ -103,7 +103,7 @@ func (this *Pop3Server) D(args ...interface{}) {
 
 	pop3Debug, _ := config.GetBool("pop3.debug", false)
 	if pop3Debug {
-		fmt.Println(args...)
+		// fmt.Println(args...)
 		log.Debug(args...)
 	}
 }
@@ -394,48 +394,28 @@ func (this *Pop3Server) handle() {
 		}
 
 		if this.cmdCapa(input) {
-		}
-
-		if this.cmdAuthPlain(input) {
+		} else if this.cmdAuthPlain(input) {
 			this.setState(CMD_AUTH_PLAIN)
-		}
-
-		if this.stateCompare(state, CMD_AUTH_PLAIN) {
+		} else if this.stateCompare(state, CMD_AUTH_PLAIN) {
 			if this.cmdParseAuthPlain(input) {
 				this.setState(CMD_PASS)
 			}
-		}
-
-		if this.stateCompare(state, CMD_READY) {
+		} else if this.stateCompare(state, CMD_READY) {
 			if this.cmdUser(input) {
 				this.setState(CMD_USER)
 			}
-		}
-
-		if this.stateCompare(state, CMD_USER) {
+		} else if this.stateCompare(state, CMD_USER) {
 			if this.cmdPass(input) {
 				this.setState(CMD_PASS)
 			}
-		}
-
-		if this.stateCompare(state, CMD_PASS) {
+		} else if this.stateCompare(state, CMD_PASS) {
 
 			if this.cmdStat(input) {
-			}
-
-			if this.cmdNoop(input) {
-			}
-
-			if this.cmdList(input) {
-			}
-
-			if this.cmdUidl(input) {
-			}
-
-			if this.cmdRetr(input) {
-			}
-
-			if this.cmdTop(input) {
+			} else if this.cmdNoop(input) {
+			} else if this.cmdList(input) {
+			} else if this.cmdUidl(input) {
+			} else if this.cmdRetr(input) {
+			} else if this.cmdTop(input) {
 			}
 		}
 	}
@@ -447,7 +427,6 @@ func (this *Pop3Server) initTLSConfig() {
 
 func (this *Pop3Server) ready() {
 	this.initTLSConfig()
-
 }
 
 func (this *Pop3Server) start(conn net.Conn) {
