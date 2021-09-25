@@ -13,6 +13,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -21,6 +22,7 @@ var checker *denyip.Checker
 
 func FixTestMiddleware() {
 	if !db.CheckDb() {
+		os.MkdirAll("data", 0777)
 		err := config.Load("../../conf/app.defined.conf")
 		if err != nil {
 			panic("config file load err")
