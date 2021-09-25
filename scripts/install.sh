@@ -31,8 +31,8 @@ TAGRT_DIR=/usr/local/imail
 mkdir -p $TAGRT_DIR
 cd $TAGRT_DIR
 
-wget -o "imail-$_os-$_go.tar.gz" $url
-
-
+wget -O "imail-$_os-$_go.tar.gz" $url
+tar zxvf "imail-$_os-$_go.tar.gz"
+rm -rf "imail-$_os-$_go.tar.gz"
 
 
