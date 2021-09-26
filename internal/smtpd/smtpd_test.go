@@ -4,6 +4,9 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/log"
+	"strings"
 	"testing"
 	"time"
 )
@@ -93,6 +96,42 @@ d6OWtKINyuVosvlGzquht+ZnejJAgr1XsgF9cCxZonecwYQRlBvOjMRidCTpjzCu
 TXU5YrNA8ao1B6CFdyjmLzoY2C9d9SDQTXMX8f8f3GUo9gZ0IzSIFVGFpsKBU0QM
 hBgHM6A0WJC9MO3aAKRBcp48y6DXNA==
 -----END PRIVATE KEY-----`)
+
+func startService(name string) {
+	config_enable := fmt.Sprintf("%s.enable", name)
+	enable, err := config.GetBool(config_enable, false)
+	if err == nil && enable {
+
+		config_port := fmt.Sprintf("%s.port", name)
+		port, err := config.GetInt(config_port, 25)
+		if err == nil {
+			log.Infof("listen %s port:%d success!", name, port)
+
+			if strings.EqualFold(name, "smtpd") {
+				go Start(port)
+			}
+		} else {
+			log.Errorf("listen %s erorr:%s", name, err)
+		}
+	}
+
+	config_ssl_enable := fmt.Sprintf("%s.ssl_enable", name)
+	ssl_enable, err := config.GetBool(config_ssl_enable, false)
+	if err == nil && ssl_enable {
+
+		config_ssl_port := fmt.Sprintf("%s.ssl_port", name)
+		ssl_port, err := config.GetInt(config_ssl_port, 25)
+		if err == nil {
+			log.Infof("listen %s ssl port:%d success!", name, ssl_port)
+
+			if strings.EqualFold(name, "smtpd") {
+				go StartSSL(ssl_port)
+			}
+		} else {
+			log.Errorf("listen %s ssl erorr:%s", name, err)
+		}
+	}
+}
 
 // go test -run TestDnsQuery
 //DnsQuery Test
@@ -210,6 +249,18 @@ func D_TestSendMail(t *testing.T) {
 // go test -run TestReceivedMail
 func D_TestReceivedMail(t *testing.T) {
 
+	go func() {
+		log.Init()
+
+		err := config.Load("../../conf/app.defined.conf")
+		if err != nil {
+			t.Error("TestReceivedMail config fail:" + err.Error())
+		}
+
+		startService("smtpd")
+		// go Start(25)
+	}()
+
 	now := time.Now().Format("2006-01-02 15:04:05")
 
 	fEmail := "midoks@163.com"
@@ -218,7 +269,11 @@ func D_TestReceivedMail(t *testing.T) {
 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail[%s]\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, now, tEmail)
 
 	err := Delivery("127.0.0.1:25", fEmail, tEmail, []byte(content))
-	fmt.Println("err:", err)
+	if err != nil {
+		t.Error("TestReceivedMail fail:" + err.Error())
+	} else {
+		t.Log("TestReceivedMail ok")
+	}
 }
 
 // go test -run TestLocalMail
