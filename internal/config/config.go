@@ -1,13 +1,13 @@
 package config
 
 import (
-    "errors"
-    "fmt"
-    "github.com/pelletier/go-toml"
-    "net"
-    "reflect"
-    "strings"
-    "unsafe"
+	"errors"
+	"fmt"
+	"github.com/pelletier/go-toml"
+	"net"
+	"reflect"
+	"strings"
+	"unsafe"
 )
 
 var confToml *toml.Tree
@@ -55,13 +55,18 @@ func Load(path string) error {
 	return nil
 }
 
+func LoadString(content string) error {
+	confToml, err = toml.Load(content) //load config string
+	return err
+}
+
 func InSliceString(v string, sl []string) bool {
-    for _, vv := range sl {
-        if vv == v {
-            return true
-        }
-    }
-    return false
+	for _, vv := range sl {
+		if vv == v {
+			return true
+		}
+	}
+	return false
 }
 
 func IsLoaded() bool {
