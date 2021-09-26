@@ -98,18 +98,18 @@ TXU5YrNA8ao1B6CFdyjmLzoY2C9d9SDQTXMX8f8f3GUo9gZ0IzSIFVGFpsKBU0QM
 hBgHM6A0WJC9MO3aAKRBcp48y6DXNA==
 -----END PRIVATE KEY-----`)
 
-func initTestEnv(t *testing.T) {
-	go func() {
-		log.Init()
-		os.MkdirAll("./data", 0777)
+func init() {
+	os.MkdirAll("./data", 0777)
+	os.MkdirAll("./logs", 0777)
+	log.Init()
 
-		err := config.Load("../../conf/app.defined.conf")
-		if err != nil {
-			t.Error("TestReceivedMail config fail:" + err.Error())
-		}
-		db.Init()
-		go Start(1025)
-	}()
+	err := config.Load("../../conf/app.defined.conf")
+	if err != nil {
+		fmt.Println("TestReceivedMail config fail:", err.Error())
+	}
+	db.Init()
+	go Start(1025)
+
 	time.Sleep(1 * time.Second)
 }
 
@@ -226,10 +226,7 @@ func D_TestSendMail(t *testing.T) {
 	fmt.Println("err:", err)
 }
 
-// go test -run TestReceivedMail
-func TestReceivedMail(t *testing.T) {
-
-	initTestEnv(t)
+func ReceivedMail() error {
 
 	now := time.Now().Format("2006-01-02 15:04:05")
 
@@ -237,11 +234,32 @@ func TestReceivedMail(t *testing.T) {
 	tEmail := "admin@cachecha.com"
 
 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail[%s]\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, now, tEmail)
-
 	err := Delivery("127.0.0.1:1025", fEmail, tEmail, []byte(content))
+
+	return err
+}
+
+// go test -run TestReceivedMail
+func TestReceivedMail(t *testing.T) {
+	err := ReceivedMail()
 	if err != nil {
 		t.Error("TestReceivedMail fail:" + err.Error())
 	} else {
 		t.Log("TestReceivedMail ok")
 	}
+}
+
+//go test -bench=. -benchmem ./...
+//go test -bench=. -benchmem ./internal/smtpd
+func BenchmarkReceivedMail(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		err := ReceivedMail()
+		if err != nil {
+			b.Error("TestReceivedMail fail:" + err.Error())
+		} else {
+			b.Log("TestReceivedMail ok")
+		}
+	}
+	b.StopTimer()
 }
