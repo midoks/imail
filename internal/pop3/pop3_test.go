@@ -111,7 +111,6 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 
 	_, err = conn.Write([]byte("UIDL 1\r\n"))
 	data, err = bufio.NewReader(conn).ReadString('\n')
-	fmt.Println(data, err)
 	if err != nil {
 		return false, err
 	}
