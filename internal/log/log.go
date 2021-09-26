@@ -19,6 +19,7 @@ var (
 )
 
 func Init() {
+	os.MkdirAll(logFilePath, 0777)
 	fileName := path.Join(logFilePath, logFileName)
 
 	src, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
