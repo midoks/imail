@@ -4,13 +4,36 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/libs"
+	"github.com/midoks/imail/internal/log"
 	"github.com/stretchr/testify/assert"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"strings"
 	"testing"
+	"time"
 )
+
+// go test -v ./internal/app
+func init() {
+	os.MkdirAll("./data", 0777)
+	os.MkdirAll("./logs", 0777)
+
+	err := config.Load("../../conf/app.defined.conf")
+	if err != nil {
+		fmt.Println("init config fail:", err.Error())
+	}
+
+	log.Init()
+	db.Init()
+	gin.SetMode(gin.ReleaseMode)
+	go Start(1180)
+
+	time.Sleep(1 * time.Second)
+}
 
 // go test -v ./internal/app
 
@@ -94,7 +117,7 @@ func TestUserRegister(t *testing.T) {
 }
 
 /// go test -run TestUserLogin
-func D_TestUserLogin(t *testing.T) {
+func TestUserLogin(t *testing.T) {
 	r := SetupRouter()
 
 	user := "admin"
@@ -124,8 +147,7 @@ func D_TestUserLogin(t *testing.T) {
 }
 
 // go test -run TestToken
-func D_TestToken(t *testing.T) {
-
+func TestToken(t *testing.T) {
 	token := initToken()
-	fmt.Println(token)
+	assert.Equal(t, 32, len(token))
 }
