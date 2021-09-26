@@ -26,8 +26,6 @@ imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件
 ### 待解决问题
 - [ ] 前端需求
 - [ ] [系统打包](https://github.com/midoks/imail/issues/5)
-- [ ] test不完整
-- [ ] 日志配置功能
 - [ ] wiki
 
 
