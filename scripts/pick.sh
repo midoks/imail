@@ -40,8 +40,6 @@ build_app(){
 	cd $rootPath/tmp/build/conf/ && rm -rf ./app.conf
 
 	cp -r $rootPath/scripts $rootPath/tmp/build
-	cp -r $rootPath/hook $rootPath/tmp/build
-
 	cd $rootPath/tmp/build && xattr -c * && rm -rf ./*/.DS_Store && rm -rf ./*/*/.DS_Store
 
 
