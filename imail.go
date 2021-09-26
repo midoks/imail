@@ -14,6 +14,8 @@ const Version = "0.0.5-dev"
 
 func init() {
 	config.App.Version = Version
+	os.MkdirAll("./logs", 0777)
+	os.MkdirAll("./data", 0777)
 }
 
 func main() {
