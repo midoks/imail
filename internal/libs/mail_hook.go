@@ -15,7 +15,7 @@ func ExecPython(scriptName string, id int64) (string, error) {
 	}
 
 	cpath, _ := os.Getwd()
-	fileName := fmt.Sprintf("%s/hook/%s", cpath, scriptName)
+	fileName := fmt.Sprintf("%s/conf/hook/%s", cpath, scriptName)
 	_, b := IsExists(fileName)
 	// fmt.Println(fileName, b)
 	if !b {

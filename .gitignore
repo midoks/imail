@@ -17,11 +17,12 @@ lib/.DS_Store
 vendor/*
 vendor_bak/*
 conf/dkim/*
-tmp/*
-logs/*
-internal/app/logs/*
+tmp
+logs
+data
+internal/app/logs
 conf/app.conf
 *.db3
 
 dist/
-internal/smtpd/logs/*
+internal/smtpd/logs
