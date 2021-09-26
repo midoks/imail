@@ -262,12 +262,16 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 			if err == nil {
 				if pos > 0 {
 					list, err := db.MailListPosForPop(this.userID, pos)
-					// fmt.Println(list)
-					if err == nil {
-						uid := strconv.FormatInt(list[0].Uid, 10)
-						this.writeArgs(MSG_POS_DATA, pos, libs.Md5str(uid))
+					if err == nil && len(list) > 0 {
+						for i := 1; i <= len(list); i++ {
+							uid := strconv.FormatInt(list[i-1].Id, 10)
+							this.writeArgs(MSG_POS_DATA, pos, libs.Md5str(uid))
+						}
 						return true
 					}
+
+					this.w(".\r\n")
+					return true
 				}
 			}
 		} else if inputLen == 1 {
