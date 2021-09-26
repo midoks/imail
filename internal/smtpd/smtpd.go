@@ -48,6 +48,22 @@ var stateList = map[int]string{
 	CMD_QUIT:           "QUIT",
 }
 
+// https://datatracker.ietf.org/doc/html/rfc5321#page-65
+var stateTimeout = map[int]int64{
+	CMD_READY:          300,
+	CMD_STARTTLS:       300,
+	CMD_HELO:           300,
+	CMD_EHLO:           300,
+	CMD_AUTH_LOGIN:     300,
+	CMD_AUTH_LOGIN_PWD: 300,
+	CMD_AUTH_PLAIN:     300,
+	CMD_MAIL_FROM:      300,
+	CMD_RCPT_TO:        300,
+	CMD_DATA:           120,
+	CMD_DATA_END:       180,
+	CMD_QUIT:           5,
+}
+
 const (
 	MSG_INIT            = "220.init"
 	MSG_OK              = "250.ok"
@@ -169,8 +185,15 @@ func (this *SmtpdServer) base64Decode(de string) string {
 	return string(dst)
 }
 
+func (this *SmtpdServer) SetReadDeadline(state int) {
+	var timeout int64
+	timeout = stateTimeout[state]
+	this.conn.SetReadDeadline(time.Now().Add(time.Duration(timeout) * time.Second))
+}
+
 func (this *SmtpdServer) setState(state int) {
 	this.state = state
+	this.SetReadDeadline(state)
 }
 
 func (this *SmtpdServer) getState() int {
