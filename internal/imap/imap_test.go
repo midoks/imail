@@ -5,10 +5,31 @@ import (
 	// "errors"
 	"bufio"
 	"fmt"
+	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/db"
+	"github.com/midoks/imail/internal/log"
 	"net"
+	"os"
 	"strings"
 	"testing"
+	"time"
 )
+
+// go test -v ./internal/imap
+func init() {
+	os.MkdirAll("./data", 0777)
+	os.MkdirAll("./logs", 0777)
+	log.Init()
+
+	err := config.Load("../../conf/app.defined.conf")
+	if err != nil {
+		fmt.Println("init config fail:", err.Error())
+	}
+	db.Init()
+	go Start(10143)
+
+	time.Sleep(1 * time.Second)
+}
 
 func imapCmd(domain string, port string, name string, password string) (bool, error) {
 	addr := fmt.Sprintf("%s:%s", domain, port)
@@ -113,9 +134,9 @@ func imapCmd(domain string, port string, name string, password string) (bool, er
 // }
 
 // go test -run TestRunImap
-func D_TestRunImap(t *testing.T) {
+func TestRunImap(t *testing.T) {
 	host := "127.0.0.1"
-	port := "143"
+	port := "10143"
 	name := "admin"
 	password := "admin"
 
@@ -126,7 +147,7 @@ func D_TestRunImap(t *testing.T) {
 		t.Errorf("link err!")
 	}
 
-	// defer conn.Close()
+	defer conn.Close()
 
 	cmd := fmt.Sprintf("a1 login %s %s\r\n", name, password)
 	_, err = conn.Write([]byte(cmd))
@@ -149,6 +170,8 @@ func D_TestRunImap(t *testing.T) {
 		t.Errorf("D UID FETCH 1:* (UID FLAGS) err!")
 	}
 
-	data, err := bufio.NewReader(conn).ReadString('\n')
-	fmt.Println(data, err)
+	_, err = bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		t.Errorf("select err!")
+	}
 }
