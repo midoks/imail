@@ -101,13 +101,15 @@ hBgHM6A0WJC9MO3aAKRBcp48y6DXNA==
 func init() {
 	os.MkdirAll("./data", 0777)
 	os.MkdirAll("./logs", 0777)
-	log.Init()
 
 	err := config.Load("../../conf/app.defined.conf")
 	if err != nil {
 		fmt.Println("TestReceivedMail config fail:", err.Error())
 	}
+
+	log.Init()
 	db.Init()
+
 	go Start(1025)
 
 	time.Sleep(1 * time.Second)

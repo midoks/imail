@@ -19,19 +19,24 @@ var (
 )
 
 func Init() {
-	os.MkdirAll(logFilePath, 0777)
 	fileName := path.Join(logFilePath, logFileName)
 
 	src, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
-		fmt.Println("err", err)
+		fmt.Println("log error", err)
 	}
 	logger = logrus.New()
 
-	logger.SetFormatter(&logrus.TextFormatter{})
-	logger.Out = src
-
 	if config.IsLoaded() {
+		format := config.GetString("log.format", "json")
+		if strings.EqualFold(format, "json") {
+			logger.SetFormatter(&logrus.JSONFormatter{})
+		} else if strings.EqualFold(format, "text") {
+			logger.SetFormatter(&logrus.TextFormatter{})
+		} else {
+			logger.SetFormatter(&logrus.TextFormatter{})
+		}
+
 		runmode := config.GetString("runmode", "dev")
 		if strings.EqualFold(runmode, "dev") {
 			logger.SetLevel(logrus.DebugLevel)
@@ -41,6 +46,8 @@ func Init() {
 	} else {
 		logger.SetLevel(logrus.DebugLevel)
 	}
+
+	logger.Out = src
 
 	// setting rotatelogs
 	logWriter, err := rotatelogs.New(

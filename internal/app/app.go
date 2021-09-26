@@ -28,7 +28,7 @@ func FixTestMiddleware() {
 			panic("config file load err")
 		}
 
-		log.Init()
+		// log.Init()
 		db.Init()
 	}
 }

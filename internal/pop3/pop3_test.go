@@ -18,13 +18,15 @@ import (
 func init() {
 	os.MkdirAll("./data", 0777)
 	os.MkdirAll("./logs", 0777)
-	log.Init()
 
 	err := config.Load("../../conf/app.defined.conf")
 	if err != nil {
 		fmt.Println("init config fail:", err.Error())
 	}
+
+	log.Init()
 	db.Init()
+
 	go Start(10110)
 
 	time.Sleep(1 * time.Second)

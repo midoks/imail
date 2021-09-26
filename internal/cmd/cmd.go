@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/libs"
-	"github.com/midoks/imail/internal/log"
 	"github.com/urfave/cli"
 	"os"
 	"strings"
@@ -72,7 +71,6 @@ func initConfig(c *cli.Context, defineConf string) (string, error) {
 
 	err := config.Load(confFile)
 	if err != nil {
-		log.Infof("imail config file load err:%s", err)
 		return confFile, errors.New("imail config file load err")
 	}
 	return confFile, nil
