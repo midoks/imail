@@ -23,6 +23,12 @@ imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件
 - 优化redis连接 - [xmapst](https://github.com/xmapst)
 - 解决邮件移动问题[exp:收件箱->垃圾箱->收件箱]
 
+### 待解决问题
+- [ ] 前端需求
+- [ ] [系统打包](https://github.com/midoks/imail/issues/5)
+- [ ] test不完整
+- [ ] 日志配置功能
+- [ ] ...
 
 
 ## 计划功能
