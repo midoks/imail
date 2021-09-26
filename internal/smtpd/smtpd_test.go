@@ -229,7 +229,7 @@ func D_TestSendMail(t *testing.T) {
 // go test -run TestReceivedMail
 func TestReceivedMail(t *testing.T) {
 
-	initTestEnv(t)
+	//initTestEnv(t)
 
 	now := time.Now().Format("2006-01-02 15:04:05")
 
@@ -244,36 +244,4 @@ func TestReceivedMail(t *testing.T) {
 	} else {
 		t.Log("TestReceivedMail ok")
 	}
-}
-
-// go test -run TestLocalMail
-// TestLocalMail
-func D_TestLocalMail(t *testing.T) {
-
-	c, err := Dial("127.0.0.1:25")
-	if err != nil {
-		t.Error("TestLocalMail fail:" + err.Error())
-	}
-	defer c.Close()
-
-	// if supported, _ := c.Extension("AUTH"); supported {
-	// 	t.Fatal("AUTH supported before TLS")
-	// }
-
-	if supported, _ := c.Extension("8BITMIME"); !supported {
-		t.Fatal("8BITMIME not supported")
-	}
-
-	if _, _, err := c.CmdExec(220, "%s", "STARTTLS"); err != nil {
-		t.Fatalf("STARTTLS failed: %v", err)
-	}
-
-	if supported, _ := c.Extension("STARTTLS"); !supported {
-		t.Fatal("STARTTLS not supported")
-	}
-
-	if err := c.StartTLS(&tls.Config{InsecureSkipVerify: true}); err != nil {
-		t.Fatalf("STARTTLS failed: %v", err)
-	}
-
 }
