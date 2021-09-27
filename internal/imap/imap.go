@@ -2,6 +2,7 @@ package imap
 
 import (
 	"bufio"
+	"bytes"
 	"crypto/tls"
 	"fmt"
 	"github.com/midoks/imail/internal/config"
@@ -11,6 +12,7 @@ import (
 	"github.com/midoks/imail/internal/log"
 	"io"
 	"net"
+	"net/textproto"
 	"strconv"
 	"strings"
 	"time"
@@ -27,6 +29,7 @@ const (
 	CMD_STATUS
 	CMD_SELECT
 	CMD_FETCH
+	CMD_APPEND
 	CMD_UID
 	CMD_COPY
 	CMD_CLOSE
@@ -49,6 +52,7 @@ var stateList = map[int]string{
 	CMD_SELECT:     "SELECT",
 	CMD_FETCH:      "FETCH",
 	CMD_COPY:       "COPY",
+	CMD_APPEND:     "APPEND",
 	CMD_STORE:      "STORE",
 	CMD_NAMESPACE:  "NAMESPACE",
 	CMD_SEARCH:     "SEARCH",
@@ -403,13 +407,30 @@ func (this *ImapServer) cmdFecth(input string) bool {
 	return false
 }
 
+func (this *ImapServer) cmdAppend(input string) bool {
+	inputN := strings.SplitN(input, " ", 5)
+	if len(inputN) == 5 {
+		if this.cmdCompare(inputN[1], CMD_APPEND) {
+			this.w("+ Ready for literal data")
+
+			data := &bytes.Buffer{}
+			reader := textproto.NewReader(this.reader).DotReader()
+			_, err := io.CopyN(data, reader, int64(10240000))
+			content := string(data.Bytes())
+			fmt.Println(content, err)
+			this.writeArgs("%s OK %s completed", inputN[0], inputN[1])
+			return true
+		}
+	}
+	return false
+}
+
 // https://datatracker.ietf.org/doc/html/rfc3501#page-48
 func (this *ImapServer) cmdUid(input string) bool {
 
 	inputN := strings.SplitN(input, " ", 5)
 	if len(inputN) == 5 {
 		if this.cmdCompare(inputN[1], CMD_UID) {
-
 			if this.cmdCompare(inputN[2], CMD_FETCH) {
 
 				if strings.Index(inputN[3], ":") > 0 {
@@ -457,10 +478,12 @@ func (this *ImapServer) cmdUid(input string) bool {
 					inputN[4] = strings.Trim(inputN[4], "\"")
 					if strings.EqualFold(inputN[4], "Deleted Messages") {
 						db.MailSoftDeleteById(mid, 1)
+						db.MailSetJunkById(mid, 0)
 					} else if strings.EqualFold(inputN[4], "INBOX") {
 						db.MailSoftDeleteById(mid, 0)
 						db.MailSetJunkById(mid, 0)
 					} else if strings.EqualFold(inputN[4], "Junk") {
+						db.MailSoftDeleteById(mid, 0)
 						db.MailSetJunkById(mid, 1)
 					}
 
@@ -551,7 +574,6 @@ func (this *ImapServer) handle() {
 			break
 		}
 
-		// fmt.Println("input:", input)
 		if this.cmdCapabitity(input) {
 		} else if this.cmdId(input) {
 		} else if this.cmdNoop(input) {
@@ -571,6 +593,7 @@ func (this *ImapServer) handle() {
 			} else if this.cmdClose(input) {
 				this.close()
 				break
+
 			} else if this.cmdLogout(input) {
 				this.close()
 				break
@@ -607,7 +630,7 @@ func (this *ImapServer) StartPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	this.nl, err = net.Listen("tcp", addr)
 	if err != nil {
-		fmt.Println("[imap]StartSSLPort:", err)
+		this.D("[imap]StartSSLPort:", err)
 		return
 	}
 
@@ -616,7 +639,7 @@ func (this *ImapServer) StartPort(port int) {
 	for {
 		this.nlConn, err = this.nl.Accept()
 		if err != nil {
-			fmt.Println("imap[StartPort][conn]", err)
+			this.D("imap[StartPort][conn]", err)
 			return
 		} else {
 			this.start(this.nlConn)
