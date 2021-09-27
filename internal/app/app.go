@@ -7,31 +7,16 @@ import (
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/midoks/imail/internal/config"
-	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/denyip"
 	"github.com/midoks/imail/internal/log"
 	uuid "github.com/satori/go.uuid"
 	"net"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 )
 
 var checker *denyip.Checker
-
-func FixTestMiddleware() {
-	if !db.CheckDb() {
-		os.MkdirAll("data", 0777)
-		err := config.Load("../../conf/app.defined.conf")
-		if err != nil {
-			panic("config file load err")
-		}
-
-		log.Init()
-		db.Init()
-	}
-}
 
 // LogMiddleware 访问日志中间件
 func LogMiddleware() gin.HandlerFunc {
@@ -148,7 +133,6 @@ func IndexWeb(c *gin.Context) {
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
-	FixTestMiddleware()
 	r.Use(RequestIDMiddleware(), LogMiddleware(), IPWhiteMiddleware())
 
 	if b, _ := config.GetBool("redis.enable", false); b {
