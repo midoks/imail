@@ -31,7 +31,7 @@ func main() { fmt.Println(runtime.GOARCH) }" > /tmp/go_arch.go
 }
 
 get_download_url() {
-	DOWNLOAD_URL="https://github.com/midoks/imail/releases/download/$VERSION/imail-$VERSION-$OS-$ARCH.tar.gz"
+	DOWNLOAD_URL="https://github.com/midoks/imail/releases/download/$VERSION/imail_$VERSION_$OS_$ARCH.tar.gz"
 }
 
 # download file
