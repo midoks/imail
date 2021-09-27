@@ -21,29 +21,29 @@ var checker *denyip.Checker
 // LogMiddleware 访问日志中间件
 func LogMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 捕抓异常
+		// catch
 		defer func() {
 			if err := recover(); err != nil {
 				log.Error(err)
 			}
 		}()
-		startTime := time.Now()
 
-		//Processing requests
+		startTime := time.Now()
+		// processing requests
 		c.Next()
-		// 结束时间
 		endTime := time.Now()
-		// 执行时间
+
+		// run time
 		latencyTime := endTime.Sub(startTime)
-		// 请求方式
+		// method
 		reqMethod := c.Request.Method
-		// 请求路由
+		// uri
 		reqUrl := c.Request.RequestURI
-		// 请求ID
+		// X-Request-Id
 		requestID := c.Request.Header.Get("X-Request-Id")
-		// 状态码
+		// status code
 		statusCode := c.Writer.Status()
-		// 请求IP
+		// request ip
 		clientIP := c.ClientIP()
 		// 请求协议
 		proto := c.Request.Proto
