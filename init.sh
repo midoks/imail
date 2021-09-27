@@ -24,6 +24,3 @@ go tool cover -html cov.out -o index.html
 cd $curPath/internal/smtpd
 go test -coverprofile=cov.out -coverpkg ./...
 go tool cover -html cov.out -o index.html
-
-
-# goreleaser --snapshot --skip-publish --rm-dist

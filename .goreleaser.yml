@@ -14,16 +14,21 @@ builds:
       - linux
       - darwin
       - windows
+      - freebsd
 archives:
-  - replacements:
-      darwin: darwin
-      linux: linux
-      386: 386
-      amd64: amd64
+
+  - files:
+      - src: LICENSE
+      - src: README.md
+      - src: conf/*
+      - src: scripts/*
+      - src: templates/*
+      - src: public/*
+
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  name_template: "make"
+  name_template: "{{ .Tag }}"
 changelog:
   sort: asc
   filters:
