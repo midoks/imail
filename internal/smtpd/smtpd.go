@@ -193,7 +193,6 @@ func (this *SmtpdServer) SetReadDeadline(state int) {
 
 func (this *SmtpdServer) setState(state int) {
 	this.state = state
-	this.SetReadDeadline(state)
 }
 
 func (this *SmtpdServer) getState() int {
@@ -209,7 +208,7 @@ func (this *SmtpdServer) D(args ...interface{}) {
 	smtp3Debug, _ := config.GetBool("smtpd.debug", false)
 	if smtp3Debug {
 		// fmt.Println(args...)
-		log.Debug(args...)
+		log.Info(args...)
 	}
 }
 
@@ -829,7 +828,7 @@ func (this *SmtpdServer) start(conn net.Conn) {
 
 	this.write(MSG_INIT)
 	this.setState(CMD_READY)
-
+	this.SetReadDeadline(CMD_READY)
 	this.handle()
 
 }
