@@ -598,10 +598,10 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 	_, err := io.CopyN(data, reader, int64(10240000))
 
 	content := string(data.Bytes())
-	this.D("smtpd[data]:", content)
 	if err == io.EOF {
 		this.write(MSG_MAIL_OK)
 	}
+	// this.D("smtpd[data]:", content)
 
 	if this.runModeIn {
 		// this.D("smtpd[data][peer]:", this.peer)
