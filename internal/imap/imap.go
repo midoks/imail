@@ -123,7 +123,7 @@ func (this *ImapServer) D(args ...interface{}) {
 	imapDebug, _ := config.GetBool("imap.debug", false)
 	if imapDebug {
 		// fmt.Println(args...)
-		log.Debug(args...)
+		log.Info(args...)
 	}
 }
 
