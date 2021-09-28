@@ -36,7 +36,6 @@ imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件
 - [x] dkim && check
 - [x] rspamd
 - [x] hook脚本支持
-- [ ] API
 - [ ] 性能优化
 
 ## 快速安装
@@ -49,10 +48,6 @@ curl -fsSL  https://raw.githubusercontent.com/midoks/imail/master/scripts/instal
 ```
 curl -fsSL  https://raw.githubusercontent.com/midoks/imail/master/scripts/install_dev.sh | sh
 ```
-
-## 前端项目
-
-计划开发[imail前端](https://github.com/midoks/imail-web),由于精力有限。建立的这个项目，不知道有机会写不～。
 
 ## 授权许可
 
