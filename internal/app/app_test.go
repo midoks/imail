@@ -151,3 +151,14 @@ func TestToken(t *testing.T) {
 	token := initToken()
 	assert.Equal(t, 32, len(token))
 }
+
+//go test -bench=. -benchmem ./...
+//go test -bench=. -benchmem ./internal/app
+func BenchmarkGetToken(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		token := initToken()
+		assert.Equal(b, 32, len(token))
+	}
+	b.StopTimer()
+}
