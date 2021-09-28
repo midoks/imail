@@ -208,7 +208,7 @@ func (this *SmtpdServer) D(args ...interface{}) {
 	smtp3Debug, _ := config.GetBool("smtpd.debug", false)
 	if smtp3Debug {
 		// fmt.Println(args...)
-		log.Info(args...)
+		log.Debug(args...)
 	}
 }
 
