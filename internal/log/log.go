@@ -25,29 +25,25 @@ func Init() {
 	if err != nil {
 		fmt.Println("log error", err)
 	}
+
 	logger = logrus.New()
+	logger.Out = src
 
-	if config.IsLoaded() {
-		format := config.GetString("log.format", "json")
-		if strings.EqualFold(format, "json") {
-			logger.SetFormatter(&logrus.JSONFormatter{})
-		} else if strings.EqualFold(format, "text") {
-			logger.SetFormatter(&logrus.TextFormatter{})
-		} else {
-			logger.SetFormatter(&logrus.TextFormatter{})
-		}
-
-		runmode := config.GetString("runmode", "dev")
-		if strings.EqualFold(runmode, "dev") {
-			logger.SetLevel(logrus.DebugLevel)
-		} else {
-			logger.SetLevel(logrus.InfoLevel)
-		}
+	format := config.GetString("log.format", "json")
+	if strings.EqualFold(format, "json") {
+		logger.SetFormatter(&logrus.JSONFormatter{})
+	} else if strings.EqualFold(format, "text") {
+		logger.SetFormatter(&logrus.TextFormatter{})
 	} else {
-		logger.SetLevel(logrus.DebugLevel)
+		logger.SetFormatter(&logrus.TextFormatter{})
 	}
 
-	logger.Out = src
+	runmode := config.GetString("runmode", "dev")
+	if strings.EqualFold(runmode, "dev") {
+		logger.SetLevel(logrus.DebugLevel)
+	} else {
+		logger.SetLevel(logrus.InfoLevel)
+	}
 
 	// setting rotatelogs
 	logWriter, err := rotatelogs.New(
@@ -74,7 +70,7 @@ func Init() {
 	}
 
 	logger.AddHook(lfshook.NewHook(writeMap, &logrus.TextFormatter{
-		TimestampFormat: "2006-01-02 15:04:05 +0800",
+		// TimestampFormat: "2006-01-02 15:04:05 +0800",
 	}))
 
 	// log debug
