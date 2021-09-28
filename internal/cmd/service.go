@@ -98,10 +98,10 @@ func ServiceDebug() {
 	if http_enable {
 		http_port, err := config.GetInt("http.port", 80)
 		if err == nil {
-			log.Info("listen http success!")
+			log.Infof("listen http[%d] success!", http_port)
 			app.Start(http_port)
 		} else {
-			log.Errorf("listen http erorr:%s", err)
+			log.Errorf("listen http[%d] erorr:%s", http_port, err)
 		}
 	}
 }
