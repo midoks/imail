@@ -241,7 +241,21 @@ func ReceivedMail() error {
 	return err
 }
 
+func MailDbPush() (int64, error) {
+	revContent := `Received: from 127.0.0.1 (unknown[127.0.0.1])
+	by smtp.cachecha.com (NewMx) with SMTP id
+	for <midoks@163.com>; Tue, 28 Sep 2021 13:30:26 +0800 (CST) 
+From: <midoks@163.com>
+Subject: Hello imail[2021-09-28 13:30:26]
+To: <admin@cachecha.com>
+
+Hi! yes is test. imail ok?`
+	fid, err := db.MailPush(1, 1, "midoks@163.com", "admin@cachecha.com", revContent, 3)
+	return fid, err
+}
+
 // go test -run TestReceivedMail
+// go test -v ./internal/smtpd -run TestReceivedMail
 func TestReceivedMail(t *testing.T) {
 	err := ReceivedMail()
 	if err != nil {
@@ -251,8 +265,22 @@ func TestReceivedMail(t *testing.T) {
 	}
 }
 
-//go test -bench=. -benchmem ./...
-//go test -bench=. -benchmem ./internal/smtpd
+// go test -run TestMailDbPush
+// go test -v ./internal/smtpd -run TestMailDbPush
+// go test -v  ./internal/smtpd -bench BenchmarkMailDbPush
+func TestMailDbPush(t *testing.T) {
+	_, err := MailDbPush()
+	if err != nil {
+		t.Error("TestMailDbPush fail:" + err.Error())
+	} else {
+		t.Log("TestMailDbPush ok")
+	}
+}
+
+// go test -v ./internal/smtpd
+// go test -bench=. -benchmem ./...
+// go test -bench=. -benchmem ./internal/smtpd
+
 func BenchmarkReceivedMail(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -261,6 +289,25 @@ func BenchmarkReceivedMail(b *testing.B) {
 			b.Error("TestReceivedMail fail:" + err.Error())
 		} else {
 			b.Log("TestReceivedMail ok")
+		}
+	}
+	b.StopTimer()
+}
+
+// go test -v ./internal/smtpd
+// go test -v ./internal/smtpd -bench BenchmarkMailDbPush
+// go test -bench=. -benchmem ./...
+// go test -bench=. -run BenchmarkMailDbPush -benchmem ./internal/smtpd
+// go test -bench BenchmarkMailDbPush -benchmem ./internal/smtpd
+// go test -bench BenchmarkMailDbPush -benchtime 10 -benchmem ./internal/smtpd
+func BenchmarkMailDbPush(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := MailDbPush()
+		if err != nil {
+			b.Error("MailDbPush fail:" + err.Error())
+		} else {
+			b.Log("MailDbPush ok")
 		}
 	}
 	b.StopTimer()
