@@ -28,4 +28,4 @@ jobs:
       run: go test -bench BenchmarkMailDbPush -benchtime 3s -benchmem ./internal/smtpd
 
     - name: Bench_ReceivedMail
-      run: go test -bench BenchmarkReceivedMail -benchtime 3s -benchmem ./internal/smtpd
+      run: go test -bench BenchmarkReceivedMail -benchtime 1s -benchmem ./internal/smtpd
