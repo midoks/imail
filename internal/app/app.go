@@ -18,7 +18,7 @@ import (
 
 var checker *denyip.Checker
 
-// LogMiddleware 访问日志中间件
+// LogMiddleware
 func LogMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// catch
@@ -45,7 +45,7 @@ func LogMiddleware() gin.HandlerFunc {
 		statusCode := c.Writer.Status()
 		// request ip
 		clientIP := c.ClientIP()
-		// 请求协议
+		// request protocol
 		proto := c.Request.Proto
 
 		logger := log.GetLogger()
