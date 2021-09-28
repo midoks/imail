@@ -9,7 +9,7 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 
 # sudo port install mingw-w64
 
-VERSION=0.0.5
+VERSION=0.0.6
 curPath=`pwd`
 rootPath=$(dirname "$curPath")
 
