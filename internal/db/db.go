@@ -50,7 +50,7 @@ func Init() error {
     sqlDB.SetConnMaxLifetime(time.Hour)
 
     if err != nil {
-        log.Error("[DB]", err)
+        log.Errorf("[DB]:%s", err)
         return err
     }
 
