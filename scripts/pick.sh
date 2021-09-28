@@ -3,7 +3,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 
 # https://github.com/FiloSottile/homebrew-musl-cross
-# brew install FiloSottile/musl-cross/musl-cross --with-i486 --with-x86_64 --with-aarch64 --with-arm
+# brew install FiloSottile/musl-cross/musl-cross --without-x86_64 --with-i486 --with-aarch64 --with-arm
 
 # brew install mingw-w64
 
@@ -115,9 +115,9 @@ golist=`go tool dist list`
 echo $golist
 
 build_app linux amd64
-# build_app linux 386
-# build_app linux arm64
-# build_app linux arm
+build_app linux 386
+build_app linux arm64
+build_app linux arm
 build_app darwin amd64
 build_app windows 386
 build_app windows amd64
