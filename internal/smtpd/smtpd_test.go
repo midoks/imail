@@ -280,7 +280,7 @@ func TestMailDbPush(t *testing.T) {
 // go test -v ./internal/smtpd
 // go test -bench=. -benchmem ./...
 // go test -bench=. -benchmem ./internal/smtpd
-
+// go test -bench BenchmarkReceivedMail -benchmem ./internal/smtpd
 func BenchmarkReceivedMail(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
