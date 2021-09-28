@@ -59,6 +59,8 @@ func Init() {
 		rotatelogs.WithMaxAge(7*24*time.Hour),
 		// Set log cutting interval (1 day)
 		rotatelogs.WithRotationTime(1*time.Minute),
+		// Set log Cut polling when the file is "5m" full
+		// rotatelogs.WithRotationSize(5*1024*1024),
 	)
 
 	writeMap := lfshook.WriterMap{
