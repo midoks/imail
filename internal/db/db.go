@@ -29,7 +29,12 @@ func Init() error {
         db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
     case "sqlite3":
         dbPath := config.GetString("db.path", "./data/imail.db3")
-        db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+        db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{
+            SkipDefaultTransaction: true,
+        })
+
+        // synchronous close
+        db.Exec("PRAGMA synchronous = OFF; ")
     default:
         log.Errorf("database type not found")
         return errors.New("database type not found")
