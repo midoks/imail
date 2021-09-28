@@ -116,6 +116,8 @@ func BoxListByImap(uid int64, className string, start int64, end int64) ([]Mail,
 		sql = fmt.Sprintf("%s and is_junk='1'", sql)
 	}
 
+	sql = fmt.Sprintf("%s limit 500", sql)
+
 	// fmt.Println("BoxListByImap:", sql, className)
 	db.Raw(sql, uid).Find(&result)
 	return result, err
@@ -123,7 +125,7 @@ func BoxListByImap(uid int64, className string, start int64, end int64) ([]Mail,
 
 func BoxListByMid(uid int64, className string, mid int64) ([]Mail, error) {
 	var result []Mail
-	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and  id='%d'", "im_mail", mid)
+	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and  id='%d' limit 500", "im_mail", mid)
 	db.Raw(sql, uid).Find(&result)
 	return result, err
 }
