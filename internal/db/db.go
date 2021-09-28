@@ -43,9 +43,9 @@ func Init() error {
 
     sqlDB, err := db.DB()
     // SetMaxIdleConns sets the maximum number of connections in the free connection pool
-    sqlDB.SetMaxIdleConns(10)
+    sqlDB.SetMaxIdleConns(200)
     // SetMaxOpenConns sets the maximum number of open database connections.
-    sqlDB.SetMaxOpenConns(100)
+    sqlDB.SetMaxOpenConns(500)
     // SetConnMaxLifetime Sets the maximum time that the connection can be reused.
     sqlDB.SetConnMaxLifetime(time.Hour)
 
