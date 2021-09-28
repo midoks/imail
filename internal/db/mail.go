@@ -188,7 +188,7 @@ func MailSetStatusById(id int64, status int64) bool {
 }
 
 func MailPush(uid int64, mtype int, mail_from string, mail_to string, content string, status int) (int64, error) {
-
+	tx := db.Begin()
 	user := Mail{
 		Uid:      uid,
 		Type:     mtype,
@@ -203,5 +203,10 @@ func MailPush(uid int64, mtype int, mail_from string, mail_to string, content st
 	user.CreateTime = time.Now().Unix()
 	result := db.Create(&user)
 
+	if result.Error != nil {
+		tx.Rollback()
+	}
+
+	tx.Commit()
 	return user.Id, result.Error
 }
