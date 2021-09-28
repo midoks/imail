@@ -803,7 +803,6 @@ func (this *SmtpdServer) ready() {
 }
 
 func (this *SmtpdServer) start(conn net.Conn) {
-	conn.SetReadDeadline(time.Now().Add(time.Minute * 30))
 	this.conn = conn
 
 	this.reader = bufio.NewReader(conn)
