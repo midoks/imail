@@ -12,6 +12,7 @@ import (
 	"github.com/midoks/imail/internal/smtpd"
 	"github.com/midoks/imail/internal/task"
 	"github.com/midoks/imail/internal/tools/debug"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 	"strings"
 )
@@ -26,69 +27,38 @@ var Service = cli.Command{
 	},
 }
 
-func runAllService(c *cli.Context) error {
+func newService(confFile string) {
 
-	confFile, err := initConfig(c, "")
-	if err != nil {
-		panic("imail config file load error")
-		return err
+	logger := log.Init()
+
+	format := conf.GetString("log.format", "json")
+	if strings.EqualFold(format, "json") {
+		logger.SetFormatter(&logrus.JSONFormatter{})
+	} else if strings.EqualFold(format, "text") {
+		logger.SetFormatter(&logrus.TextFormatter{})
+	} else {
+		logger.SetFormatter(&logrus.TextFormatter{})
 	}
-
-	log.Init()
-	go ConfigFileStartMonitor(confFile)
-
-	err = db.Init()
-	if err != nil {
-		return err
-	}
-
-	task.Init()
 
 	runmode := conf.GetString("runmode", "dev")
 	if strings.EqualFold(runmode, "dev") {
-		go debug.Pprof()
+		logger.SetLevel(logrus.DebugLevel)
+	} else {
+		logger.SetLevel(logrus.InfoLevel)
 	}
-
-	startService("smtpd")
-	startService("pop3")
-	startService("imap")
-
-	http_enable, err := conf.GetBool("http.enable", false)
-	if http_enable {
-		http_port, err := conf.GetInt("http.port", 80)
-		if err == nil {
-			log.Info("listen http success!")
-			app.Start(http_port)
-		} else {
-			log.Errorf("listen http erorr:%s", err)
-		}
-	}
-	return nil
-}
-
-func ServiceDebug() {
-
-	confFile, err := initConfig(nil, "conf/app.conf")
-	if err != nil {
-		panic("imail config file load error")
-	}
-
-	log.Init()
 
 	go ConfigFileStartMonitor(confFile)
 
-	err = db.Init()
+	err := db.Init()
 	if err != nil {
 		return
 	}
 
-	task.Init()
-
-	runmode := conf.GetString("runmode", "dev")
-
 	if strings.EqualFold(runmode, "dev") {
 		go debug.Pprof()
 	}
+
+	task.Init()
 
 	startService("smtpd")
 	startService("pop3")
@@ -104,6 +74,28 @@ func ServiceDebug() {
 			log.Errorf("listen http[%d] erorr:%s", http_port, err)
 		}
 	}
+}
+
+func runAllService(c *cli.Context) error {
+
+	confFile, err := initConfig(c, "")
+	if err != nil {
+		panic("imail config file load error")
+		return err
+	}
+
+	newService(confFile)
+	return nil
+}
+
+func ServiceDebug() {
+
+	confFile, err := initConfig(nil, "conf/app.conf")
+	if err != nil {
+		panic("imail config file load error")
+	}
+
+	newService(confFile)
 }
 
 func startService(name string) {

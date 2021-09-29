@@ -2,12 +2,15 @@ package conf
 
 import (
 	"fmt"
+	"github.com/midoks/imail/internal/log"
+	"github.com/midoks/imail/internal/tools"
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	"gopkg.in/ini.v1"
 	"io/ioutil"
 	"net"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"unsafe"
@@ -155,10 +158,38 @@ func Init(customConf string) error {
 		IgnoreInlineComment: true,
 	}, []byte(definedConf))
 	if err != nil {
-		return errors.Wrap(err, "parse 'conf/app.ini'")
+		return errors.Wrap(err, "parse 'conf/app.conf'")
 	}
 
 	File.NameMapper = ini.SnackCase
+
+	if customConf == "" {
+		customConf = filepath.Join(CustomDir(), "conf", "app.conf")
+	} else {
+		customConf, err = filepath.Abs(customConf)
+		if err != nil {
+			return errors.Wrap(err, "get absolute path")
+		}
+	}
+	CustomConf = customConf
+
+	if tools.IsFile(customConf) {
+		if err = File.Append(customConf); err != nil {
+			return errors.Wrapf(err, "append %q", customConf)
+		}
+	} else {
+		log.Warnf("Custom config %q not found. Ignore this warning if you're running for the first time", customConf)
+	}
+
+	if err = File.Section(ini.DefaultSection).MapTo(&App); err != nil {
+		return errors.Wrap(err, "mapping default section")
+	}
+
+	// ***************************
+	// ----- Server settings -----
+	// ***************************
+
+	fmt.Println(App.Name)
 
 	return nil
 }
