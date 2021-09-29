@@ -6,10 +6,13 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
+	"github.com/go-macaron/gzip"
+	"github.com/midoks/imail/internal/app/template"
 	"github.com/midoks/imail/internal/config"
 	"github.com/midoks/imail/internal/denyip"
 	"github.com/midoks/imail/internal/log"
 	uuid "github.com/satori/go.uuid"
+	"gopkg.in/macaron.v1"
 	"net"
 	"net/http"
 	"strings"
@@ -127,7 +130,7 @@ func IPWhiteMiddleware() gin.HandlerFunc {
 }
 
 func IndexWeb(c *gin.Context) {
-	c.String(http.StatusOK, "hello world")
+	c.HTML(http.StatusOK, "index.tmpl", gin.H{})
 }
 
 func SetupRouter() *gin.Engine {
@@ -150,6 +153,8 @@ func SetupRouter() *gin.Engine {
 		r.Use(sessions.Sessions("sessionid", store))
 	}
 
+	// r.LoadHTMLGlob("templates/*")
+	r.LoadHTMLGlob("templates/**/*")
 	r.GET("/", IndexWeb)
 	v1 := r.Group("v1")
 	{
@@ -161,7 +166,7 @@ func SetupRouter() *gin.Engine {
 	return r
 }
 
-func Start(port int) {
+func Start2(port int) {
 	ipWhiteList := strings.Split(config.GetString("http.ip_white", "*"), ",")
 	if !config.InSliceString("*", ipWhiteList) && len(ipWhiteList) != 0 {
 		var err error
@@ -175,4 +180,31 @@ func Start(port int) {
 	//Listening port
 	listen_port := fmt.Sprintf(":%d", port)
 	r.Run(listen_port)
+}
+
+func newMacaron() *macaron.Macaron {
+	m := macaron.New()
+	m.Use(macaron.Logger())
+	m.Use(gzip.Gziper())
+
+	opt := macaron.Renderer(macaron.RenderOptions{
+		Directory: "templates/default",
+		Funcs:     template.FuncMap(),
+	})
+	m.Use(opt)
+
+	return m
+}
+
+func Start(port int) {
+	m := newMacaron()
+
+	m.Get("/", func(ctx *macaron.Context) {
+		ctx.HTML(200, "home")
+	})
+
+	// m.Get("/install", func() string {
+	// 	return "install"
+	// })
+	m.Run(port)
 }

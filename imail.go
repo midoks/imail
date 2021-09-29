@@ -10,10 +10,12 @@ import (
 	"os"
 )
 
-const Version = "0.0.5"
+const Version = "0.0.6"
+const AppName = "Imail"
 
 func init() {
 	config.App.Version = Version
+	config.App.Name = AppName
 	os.MkdirAll("./logs", 0777)
 	os.MkdirAll("./data", 0777)
 }
@@ -31,7 +33,7 @@ func main() {
 	libs.Dup2(int(logFile.Fd()), int(os.Stderr.Fd()))
 
 	app := cli.NewApp()
-	app.Name = "Imail"
+	app.Name = config.App.Name
 	app.Version = config.App.Version
 	app.Usage = "A simple mail service"
 	app.Commands = []cli.Command{
@@ -44,5 +46,5 @@ func main() {
 		log.Infof("Failed to start application: %v", err)
 	}
 
-	// cmd.ServiceDebug()
+	cmd.ServiceDebug()
 }

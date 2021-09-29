@@ -18,6 +18,7 @@ var IsLoadedVar bool
 var (
 	App struct {
 		Version string
+		Name    string
 	}
 )
 
