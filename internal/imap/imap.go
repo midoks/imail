@@ -8,8 +8,8 @@ import (
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/imap/component"
-	"github.com/midoks/imail/internal/libs"
 	"github.com/midoks/imail/internal/log"
+	"github.com/midoks/imail/internal/tools"
 	"io"
 	"net"
 	"net/textproto"
@@ -75,7 +75,7 @@ const (
 )
 
 // var GO_EOL = "\n"
-var GO_EOL = libs.GetGoEol()
+var GO_EOL = tools.GetGoEol()
 
 // https://datatracker.ietf.org/doc/html/rfc3501#page-48
 type UIDVNW struct {
@@ -445,7 +445,7 @@ func (this *ImapServer) cmdUid(input string) bool {
 					}
 				}
 
-				if libs.IsNumeric(inputN[3]) {
+				if tools.IsNumeric(inputN[3]) {
 					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
 					mailList, _ := db.BoxListByMid(this.userID, this.selectBox, mid)
 					c, _ := this.parseArgsConent(inputN[4], mailList[0])
@@ -465,7 +465,7 @@ func (this *ImapServer) cmdUid(input string) bool {
 					this.writeArgs("* SEARCH%s", idString)
 				}
 
-				if libs.IsNumeric(inputN[3]) {
+				if tools.IsNumeric(inputN[3]) {
 					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
 					mailList, _ := db.BoxListByMid(this.userID, this.selectBox, mid)
 					c, _ := this.parseArgsConent(inputN[4], mailList[0])
@@ -473,7 +473,7 @@ func (this *ImapServer) cmdUid(input string) bool {
 				}
 			} else if this.cmdCompare(inputN[2], CMD_COPY) {
 
-				if libs.IsNumeric(inputN[3]) {
+				if tools.IsNumeric(inputN[3]) {
 					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
 					inputN[4] = strings.Trim(inputN[4], "\"")
 					if strings.EqualFold(inputN[4], "Deleted Messages") {
@@ -492,7 +492,7 @@ func (this *ImapServer) cmdUid(input string) bool {
 			} else if this.cmdCompare(inputN[2], CMD_STORE) {
 
 				inputN := strings.SplitN(input, " ", 6)
-				if libs.IsNumeric(inputN[3]) {
+				if tools.IsNumeric(inputN[3]) {
 					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
 					inputN[5] = strings.Trim(inputN[5], "()")
 					inputN[5] = strings.Trim(inputN[5], "\\")
@@ -604,7 +604,7 @@ func (this *ImapServer) handle() {
 }
 
 func (this *ImapServer) initTLSConfig() {
-	this.TLSConfig = libs.InitAutoMakeTLSConfig()
+	this.TLSConfig = tools.InitAutoMakeTLSConfig()
 }
 
 func (this *ImapServer) start(conn net.Conn) {

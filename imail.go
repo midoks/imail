@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/midoks/imail/internal/cmd"
 	"github.com/midoks/imail/internal/conf"
-	"github.com/midoks/imail/internal/libs"
 	"github.com/midoks/imail/internal/log"
+	"github.com/midoks/imail/internal/tools/syscall"
 	"github.com/urfave/cli"
 	"os"
 )
@@ -30,7 +30,7 @@ func main() {
 
 	// Redirect the process standard error to the file.
 	// When the process crashes, the runtime will record the co process call stack information to the file
-	libs.Dup2(int(logFile.Fd()), int(os.Stderr.Fd()))
+	syscall.Dup2(int(logFile.Fd()), int(os.Stderr.Fd()))
 
 	app := cli.NewApp()
 	app.Name = conf.App.Name

@@ -8,8 +8,9 @@ import (
 	"fmt"
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
-	"github.com/midoks/imail/internal/libs"
 	"github.com/midoks/imail/internal/log"
+	"github.com/midoks/imail/internal/tools"
+	"github.com/midoks/imail/internal/tools/mail"
 	"io"
 	"net"
 	"net/textproto"
@@ -106,7 +107,7 @@ var msgList = map[string]string{
 	MSG_STARTTLS:        "Ready to start TLS from xxx to mail.xxx.com.",
 }
 
-var GO_EOL = libs.GetGoEol()
+var GO_EOL = tools.GetGoEol()
 
 // Protocol represents the protocol used in the SMTP session
 type Protocol string
@@ -386,15 +387,15 @@ func (this *SmtpdServer) cmdMailFrom(input string) bool {
 		if this.cmdCompare(inputN[0], CMD_MAIL_FROM) {
 
 			inputN[1] = strings.TrimSpace(inputN[1])
-			inputN[1] = libs.FilterAddressBody(inputN[1])
+			inputN[1] = tools.FilterAddressBody(inputN[1])
 
-			if !libs.CheckStandardMail(inputN[1]) {
+			if !tools.CheckStandardMail(inputN[1]) {
 				this.write(MSG_BAD_SYNTAX)
 				return false
 			}
 
-			mailFrom := libs.GetRealMail(inputN[1])
-			if !libs.IsEmailRe(mailFrom) {
+			mailFrom := tools.GetRealMail(inputN[1])
+			if !tools.IsEmailRe(mailFrom) {
 				this.write(MSG_BAD_USER)
 				return false
 			}
@@ -431,15 +432,15 @@ func (this *SmtpdServer) cmdModeInMailFrom(input string) bool {
 		if this.cmdCompare(inputN[0], CMD_MAIL_FROM) {
 
 			inputN[1] = strings.TrimSpace(inputN[1])
-			inputN[1] = libs.FilterAddressBody(inputN[1])
+			inputN[1] = tools.FilterAddressBody(inputN[1])
 
-			if !libs.CheckStandardMail(inputN[1]) {
+			if !tools.CheckStandardMail(inputN[1]) {
 				this.write(MSG_BAD_SYNTAX)
 				return false
 			}
 
-			mailFrom := libs.GetRealMail(inputN[1])
-			if !libs.IsEmailRe(mailFrom) {
+			mailFrom := tools.GetRealMail(inputN[1])
+			if !tools.IsEmailRe(mailFrom) {
 				this.write(MSG_BAD_USER)
 				return false
 			}
@@ -492,14 +493,14 @@ func (this *SmtpdServer) cmdRcptTo(input string) bool {
 		if this.cmdCompare(inputN[0], CMD_RCPT_TO) {
 			inputN[1] = strings.TrimSpace(inputN[1])
 
-			if !libs.CheckStandardMail(inputN[1]) {
+			if !tools.CheckStandardMail(inputN[1]) {
 				this.write(MSG_BAD_SYNTAX)
 				return false
 			}
 
-			rcptTo := libs.GetRealMail(inputN[1])
+			rcptTo := tools.GetRealMail(inputN[1])
 
-			if !libs.IsEmailRe(rcptTo) {
+			if !tools.IsEmailRe(rcptTo) {
 				this.write(MSG_BAD_USER)
 				return false
 			}
@@ -572,7 +573,7 @@ func (this *SmtpdServer) addEnvelopeDataAcceptLine(data []byte) []byte {
 	mdomain := conf.GetString("mail.domain", "xxx.com")
 	serverTagName := fmt.Sprintf("smtp.%s (NewMx)", mdomain)
 
-	line := libs.Wrap([]byte(fmt.Sprintf(
+	line := tools.Wrap([]byte(fmt.Sprintf(
 		"Received: from %s (unknown[%s])\n\tby %s with SMTP id\n\tfor <%s>; %s %s\r\n",
 		peerIP,
 		peerIP,
@@ -611,14 +612,14 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 			return false
 		}
 		sendScript := conf.GetString("hook.send_script", "send.py")
-		libs.ExecPython(sendScript, fid)
+		mail.ExecPython(sendScript, fid)
 	} else {
 		fid, err := db.MailPush(this.userID, 0, this.recordCmdMailFrom, this.recordcmdRcptTo, content, 0)
 		if err != nil {
 			return false
 		}
 		receiveScript := conf.GetString("hook.receive_script", "receive.py")
-		libs.ExecPython(receiveScript, fid)
+		mail.ExecPython(receiveScript, fid)
 	}
 	return true
 }
@@ -786,7 +787,7 @@ func (this *SmtpdServer) handle() {
 }
 
 func (this *SmtpdServer) initTLSConfig() {
-	this.TLSConfig = libs.InitAutoMakeTLSConfig()
+	this.TLSConfig = tools.InitAutoMakeTLSConfig()
 }
 
 func (this *SmtpdServer) ready() {

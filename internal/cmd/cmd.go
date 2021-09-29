@@ -3,7 +3,7 @@ package cmd
 import (
 	"errors"
 	"github.com/midoks/imail/internal/conf"
-	"github.com/midoks/imail/internal/libs"
+	"github.com/midoks/imail/internal/tools"
 	"github.com/urfave/cli"
 	"os"
 	"strings"
@@ -54,11 +54,11 @@ func initConfig(c *cli.Context, defineConf string) (string, error) {
 		}
 	}
 
-	_, f := libs.IsExists(confFile)
+	f := tools.IsExist(confFile)
 
 	if !f {
-		definedConf, _ := libs.ReadFile("conf/app.defined.conf")
-		libs.WriteFile(confFile, definedConf)
+		definedConf, _ := tools.ReadFile("conf/app.defined.conf")
+		tools.WriteFile(confFile, definedConf)
 	}
 
 	if _, err := os.Stat(confFile); err != nil {

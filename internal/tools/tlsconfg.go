@@ -1,4 +1,4 @@
-package libs
+package tools
 
 import (
 	"crypto/rand"

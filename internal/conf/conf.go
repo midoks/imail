@@ -1,10 +1,13 @@
 package conf
 
 import (
-	"errors"
 	"fmt"
 	"github.com/pelletier/go-toml"
+	"github.com/pkg/errors"
+	"gopkg.in/ini.v1"
+	"io/ioutil"
 	"net"
+	"os"
 	"reflect"
 	"strings"
 	"unsafe"
@@ -14,13 +17,6 @@ var confToml *toml.Tree
 var err error
 
 var IsLoadedVar bool
-
-var (
-	App struct {
-		Version string
-		Name    string
-	}
-)
 
 func Load(path string) error {
 
@@ -139,4 +135,30 @@ func GetBool(key string, def bool) (bool, error) {
 	}
 
 	return v.(bool), nil
+}
+
+// File is the configuration object.
+var File *ini.File
+
+func ReadFile(file string) (string, error) {
+	f, err := os.OpenFile(file, os.O_RDONLY, 0600)
+	defer f.Close()
+	b, err := ioutil.ReadAll(f)
+	return string(b), err
+}
+
+func Init(customConf string) error {
+
+	definedConf, _ := ReadFile("conf/app.defined.conf")
+
+	File, err = ini.LoadSources(ini.LoadOptions{
+		IgnoreInlineComment: true,
+	}, []byte(definedConf))
+	if err != nil {
+		return errors.Wrap(err, "parse 'conf/app.ini'")
+	}
+
+	File.NameMapper = ini.SnackCase
+
+	return nil
 }

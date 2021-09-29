@@ -1,9 +1,10 @@
-package libs
+package mail
 
 import (
 	"errors"
 	"fmt"
 	"github.com/midoks/imail/internal/conf"
+	"github.com/midoks/imail/internal/tools"
 	"os"
 	"os/exec"
 )
@@ -16,7 +17,7 @@ func ExecPython(scriptName string, id int64) (string, error) {
 
 	cpath, _ := os.Getwd()
 	fileName := fmt.Sprintf("%s/conf/hook/%s", cpath, scriptName)
-	_, b := IsExists(fileName)
+	b := tools.IsExist(fileName)
 	// fmt.Println(fileName, b)
 	if !b {
 		return "", errors.New("file is not exist!")

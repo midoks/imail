@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/midoks/imail/internal/conf"
-	"github.com/midoks/imail/internal/libs"
+	"github.com/midoks/imail/internal/tools"
 	"github.com/urfave/cli"
 	"net"
 	"strings"
@@ -70,7 +70,7 @@ func doCheck(c *cli.Context) error {
 	if 0 == len(dkimRecord) {
 		fmt.Println("dkim check fail")
 	} else {
-		dkimContent, _ := libs.ReadFile(fmt.Sprintf("conf/dkim/%s/default.val", domain))
+		dkimContent, _ := tools.ReadFile(fmt.Sprintf("conf/dkim/%s/default.val", domain))
 		for _, dkimDomainContent := range dkimRecord {
 			if strings.EqualFold(dkimContent, dkimDomainContent) {
 				fmt.Println("dkim check done")

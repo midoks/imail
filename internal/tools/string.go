@@ -1,4 +1,4 @@
-package libs
+package tools
 
 import (
 	"crypto/md5"
@@ -201,9 +201,4 @@ func CheckStandardMail(src string) bool {
 
 func GetRealMail(src string) string {
 	return src[1 : len(src)-1]
-}
-
-func IsExists(path string) (os.FileInfo, bool) {
-	f, err := os.Stat(path)
-	return f, err == nil || os.IsExist(err)
 }

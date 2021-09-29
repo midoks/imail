@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/log"
 	"os"
@@ -102,7 +102,7 @@ func init() {
 	os.MkdirAll("./data", 0777)
 	os.MkdirAll("./logs", 0777)
 
-	err := config.Load("../../conf/app.defined.conf")
+	err := conf.Load("../../conf/app.defined.conf")
 	if err != nil {
 		fmt.Println("TestReceivedMail config fail:", err.Error())
 	}

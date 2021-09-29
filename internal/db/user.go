@@ -2,7 +2,7 @@ package db
 
 import (
 	// "fmt"
-	"github.com/midoks/imail/internal/libs"
+	"github.com/midoks/imail/internal/tools"
 	"strings"
 	_ "time"
 )
@@ -49,7 +49,7 @@ func LoginByUserPassword(name string, password string, rand string) (bool, int64
 		return false, 0
 	}
 
-	passMd5 := libs.Md5str(user.Password + rand)
+	passMd5 := tools.Md5str(user.Password + rand)
 	if passMd5 == password {
 		return true, user.Id
 	}

@@ -1,8 +1,9 @@
-package libs
+package mail
 
 import (
 	"fmt"
 	"github.com/midoks/imail/internal/conf"
+	"github.com/midoks/imail/internal/tools"
 	"io/ioutil"
 	"regexp"
 	"strings"
@@ -22,7 +23,7 @@ func GetMailSubject(content string) string {
 		val = strings.Replace(val, "=?utf-8?B?", "", -1)
 		val = strings.Replace(val, "?=", "", -1)
 		val = strings.TrimSpace(val)
-		val, err = Base64decode(val)
+		val, err = tools.Base64decode(val)
 		// if err != nil {
 		fmt.Println(val, err)
 		// }
@@ -38,7 +39,7 @@ func GetMailReturnToSender(to string, err_to_mail string, err_content string, ms
 
 	sendTime := time.Now().Format("Mon, 02 Jan 2006 15:04:05 -0700 (MST)")
 	sendVersion := fmt.Sprintf("imail/%s", conf.App.Version)
-	boundaryRand := RandString(20)
+	boundaryRand := tools.RandString(20)
 
 	data, err := ioutil.ReadFile("conf/tpl/return_to_sender.tpl")
 	if err != nil {
@@ -60,7 +61,7 @@ func GetMailReturnToSender(to string, err_to_mail string, err_content string, ms
 	content = strings.Replace(content, "{SUBJECT}", "系统退信", -1)
 	content = strings.Replace(content, "{TIME}", sendTime, -1)
 	content = strings.Replace(content, "{VERSION}", sendVersion, -1)
-	content = strings.Replace(content, "{CONTENT}", Base64encode(contentHtml), -1)
+	content = strings.Replace(content, "{CONTENT}", tools.Base64encode(contentHtml), -1)
 	content = strings.Replace(content, "{BOUNDARY_LINE}", boundaryRand, -1)
 	return content, nil
 }

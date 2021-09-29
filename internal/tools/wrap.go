@@ -1,4 +1,4 @@
-package libs
+package tools
 
 // Wrap a byte slice paragraph for use in SMTP header
 func Wrap(sl []byte) []byte {

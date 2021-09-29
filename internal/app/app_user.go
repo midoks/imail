@@ -5,7 +5,7 @@ import (
 	// "github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/midoks/imail/internal/db"
-	"github.com/midoks/imail/internal/libs"
+	"github.com/midoks/imail/internal/tools"
 )
 
 func UserRegister(c *gin.Context) {
@@ -13,8 +13,8 @@ func UserRegister(c *gin.Context) {
 }
 
 func GetUserCode(c *gin.Context) {
-	rand := libs.RandString(10)
-	token := libs.Md5str(rand)
+	rand := tools.RandString(10)
+	token := tools.Md5str(rand)
 
 	name := c.Query("name")
 	if name == "" {
@@ -35,7 +35,7 @@ func UpdateUserCodeByName(c *gin.Context) {
 	}
 
 	if db.UserCheckIsExist(name) {
-		rand := libs.RandString(10)
+		rand := tools.RandString(10)
 		db.UserUpdateCodeGetByName(name, rand)
 		c.JSON(200, gin.H{"code": "0", "co": rand})
 	} else {
@@ -67,7 +67,7 @@ func UserLogin(c *gin.Context) {
 	}
 
 	b, _ := db.LoginByUserPassword(name, password, sessRand)
-	loginToken := libs.Md5str(libs.RandString(10))
+	loginToken := tools.Md5str(tools.RandString(10))
 
 	db.UserUpdateTokenGetByName(name, loginToken)
 	if b {
