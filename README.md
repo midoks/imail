@@ -9,6 +9,13 @@
 
 imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件服务。使用 Go 语言开发使得 imail 能够通过独立的二进制分发，并且支持 Go 语言支持的 所有平台，包括 Linux、macOS、Windows 以及 ARM 平台。
 
+## NOTE
+```
+如果想要提交代码的，先暂停一下。
+我准备用(macaron)[https://go-macaron.com/]web框架写前端。代码变化也许特别大。
+
+```
+
 
 ## 快速入口
 - [文档主页](https://github.com/midoks/imail/wiki)
@@ -25,7 +32,7 @@ imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件
 ```
 
 ### 待解决问题
-- [ ] wiki
+- [ ] [wiki](https://github.com/midoks/imail)
 
 
 ## 计划功能
