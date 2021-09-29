@@ -186,6 +186,10 @@ func newMacaron() *macaron.Macaron {
 	m := macaron.New()
 	m.Use(macaron.Logger())
 	m.Use(gzip.Gziper())
+	m.Use(macaron.Logger())
+	m.Use(macaron.Recovery())
+
+	m.Use(macaron.Static("public"))
 
 	opt := macaron.Renderer(macaron.RenderOptions{
 		Directory: "templates/default",
@@ -196,15 +200,22 @@ func newMacaron() *macaron.Macaron {
 	return m
 }
 
+func setRouter(m *macaron.Macaron) *macaron.Macaron {
+
+	m.Group("", func() {
+		m.Get("/", func(ctx *macaron.Context) {
+			ctx.HTML(200, "home")
+		})
+
+		m.Get("/install", func(ctx *macaron.Context) {
+			ctx.HTML(200, "install")
+		})
+	})
+	return m
+}
+
 func Start(port int) {
 	m := newMacaron()
-
-	m.Get("/", func(ctx *macaron.Context) {
-		ctx.HTML(200, "home")
-	})
-
-	// m.Get("/install", func() string {
-	// 	return "install"
-	// })
+	m = setRouter(m)
 	m.Run(port)
 }

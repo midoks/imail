@@ -4,8 +4,105 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 	<meta name="referrer" content="no-referrer" />
+	<link rel="shortcut icon" href="/img/favicon.png" />
+
+	<link rel="stylesheet" href="/css/semantic.min.css">
+	<link rel="stylesheet" href="/css/gogs.min.css">
+	<link rel="stylesheet" href="/assets/font-awesome-4.6.3/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/assets/octicons-4.3.0/octicons.min.css">
+
+
+	<script src="/js/jquery-3.6.0.min.js"></script>
+	<script src="/js/libs/jquery.are-you-sure.js"></script>
+
 </head>
 <body>
+	<div class="full height">
+		<noscript>This website works better with JavaScript</noscript>
 
+		<div class="following bar light">
+				<div class="ui container">
+					<div class="ui grid">
+						<div class="column">
+							<div class="ui top secondary menu">
+								<a class="item brand" href="/">
+									<img class="ui mini image" src="/img/favicon.png">
+								</a>
+
+								
+								<a class="item active" href="/">控制面板</a>
+
+								
+								<div class="right menu">
+									<div class="ui dropdown head link jump item poping up" data-content="创建..." data-variation="tiny inverted">
+										<span class="text">
+											<i class="octicon octicon-plus"><span class="sr-only">创建...</span></i>
+											<i class="octicon octicon-triangle-down"></i>
+										</span>
+										<div class="menu">
+											<a class="item" href="/repo/create">
+												<i class="octicon octicon-plus"></i> 创建新的仓库
+											</a>
+											<a class="item" href="/repo/migrate">
+												<i class="octicon octicon-repo-clone"></i> 迁移外部仓库
+											</a>
+											
+											<a class="item" href="/org/create">
+												<i class="octicon octicon-organization"></i> 创建新的组织
+											</a>
+											
+										</div>
+									</div>
+
+									<div class="ui dropdown head link jump item poping up" tabindex="-1" data-content="用户信息及更多" data-variation="tiny inverted">
+										<span class="text avatar">
+											<img class="ui small rounded image" src="https://secure.gravatar.com/avatar/3786f03bcc204fbcead187697748b1ae?d=identicon">
+											<span class="sr-only">用户信息及更多</span>
+											<i class="octicon octicon-triangle-down" tabindex="-1"></i>
+										</span>
+										<div class="menu" tabindex="-1">
+											<div class="ui header">
+												已登录用户 <strong>midoks</strong>
+											</div>
+
+											<div class="divider"></div>
+											<a class="item" href="/midoks">
+												<i class="octicon octicon-person"></i> 个人信息
+											</a>
+											<a class=" item" href="/user/settings">
+												<i class="octicon octicon-settings"></i> 用户设置
+											</a>
+											<a class="item" target="_blank" rel="noopener noreferrer" href="https://gogs.io/docs" rel="noreferrer">
+												<i class="octicon octicon-question"></i> 帮助
+											</a>
+											
+												<div class="divider"></div>
+
+												<a class=" item" href="/admin">
+													<i class="icon settings"></i> 管理面板
+												</a>
+											
+
+											<div class="divider"></div>
+
+											<form id="logout-form" class="item" action="/user/logout" method="POST">
+												<input type="hidden" name="_csrf" value="qqx7wBoRsoJRCsQBlrsLSReCV9U6MTYzMjg4MDM3ODg0ODAzMjkyOA==">
+												<div class="submit-button" data-form="#logout-form">
+													<i class="octicon octicon-sign-out"></i> 退出
+												</div>
+											</form>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+{{/*	
+	</div>
 </body>
 </html>
+*/}}

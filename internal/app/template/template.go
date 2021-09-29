@@ -27,6 +27,10 @@ var (
 func FuncMap() []template.FuncMap {
 	funcMapOnce.Do(func() {
 		funcMap = []template.FuncMap{map[string]interface{}{
+			"Year": func() int {
+				return time.Now().Year()
+			},
+
 			"AppName": func() string {
 				return config.App.Name
 			},
