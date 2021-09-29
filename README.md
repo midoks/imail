@@ -14,6 +14,8 @@ imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件
 如果想要提交代码的，先暂停一下。
 我准备用(macaron)[https://go-macaron.com/]web框架写前端。代码变化也许特别大。
 
+关注 -> https://github.com/midoks/imail/tree/dev
+
 ```
 
 
