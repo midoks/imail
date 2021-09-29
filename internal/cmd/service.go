@@ -6,12 +6,12 @@ import (
 	"github.com/midoks/imail/internal/app"
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
-	"github.com/midoks/imail/internal/debug"
 	"github.com/midoks/imail/internal/imap"
 	"github.com/midoks/imail/internal/log"
 	"github.com/midoks/imail/internal/pop3"
 	"github.com/midoks/imail/internal/smtpd"
 	"github.com/midoks/imail/internal/task"
+	"github.com/midoks/imail/internal/tools/debug"
 	"github.com/urfave/cli"
 	"strings"
 )
