@@ -2,7 +2,7 @@ package libs
 
 import (
 	"fmt"
-	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/conf"
 	"io/ioutil"
 	"regexp"
 	"strings"
@@ -33,11 +33,11 @@ func GetMailSubject(content string) string {
 func GetMailReturnToSender(to string, err_to_mail string, err_content string, msg string) (string, error) {
 	sendSubject := GetMailSubject(err_content)
 
-	domain := config.GetString("mail.domain", "xxx.com")
+	domain := conf.GetString("mail.domain", "xxx.com")
 	postmaster := fmt.Sprintf("postmaster@%s", domain)
 
 	sendTime := time.Now().Format("Mon, 02 Jan 2006 15:04:05 -0700 (MST)")
-	sendVersion := fmt.Sprintf("imail/%s", config.App.Version)
+	sendVersion := fmt.Sprintf("imail/%s", conf.App.Version)
 	boundaryRand := RandString(20)
 
 	data, err := ioutil.ReadFile("conf/tpl/return_to_sender.tpl")

@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"errors"
-	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/libs"
 	"github.com/urfave/cli"
 	"os"
@@ -69,7 +69,7 @@ func initConfig(c *cli.Context, defineConf string) (string, error) {
 		}
 	}
 
-	err := config.Load(confFile)
+	err := conf.Load(confFile)
 	if err != nil {
 		return confFile, errors.New("imail config file load err")
 	}

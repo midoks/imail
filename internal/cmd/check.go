@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/libs"
 	"github.com/urfave/cli"
 	"net"
@@ -26,7 +26,7 @@ func doCheck(c *cli.Context) error {
 		return err
 	}
 
-	domain := config.GetString("mail.domain", "xxx.com")
+	domain := conf.GetString("mail.domain", "xxx.com")
 
 	//mx
 	mx, _ := net.LookupMX(domain)

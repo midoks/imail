@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/midoks/imail/internal/app"
-	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/debug"
 	"github.com/midoks/imail/internal/imap"
@@ -44,7 +44,7 @@ func runAllService(c *cli.Context) error {
 
 	task.Init()
 
-	runmode := config.GetString("runmode", "dev")
+	runmode := conf.GetString("runmode", "dev")
 	if strings.EqualFold(runmode, "dev") {
 		go debug.Pprof()
 	}
@@ -53,9 +53,9 @@ func runAllService(c *cli.Context) error {
 	startService("pop3")
 	startService("imap")
 
-	http_enable, err := config.GetBool("http.enable", false)
+	http_enable, err := conf.GetBool("http.enable", false)
 	if http_enable {
-		http_port, err := config.GetInt("http.port", 80)
+		http_port, err := conf.GetInt("http.port", 80)
 		if err == nil {
 			log.Info("listen http success!")
 			app.Start(http_port)
@@ -84,7 +84,7 @@ func ServiceDebug() {
 
 	task.Init()
 
-	runmode := config.GetString("runmode", "dev")
+	runmode := conf.GetString("runmode", "dev")
 
 	if strings.EqualFold(runmode, "dev") {
 		go debug.Pprof()
@@ -94,9 +94,9 @@ func ServiceDebug() {
 	startService("pop3")
 	startService("imap")
 
-	http_enable, err := config.GetBool("http.enable", false)
+	http_enable, err := conf.GetBool("http.enable", false)
 	if http_enable {
-		http_port, err := config.GetInt("http.port", 80)
+		http_port, err := conf.GetInt("http.port", 80)
 		if err == nil {
 			log.Infof("listen http[%d] success!", http_port)
 			app.Start(http_port)
@@ -108,11 +108,11 @@ func ServiceDebug() {
 
 func startService(name string) {
 	config_enable := fmt.Sprintf("%s.enable", name)
-	enable, err := config.GetBool(config_enable, false)
+	enable, err := conf.GetBool(config_enable, false)
 	if err == nil && enable {
 
 		config_port := fmt.Sprintf("%s.port", name)
-		port, err := config.GetInt(config_port, 25)
+		port, err := conf.GetInt(config_port, 25)
 		if err == nil {
 			log.Infof("listen %s port:%d success!", name, port)
 
@@ -129,11 +129,11 @@ func startService(name string) {
 	}
 
 	config_ssl_enable := fmt.Sprintf("%s.ssl_enable", name)
-	ssl_enable, err := config.GetBool(config_ssl_enable, false)
+	ssl_enable, err := conf.GetBool(config_ssl_enable, false)
 	if err == nil && ssl_enable {
 
 		config_ssl_port := fmt.Sprintf("%s.ssl_port", name)
-		ssl_port, err := config.GetInt(config_ssl_port, 25)
+		ssl_port, err := conf.GetInt(config_ssl_port, 25)
 		if err == nil {
 			log.Infof("listen %s ssl port:%d success!", name, ssl_port)
 
@@ -153,7 +153,7 @@ func startService(name string) {
 func reloadService(path string) {
 	log.Infof("reloadService:%s", path)
 
-	err := config.Load(path)
+	err := conf.Load(path)
 	if err != nil {
 		log.Errorf("imail config file reload error:%s", err)
 		return

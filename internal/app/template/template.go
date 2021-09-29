@@ -15,7 +15,7 @@ import (
 
 	"github.com/editorconfig/editorconfig-core-go/v2"
 	"github.com/microcosm-cc/bluemonday"
-	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/conf"
 )
 
 var (
@@ -32,7 +32,7 @@ func FuncMap() []template.FuncMap {
 			},
 
 			"AppName": func() string {
-				return config.App.Name
+				return conf.App.Name
 			},
 			"LoadTimes": func(startTime time.Time) string {
 				return fmt.Sprint(time.Since(startTime).Nanoseconds()/1e6) + "ms"

@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-macaron/gzip"
 	"github.com/midoks/imail/internal/app/template"
-	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/denyip"
 	"github.com/midoks/imail/internal/log"
 	uuid "github.com/satori/go.uuid"
@@ -112,8 +112,8 @@ func getRemoteIP(req *http.Request) []string {
 
 func IPWhiteMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ipWhiteList := strings.Split(config.GetString("http.ip_white", "*"), ",")
-		if !config.InSliceString("*", ipWhiteList) && len(ipWhiteList) != 0 {
+		ipWhiteList := strings.Split(conf.GetString("http.ip_white", "*"), ",")
+		if !conf.InSliceString("*", ipWhiteList) && len(ipWhiteList) != 0 {
 			reqIPAddr := getRemoteIP(c.Request)
 			reeIPadLenOffset := len(reqIPAddr) - 1
 			for i := reeIPadLenOffset; i >= 0; i-- {
@@ -138,12 +138,12 @@ func SetupRouter() *gin.Engine {
 
 	r.Use(RequestIDMiddleware(), LogMiddleware(), IPWhiteMiddleware())
 
-	if b, _ := config.GetBool("redis.enable", false); b {
+	if b, _ := conf.GetBool("redis.enable", false); b {
 		store, err := redis.NewStoreWithDB(
 			10, "tcp",
-			config.GetString("redis.address", "127.0.0.1:6379"),
-			config.GetString("redis.password", ""),
-			config.GetString("redis.db", "0"),
+			conf.GetString("redis.address", "127.0.0.1:6379"),
+			conf.GetString("redis.password", ""),
+			conf.GetString("redis.db", "0"),
 			[]byte("secret"),
 		)
 		if err != nil {
@@ -167,8 +167,8 @@ func SetupRouter() *gin.Engine {
 }
 
 func Start2(port int) {
-	ipWhiteList := strings.Split(config.GetString("http.ip_white", "*"), ",")
-	if !config.InSliceString("*", ipWhiteList) && len(ipWhiteList) != 0 {
+	ipWhiteList := strings.Split(conf.GetString("http.ip_white", "*"), ",")
+	if !conf.InSliceString("*", ipWhiteList) && len(ipWhiteList) != 0 {
 		var err error
 		checker, err = denyip.NewChecker(ipWhiteList)
 		if err != nil {

@@ -3,7 +3,7 @@ package log
 import (
 	"fmt"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
-	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/conf"
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
 	"os"
@@ -29,7 +29,7 @@ func Init() {
 	logger = logrus.New()
 	logger.Out = src
 
-	format := config.GetString("log.format", "json")
+	format := conf.GetString("log.format", "json")
 	if strings.EqualFold(format, "json") {
 		logger.SetFormatter(&logrus.JSONFormatter{})
 	} else if strings.EqualFold(format, "text") {
@@ -38,7 +38,7 @@ func Init() {
 		logger.SetFormatter(&logrus.TextFormatter{})
 	}
 
-	runmode := config.GetString("runmode", "dev")
+	runmode := conf.GetString("runmode", "dev")
 	if strings.EqualFold(runmode, "dev") {
 		logger.SetLevel(logrus.DebugLevel)
 	} else {

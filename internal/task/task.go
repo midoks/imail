@@ -2,7 +2,7 @@ package task
 
 import (
 	"fmt"
-	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/libs"
 	"github.com/midoks/imail/internal/log"
@@ -13,7 +13,7 @@ import (
 )
 
 func TaskQueueeSendMail() {
-	domain := config.GetString("mail.domain", "xxx.com")
+	domain := conf.GetString("mail.domain", "xxx.com")
 	postmaster := fmt.Sprintf("postmaster@%s", domain)
 
 	result := db.MailSendListForStatus(2, 1)
@@ -37,7 +37,7 @@ func TaskQueueeSendMail() {
 func TaskRspamdCheck() {
 
 	result := db.MailListForRspamd(1)
-	rspamdEnable, _ := config.GetBool("rspamd.enable", false)
+	rspamdEnable, _ := conf.GetBool("rspamd.enable", false)
 	if rspamdEnable {
 		for _, val := range result {
 			_, err, score := libs.RspamdCheck(val.Content)

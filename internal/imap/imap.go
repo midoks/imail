@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
-	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/imap/component"
 	"github.com/midoks/imail/internal/libs"
@@ -124,7 +124,7 @@ func (this *ImapServer) getState() int {
 
 func (this *ImapServer) D(args ...interface{}) {
 
-	imapDebug, _ := config.GetBool("imap.debug", false)
+	imapDebug, _ := conf.GetBool("imap.debug", false)
 	if imapDebug {
 		// fmt.Println(args...)
 		log.Debug(args...)

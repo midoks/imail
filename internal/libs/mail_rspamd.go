@@ -5,16 +5,16 @@ import (
 	"context"
 	"errors"
 	// "fmt"
-	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/rspamd"
 	"strings"
 )
 
 func RspamdCheck(content string) (bool, error, float64) {
-	rspamdEnable, _ := config.GetBool("rspamd.enable", false)
-	rspamdUrl := config.GetString("rspamd.domain", "xxx.com")
-	rspamdPassword := config.GetString("rspamd.password", "")
-	rspamdJCS, _ := config.GetFloat64("rspamd.recject_condition_score", 8)
+	rspamdEnable, _ := conf.GetBool("rspamd.enable", false)
+	rspamdUrl := conf.GetString("rspamd.domain", "xxx.com")
+	rspamdPassword := conf.GetString("rspamd.password", "")
+	rspamdJCS, _ := conf.GetFloat64("rspamd.recject_condition_score", 8)
 
 	if rspamdEnable {
 

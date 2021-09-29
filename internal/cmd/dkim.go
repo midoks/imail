@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/dkim"
 	"github.com/urfave/cli"
 )
@@ -24,7 +24,7 @@ func makeDkim(c *cli.Context) error {
 		return err
 	}
 
-	domain := config.GetString("mail.domain", "xxx.com")
+	domain := conf.GetString("mail.domain", "xxx.com")
 	content, err := dkim.MakeDkimConfFile(domain)
 
 	fmt.Println(content)

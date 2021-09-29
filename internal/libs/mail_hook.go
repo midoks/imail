@@ -3,13 +3,13 @@ package libs
 import (
 	"errors"
 	"fmt"
-	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/conf"
 	"os"
 	"os/exec"
 )
 
 func ExecPython(scriptName string, id int64) (string, error) {
-	hookEnable, _ := config.GetBool("hook.enable", false)
+	hookEnable, _ := conf.GetBool("hook.enable", false)
 	if !hookEnable {
 		return "", errors.New("config is disable!")
 	}

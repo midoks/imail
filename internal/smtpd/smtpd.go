@@ -6,7 +6,7 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"fmt"
-	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/libs"
 	"github.com/midoks/imail/internal/log"
@@ -205,7 +205,7 @@ func (this *SmtpdServer) D(args ...interface{}) {
 		return
 	}
 
-	smtp3Debug, _ := config.GetBool("smtpd.debug", false)
+	smtp3Debug, _ := conf.GetBool("smtpd.debug", false)
 	if smtp3Debug {
 		// fmt.Println(args...)
 		log.Debug(args...)
@@ -347,7 +347,7 @@ func (this *SmtpdServer) cmdAuthPlainLogin(input string) bool {
 		if len(inputN) == 3 {
 			data := this.base64Decode(inputN[2])
 
-			// mdomain := config.GetString("mail.domain", "xxx.com")
+			// mdomain := conf.GetString("mail.domain", "xxx.com")
 			list := strings.SplitN(data, "\x00", 3)
 			userList := strings.Split(list[1], "@")
 
@@ -367,7 +367,7 @@ func (this *SmtpdServer) cmdAuthPlainLogin(input string) bool {
 }
 
 func (this *SmtpdServer) isAllowDomain(domain string) bool {
-	mdomain := config.GetString("mail.domain", "xxx.com")
+	mdomain := conf.GetString("mail.domain", "xxx.com")
 	domainN := strings.Split(mdomain, ",")
 	// fmt.Println(domainN)
 
@@ -569,7 +569,7 @@ func (this *SmtpdServer) addEnvelopeDataAcceptLine(data []byte) []byte {
 		peerIP = addr.IP.String()
 	}
 
-	mdomain := config.GetString("mail.domain", "xxx.com")
+	mdomain := conf.GetString("mail.domain", "xxx.com")
 	serverTagName := fmt.Sprintf("smtp.%s (NewMx)", mdomain)
 
 	line := libs.Wrap([]byte(fmt.Sprintf(
@@ -610,14 +610,14 @@ func (this *SmtpdServer) cmdDataAccept() bool {
 		if err != nil {
 			return false
 		}
-		sendScript := config.GetString("hook.send_script", "send.py")
+		sendScript := conf.GetString("hook.send_script", "send.py")
 		libs.ExecPython(sendScript, fid)
 	} else {
 		fid, err := db.MailPush(this.userID, 0, this.recordCmdMailFrom, this.recordcmdRcptTo, content, 0)
 		if err != nil {
 			return false
 		}
-		receiveScript := config.GetString("hook.receive_script", "receive.py")
+		receiveScript := conf.GetString("hook.receive_script", "receive.py")
 		libs.ExecPython(receiveScript, fid)
 	}
 	return true
@@ -798,7 +798,7 @@ func (this *SmtpdServer) ready() {
 
 	//mode
 	this.runModeIn = false
-	this.modeIn, _ = config.GetBool("smtpd.mode_in", true)
+	this.modeIn, _ = conf.GetBool("smtpd.mode_in", true)
 
 }
 
