@@ -2,6 +2,7 @@ package tools
 
 import (
 	"os"
+	"os/user"
 )
 
 // IsFile returns true if given path exists as a file (i.e. not a directory).
@@ -27,4 +28,22 @@ func IsDir(dir string) bool {
 func IsExist(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil || os.IsExist(err)
+}
+
+// CurrentUsername returns the username of the current user.
+func CurrentUsername() string {
+	username := os.Getenv("USER")
+	if len(username) > 0 {
+		return username
+	}
+
+	username = os.Getenv("USERNAME")
+	if len(username) > 0 {
+		return username
+	}
+
+	if user, err := user.Current(); err == nil {
+		username = user.Username
+	}
+	return username
 }

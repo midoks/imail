@@ -3,7 +3,7 @@ package utf7_test
 import (
 	"testing"
 
-	"github.com/midoks/imail/internal/libs/utf7"
+	"github.com/midoks/imail/internal/tools/utf7"
 )
 
 var decode = []struct {

@@ -64,9 +64,12 @@ func newService(confFile string) {
 	startService("pop3")
 	startService("imap")
 
-	http_enable, err := conf.GetBool("http.enable", false)
+	http_enable, err := conf.GetBool("web.enable", false)
+	// fmt.Println(http_enable)
+	fmt.Println(http_enable)
 	if http_enable {
-		http_port, err := conf.GetInt("http.port", 80)
+		http_port, err := conf.GetInt("web.port", 80)
+		fmt.Println(http_port)
 		if err == nil {
 			log.Infof("listen http[%d] success!", http_port)
 			app.Start(http_port)
@@ -83,6 +86,8 @@ func runAllService(c *cli.Context) error {
 		panic("imail config file load error")
 		return err
 	}
+
+	fmt.Println(confFile)
 
 	newService(confFile)
 	return nil

@@ -2,18 +2,21 @@ package conf
 
 import (
 	"fmt"
+	"io/ioutil"
+	"net"
+	"net/url"
+	"os"
+	"path/filepath"
+	"reflect"
+	"strconv"
+	"strings"
+	"unsafe"
+
 	"github.com/midoks/imail/internal/log"
 	"github.com/midoks/imail/internal/tools"
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	"gopkg.in/ini.v1"
-	"io/ioutil"
-	"net"
-	"os"
-	"path/filepath"
-	"reflect"
-	"strings"
-	"unsafe"
 )
 
 var confToml *toml.Tree
@@ -189,7 +192,76 @@ func Init(customConf string) error {
 	// ----- Server settings -----
 	// ***************************
 
-	fmt.Println(App.Name)
+	if err = File.Section("server").MapTo(&Server); err != nil {
+		return errors.Wrap(err, "mapping [server] section")
+	}
+	Server.AppDataPath = ensureAbs(Server.AppDataPath)
+
+	if !strings.HasSuffix(Server.ExternalURL, "/") {
+		Server.ExternalURL += "/"
+	}
+	Server.URL, err = url.Parse(Server.ExternalURL)
+	if err != nil {
+		return errors.Wrapf(err, "parse '[server] EXTERNAL_URL' %q", err)
+	}
+
+	// Subpath should start with '/' and end without '/', i.e. '/{subpath}'.
+	Server.Subpath = strings.TrimRight(Server.URL.Path, "/")
+	Server.SubpathDepth = strings.Count(Server.Subpath, "/")
+
+	unixSocketMode, err := strconv.ParseUint(Server.UnixSocketPermission, 8, 32)
+	if err != nil {
+		return errors.Wrapf(err, "parse '[server] UNIX_SOCKET_PERMISSION' %q", Server.UnixSocketPermission)
+	}
+	if unixSocketMode > 0777 {
+		unixSocketMode = 0666
+	}
+	Server.UnixSocketMode = os.FileMode(unixSocketMode)
+
+	// ***************************
+	// ----- SMTP settings -----
+	// ***************************
+	if err = File.Section("smtp").MapTo(&Smtp); err != nil {
+		return errors.Wrap(err, "mapping [smtp] section")
+	}
+
+	// ***************************
+	// ----- Pop settings -----
+	// ***************************
+	if err = File.Section("pop").MapTo(&Pop); err != nil {
+		return errors.Wrap(err, "mapping [pop] section")
+	}
+
+	// ***************************
+	// ----- Imap settings -----
+	// ***************************
+	if err = File.Section("imap").MapTo(&Imap); err != nil {
+		return errors.Wrap(err, "mapping [imap] section")
+	}
+
+	// ****************************
+	// ----- Session settings -----
+	// ****************************
+
+	if err = File.Section("session").MapTo(&Session); err != nil {
+		return errors.Wrap(err, "mapping [session] section")
+	}
+
+	// *****************************
+	// ----- Security settings -----
+	// *****************************
+
+	if err = File.Section("security").MapTo(&Security); err != nil {
+		return errors.Wrap(err, "mapping [security] section")
+	}
+
+	// Check run user when the install is locked.
+	if Security.InstallLock {
+		currentUser, match := CheckRunUser(App.RunUser)
+		if !match {
+			return fmt.Errorf("user configured to run imail is %q, but the current user is %q", App.RunUser, currentUser)
+		}
+	}
 
 	return nil
 }
