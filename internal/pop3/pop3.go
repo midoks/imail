@@ -101,8 +101,7 @@ func (this *Pop3Server) D(args ...interface{}) {
 		return
 	}
 
-	pop3Debug, _ := conf.GetBool("pop3.debug", false)
-	if pop3Debug {
+	if conf.Pop3.Debug {
 		// fmt.Println(args...)
 		log.Debug(args...)
 	}

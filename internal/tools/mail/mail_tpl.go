@@ -34,19 +34,19 @@ func GetMailSubject(content string) string {
 func GetMailReturnToSender(to string, err_to_mail string, err_content string, msg string) (string, error) {
 	sendSubject := GetMailSubject(err_content)
 
-	domain := conf.GetString("mail.domain", "xxx.com")
+	domain := conf.Mail.Domain
 	postmaster := fmt.Sprintf("postmaster@%s", domain)
 
 	sendTime := time.Now().Format("Mon, 02 Jan 2006 15:04:05 -0700 (MST)")
 	sendVersion := fmt.Sprintf("imail/%s", conf.App.Version)
 	boundaryRand := tools.RandString(20)
 
-	data, err := ioutil.ReadFile("conf/tpl/return_to_sender.tpl")
+	data, err := ioutil.ReadFile(conf.WorkDir() + "conf/tpl/return_to_sender.tpl")
 	if err != nil {
 		return "", err
 	}
 
-	dataHtml, err := ioutil.ReadFile("conf/tpl/return_to_sender_html.tpl")
+	dataHtml, err := ioutil.ReadFile(conf.WorkDir() + "conf/tpl/return_to_sender_html.tpl")
 	if err != nil {
 		return "", err
 	}

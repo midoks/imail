@@ -123,9 +123,7 @@ func (this *ImapServer) getState() int {
 }
 
 func (this *ImapServer) D(args ...interface{}) {
-
-	imapDebug, _ := conf.GetBool("imap.debug", false)
-	if imapDebug {
+	if conf.Imap.Debug {
 		// fmt.Println(args...)
 		log.Debug(args...)
 	}

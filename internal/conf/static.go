@@ -19,9 +19,20 @@ var (
 		RunMode   string
 	}
 
+	// log
+	Log struct {
+		Format string
+	}
+
+	// mail
+	Mail struct {
+		Domain      string
+		AppDataPath string
+	}
+
 	// web settings
 	Web struct {
-		Port                     string
+		Port                     int
 		Enable                   bool
 		AccessControlAllowOrigin string
 	}
@@ -39,32 +50,47 @@ var (
 
 	// Smtp settings
 	Smtp struct {
-		Port      string
+		Port      int
 		Enable    bool
 		Debug     bool
 		SslEnable bool
-		SslPort   string
+		SslPort   int
 		ModeIn    bool
 	}
 
 	// Pop settings
-	Pop struct {
-		Port      string
+	Pop3 struct {
+		Port      int
 		Enable    bool
 		Debug     bool
 		SslEnable bool
-		SslPort   string
+		SslPort   int
 		ModeIn    bool
 	}
 
 	// Imap settings
 	Imap struct {
-		Port      string
+		Port      int
 		Enable    bool
 		Debug     bool
 		SslEnable bool
-		SslPort   string
+		SslPort   int
 		ModeIn    bool
+	}
+
+	//rspamd
+	Rspamd struct {
+		Enable                bool
+		Domain                string
+		Password              string
+		RecjectConditionScore float64
+	}
+
+	//Hook
+	Hook struct {
+		Enable        bool
+		ReceiveScript string
+		SendScript    string
 	}
 
 	// Security settings
@@ -104,3 +130,19 @@ type ServerOpts struct {
 
 // Server settings
 var Server ServerOpts
+
+type DatabaseOpts struct {
+	Type         string
+	Host         string
+	Name         string
+	User         string
+	Password     string
+	SSLMode      string `ini:"SSL_MODE"`
+	Path         string
+	Charset      string
+	MaxOpenConns int
+	MaxIdleConns int
+}
+
+// Database settings
+var Database DatabaseOpts

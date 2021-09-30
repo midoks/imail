@@ -1,12 +1,7 @@
 package cmd
 
 import (
-	"errors"
-	"github.com/midoks/imail/internal/conf"
-	"github.com/midoks/imail/internal/tools"
 	"github.com/urfave/cli"
-	"os"
-	"strings"
 	"time"
 )
 
@@ -41,37 +36,4 @@ func durationFlag(name string, value time.Duration, usage string) cli.DurationFl
 		Value: value,
 		Usage: usage,
 	}
-}
-
-func initConfig(c *cli.Context, defineConf string) (string, error) {
-	confFile := ""
-	if !strings.EqualFold(defineConf, "") {
-		confFile = defineConf
-	} else {
-		confFile = c.String("config")
-		if confFile == "" {
-			confFile = "conf/app.conf"
-		}
-	}
-
-	f := tools.IsExist(confFile)
-
-	if !f {
-		definedConf, _ := tools.ReadFile("conf/app.defined.conf")
-		tools.WriteFile(confFile, definedConf)
-	}
-
-	if _, err := os.Stat(confFile); err != nil {
-		if os.IsNotExist(err) {
-			return confFile, errors.New("imail config is not exist!")
-		} else {
-			return confFile, err
-		}
-	}
-
-	err := conf.Load(confFile)
-	if err != nil {
-		return confFile, errors.New("imail config file load err")
-	}
-	return confFile, nil
 }

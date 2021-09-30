@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/midoks/imail/internal/app/router"
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/tools"
 	"github.com/urfave/cli"
@@ -11,7 +12,7 @@ import (
 
 var Check = cli.Command{
 	Name:        "check",
-	Usage:       "This command Check domain configuration",
+	Usage:       "This command check domain configuration",
 	Description: `check domain configuration`,
 	Action:      doCheck,
 	Flags: []cli.Flag{
@@ -21,12 +22,12 @@ var Check = cli.Command{
 
 func doCheck(c *cli.Context) error {
 
-	_, err := initConfig(c, "")
+	err := router.GlobalInit(c.String("config"))
 	if err != nil {
 		return err
 	}
 
-	domain := conf.GetString("mail.domain", "xxx.com")
+	domain := conf.Mail.Domain
 
 	//mx
 	mx, _ := net.LookupMX(domain)

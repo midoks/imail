@@ -11,12 +11,11 @@ import (
 )
 
 func RspamdCheck(content string) (bool, error, float64) {
-	rspamdEnable, _ := conf.GetBool("rspamd.enable", false)
-	rspamdUrl := conf.GetString("rspamd.domain", "xxx.com")
-	rspamdPassword := conf.GetString("rspamd.password", "")
-	rspamdJCS, _ := conf.GetFloat64("rspamd.recject_condition_score", 8)
+	rspamdUrl := conf.Rspamd.Domain
+	rspamdPassword := conf.Rspamd.Password
+	rspamdJCS := conf.Rspamd.RecjectConditionScore
 
-	if rspamdEnable {
+	if conf.Rspamd.Enable {
 
 		client := rspamd.New(rspamdUrl)
 		if !strings.EqualFold(rspamdPassword, "") {

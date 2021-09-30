@@ -5,18 +5,15 @@ import (
 	"fmt"
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/tools"
-	"os"
 	"os/exec"
 )
 
 func ExecPython(scriptName string, id int64) (string, error) {
-	hookEnable, _ := conf.GetBool("hook.enable", false)
-	if !hookEnable {
+	if !conf.Hook.Enable {
 		return "", errors.New("config is disable!")
 	}
 
-	cpath, _ := os.Getwd()
-	fileName := fmt.Sprintf("%s/conf/hook/%s", cpath, scriptName)
+	fileName := fmt.Sprintf("%s/conf/hook/%s", conf.WorkDir(), scriptName)
 	b := tools.IsExist(fileName)
 	// fmt.Println(fileName, b)
 	if !b {

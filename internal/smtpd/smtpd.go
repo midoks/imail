@@ -133,7 +133,6 @@ type Peer struct {
 
 type SmtpdServer struct {
 	method            int
-	debug             bool
 	isLogin           bool
 	conn              net.Conn
 	state             int
@@ -167,9 +166,12 @@ type SmtpdServer struct {
 	tls             bool
 	stateTLS        *tls.ConnectionState
 	TLSConfig       *tls.Config // Enable STARTTLS support.
+
+	//global
+	Domain string
 }
 
-func (this *SmtpdServer) base64Encode(en string) string {
+func (smtp *SmtpdServer) base64Encode(en string) string {
 	src := []byte(en)
 	maxLen := base64.StdEncoding.EncodedLen(len(src))
 	dst := make([]byte, maxLen)
@@ -177,7 +179,7 @@ func (this *SmtpdServer) base64Encode(en string) string {
 	return string(dst)
 }
 
-func (this *SmtpdServer) base64Decode(de string) string {
+func (smtp *SmtpdServer) base64Decode(de string) string {
 	dst, err := base64.StdEncoding.DecodeString(de)
 	if err != nil {
 		fmt.Println(err)
@@ -186,127 +188,122 @@ func (this *SmtpdServer) base64Decode(de string) string {
 	return string(dst)
 }
 
-func (this *SmtpdServer) SetReadDeadline(state int) {
+func (smtp *SmtpdServer) SetReadDeadline(state int) {
 	var timeout int64
 	timeout = stateTimeout[state]
-	this.conn.SetReadDeadline(time.Now().Add(time.Duration(timeout) * time.Second))
+	smtp.conn.SetReadDeadline(time.Now().Add(time.Duration(timeout) * time.Second))
 }
 
-func (this *SmtpdServer) setState(state int) {
-	this.state = state
+func (smtp *SmtpdServer) setState(state int) {
+	smtp.state = state
 }
 
-func (this *SmtpdServer) getState() int {
-	return this.state
+func (smtp *SmtpdServer) getState() int {
+	return smtp.state
 }
 
-func (this *SmtpdServer) D(args ...interface{}) {
-	if this.LinkSSL {
+func (smtp *SmtpdServer) D(args ...interface{}) {
+	if smtp.LinkSSL {
 		log.Debugf("[SSL]:%s", args...)
 		return
 	}
 
-	smtp3Debug, _ := conf.GetBool("smtpd.debug", false)
-	if smtp3Debug {
+	if conf.Smtp.Debug {
 		// fmt.Println(args...)
 		log.Debug(args...)
 	}
 }
 
-func (this *SmtpdServer) Debug(d bool) {
-	this.debug = d
-}
+func (smtp *SmtpdServer) w(msg string) error {
+	log := fmt.Sprintf("smtpd[w][%s]:%s", smtp.peer.Addr, msg)
+	smtp.D(log)
 
-func (this *SmtpdServer) w(msg string) error {
-	log := fmt.Sprintf("smtpd[w][%s]:%s", this.peer.Addr, msg)
-	this.D(log)
-
-	_, err := this.writer.Write([]byte(msg))
-	this.writer.Flush()
+	_, err := smtp.writer.Write([]byte(msg))
+	smtp.writer.Flush()
 	return err
 }
 
-func (this *SmtpdServer) write(code string) error {
+func (smtp *SmtpdServer) write(code string) error {
 	info := fmt.Sprintf("%.3s %s%s", code, msgList[code], GO_EOL)
-	return this.w(info)
+	return smtp.w(info)
 }
 
-func (this *SmtpdServer) getString(state int) (string, error) {
+func (smtp *SmtpdServer) getString(state int) (string, error) {
 	if state == CMD_DATA {
 		return "", nil
 	}
-	input, err := this.reader.ReadString('\n')
+	input, err := smtp.reader.ReadString('\n')
 	inputTrim := strings.TrimSpace(input)
-	this.D("smtpd[r][", this.peer.Addr, "]:", inputTrim, ":", err)
+	smtp.D("smtpd[r][", smtp.peer.Addr, "]:", inputTrim, ":", err)
 	return inputTrim, err
 
 }
 
-func (this *SmtpdServer) close() {
-	this.conn.Close()
+func (smtp *SmtpdServer) close() {
+	smtp.conn.Close()
 }
 
-func (this *SmtpdServer) cmdCompare(input string, cmd int) bool {
+func (smtp *SmtpdServer) cmdCompare(input string, cmd int) bool {
 	if strings.EqualFold(input, stateList[cmd]) {
 		return true
 	}
 	return false
 }
 
-func (this *SmtpdServer) stateCompare(input int, cmd int) bool {
+func (smtp *SmtpdServer) stateCompare(input int, cmd int) bool {
 	if input == cmd {
 		return true
 	}
 	return false
 }
 
-func (this *SmtpdServer) cmdHelo(input string) bool {
+func (smtp *SmtpdServer) cmdHelo(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 	if len(inputN) == 2 {
-		if this.cmdCompare(inputN[0], CMD_HELO) {
-			this.peer.HeloName = inputN[1]
+		if smtp.cmdCompare(inputN[0], CMD_HELO) {
+			smtp.peer.HeloName = inputN[1]
 
-			this.D("smtpd[helo]:", inputN[1])
-			this.write(MSG_OK)
+			smtp.D("smtpd[helo]:", inputN[1])
+			smtp.write(MSG_OK)
 			return true
 		}
 	}
 	return false
 }
 
-func (this *SmtpdServer) cmdEhlo(input string) bool {
+func (smtp *SmtpdServer) cmdEhlo(input string) bool {
 	inputN := strings.SplitN(input, " ", 2)
 	if len(inputN) == 2 {
-		if this.cmdCompare(inputN[0], CMD_EHLO) {
-			this.w(fmt.Sprintf("250-mail%s", GO_EOL))
-			this.w(fmt.Sprintf("250-PIPELINING%s", GO_EOL))
-			this.w(fmt.Sprintf("250-AUTH LOGIN PLAIN%s", GO_EOL))
-			this.w(fmt.Sprintf("250-AUTH=LOGIN PLAIN%s", GO_EOL))
-			this.w(fmt.Sprintf("250-coremail 1Uxr2xKj7kG0xkI17xGrU7I0s8FY2U3Uj8Cz28x1UUUUU7Ic2I0Y2UFRbmXhUCa0xDrUUUUj%s", GO_EOL))
-			if this.enableStartTtls {
-				this.w(fmt.Sprintf("250-STARTTLS%s", GO_EOL))
+		if smtp.cmdCompare(inputN[0], CMD_EHLO) {
+			smtp.w(fmt.Sprintf("250-mail%s", GO_EOL))
+			smtp.w(fmt.Sprintf("250-PIPELINING%s", GO_EOL))
+			smtp.w(fmt.Sprintf("250-AUTH LOGIN PLAIN%s", GO_EOL))
+			smtp.w(fmt.Sprintf("250-AUTH=LOGIN PLAIN%s", GO_EOL))
+			smtp.w(fmt.Sprintf("250-coremail 1Uxr2xKj7kG0xkI17xGrU7I0s8FY2U3Uj8Cz28x1UUUUU7Ic2I0Y2UFRbmXhUCa0xDrUUUUj%s", GO_EOL))
+			if smtp.enableStartTtls {
+				smtp.w(fmt.Sprintf("250-STARTTLS%s", GO_EOL))
 			}
 
-			this.w(fmt.Sprintf("250-SIZE 73400320%s", GO_EOL))
-			this.w(fmt.Sprintf("250 8BITMIME%s", GO_EOL))
+			smtp.w(fmt.Sprintf("250-SIZE 73400320%s", GO_EOL))
+			smtp.w(fmt.Sprintf("250 8BITMIME%s", GO_EOL))
 			return true
 		}
 	}
 	return false
 }
 
-func (this *SmtpdServer) cmdAuthLogin(input string) bool {
-	if this.cmdCompare(input, CMD_AUTH_LOGIN) {
-		this.write(MSG_AUTH_LOGIN_USER)
+func (smtp *SmtpdServer) cmdAuthLogin(input string) bool {
+	if smtp.cmdCompare(input, CMD_AUTH_LOGIN) {
+		smtp.write(MSG_AUTH_LOGIN_USER)
 		return true
 	}
-	// this.write(MSG_BAD_SYNTAX)
+	// smtp.write(MSG_BAD_SYNTAX)
 	return false
 }
 
-func (this *SmtpdServer) checkUserLogin() bool {
-	name := this.loginUser
-	pwd := strings.TrimSpace(this.loginPwd)
+func (smtp *SmtpdServer) checkUserLogin() bool {
+	name := smtp.loginUser
+	pwd := strings.TrimSpace(smtp.loginPwd)
 
 	isLogin, id := db.LoginWithCode(name, pwd)
 
@@ -314,61 +311,60 @@ func (this *SmtpdServer) checkUserLogin() bool {
 		return false
 	}
 
-	this.userID = id
-	this.isLogin = true
+	smtp.userID = id
+	smtp.isLogin = true
 	return true
 }
 
-func (this *SmtpdServer) cmdAuthLoginUser(input string) bool {
-	user := this.base64Decode(input)
-	this.loginUser = user
+func (smtp *SmtpdServer) cmdAuthLoginUser(input string) bool {
+	user := smtp.base64Decode(input)
+	smtp.loginUser = user
 
-	this.D("smtpd:", this.loginUser)
-	this.write(MSG_AUTH_LOGIN_PWD)
+	smtp.D("smtpd:", smtp.loginUser)
+	smtp.write(MSG_AUTH_LOGIN_PWD)
 	return true
 }
 
-func (this *SmtpdServer) cmdAuthLoginPwd(input string) bool {
+func (smtp *SmtpdServer) cmdAuthLoginPwd(input string) bool {
 
-	pwd := this.base64Decode(input)
-	this.loginPwd = pwd
+	pwd := smtp.base64Decode(input)
+	smtp.loginPwd = pwd
 
-	this.D("smtpd:", this.loginPwd)
-	if this.checkUserLogin() {
-		this.write(MSG_AUTH_OK)
+	smtp.D("smtpd:", smtp.loginPwd)
+	if smtp.checkUserLogin() {
+		smtp.write(MSG_AUTH_OK)
 		return true
 	}
-	this.write(MSG_AUTH_FAIL)
+	smtp.write(MSG_AUTH_FAIL)
 	return false
 }
 
-func (this *SmtpdServer) cmdAuthPlainLogin(input string) bool {
+func (smtp *SmtpdServer) cmdAuthPlainLogin(input string) bool {
 	if strings.HasPrefix(input, stateList[CMD_AUTH_PLAIN]) {
 		inputN := strings.SplitN(input, " ", 3)
 		if len(inputN) == 3 {
-			data := this.base64Decode(inputN[2])
+			data := smtp.base64Decode(inputN[2])
 
-			// mdomain := conf.GetString("mail.domain", "xxx.com")
 			list := strings.SplitN(data, "\x00", 3)
 			userList := strings.Split(list[1], "@")
 
-			this.loginUser = userList[0]
-			this.loginPwd = list[2]
+			smtp.loginUser = userList[0]
+			smtp.loginPwd = list[2]
 
-			b := this.checkUserLogin()
-			this.D("smtpd:", b, this.loginUser, this.loginPwd)
+			b := smtp.checkUserLogin()
+			smtp.D("smtpd:", b, smtp.loginUser, smtp.loginPwd)
 			if b {
-				this.write(MSG_AUTH_OK)
+				smtp.write(MSG_AUTH_OK)
 				return true
 			}
-			this.write(MSG_AUTH_FAIL)
+			smtp.write(MSG_AUTH_FAIL)
 		}
 	}
 	return false
 }
 
-func (this *SmtpdServer) isAllowDomain(domain string) bool {
-	mdomain := conf.GetString("mail.domain", "xxx.com")
+func (smtp *SmtpdServer) isAllowDomain(domain string) bool {
+	mdomain := conf.Mail.Domain
 	domainN := strings.Split(mdomain, ",")
 	// fmt.Println(domainN)
 
@@ -380,44 +376,44 @@ func (this *SmtpdServer) isAllowDomain(domain string) bool {
 	return false
 }
 
-func (this *SmtpdServer) cmdMailFrom(input string) bool {
+func (smtp *SmtpdServer) cmdMailFrom(input string) bool {
 	inputN := strings.SplitN(input, ":", 2)
 
 	if len(inputN) == 2 {
-		if this.cmdCompare(inputN[0], CMD_MAIL_FROM) {
+		if smtp.cmdCompare(inputN[0], CMD_MAIL_FROM) {
 
 			inputN[1] = strings.TrimSpace(inputN[1])
 			inputN[1] = tools.FilterAddressBody(inputN[1])
 
 			if !tools.CheckStandardMail(inputN[1]) {
-				this.write(MSG_BAD_SYNTAX)
+				smtp.write(MSG_BAD_SYNTAX)
 				return false
 			}
 
 			mailFrom := tools.GetRealMail(inputN[1])
 			if !tools.IsEmailRe(mailFrom) {
-				this.write(MSG_BAD_USER)
+				smtp.write(MSG_BAD_USER)
 				return false
 			}
 
-			if this.isLogin {
+			if smtp.isLogin {
 				info := strings.Split(mailFrom, "@")
 
-				if !this.isAllowDomain(info[1]) {
-					this.write(MSG_BAD_MAIL_ADDR)
+				if !smtp.isAllowDomain(info[1]) {
+					smtp.write(MSG_BAD_MAIL_ADDR)
 					return false
 				}
 
 				user, err := db.UserGetByName(info[0])
 				if err != nil {
-					this.write(MSG_BAD_USER)
+					smtp.write(MSG_BAD_USER)
 					return false
 				}
-				this.userID = user.Id
+				smtp.userID = user.Id
 			}
 
-			this.recordCmdMailFrom = mailFrom
-			this.write(MSG_MAIL_OK)
+			smtp.recordCmdMailFrom = mailFrom
+			smtp.write(MSG_MAIL_OK)
 
 			return true
 		}
@@ -425,28 +421,28 @@ func (this *SmtpdServer) cmdMailFrom(input string) bool {
 	return false
 }
 
-func (this *SmtpdServer) cmdModeInMailFrom(input string) bool {
+func (smtp *SmtpdServer) cmdModeInMailFrom(input string) bool {
 	inputN := strings.SplitN(input, ":", 2)
 
 	if len(inputN) == 2 {
-		if this.cmdCompare(inputN[0], CMD_MAIL_FROM) {
+		if smtp.cmdCompare(inputN[0], CMD_MAIL_FROM) {
 
 			inputN[1] = strings.TrimSpace(inputN[1])
 			inputN[1] = tools.FilterAddressBody(inputN[1])
 
 			if !tools.CheckStandardMail(inputN[1]) {
-				this.write(MSG_BAD_SYNTAX)
+				smtp.write(MSG_BAD_SYNTAX)
 				return false
 			}
 
 			mailFrom := tools.GetRealMail(inputN[1])
 			if !tools.IsEmailRe(mailFrom) {
-				this.write(MSG_BAD_USER)
+				smtp.write(MSG_BAD_USER)
 				return false
 			}
 
-			this.recordCmdMailFrom = mailFrom
-			this.write(MSG_MAIL_OK)
+			smtp.recordCmdMailFrom = mailFrom
+			smtp.write(MSG_MAIL_OK)
 
 			return true
 		}
@@ -454,91 +450,91 @@ func (this *SmtpdServer) cmdModeInMailFrom(input string) bool {
 	return false
 }
 
-func (this *SmtpdServer) cmdStartTtls(input string) bool {
-	// if this.tls {
-	// 	this.write(MSG_STARTTLS)
+func (smtp *SmtpdServer) cmdStartTtls(input string) bool {
+	// if smtp.tls {
+	// 	smtp.write(MSG_STARTTLS)
 	// 	return true
 	// }
 
-	if this.TLSConfig == nil {
-		this.w("502 Error: TLS not supported")
+	if smtp.TLSConfig == nil {
+		smtp.w("502 Error: TLS not supported")
 		return false
 	}
 
-	tlsConn := tls.Server(this.conn, this.TLSConfig)
-	this.w("220 Go ahead\n")
+	tlsConn := tls.Server(smtp.conn, smtp.TLSConfig)
+	smtp.w("220 Go ahead\n")
 
 	if err := tlsConn.Handshake(); err != nil {
 		errmsg := fmt.Sprintf("550 ERROR: Handshake error:%s", err)
-		this.w(errmsg)
+		smtp.w(errmsg)
 		return false
 	}
 
 	state := tlsConn.ConnectionState()
 
-	this.reader = bufio.NewReader(tlsConn)
-	this.writer = bufio.NewWriter(tlsConn)
-	this.scanner = bufio.NewScanner(this.reader)
+	smtp.reader = bufio.NewReader(tlsConn)
+	smtp.writer = bufio.NewWriter(tlsConn)
+	smtp.scanner = bufio.NewScanner(smtp.reader)
 
-	this.stateTLS = &state
-	this.tls = true
+	smtp.stateTLS = &state
+	smtp.tls = true
 
 	return true
 }
 
-func (this *SmtpdServer) cmdRcptTo(input string) bool {
+func (smtp *SmtpdServer) cmdRcptTo(input string) bool {
 	inputN := strings.SplitN(input, ":", 2)
-	this.D("smtpd[cmd][rcpt to]", inputN[1])
+	smtp.D("smtpd[cmd][rcpt to]", inputN[1])
 	if len(inputN) == 2 {
-		if this.cmdCompare(inputN[0], CMD_RCPT_TO) {
+		if smtp.cmdCompare(inputN[0], CMD_RCPT_TO) {
 			inputN[1] = strings.TrimSpace(inputN[1])
 
 			if !tools.CheckStandardMail(inputN[1]) {
-				this.write(MSG_BAD_SYNTAX)
+				smtp.write(MSG_BAD_SYNTAX)
 				return false
 			}
 
 			rcptTo := tools.GetRealMail(inputN[1])
 
 			if !tools.IsEmailRe(rcptTo) {
-				this.write(MSG_BAD_USER)
+				smtp.write(MSG_BAD_USER)
 				return false
 			}
-			this.recordcmdRcptTo = rcptTo
+			smtp.recordcmdRcptTo = rcptTo
 
-			if this.runModeIn { //外部邮件,邮件地址检查
+			if smtp.runModeIn { //外部邮件,邮件地址检查
 				info := strings.Split(rcptTo, "@")
 
-				if !this.isAllowDomain(info[1]) {
-					this.write(MSG_BAD_OPEN_RELAY)
+				if !smtp.isAllowDomain(info[1]) {
+					smtp.write(MSG_BAD_OPEN_RELAY)
 					return false
 				}
 				user, err := db.UserGetByName(info[0])
 				if err != nil {
-					this.write(MSG_BAD_USER)
+					smtp.write(MSG_BAD_USER)
 					return false
 				}
-				this.userID = user.Id
+				smtp.userID = user.Id
 			}
 
-			this.write(MSG_MAIL_OK)
+			smtp.write(MSG_MAIL_OK)
 			return true
 		}
 	}
-	this.write(MSG_BAD_SYNTAX)
+	smtp.write(MSG_BAD_SYNTAX)
 	return false
 }
 
-func (this *SmtpdServer) cmdData(input string) bool {
-	if this.cmdCompare(input, CMD_DATA) {
-		this.write(MSG_DATA)
+func (smtp *SmtpdServer) cmdData(input string) bool {
+	if smtp.cmdCompare(input, CMD_DATA) {
+		smtp.write(MSG_DATA)
 		return true
 	}
-	this.write(MSG_BAD_SYNTAX)
+	smtp.write(MSG_BAD_SYNTAX)
 	return false
 }
 
-func (this *SmtpdServer) addEnvelopeDataAcceptLine(data []byte) []byte {
+func (smtp *SmtpdServer) addEnvelopeDataAcceptLine(data []byte) []byte {
 	tlsDetails := ""
 
 	tlsVersions := map[uint16]string{
@@ -549,14 +545,14 @@ func (this *SmtpdServer) addEnvelopeDataAcceptLine(data []byte) []byte {
 		tls.VersionTLS13: "TLS1.3",
 	}
 
-	if this.stateTLS != nil {
+	if smtp.stateTLS != nil {
 		version := "unknown"
 
-		if val, ok := tlsVersions[this.stateTLS.Version]; ok {
+		if val, ok := tlsVersions[smtp.stateTLS.Version]; ok {
 			version = val
 		}
 
-		cipher := tls.CipherSuiteName(this.stateTLS.CipherSuite)
+		cipher := tls.CipherSuiteName(smtp.stateTLS.CipherSuite)
 
 		tlsDetails = fmt.Sprintf(
 			"\r\n\t(version=%s cipher=%s);",
@@ -566,19 +562,18 @@ func (this *SmtpdServer) addEnvelopeDataAcceptLine(data []byte) []byte {
 	}
 
 	peerIP := ""
-	if addr, ok := this.peer.Addr.(*net.TCPAddr); ok {
+	if addr, ok := smtp.peer.Addr.(*net.TCPAddr); ok {
 		peerIP = addr.IP.String()
 	}
 
-	mdomain := conf.GetString("mail.domain", "xxx.com")
-	serverTagName := fmt.Sprintf("smtp.%s (NewMx)", mdomain)
+	serverTagName := fmt.Sprintf("smtp.%s (NewMx)", smtp.Domain)
 
 	line := tools.Wrap([]byte(fmt.Sprintf(
 		"Received: from %s (unknown[%s])\n\tby %s with SMTP id\n\tfor <%s>; %s %s\r\n",
 		peerIP,
 		peerIP,
 		serverTagName,
-		this.recordCmdMailFrom,
+		smtp.recordCmdMailFrom,
 		time.Now().Format("Mon, 02 Jan 2006 15:04:05 -0700 (MST)"),
 		tlsDetails,
 	)))
@@ -592,249 +587,247 @@ func (this *SmtpdServer) addEnvelopeDataAcceptLine(data []byte) []byte {
 
 }
 
-func (this *SmtpdServer) cmdDataAccept() bool {
+func (smtp *SmtpdServer) cmdDataAccept() bool {
 
 	data := &bytes.Buffer{}
-	reader := textproto.NewReader(this.reader).DotReader()
+	reader := textproto.NewReader(smtp.reader).DotReader()
 	_, err := io.CopyN(data, reader, int64(10240000))
 
 	content := string(data.Bytes())
 	if err == io.EOF {
-		this.write(MSG_MAIL_OK)
+		smtp.write(MSG_MAIL_OK)
 	}
-	// this.D("smtpd[data]:", content)
+	// smtp.D("smtpd[data]:", content)
 
-	if this.runModeIn {
-		// this.D("smtpd[data][peer]:", this.peer)
-		revContent := string(this.addEnvelopeDataAcceptLine(data.Bytes()))
-		fid, err := db.MailPush(this.userID, 1, this.recordCmdMailFrom, this.recordcmdRcptTo, revContent, 3)
+	if smtp.runModeIn {
+		// smtp.D("smtpd[data][peer]:", smtp.peer)
+		revContent := string(smtp.addEnvelopeDataAcceptLine(data.Bytes()))
+		fid, err := db.MailPush(smtp.userID, 1, smtp.recordCmdMailFrom, smtp.recordcmdRcptTo, revContent, 3)
 		if err != nil {
 			return false
 		}
-		sendScript := conf.GetString("hook.send_script", "send.py")
-		mail.ExecPython(sendScript, fid)
+		mail.ExecPython(conf.Hook.SendScript, fid)
 	} else {
-		fid, err := db.MailPush(this.userID, 0, this.recordCmdMailFrom, this.recordcmdRcptTo, content, 0)
+		fid, err := db.MailPush(smtp.userID, 0, smtp.recordCmdMailFrom, smtp.recordcmdRcptTo, content, 0)
 		if err != nil {
 			return false
 		}
-		receiveScript := conf.GetString("hook.receive_script", "receive.py")
-		mail.ExecPython(receiveScript, fid)
+		mail.ExecPython(conf.Hook.ReceiveScript, fid)
 	}
 	return true
 }
 
-func (this *SmtpdServer) cmdQuit(input string) bool {
-	if this.cmdCompare(input, CMD_QUIT) {
-		this.write(MSG_BYE)
-		this.close()
+func (smtp *SmtpdServer) cmdQuit(input string) bool {
+	if smtp.cmdCompare(input, CMD_QUIT) {
+		smtp.write(MSG_BYE)
+		smtp.close()
 		return true
 	}
 	return false
 }
 
 // 本地用户邮件投递到其他邮件地址|需要登陆
-func (this *SmtpdServer) cmdModeOut(state int, input string) bool {
+func (smtp *SmtpdServer) cmdModeOut(state int, input string) bool {
 	//CMD_AUTH_LOGIN
-	if this.stateCompare(state, CMD_AUTH_LOGIN) {
-		if this.cmdAuthLoginUser(input) {
-			this.setState(CMD_AUTH_LOGIN_USER)
+	if smtp.stateCompare(state, CMD_AUTH_LOGIN) {
+		if smtp.cmdAuthLoginUser(input) {
+			smtp.setState(CMD_AUTH_LOGIN_USER)
 		}
 	}
 
 	//CMD_AUTH_LOGIN_USER
-	if this.stateCompare(state, CMD_AUTH_LOGIN_USER) {
-		if this.cmdQuit(input) {
+	if smtp.stateCompare(state, CMD_AUTH_LOGIN_USER) {
+		if smtp.cmdQuit(input) {
 			return true
 		}
 
-		if this.cmdAuthLoginPwd(input) {
-			this.setState(CMD_AUTH_LOGIN_PWD)
+		if smtp.cmdAuthLoginPwd(input) {
+			smtp.setState(CMD_AUTH_LOGIN_PWD)
 		}
 	}
 
 	//CMD_AUTH_LOGIN_PWD
-	if this.stateCompare(state, CMD_AUTH_LOGIN_PWD) {
-		if this.cmdQuit(input) {
+	if smtp.stateCompare(state, CMD_AUTH_LOGIN_PWD) {
+		if smtp.cmdQuit(input) {
 			return true
 		}
 
-		if this.cmdMailFrom(input) {
-			this.setState(CMD_MAIL_FROM)
+		if smtp.cmdMailFrom(input) {
+			smtp.setState(CMD_MAIL_FROM)
 		}
 	}
 
 	return false
 }
 
-func (this *SmtpdServer) handle() {
+func (smtp *SmtpdServer) handle() {
 	for {
 
-		state := this.getState()
+		state := smtp.getState()
 
-		input, err := this.getString(state)
+		input, err := smtp.getString(state)
 
 		if err != nil {
-			this.write(MSG_COMMAND_TM_CTC)
-			this.close()
+			smtp.write(MSG_COMMAND_TM_CTC)
+			smtp.close()
 			break
 		}
 
-		if this.cmdQuit(input) {
+		if smtp.cmdQuit(input) {
 			break
 		}
 
-		this.D("smtpd[cmd]:", state, stateList[state], "input:[", input, "]")
+		smtp.D("smtpd[cmd]:", state, stateList[state], "input:[", input, "]")
 
 		//CMD_READY
-		if this.stateCompare(state, CMD_READY) {
+		if smtp.stateCompare(state, CMD_READY) {
 
-			if this.cmdHelo(input) {
-				this.setState(CMD_HELO)
-			} else if this.cmdEhlo(input) {
-				this.setState(CMD_EHLO)
+			if smtp.cmdHelo(input) {
+				smtp.setState(CMD_HELO)
+			} else if smtp.cmdEhlo(input) {
+				smtp.setState(CMD_EHLO)
 			} else {
-				this.write(MSG_COMMAND_HE_ERR)
+				smtp.write(MSG_COMMAND_HE_ERR)
 			}
 		}
 
 		//CMD_HELO
-		if this.stateCompare(state, CMD_HELO) || this.stateCompare(state, CMD_EHLO) {
+		if smtp.stateCompare(state, CMD_HELO) || smtp.stateCompare(state, CMD_EHLO) {
 
-			if this.cmdHelo(input) {
-				this.setState(CMD_HELO)
-			} else if this.cmdEhlo(input) {
-				this.setState(CMD_EHLO)
+			if smtp.cmdHelo(input) {
+				smtp.setState(CMD_HELO)
+			} else if smtp.cmdEhlo(input) {
+				smtp.setState(CMD_EHLO)
 			}
 
-			this.runModeIn = false
-			if this.modeIn {
-				if this.cmdModeInMailFrom(input) {
-					this.setState(CMD_MAIL_FROM)
-					this.runModeIn = true
+			smtp.runModeIn = false
+			if smtp.modeIn {
+				if smtp.cmdModeInMailFrom(input) {
+					smtp.setState(CMD_MAIL_FROM)
+					smtp.runModeIn = true
 				}
 			}
 		}
 
-		if this.enableStartTtls { //CMD_STARTTLS
+		if smtp.enableStartTtls { //CMD_STARTTLS
 			if input == stateList[CMD_STARTTLS] {
-				if this.cmdStartTtls(input) {
-					// this.write(MSG_STARTTLS)
+				if smtp.cmdStartTtls(input) {
+					// smtp.write(MSG_STARTTLS)
 				}
 			}
 		}
 
-		if this.runModeIn {
+		if smtp.runModeIn {
 
 			//CMD_MAIL_FROM
-			if this.stateCompare(state, CMD_MAIL_FROM) {
+			if smtp.stateCompare(state, CMD_MAIL_FROM) {
 
-				if this.cmdRcptTo(input) {
-					this.setState(CMD_RCPT_TO)
+				if smtp.cmdRcptTo(input) {
+					smtp.setState(CMD_RCPT_TO)
 				}
 			}
 
 			//CMD_RCPT_TO
-			if this.stateCompare(state, CMD_RCPT_TO) {
+			if smtp.stateCompare(state, CMD_RCPT_TO) {
 
-				if this.cmdData(input) {
-					this.setState(CMD_DATA)
+				if smtp.cmdData(input) {
+					smtp.setState(CMD_DATA)
 				}
 			}
 
 		} else {
 
-			if this.cmdAuthPlainLogin(input) {
-				this.setState(CMD_AUTH_LOGIN_PWD)
-			} else if this.cmdAuthLogin(input) {
-				this.setState(CMD_AUTH_LOGIN)
+			if smtp.cmdAuthPlainLogin(input) {
+				smtp.setState(CMD_AUTH_LOGIN_PWD)
+			} else if smtp.cmdAuthLogin(input) {
+				smtp.setState(CMD_AUTH_LOGIN)
 			}
 
-			isBreak := this.cmdModeOut(state, input)
+			isBreak := smtp.cmdModeOut(state, input)
 			if isBreak {
 				break
 			}
 
 			//CMD_MAIL_FROM
-			if this.stateCompare(state, CMD_MAIL_FROM) {
+			if smtp.stateCompare(state, CMD_MAIL_FROM) {
 
-				if this.cmdRcptTo(input) {
-					this.setState(CMD_RCPT_TO)
+				if smtp.cmdRcptTo(input) {
+					smtp.setState(CMD_RCPT_TO)
 				}
 			}
 
 			//CMD_RCPT_TO
-			if this.stateCompare(state, CMD_RCPT_TO) {
+			if smtp.stateCompare(state, CMD_RCPT_TO) {
 
-				if this.cmdData(input) {
-					this.setState(CMD_DATA)
+				if smtp.cmdData(input) {
+					smtp.setState(CMD_DATA)
 				}
 			}
 		}
 
 		//CMD_DATA
-		if this.stateCompare(state, CMD_DATA) {
-			if this.cmdDataAccept() {
-				this.setState(CMD_DATA_END)
+		if smtp.stateCompare(state, CMD_DATA) {
+			if smtp.cmdDataAccept() {
+				smtp.setState(CMD_DATA_END)
 			}
 		}
 
 		//CMD_DATA_END
-		if this.stateCompare(state, CMD_DATA_END) {
-			this.setState(CMD_READY)
+		if smtp.stateCompare(state, CMD_DATA_END) {
+			smtp.setState(CMD_READY)
 		}
 	}
 }
 
-func (this *SmtpdServer) initTLSConfig() {
-	this.TLSConfig = tools.InitAutoMakeTLSConfig()
+func (smtp *SmtpdServer) initTLSConfig() {
+	smtp.TLSConfig = tools.InitAutoMakeTLSConfig()
 }
 
-func (this *SmtpdServer) ready() {
-	this.initTLSConfig()
+func (smtp *SmtpdServer) ready() {
+	smtp.initTLSConfig()
 
-	this.startTime = time.Now()
-	this.isLogin = false
-	this.enableStartTtls = true
+	smtp.startTime = time.Now()
+	smtp.isLogin = false
+	smtp.enableStartTtls = true
 
 	//mode
-	this.runModeIn = false
-	this.modeIn, _ = conf.GetBool("smtpd.mode_in", true)
-
+	smtp.runModeIn = false
+	smtp.modeIn = conf.Smtp.ModeIn
+	smtp.Domain = conf.Mail.Domain
 }
 
-func (this *SmtpdServer) start(conn net.Conn) {
-	this.conn = conn
+func (smtp *SmtpdServer) start(conn net.Conn) {
+	smtp.conn = conn
 
-	this.reader = bufio.NewReader(conn)
-	this.writer = bufio.NewWriter(conn)
-	this.scanner = bufio.NewScanner(this.reader)
+	smtp.reader = bufio.NewReader(conn)
+	smtp.writer = bufio.NewWriter(conn)
+	smtp.scanner = bufio.NewScanner(smtp.reader)
 
 	defer conn.Close()
 
-	if this.enableStartTtls {
+	if smtp.enableStartTtls {
 		var tlsConn *tls.Conn
-		if tlsConn, this.tls = conn.(*tls.Conn); this.tls {
+		if tlsConn, smtp.tls = conn.(*tls.Conn); smtp.tls {
 			tlsConn.Handshake()
 			tlsState := tlsConn.ConnectionState()
-			this.stateTLS = &tlsState
+			smtp.stateTLS = &tlsState
 		}
 	}
 
-	this.peer = Peer{
+	smtp.peer = Peer{
 		Addr: conn.RemoteAddr(),
 		// ServerName: conn.Hostname,
 	}
 
-	this.write(MSG_INIT)
-	this.setState(CMD_READY)
-	this.SetReadDeadline(CMD_READY)
-	this.handle()
+	smtp.write(MSG_INIT)
+	smtp.setState(CMD_READY)
+	smtp.SetReadDeadline(CMD_READY)
+	smtp.handle()
 
 }
 
-func (this *SmtpdServer) StartPort(port int) {
-	this.ready()
+func (smtp *SmtpdServer) StartPort(port int) {
+	smtp.ready()
 
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp", addr)
@@ -849,15 +842,15 @@ func (this *SmtpdServer) StartPort(port int) {
 		if err != nil {
 			continue
 		}
-		go this.start(conn)
+		go smtp.start(conn)
 	}
 }
 
-func (this *SmtpdServer) StartSSLPort(port int) {
-	this.LinkSSL = true
-	this.ready()
+func (smtp *SmtpdServer) StartSSLPort(port int) {
+	smtp.LinkSSL = true
+	smtp.ready()
 	addr := fmt.Sprintf(":%d", port)
-	ln, err := tls.Listen("tcp", addr, this.TLSConfig)
+	ln, err := tls.Listen("tcp", addr, smtp.TLSConfig)
 	if err != nil {
 		log.Errorf("[smtp]StartSSLPort:%s", err)
 		return
@@ -869,7 +862,7 @@ func (this *SmtpdServer) StartSSLPort(port int) {
 		if err != nil {
 			continue
 		}
-		go this.start(conn)
+		go smtp.start(conn)
 	}
 }
 

@@ -1,16 +1,17 @@
 package cmd
 
 import (
-	"fmt"
+	// "fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/midoks/imail/internal/app"
+	"github.com/midoks/imail/internal/app/router"
 	"github.com/midoks/imail/internal/conf"
-	"github.com/midoks/imail/internal/db"
+	// "github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/imap"
 	"github.com/midoks/imail/internal/log"
 	"github.com/midoks/imail/internal/pop3"
 	"github.com/midoks/imail/internal/smtpd"
-	"github.com/midoks/imail/internal/task"
+	// "github.com/midoks/imail/internal/task"
 	"github.com/midoks/imail/internal/tools/debug"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -27,11 +28,11 @@ var Service = cli.Command{
 	},
 }
 
-func newService(confFile string) {
+func newService() {
 
 	logger := log.Init()
 
-	format := conf.GetString("log.format", "json")
+	format := conf.Log.Format
 	if strings.EqualFold(format, "json") {
 		logger.SetFormatter(&logrus.JSONFormatter{})
 	} else if strings.EqualFold(format, "text") {
@@ -40,121 +41,75 @@ func newService(confFile string) {
 		logger.SetFormatter(&logrus.TextFormatter{})
 	}
 
-	runmode := conf.GetString("runmode", "dev")
-	if strings.EqualFold(runmode, "dev") {
+	if strings.EqualFold(conf.App.RunMode, "dev") {
 		logger.SetLevel(logrus.DebugLevel)
+		go debug.Pprof()
 	} else {
 		logger.SetLevel(logrus.InfoLevel)
 	}
 
-	go ConfigFileStartMonitor(confFile)
+	// err := db.Init()
+	// if err != nil {
+	// 	return
+	// }
 
-	err := db.Init()
-	if err != nil {
-		return
-	}
+	// task.Init()
 
-	if strings.EqualFold(runmode, "dev") {
-		go debug.Pprof()
-	}
+	// startService("smtpd")
+	// startService("pop3")
+	// startService("imap")
 
-	task.Init()
-
-	startService("smtpd")
-	startService("pop3")
-	startService("imap")
-
-	http_enable, err := conf.GetBool("web.enable", false)
-	// fmt.Println(http_enable)
-	fmt.Println(http_enable)
-	if http_enable {
-		http_port, err := conf.GetInt("web.port", 80)
-		fmt.Println(http_port)
-		if err == nil {
-			log.Infof("listen http[%d] success!", http_port)
-			app.Start(http_port)
-		} else {
-			log.Errorf("listen http[%d] erorr:%s", http_port, err)
-		}
+	if conf.Web.Enable {
+		app.Start(conf.Web.Port)
 	}
 }
 
 func runAllService(c *cli.Context) error {
 
-	confFile, err := initConfig(c, "")
+	err := router.GlobalInit(c.String("config"))
 	if err != nil {
-		panic("imail config file load error")
-		return err
+		log.Fatal("Failed to initialize application: %v", err)
 	}
 
-	fmt.Println(confFile)
-
-	newService(confFile)
+	newService()
 	return nil
 }
 
 func ServiceDebug() {
 
-	confFile, err := initConfig(nil, "conf/app.conf")
+	err := router.GlobalInit("")
 	if err != nil {
-		panic("imail config file load error")
+		log.Fatal("Failed to initialize application: %v", err)
 	}
-
-	newService(confFile)
+	newService()
 }
 
 func startService(name string) {
-	config_enable := fmt.Sprintf("%s.enable", name)
-	enable, err := conf.GetBool(config_enable, false)
-	if err == nil && enable {
 
-		config_port := fmt.Sprintf("%s.port", name)
-		port, err := conf.GetInt(config_port, 25)
-		if err == nil {
-			log.Infof("listen %s port:%d success!", name, port)
-
-			if strings.EqualFold(name, "smtpd") {
-				go smtpd.Start(port)
-			} else if strings.EqualFold(name, "pop3") {
-				go pop3.Start(port)
-			} else if strings.EqualFold(name, "imap") {
-				go imap.Start(port)
-			}
-		} else {
-			log.Errorf("listen %s erorr:%s", name, err)
-		}
+	if strings.EqualFold(name, "smtpd") && conf.Smtp.Enable {
+		go smtpd.Start(conf.Smtp.Port)
+	} else if strings.EqualFold(name, "pop3") && conf.Pop3.Enable {
+		go pop3.Start(conf.Pop3.Port)
+	} else if strings.EqualFold(name, "imap") && conf.Imap.Enable {
+		go imap.Start(conf.Imap.Port)
 	}
 
-	config_ssl_enable := fmt.Sprintf("%s.ssl_enable", name)
-	ssl_enable, err := conf.GetBool(config_ssl_enable, false)
-	if err == nil && ssl_enable {
+	log.Infof("listen %s success!", name)
 
-		config_ssl_port := fmt.Sprintf("%s.ssl_port", name)
-		ssl_port, err := conf.GetInt(config_ssl_port, 25)
-		if err == nil {
-			log.Infof("listen %s ssl port:%d success!", name, ssl_port)
-
-			if strings.EqualFold(name, "smtpd") {
-				go smtpd.StartSSL(ssl_port)
-			} else if strings.EqualFold(name, "pop3") {
-				go pop3.StartSSL(ssl_port)
-			} else if strings.EqualFold(name, "imap") {
-				go imap.StartSSL(ssl_port)
-			}
-		} else {
-			log.Errorf("listen %s ssl erorr:%s", name, err)
-		}
+	if strings.EqualFold(name, "smtpd") && conf.Smtp.SslEnable {
+		go smtpd.StartSSL(conf.Smtp.Port)
+	} else if strings.EqualFold(name, "pop3") && conf.Pop3.SslEnable {
+		go pop3.StartSSL(conf.Pop3.Port)
+	} else if strings.EqualFold(name, "imap") && conf.Imap.SslEnable {
+		go imap.StartSSL(conf.Imap.Port)
 	}
+
+	log.Infof("listen %s ssl success!", name)
+
 }
 
 func reloadService(path string) {
 	log.Infof("reloadService:%s", path)
-
-	err := conf.Load(path)
-	if err != nil {
-		log.Errorf("imail config file reload error:%s", err)
-		return
-	}
 
 	// fmt.Println("imap reload start")
 	// err = imap.Close()

@@ -15,20 +15,19 @@ var db *gorm.DB
 var err error
 
 func Init() error {
-    switch conf.GetString("db.type", "") {
+    switch conf.Database.Type {
     case "mysql":
-        dbUser := conf.GetString("db.user", "root")
-        dbPasswd := conf.GetString("db.password", "root")
-        dbHost := conf.GetString("db.host", "127.0.0.1")
-        dbPort, _ := conf.GetInt64("db.port", 3306)
+        dbUser := conf.Database.User
+        dbPwd := conf.Database.Password
+        dbHost := conf.Database.Host
 
-        dbName := conf.GetString("db.name", "imail")
-        dbCharset := conf.GetString("db.charset", "utf8mb4")
+        dbName := conf.Database.Name
+        dbCharset := conf.Database.Charset
 
-        dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True", dbUser, dbPasswd, dbHost, dbPort, dbName, dbCharset)
+        dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=True", dbUser, dbPwd, dbHost, dbName, dbCharset)
         db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
     case "sqlite3":
-        dbPath := conf.GetString("db.path", "./data/imail.db3")
+        dbPath := conf.Database.Path
         db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{
             SkipDefaultTransaction: true,
         })

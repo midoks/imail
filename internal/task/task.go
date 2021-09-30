@@ -13,8 +13,7 @@ import (
 )
 
 func TaskQueueeSendMail() {
-	domain := conf.GetString("mail.domain", "xxx.com")
-	postmaster := fmt.Sprintf("postmaster@%s", domain)
+	postmaster := fmt.Sprintf("postmaster@%s", conf.Mail.Domain)
 
 	result := db.MailSendListForStatus(2, 1)
 	if len(result) == 0 {
@@ -37,8 +36,7 @@ func TaskQueueeSendMail() {
 func TaskRspamdCheck() {
 
 	result := db.MailListForRspamd(1)
-	rspamdEnable, _ := conf.GetBool("rspamd.enable", false)
-	if rspamdEnable {
+	if conf.Rspamd.Enable {
 		for _, val := range result {
 			_, err, score := mail.RspamdCheck(val.Content)
 			// fmt.Println("RspamdCheck:", val.Id, err)
