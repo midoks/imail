@@ -14,6 +14,7 @@ import (
 	// "github.com/go-macaron/i18n"
 	"github.com/go-macaron/session"
 
+	"github.com/midoks/imail/internal/app/form"
 	"github.com/midoks/imail/internal/app/template"
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
@@ -38,6 +39,32 @@ type Context struct {
 // RawTitle sets the "Title" field in template data.
 func (c *Context) RawTitle(title string) {
 	c.Data["Title"] = title
+}
+
+// Title localizes the "Title" field in template data.
+func (c *Context) Title(locale string) {
+	c.RawTitle(c.Tr(locale))
+}
+
+// RenderWithErr used for page has form validation but need to prompt error to users.
+func (c *Context) RenderWithErr(msg, tpl string, f interface{}) {
+	if f != nil {
+		form.Assign(f, c.Data)
+	}
+	c.Flash.ErrorMsg = msg
+	c.Data["Flash"] = c.Flash
+	c.HTML(http.StatusOK, tpl)
+}
+
+// HasError returns true if error occurs in form validation.
+func (c *Context) HasError() bool {
+	hasErr, ok := c.Data["HasError"]
+	if !ok {
+		return false
+	}
+	c.Flash.ErrorMsg = c.Data["ErrorMsg"].(string)
+	c.Data["Flash"] = c.Flash
+	return hasErr.(bool)
 }
 
 // PageIs sets "PageIsxxx" field in template data.

@@ -29,7 +29,8 @@ var (
 
 	// log
 	Log struct {
-		Format string
+		Format   string
+		RootPath string
 	}
 
 	// mail

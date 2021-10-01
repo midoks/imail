@@ -79,11 +79,7 @@
 						<input id="app_name" name="app_name" value="{{.app_name}}" required>
 						<span class="help">{{.i18n.Tr "install.app_name_helper"}}</span>
 					</div>
-					<div class="inline required field {{if .Err_RepoRootPath}}error{{end}}">
-						<label for="repo_root_path">{{.i18n.Tr "install.repo_path"}}</label>
-						<input id="repo_root_path" name="repo_root_path" value="{{.repo_root_path}}" required>
-						<span class="help">{{.i18n.Tr "install.repo_path_helper"}}</span>
-					</div>
+		
 					<div class="inline required field {{if .Err_RunUser}}error{{end}}">
 						<label for="run_user">{{.i18n.Tr "install.run_user"}}</label>
 						<input id="run_user" name="run_user" value="{{.run_user}}" required>
@@ -94,27 +90,13 @@
 						<input id="domain" name="domain" value="{{.domain}}" placeholder="e.g. try.gogs.io" required>
 						<span class="help">{{.i18n.Tr "install.domain_helper"}}</span>
 					</div>
-					<div class="inline required field">
-						<label for="ssh_port">{{.i18n.Tr "install.ssh_port"}}</label>
-						<input id="ssh_port" name="ssh_port" value="{{.ssh_port}}">
-						<span class="help">{{.i18n.Tr "install.ssh_port_helper"}}</span>
-					</div>
-					<div class="inline field checkbox">
-						<div class="ui checkbox">
-							<label class="poping up" data-content="{{.i18n.Tr "install.use_builtin_ssh_server_popup"}}"><strong>{{.i18n.Tr "install.use_builtin_ssh_server"}}</strong></label>
-							<input name="use_builtin_ssh_server" type="checkbox" {{if .use_builtin_ssh_server}}checked{{end}}>
-						</div>
-					</div>
+
 					<div class="inline required field">
 						<label for="http_port">{{.i18n.Tr "install.http_port"}}</label>
 						<input id="http_port" name="http_port" value="{{.http_port}}" required>
 						<span class="help">{{.i18n.Tr "install.http_port_helper"}}</span>
 					</div>
-					<div class="inline required field">
-						<label for="app_url">{{.i18n.Tr "install.app_url"}}</label>
-						<input id="app_url" name="app_url" value="{{.app_url}}" placeholder="e.g. https://try.gogs.io" required>
-						<span class="help">{{.i18n.Tr "install.app_url_helper"}}</span>
-					</div>
+				
 					<div class="inline required field">
 						<label for="log_root_path">{{.i18n.Tr "install.log_root_path"}}</label>
 						<input id="log_root_path" name="log_root_path" value="{{.log_root_path}}" placeholder="log" required>

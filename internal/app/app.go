@@ -4,11 +4,15 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/go-macaron/binding"
 	"github.com/go-macaron/csrf"
 	"github.com/go-macaron/gzip"
 	"github.com/go-macaron/i18n"
 	"github.com/go-macaron/session"
+
 	"github.com/midoks/imail/internal/app/context"
+	"github.com/midoks/imail/internal/app/form"
+	"github.com/midoks/imail/internal/app/router"
 	"github.com/midoks/imail/internal/app/template"
 	"github.com/midoks/imail/internal/conf"
 	// "github.com/midoks/imail/internal/log"
@@ -56,18 +60,18 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 
 	reqSignIn := context.Toggle(&context.ToggleOptions{SignInRequired: true})
 	// ignSignIn := context.Toggle(&context.ToggleOptions{SignInRequired: conf.Auth.RequireSigninView})
-	reqSignOut := context.Toggle(&context.ToggleOptions{SignOutRequired: true})
+	// reqSignOut := context.Toggle(&context.ToggleOptions{SignOutRequired: true})
 
-	m.SetAutoHead(true)
+	bindIgnErr := binding.BindIgnErr
+
+	// m.SetAutoHead(true)
 
 	m.Group("", func() {
 		m.Get("/", reqSignIn, func(ctx *context.Context) {
 			ctx.Success("home")
 		})
 
-		m.Get("/install", func(ctx *context.Context) {
-			ctx.HTML(200, "install")
-		}, reqSignOut)
+		m.Combo("/install", router.InstallInit).Get(router.Install).Post(bindIgnErr(form.Install{}), router.InstallPost)
 	}, session.Sessioner(session.Options{
 		Provider:       conf.Session.Provider,
 		ProviderConfig: conf.Session.ProviderConfig,
