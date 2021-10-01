@@ -30,7 +30,9 @@ func FuncMap() []template.FuncMap {
 			"Year": func() int {
 				return time.Now().Year()
 			},
-
+			"AppSubURL": func() string {
+				return conf.Server.Subpath
+			},
 			"AppName": func() string {
 				return conf.App.Name
 			},
@@ -38,6 +40,7 @@ func FuncMap() []template.FuncMap {
 				return fmt.Sprint(time.Since(startTime).Nanoseconds()/1e6) + "ms"
 			},
 			"Safe":       Safe,
+			"Str2HTML":   Str2HTML,
 			"Sanitize":   bluemonday.UGCPolicy().Sanitize,
 			"NewLine2br": NewLine2br,
 			"Add": func(a, b int) int {
@@ -79,6 +82,10 @@ func FuncMap() []template.FuncMap {
 
 func Safe(raw string) template.HTML {
 	return template.HTML(raw)
+}
+
+func Str2HTML(raw string) template.HTML {
+	return template.HTML(bluemonday.UGCPolicy().Sanitize(raw))
 }
 
 // NewLine2br simply replaces "\n" to "<br>".

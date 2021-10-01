@@ -8,6 +8,14 @@ import (
 // CustomConf returns the absolute path of custom configuration file that is used.
 var CustomConf string
 
+// Build time and commit information.
+//
+// ⚠️ WARNING: should only be set by "-ldflags".
+var (
+	BuildTime   string
+	BuildCommit string
+)
+
 var (
 	App struct {
 		// ⚠️ WARNING: Should only be set by the main package (i.e. "imail.go").
@@ -32,8 +40,10 @@ var (
 
 	// web settings
 	Web struct {
-		Port                     int
 		Enable                   bool
+		Port                     int
+		Domain                   string
+		AppDataPath              string
 		AccessControlAllowOrigin string
 	}
 
@@ -43,9 +53,9 @@ var (
 		ProviderConfig string
 		CookieName     string
 		CookieSecure   bool
-		GCInterval     int64 `ini:"GC_INTERVAL"`
+		GCInterval     int64 `ini:"gc_interval"`
 		MaxLifeTime    int64
-		CSRFCookieName string `ini:"CSRF_COOKIE_NAME"`
+		CSRFCookieName string `ini:"csrf_cookie_name"`
 	}
 
 	// Smtp settings
@@ -137,7 +147,7 @@ type DatabaseOpts struct {
 	Name         string
 	User         string
 	Password     string
-	SSLMode      string `ini:"SSL_MODE"`
+	SSLMode      string `ini:"ssl_mode"`
 	Path         string
 	Charset      string
 	MaxOpenConns int
@@ -146,3 +156,21 @@ type DatabaseOpts struct {
 
 // Database settings
 var Database DatabaseOpts
+
+type i18nConf struct {
+	Langs     []string          `delim:","`
+	Names     []string          `delim:","`
+	dateLangs map[string]string `ini:"-"`
+}
+
+// DateLang transforms standard language locale name to corresponding value in datetime plugin.
+func (c *i18nConf) DateLang(lang string) string {
+	name, ok := c.dateLangs[lang]
+	if ok {
+		return name
+	}
+	return "en"
+}
+
+// I18n settings
+var I18n *i18nConf

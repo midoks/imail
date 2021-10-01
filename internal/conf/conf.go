@@ -162,6 +162,14 @@ func Init(customConf string) error {
 		return errors.Wrap(err, "mapping [security] section")
 	}
 
+	// ***************************
+	// ----- i18n settings -----
+	// ***************************
+	I18n = new(i18nConf)
+	if err = File.Section("i18n").MapTo(&I18n); err != nil {
+		return errors.Wrap(err, "mapping [i18n] section")
+	}
+
 	// Check run user when the install is locked.
 	if Security.InstallLock {
 		currentUser, match := CheckRunUser(App.RunUser)

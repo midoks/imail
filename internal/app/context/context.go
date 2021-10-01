@@ -78,6 +78,12 @@ func (c *Context) Success(name string) {
 	c.HTML(http.StatusOK, name)
 }
 
+// RedirectSubpath responses redirection with given location and status.
+// It prepends setting.Server.Subpath to the location string.
+func (c *Context) RedirectSubpath(location string, status ...int) {
+	c.Redirect(conf.Server.Subpath+location, status...)
+}
+
 // Contexter initializes a classic context for a request.
 //l i18n.Locale, cache cache.Cache, sess session.Store, f *session.Flash,
 func Contexter() macaron.Handler {
