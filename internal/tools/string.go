@@ -25,14 +25,14 @@ func GetGoEol() string {
 	return "\r\n"
 }
 
-func Md5(buf []byte) string {
+func Md5Byte(buf []byte) string {
 	hash := md5.New()
 	hash.Write(buf)
 	return fmt.Sprintf("%x", hash.Sum(nil))
 }
 
-func Md5str(s string) string {
-	return Md5([]byte(s))
+func Md5(s string) string {
+	return Md5Byte([]byte(s))
 }
 
 func CheckStringIsExist(source string, check []string) bool {

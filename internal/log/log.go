@@ -2,24 +2,25 @@ package log
 
 import (
 	"fmt"
-	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
-	"github.com/rifflock/lfshook"
-	"github.com/sirupsen/logrus"
 	"os"
 	"path"
 	"time"
+
+	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
+	"github.com/midoks/imail/internal/conf"
+	"github.com/rifflock/lfshook"
+	"github.com/sirupsen/logrus"
 )
 
 var (
-	logFilePath = "./logs"
 	logFileName = "system.log"
 	logger      *logrus.Logger
 )
 
 func Init() *logrus.Logger {
-	fileName := path.Join(logFilePath, logFileName)
+	fileName := path.Join(conf.Log.RootPath, logFileName)
 
-	src, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
+	src, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		fmt.Println("log error", err)
 	}

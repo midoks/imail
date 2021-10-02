@@ -33,6 +33,13 @@ var (
 		RootPath string
 	}
 
+	// Cache settings
+	Cache struct {
+		Adapter  string
+		Interval int
+		Host     string
+	}
+
 	// web settings
 	Web struct {
 		HttpAddr                 string `ini:"http_addr"`

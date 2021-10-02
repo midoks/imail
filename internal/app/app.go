@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 
 	"github.com/go-macaron/binding"
+	"github.com/go-macaron/cache"
+	"github.com/go-macaron/captcha"
 	"github.com/go-macaron/csrf"
 	"github.com/go-macaron/gzip"
 	"github.com/go-macaron/i18n"
@@ -13,6 +15,7 @@ import (
 	"github.com/midoks/imail/internal/app/context"
 	"github.com/midoks/imail/internal/app/form"
 	"github.com/midoks/imail/internal/app/router"
+	"github.com/midoks/imail/internal/app/router/user"
 	"github.com/midoks/imail/internal/app/template"
 	"github.com/midoks/imail/internal/conf"
 	// "github.com/midoks/imail/internal/log"
@@ -35,9 +38,6 @@ func newMacaron() *macaron.Macaron {
 	})
 	m.Use(opt)
 
-	fmt.Println(conf.I18n.Langs)
-	fmt.Println(conf.I18n.Names)
-
 	m.Use(i18n.I18n(i18n.Options{
 		Directory:       filepath.Join(conf.WorkDir(), "conf", "locale"),
 		CustomDirectory: filepath.Join(conf.CustomDir(), "conf", "locale"),
@@ -48,6 +48,16 @@ func newMacaron() *macaron.Macaron {
 		Redirect:        true,
 	}))
 
+	m.Use(cache.Cacher(cache.Options{
+		Adapter:       conf.Cache.Adapter,
+		AdapterConfig: conf.Cache.Host,
+		Interval:      conf.Cache.Interval,
+	}))
+
+	m.Use(captcha.Captchaer(captcha.Options{
+		SubURL: conf.Web.Subpath,
+	}))
+
 	return m
 }
 
@@ -55,7 +65,7 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 
 	reqSignIn := context.Toggle(&context.ToggleOptions{SignInRequired: true})
 	// ignSignIn := context.Toggle(&context.ToggleOptions{SignInRequired: conf.Auth.RequireSigninView})
-	// reqSignOut := context.Toggle(&context.ToggleOptions{SignOutRequired: true})
+	reqSignOut := context.Toggle(&context.ToggleOptions{SignOutRequired: true})
 
 	bindIgnErr := binding.BindIgnErr
 
@@ -65,6 +75,17 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 		m.Get("/", reqSignIn, func(ctx *context.Context) {
 			ctx.Success("home")
 		})
+
+		m.Group("/user", func() {
+			m.Group("/login", func() {
+				m.Combo("").Get(user.Login).Post(bindIgnErr(form.SignIn{}), user.LoginPost)
+				m.Combo("/two_factor").Get(user.LoginTwoFactor).Post(user.LoginTwoFactorPost)
+				m.Combo("/two_factor_recovery_code").Get(user.LoginTwoFactorRecoveryCode).Post(user.LoginTwoFactorRecoveryCodePost)
+			})
+
+			m.Get("/sign_up", user.SignUp)
+			m.Post("/sign_up", bindIgnErr(form.Register{}), user.SignUpPost)
+		}, reqSignOut)
 
 		m.Combo("/install", router.InstallInit).Get(router.Install).Post(bindIgnErr(form.Install{}), router.InstallPost)
 	}, session.Sessioner(session.Options{

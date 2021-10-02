@@ -68,7 +68,7 @@
 						<div class="inline required field {{if or .Err_DbPath .Err_DbSetting}}error{{end}}">
 							<label for="db_path">{{.i18n.Tr "install.path"}}</label>
 							<input id="db_path" name="db_path" value="{{.db_path}}">
-							<span class="help">{{.i18n.Tr "install.sqlite_helper" }}</span>
+							<span class="help">{{.i18n.Tr "install.sqlite_helper" | Safe }}</span>
 						</div>
 					</div>
 
@@ -171,17 +171,13 @@
 								<label for="admin_name">{{.i18n.Tr "install.admin_name"}}</label>
 								<input id="admin_name" name="admin_name" value="{{.admin_name}}">
 							</div>
-							<div class="inline field {{if .Err_AdminPasswd}}error{{end}}">
-								<label for="admin_passwd">{{.i18n.Tr "install.admin_password"}}</label>
-								<input id="admin_passwd" name="admin_passwd" type="password" value="{{.admin_passwd}}">
+							<div class="inline field {{if .Err_AdminPassword}}error{{end}}">
+								<label for="admin_password">{{.i18n.Tr "install.admin_password"}}</label>
+								<input id="admin_password" name="admin_password" type="password" value="{{.admin_password}}">
 							</div>
-							<div class="inline field {{if .Err_AdminPasswd}}error{{end}}">
-								<label for="admin_confirm_passwd">{{.i18n.Tr "install.confirm_password"}}</label>
-								<input id="admin_confirm_passwd" name="admin_confirm_passwd" type="password" value="{{.admin_confirm_passwd}}">
-							</div>
-							<div class="inline field {{if .Err_AdminEmail}}error{{end}}">
-								<label for="admin_email">{{.i18n.Tr "install.admin_email"}}</label>
-								<input id="admin_email" name="admin_email" type="email" value="{{.admin_email}}">
+							<div class="inline field {{if .Err_AdminPassword}}error{{end}}">
+								<label for="admin_confirm_password">{{.i18n.Tr "install.confirm_password"}}</label>
+								<input id="admin_confirm_password" name="admin_confirm_password" type="password" value="{{.admin_confirm_password}}">
 							</div>
 						</div>
 					</div>
@@ -189,7 +185,7 @@
 					<div class="ui divider"></div>
 					<div class="inline field">
 						<label></label>
-						<button class="ui primary button">{{.i18n.Tr "install.install_gogs"}}</button>
+						<button class="ui primary button">{{.i18n.Tr "install.install_imail"}}</button>
 					</div>
 				</form>
 			</div>

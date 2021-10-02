@@ -14,7 +14,7 @@ func UserRegister(c *gin.Context) {
 
 func GetUserCode(c *gin.Context) {
 	rand := tools.RandString(10)
-	token := tools.Md5str(rand)
+	token := tools.Md5(rand)
 
 	name := c.Query("name")
 	if name == "" {
@@ -67,7 +67,7 @@ func UserLogin(c *gin.Context) {
 	}
 
 	b, _ := db.LoginByUserPassword(name, password, sessRand)
-	loginToken := tools.Md5str(tools.RandString(10))
+	loginToken := tools.Md5(tools.RandString(10))
 
 	db.UserUpdateTokenGetByName(name, loginToken)
 	if b {

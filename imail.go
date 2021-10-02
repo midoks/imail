@@ -1,13 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"os"
+
+	"github.com/urfave/cli"
+
 	"github.com/midoks/imail/internal/cmd"
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/log"
 	"github.com/midoks/imail/internal/tools/syscall"
-	"github.com/urfave/cli"
-	"os"
 )
 
 const Version = "0.1.0"
@@ -16,18 +17,14 @@ const AppName = "Imail"
 func init() {
 	conf.App.Version = Version
 	conf.App.Name = AppName
-	os.MkdirAll("./logs", 0777)
-	os.MkdirAll("./data", 0777)
 }
 
 func main() {
 
-	logFile, err := os.OpenFile("./logs/run_away.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, 0660)
+	logFile, err := os.OpenFile("./logs/run_away.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
 	if err != nil {
-		fmt.Println(err)
 		panic("Exception capture:Failed to open exception log file")
 	}
-
 	// Redirect the process standard error to the file.
 	// When the process crashes, the runtime will record the co process call stack information to the file
 	syscall.Dup2(int(logFile.Fd()), int(os.Stderr.Fd()))

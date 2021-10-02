@@ -1,10 +1,20 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head data-suburl="{{AppSubURL}}">
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+
+	{{if not .PageIsAdmin}}
+		<meta name="author" content="midoks" />
+		<meta name="description" content="imail is a painless self-hosted mail service" />
+		<meta name="keywords" content="go, imail, self-hosted, email">
+	{{end}}
+
 	<meta name="referrer" content="no-referrer" />
 	<link rel="shortcut icon" href="/img/favicon.png" />
+
+	<script src="{{AppSubURL}}/js/jquery-3.6.0.min.js"></script>
+	<script src="{{AppSubURL}}/js/libs/jquery.are-you-sure.js"></script>
 
 	<link rel="stylesheet" href="{{AppSubURL}}/css/semantic.min.css">
 	<link rel="stylesheet" href="{{AppSubURL}}/css/imail.min.css">
@@ -14,97 +24,141 @@
 	<meta name="referrer" content="no-referrer" />
 	<meta name="_csrf" content="{{.CSRFToken}}" />
 
-	<script src="{{AppSubURL}}/js/jquery-3.6.0.min.js"></script>
-	<script src="{{AppSubURL}}/js/libs/jquery.are-you-sure.js"></script>
+	<noscript>
+		<style>
+			.dropdown:hover > .menu { display: block; }
+			.ui.secondary.menu .dropdown.item > .menu { margin-top: 0; }
+		 </style>
+	</noscript>
+
+	<!-- JavaScript -->
 	<script src="{{AppSubURL}}/js/semantic.min.js"></script>
 	<script src="{{AppSubURL}}/js/imail.js"></script>
 
+	
 </head>
 <body>
 	<div class="full height">
 		<noscript>This website works better with JavaScript</noscript>
 
-		<div class="following bar light">
+		{{if not .PageIsInstall}}
+			<div class="following bar light">
 				<div class="ui container">
 					<div class="ui grid">
 						<div class="column">
 							<div class="ui top secondary menu">
-								<a class="item brand" href="/">
-									<img class="ui mini image" src="/img/favicon.png">
+								<a class="item brand" href="{{AppSubURL}}/">
+									<img class="ui mini image" src="{{AppSubURL}}/img/favicon.png">
 								</a>
 
-								
-								<a class="item active" href="/">控制面板</a>
+								{{if .IsLogged}}
+									<a class="item{{if .PageIsDashboard}} active{{end}}" href="{{AppSubURL}}/">{{.i18n.Tr "dashboard"}}</a>
+									<a class="item{{if .PageIsIssues}} active{{end}}" href="{{AppSubURL}}/issues">{{.i18n.Tr "issues"}}</a>
+									<a class="item{{if .PageIsPulls}} active{{end}}" href="{{AppSubURL}}/pulls">{{.i18n.Tr "pull_requests"}}</a>
+								{{else}}
+									<a class="item{{if .PageIsHome}} active{{end}}" href="{{AppSubURL}}/">{{.i18n.Tr "home"}}</a>
+								{{end}}
 
-								
-								<div class="right menu">
-									<div class="ui dropdown head link jump item poping up" data-content="创建..." data-variation="tiny inverted">
-										<span class="text">
-											<i class="octicon octicon-plus"><span class="sr-only">创建...</span></i>
-											<i class="octicon octicon-triangle-down"></i>
-										</span>
-										<div class="menu">
-											<a class="item" href="/repo/create">
-												<i class="octicon octicon-plus"></i> 创建新的仓库
-											</a>
-											<a class="item" href="/repo/migrate">
-												<i class="octicon octicon-repo-clone"></i> 迁移外部仓库
-											</a>
-											
-											<a class="item" href="/org/create">
-												<i class="octicon octicon-organization"></i> 创建新的组织
-											</a>
-											
-										</div>
+						
+								{{/*<div class="item">
+									<div class="ui icon input">
+									<input class="searchbox" type="text" placeholder="{{.i18n.Tr "search_project"}}">
+									<i class="search icon"></i>
 									</div>
+									</div>*/}}
 
-									<div class="ui dropdown head link jump item poping up" tabindex="-1" data-content="用户信息及更多" data-variation="tiny inverted">
-										<span class="text avatar">
-											<img class="ui small rounded image" src="https://secure.gravatar.com/avatar/3786f03bcc204fbcead187697748b1ae?d=identicon">
-											<span class="sr-only">用户信息及更多</span>
-											<i class="octicon octicon-triangle-down" tabindex="-1"></i>
-										</span>
-										<div class="menu" tabindex="-1">
-											<div class="ui header">
-												已登录用户 <strong>midoks</strong>
-											</div>
+								{{if .IsLogged}}
+									<div class="right menu">
+										<div class="ui dropdown head link jump item poping up" data-content="{{.i18n.Tr "create_new"}}" data-variation="tiny inverted">
+											<span class="text">
+												<i class="octicon octicon-plus"><span class="sr-only">{{.i18n.Tr "create_new"}}</span></i>
+												<i class="octicon octicon-triangle-down"></i>
+											</span>
+											<div class="menu">
+												<a class="item" href="{{AppSubURL}}/repo/create">
+													<i class="octicon octicon-plus"></i> {{.i18n.Tr "new_repo"}}
+												</a>
+												<a class="item" href="{{AppSubURL}}/repo/migrate">
+													<i class="octicon octicon-repo-clone"></i> {{.i18n.Tr "new_migrate"}}
+												</a>
+												{{if .LoggedUser.CanCreateOrganization}}
+												<a class="item" href="{{AppSubURL}}/org/create">
+													<i class="octicon octicon-organization"></i> {{.i18n.Tr "new_org"}}
+												</a>
+												{{end}}
+											</div><!-- end content create new menu -->
+										</div><!-- end dropdown menu create new -->
 
-											<div class="divider"></div>
-											<a class="item" href="/midoks">
-												<i class="octicon octicon-person"></i> 个人信息
-											</a>
-											<a class=" item" href="/user/settings">
-												<i class="octicon octicon-settings"></i> 用户设置
-											</a>
-											<a class="item" target="_blank" rel="noopener noreferrer" href="https://gogs.io/docs" rel="noreferrer">
-												<i class="octicon octicon-question"></i> 帮助
-											</a>
-											
+										<div class="ui dropdown head link jump item poping up" tabindex="-1" data-content="{{.i18n.Tr "user_profile_and_more"}}" data-variation="tiny inverted">
+											<span class="text avatar">
+												<img class="ui small rounded image" src="{{.LoggedUser.RelAvatarLink}}">
+												<span class="sr-only">{{.i18n.Tr "user_profile_and_more"}}</span>
+												<i class="octicon octicon-triangle-down" tabindex="-1"></i>
+											</span>
+											<div class="menu" tabindex="-1">
+												<div class="ui header">
+													{{.i18n.Tr "signed_in_as"}} <strong>{{.LoggedUser.Name}}</strong>
+												</div>
+
+												<div class="divider"></div>
+												<a class="item" href="{{AppSubURL}}/{{.LoggedUser.Name}}">
+													<i class="octicon octicon-person"></i> {{.i18n.Tr "your_profile"}}
+												</a>
+												<a class="{{if .PageIsUserSettings}}active{{end}} item" href="{{AppSubURL}}/user/settings">
+													<i class="octicon octicon-settings"></i> {{.i18n.Tr "your_settings"}}
+												</a>
+												<a class="item" target="_blank" rel="noopener noreferrer" href="https://gogs.io/docs" rel="noreferrer">
+													<i class="octicon octicon-question"></i> {{.i18n.Tr "help"}}
+												</a>
+												{{if .IsAdmin}}
+													<div class="divider"></div>
+
+													<a class="{{if .PageIsAdmin}}active{{end}} item" href="{{AppSubURL}}/admin">
+														<i class="icon settings"></i> {{.i18n.Tr "admin_panel"}}
+													</a>
+												{{end}}
+
 												<div class="divider"></div>
 
-												<a class=" item" href="/admin">
-													<i class="icon settings"></i> 管理面板
-												</a>
-											
+												<form id="logout-form" class="item" action="{{AppSubURL}}/user/logout" method="POST">
+													{{.CSRFTokenHTML}}
+													<div class="submit-button" data-form="#logout-form">
+														<i class="octicon octicon-sign-out"></i> {{.i18n.Tr "sign_out"}}
+													</div>
+												</form>
+											</div><!-- end content avatar menu -->
+										</div><!-- end dropdown avatar menu -->
+									</div><!-- end signed user right menu -->
 
-											<div class="divider"></div>
+								{{else}}
 
-											<form id="logout-form" class="item" action="/user/logout" method="POST">
-												<input type="hidden" name="_csrf" value="qqx7wBoRsoJRCsQBlrsLSReCV9U6MTYzMjg4MDM3ODg0ODAzMjkyOA==">
-												<div class="submit-button" data-form="#logout-form">
-													<i class="octicon octicon-sign-out"></i> 退出
-												</div>
-											</form>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
+									<a class="item" target="_blank" rel="noopener noreferrer" href="https://gogs.io/docs" rel="noreferrer">{{.i18n.Tr "help"}}</a>
+									<div class="right menu">
+										{{if .ShowRegistrationButton}}
+											<a class="item{{if .PageIsSignUp}} active{{end}}" href="{{AppSubURL}}/user/sign_up">
+												<i class="octicon octicon-person"></i> {{.i18n.Tr "register"}}
+											</a>
+										{{end}}
+										<a class="item{{if .PageIsSignIn}} active{{end}}" href="{{AppSubURL}}/user/login?redirect_to={{.Link}}">
+											<i class="octicon octicon-sign-in"></i> {{.i18n.Tr "sign_in"}}
+										</a>
+									</div><!-- end anonymous right menu -->
+
+								{{end}}
+							</div><!-- end top menu -->
+						</div><!-- end column -->
+					</div><!-- end grid -->
+				</div><!-- end container -->
+			</div><!-- end bar -->
+		{{end}}
+
+		{{if .ServerNotice}}
+			<div class="ui container grid warning message">
+				<div class="content">
+					{{.ServerNotice | Str2HTML}}
 				</div>
 			</div>
-
-
+		{{end}}
 {{/*	
 	</div>
 </body>

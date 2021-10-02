@@ -7,22 +7,97 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/ini.v1"
+	"gopkg.in/macaron.v1"
 
 	"github.com/midoks/imail/internal/app/context"
 	"github.com/midoks/imail/internal/app/form"
 	"github.com/midoks/imail/internal/conf"
+	"github.com/midoks/imail/internal/db"
+	"github.com/midoks/imail/internal/imap"
 	"github.com/midoks/imail/internal/log"
+	"github.com/midoks/imail/internal/pop3"
+	"github.com/midoks/imail/internal/smtpd"
+	"github.com/midoks/imail/internal/task"
 	"github.com/midoks/imail/internal/tools"
+	"github.com/midoks/imail/internal/tools/debug"
 )
 
 const (
 	INSTALL = "install"
 )
 
+func startService(name string) {
+
+	if strings.EqualFold(name, "smtpd") && conf.Smtp.Enable {
+		go smtpd.Start(conf.Smtp.Port)
+	} else if strings.EqualFold(name, "pop3") && conf.Pop3.Enable {
+		go pop3.Start(conf.Pop3.Port)
+	} else if strings.EqualFold(name, "imap") && conf.Imap.Enable {
+		go imap.Start(conf.Imap.Port)
+	}
+
+	log.Infof("listen %s success!", name)
+
+	if strings.EqualFold(name, "smtpd") && conf.Smtp.SslEnable {
+		go smtpd.StartSSL(conf.Smtp.Port)
+	} else if strings.EqualFold(name, "pop3") && conf.Pop3.SslEnable {
+		go pop3.StartSSL(conf.Pop3.Port)
+	} else if strings.EqualFold(name, "imap") && conf.Imap.SslEnable {
+		go imap.StartSSL(conf.Imap.Port)
+	}
+
+	log.Infof("listen %s ssl success!", name)
+
+}
+
+func checkRunMode() {
+	if conf.IsProdMode() {
+		macaron.Env = macaron.PROD
+		macaron.ColorLog = false
+	}
+	log.Infof("Run mode: %s", strings.Title(macaron.Env))
+}
+
 func GlobalInit(customConf string) error {
+
 	err := conf.Init(customConf)
-	fmt.Println(err)
+
+	if err != nil {
+		return errors.Wrap(err, "init configuration")
+	}
+
+	logger := log.Init()
+
+	format := conf.Log.Format
+	if strings.EqualFold(format, "json") {
+		logger.SetFormatter(&logrus.JSONFormatter{})
+	} else if strings.EqualFold(format, "text") {
+		logger.SetFormatter(&logrus.TextFormatter{})
+	} else {
+		logger.SetFormatter(&logrus.TextFormatter{})
+	}
+
+	if strings.EqualFold(conf.App.RunMode, "dev") {
+		logger.SetLevel(logrus.DebugLevel)
+		go debug.Pprof()
+	} else {
+		logger.SetLevel(logrus.InfoLevel)
+	}
+
+	if conf.Security.InstallLock {
+		db.Init()
+		task.Init()
+
+	}
+
+	checkRunMode()
+	if !conf.Security.InstallLock {
+		return nil
+	}
+
 	return nil
 }
 
@@ -150,13 +225,13 @@ func InstallPost(c *context.Context, f form.Install) {
 	}
 
 	// Check admin password.
-	if len(f.AdminName) > 0 && len(f.AdminPasswd) == 0 {
-		c.FormErr("Admin", "AdminPasswd")
+	if len(f.AdminName) > 0 && len(f.AdminPassword) == 0 {
+		c.FormErr("Admin", "AdminPassword")
 		c.RenderWithErr(c.Tr("install.err_empty_admin_password"), INSTALL, f)
 		return
 	}
-	if f.AdminPasswd != f.AdminConfirmPasswd {
-		c.FormErr("Admin", "AdminPasswd")
+	if f.AdminPassword != f.AdminConfirmPassword {
+		c.FormErr("Admin", "AdminPassword")
 		c.RenderWithErr(c.Tr("form.password_not_match"), INSTALL, f)
 		return
 	}
@@ -191,6 +266,7 @@ func InstallPost(c *context.Context, f form.Install) {
 	if f.EnableConsoleMode {
 		mode = "console, file"
 	}
+	cfg.Section("log").Key("format").SetValue("text")
 	cfg.Section("log").Key("mode").SetValue(mode)
 	cfg.Section("log").Key("level").SetValue("Info")
 	cfg.Section("log").Key("root_path").SetValue(f.LogRootPath)
@@ -199,7 +275,7 @@ func InstallPost(c *context.Context, f form.Install) {
 	secretKey := tools.RandString(15)
 	cfg.Section("security").Key("secret_key").SetValue(secretKey)
 
-	_ = os.MkdirAll(filepath.Dir(conf.CustomConf), os.ModePerm)
+	os.MkdirAll(filepath.Dir(conf.CustomConf), os.ModePerm)
 	if err := cfg.SaveTo(conf.CustomConf); err != nil {
 		c.RenderWithErr(c.Tr("install.save_config_failed", err), INSTALL, &f)
 		return
@@ -212,30 +288,32 @@ func InstallPost(c *context.Context, f form.Install) {
 		return
 	}
 
-	// // Create admin account
-	// if len(f.AdminName) > 0 {
-	// 	u := &db.User{
-	// 		Name:     f.AdminName,
-	// 		Email:    f.AdminEmail,
-	// 		Passwd:   f.AdminPasswd,
-	// 		IsAdmin:  true,
-	// 		IsActive: true,
-	// 	}
-	// 	if err := db.CreateUser(u); err != nil {
-	// 		if !db.IsErrUserAlreadyExist(err) {
-	// 			conf.Security.InstallLock = false
-	// 			c.FormErr("AdminName", "AdminEmail")
-	// 			c.RenderWithErr(c.Tr("install.invalid_admin_setting", err), INSTALL, &f)
-	// 			return
-	// 		}
-	// 		log.Info("Admin account already exist")
-	// 		u, _ = db.GetUserByName(u.Name)
-	// 	}
+	fmt.Println(conf.Database.Type, conf.Database.Path)
 
-	// 	// Auto-login for admin
-	// 	_ = c.Session.Set("uid", u.ID)
-	// 	_ = c.Session.Set("uname", u.Name)
-	// }
+	// // Create admin account
+	if len(f.AdminName) > 0 {
+		u := &db.User{
+			Name:     f.AdminName,
+			Password: f.AdminPassword,
+			IsAdmin:  true,
+			IsActive: true,
+		}
+		if err := db.CreateUser(u); err != nil {
+			fmt.Println("db error:", err)
+			// if !db.IsErrUserAlreadyExist(err) {
+			// 	conf.Security.InstallLock = false
+			// 	c.FormErr("AdminName", "AdminEmail")
+			// 	c.RenderWithErr(c.Tr("install.invalid_admin_setting", err), INSTALL, &f)
+			// 	return
+			// }
+			// log.Info("Admin account already exist")
+			// u, _ = db.UserGetByName(u.Name)
+		}
+
+		// Auto-login for admin
+		// _ = c.Session.Set("uid", u.Id)
+		// _ = c.Session.Set("uname", u.Name)
+	}
 
 	log.Info("first-time run install finished!")
 	c.Flash.Success(c.Tr("install.install_success"))

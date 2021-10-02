@@ -13,7 +13,7 @@ import (
 )
 
 func TaskQueueeSendMail() {
-	postmaster := fmt.Sprintf("postmaster@%s", conf.Mail.Domain)
+	postmaster := fmt.Sprintf("postmaster@%s", conf.Web.Domain)
 
 	result := db.MailSendListForStatus(2, 1)
 	if len(result) == 0 {

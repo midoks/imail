@@ -264,7 +264,7 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 					if err == nil && len(list) > 0 {
 						for i := 1; i <= len(list); i++ {
 							uid := strconv.FormatInt(list[i-1].Id, 10)
-							this.writeArgs(MSG_POS_DATA, pos, tools.Md5str(uid))
+							this.writeArgs(MSG_POS_DATA, pos, tools.Md5(uid))
 						}
 						return true
 					}
@@ -279,7 +279,7 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 			list, _ := db.MailListAllForPop(this.userID)
 			for i := 1; i <= len(list); i++ {
 				uid := strconv.FormatInt(list[i-1].Id, 10)
-				t := fmt.Sprintf("%d %s\r\n", i, tools.Md5str(uid))
+				t := fmt.Sprintf("%d %s\r\n", i, tools.Md5(uid))
 				this.w(t)
 			}
 			this.w(".\r\n")

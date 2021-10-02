@@ -36,13 +36,20 @@ func FuncMap() []template.FuncMap {
 			"AppName": func() string {
 				return conf.App.Name
 			},
+			"AppVer": func() string {
+				return conf.App.Version
+			},
+			"AppDomain": func() string {
+				return conf.Web.Domain
+			},
 			"LoadTimes": func(startTime time.Time) string {
 				return fmt.Sprint(time.Since(startTime).Nanoseconds()/1e6) + "ms"
 			},
-			"Safe":       Safe,
-			"Str2HTML":   Str2HTML,
-			"Sanitize":   bluemonday.UGCPolicy().Sanitize,
-			"NewLine2br": NewLine2br,
+			"Safe":        Safe,
+			"Str2HTML":    Str2HTML,
+			"Sanitize":    bluemonday.UGCPolicy().Sanitize,
+			"NewLine2br":  NewLine2br,
+			"EscapePound": EscapePound,
 			"Add": func(a, b int) int {
 				return a + b
 			},
@@ -61,7 +68,9 @@ func FuncMap() []template.FuncMap {
 				return str[start:end]
 			},
 			"Join": strings.Join,
-
+			"DateFmtShort": func(t time.Time) string {
+				return t.Format("Jan 02, 2006")
+			},
 			"FilenameIsImage": func(filename string) bool {
 				mimeType := mime.TypeByExtension(filepath.Ext(filename))
 				return strings.HasPrefix(mimeType, "image/")
@@ -91,4 +100,9 @@ func Str2HTML(raw string) template.HTML {
 // NewLine2br simply replaces "\n" to "<br>".
 func NewLine2br(raw string) string {
 	return strings.Replace(raw, "\n", "<br>", -1)
+}
+
+// TODO: Use url.Escape.
+func EscapePound(str string) string {
+	return strings.NewReplacer("%", "%25", "#", "%23", " ", "%20", "?", "%3F").Replace(str)
 }

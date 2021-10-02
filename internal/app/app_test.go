@@ -92,7 +92,7 @@ func initToken() string {
 	postBody := make(url.Values)
 	postBody.Add("name", user)
 	postBody.Add("token", wcode["token"])
-	postBody.Add("password", tools.Md5str(tools.Md5str(password)+wcode["rand"]))
+	postBody.Add("password", tools.Md5(tools.Md5(password)+wcode["rand"]))
 
 	w = PostForm("/v1/login", postBody, r)
 
@@ -133,7 +133,7 @@ func TestUserLogin(t *testing.T) {
 	postBody := make(url.Values)
 	postBody.Add("name", user)
 	postBody.Add("token", wcode["token"])
-	postBody.Add("password", tools.Md5str(tools.Md5str(password)+wcode["rand"]))
+	postBody.Add("password", tools.Md5(tools.Md5(password)+wcode["rand"]))
 
 	// fmt.Println("in", password, wcode["rand"])
 

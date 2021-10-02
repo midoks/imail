@@ -1,0 +1,182 @@
+package user
+
+import (
+	// "github.com/pkg/errors"
+
+	"github.com/go-macaron/captcha"
+	"github.com/midoks/imail/internal/app/context"
+	"github.com/midoks/imail/internal/app/form"
+	// "github.com/midoks/imail/internal/conf"
+	"github.com/midoks/imail/internal/db"
+	"github.com/midoks/imail/internal/log"
+)
+
+const (
+	LOGIN                    = "user/auth/login"
+	TWO_FACTOR               = "user/auth/two_factor"
+	TWO_FACTOR_RECOVERY_CODE = "user/auth/two_factor_recovery_code"
+	SIGNUP                   = "user/auth/signup"
+	ACTIVATE                 = "user/auth/activate"
+	FORGOT_PASSWORD          = "user/auth/forgot_passwd"
+	RESET_PASSWORD           = "user/auth/reset_passwd"
+)
+
+func Login(c *context.Context) {
+	c.Title("sign_in")
+
+	c.Success(LOGIN)
+}
+
+func LoginPost(c *context.Context, f form.SignIn) {
+	c.Title("sign_in")
+
+	// loginSources, err := db.LoginSources.List(db.ListLoginSourceOpts{OnlyActivated: true})
+	// if err != nil {
+	// 	c.Error(err, "list activated login sources")
+	// 	return
+	// }
+	// c.Data["LoginSources"] = loginSources
+
+	if c.HasError() {
+		c.Success(LOGIN)
+		return
+	}
+
+	// u, err := db.Users.Authenticate(f.UserName, f.Password, f.LoginSource)
+	// if err != nil {
+	// 	switch errors.Cause(err).(type) {
+	// 	case auth.ErrBadCredentials:
+	// 		c.FormErr("UserName", "Password")
+	// 		c.RenderWithErr(c.Tr("form.username_password_incorrect"), LOGIN, &f)
+	// 	case db.ErrLoginSourceMismatch:
+	// 		c.FormErr("LoginSource")
+	// 		c.RenderWithErr(c.Tr("form.auth_source_mismatch"), LOGIN, &f)
+
+	// 	default:
+	// 		c.Error(err, "authenticate user")
+	// 	}
+	// 	for i := range loginSources {
+	// 		if loginSources[i].IsDefault {
+	// 			c.Data["DefaultLoginSource"] = loginSources[i]
+	// 			break
+	// 		}
+	// 	}
+	// 	return
+	// }
+
+	// if !u.IsEnabledTwoFactor() {
+	// 	afterLogin(c, u, f.Remember)
+	// 	return
+	// }
+
+	// _ = c.Session.Set("twoFactorRemember", f.Remember)
+	// _ = c.Session.Set("twoFactorUserID", u.ID)
+	// c.RedirectSubpath("/user/login/two_factor")
+}
+
+func LoginTwoFactor(c *context.Context) {
+	c.Title("sign_in")
+}
+
+func LoginTwoFactorPost(c *context.Context) {
+	c.Title("sign_in")
+}
+
+func LoginTwoFactorRecoveryCode(c *context.Context) {
+	c.Title("sign_in")
+}
+
+func LoginTwoFactorRecoveryCodePost(c *context.Context) {
+	c.Title("sign_in")
+}
+
+func SignUp(c *context.Context) {
+	c.Title("sign_up")
+
+	// c.Data["EnableCaptcha"] = conf.Auth.EnableRegistrationCaptcha
+
+	// if conf.Auth.DisableRegistration {
+	// 	c.Data["DisableRegistration"] = true
+	// 	c.Success(SIGNUP)
+	// 	return
+	// }
+
+	c.Success(SIGNUP)
+}
+
+func SignUpPost(c *context.Context, cpt *captcha.Captcha, f form.Register) {
+	c.Title("sign_up")
+
+	// c.Data["EnableCaptcha"] = conf.Auth.EnableRegistrationCaptcha
+
+	// if conf.Auth.DisableRegistration {
+	// 	c.Status(403)
+	// 	return
+	// }
+
+	if c.HasError() {
+		c.Success(SIGNUP)
+		return
+	}
+
+	// if conf.Auth.EnableRegistrationCaptcha && !cpt.VerifyReq(c.Req) {
+	// 	c.FormErr("Captcha")
+	// 	c.RenderWithErr(c.Tr("form.captcha_incorrect"), SIGNUP, &f)
+	// 	return
+	// }
+
+	if f.Password != f.Retype {
+		c.FormErr("Password")
+		c.RenderWithErr(c.Tr("form.password_not_match"), SIGNUP, &f)
+		return
+	}
+
+	u := &db.User{
+		Name:     f.UserName,
+		Password: f.Password,
+		IsActive: true,
+	}
+	// if err := db.CreateUser(u); err != nil {
+	// 	switch {
+	// 	case db.IsErrUserAlreadyExist(err):
+	// 		c.FormErr("UserName")
+	// 		c.RenderWithErr(c.Tr("form.username_been_taken"), SIGNUP, &f)
+	// 	case db.IsErrEmailAlreadyUsed(err):
+	// 		c.FormErr("Email")
+	// 		c.RenderWithErr(c.Tr("form.email_been_used"), SIGNUP, &f)
+	// 	case db.IsErrNameNotAllowed(err):
+	// 		c.FormErr("UserName")
+	// 		c.RenderWithErr(c.Tr("user.form.name_not_allowed", err.(db.ErrNameNotAllowed).Value()), SIGNUP, &f)
+	// 	default:
+	// 		c.Error(err, "create user")
+	// 	}
+	// 	return
+	// }
+	log.Trace("Account created: %s", u.Name)
+
+	// Auto-set admin for the only user.
+	// if db.CountUsers() == 1 {
+	// 	u.IsAdmin = true
+	// 	u.IsActive = true
+	// 	if err := db.UpdateUser(u); err != nil {
+	// 		c.Error(err, "update user")
+	// 		return
+	// 	}
+	// }
+
+	// Send confirmation email.
+	// if conf.Auth.RequireEmailConfirmation && u.ID > 1 {
+	// 	email.SendActivateAccountMail(c.Context, db.NewMailerUser(u))
+	// 	c.Data["IsSendRegisterMail"] = true
+	// 	c.Data["Email"] = u.Email
+	// 	c.Data["Hours"] = conf.Auth.ActivateCodeLives / 60
+	// 	c.Success(ACTIVATE)
+
+	// 	if err := c.Cache.Put(u.MailResendCacheKey(), 1, 180); err != nil {
+	// 		log.Error("Failed to put cache key 'mail resend': %v", err)
+	// 	}
+	// 	return
+	// }
+
+	// c.RedirectSubpath("/user/login")
+}

@@ -2,25 +2,41 @@ package db
 
 import (
 	// "fmt"
-	"github.com/midoks/imail/internal/tools"
 	"strings"
-	_ "time"
+	"time"
+
+	"github.com/midoks/imail/internal/tools"
 )
 
 type User struct {
-	Id         int64  `gorm:"primaryKey"`
-	Name       string `gorm:"unique;size:50;comment:用户名"`
-	Password   string `gorm:"size:32;comment:用户密码"`
-	Code       string `gorm:"size:50;comment:编码"`
-	Role       int    `gorm:"comment:角色"`
-	Token      string `gorm:"unique;size:50;comment:Token"`
-	Status     int    `gorm:"comment:状态"`
-	UpdateTime int64  `gorm:"autoCreateTime;comment:更新时间"`
-	CreateTime int64  `gorm:"autoCreateTime;comment:创建时间"`
+	Id       int64  `gorm:"primaryKey"`
+	Name     string `gorm:"unique;size:50;comment:用户名"`
+	Password string `gorm:"size:32;comment:用户密码"`
+	Code     string `gorm:"size:50;comment:编码"`
+	Token    string `gorm:"unique;size:50;comment:Token"`
+	Status   int    `gorm:"comment:状态"`
+
+	IsActive bool
+	IsAdmin  bool
+
+	Created     time.Time `xorm:"-" gorm:"-" json:"-"`
+	CreatedUnix int64     `gorm:"autoCreateTime;comment:创建时间"`
+	Updated     time.Time `xorm:"-" gorm:"-" json:"-"`
+	UpdatedUnix int64     `gorm:"autoCreateTime;comment:更新时间"`
 }
 
 func (User) TableName() string {
 	return "im_users"
+}
+
+// CreateUser creates record of a new user.
+// Deprecated: Use Users.Create instead.
+func CreateUser(u *User) (err error) {
+	data := db.First(u, "name = ?", u.Name)
+	if data.Error != nil {
+		db.Create(u)
+	}
+	return nil
 }
 
 func LoginWithCode(name string, code string) (bool, int64) {
@@ -49,7 +65,7 @@ func LoginByUserPassword(name string, password string, rand string) (bool, int64
 		return false, 0
 	}
 
-	passMd5 := tools.Md5str(user.Password + rand)
+	passMd5 := tools.Md5(user.Password + rand)
 	if passMd5 == password {
 		return true, user.Id
 	}

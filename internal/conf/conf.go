@@ -26,13 +26,14 @@ func ReadFile(file string) (string, error) {
 }
 
 func Init(customConf string) error {
-	fmt.Println("init conf")
 
 	appConf := filepath.Join(WorkDir(), "conf", "app.conf")
-	definedConf, _ := ReadFile(appConf)
+
+	fmt.Println(WorkDir())
+	contentConf, _ := ReadFile(appConf)
 	File, err := ini.LoadSources(ini.LoadOptions{
 		IgnoreInlineComment: true,
-	}, []byte(definedConf))
+	}, []byte(contentConf))
 	if err != nil {
 		return errors.Wrap(err, "parse 'conf/app.conf'")
 	}
@@ -156,6 +157,10 @@ func Init(customConf string) error {
 	I18n = new(i18nConf)
 	if err = File.Section("i18n").MapTo(&I18n); err != nil {
 		return errors.Wrap(err, "mapping [i18n] section")
+	}
+
+	if err = File.Section("cache").MapTo(&Cache); err != nil {
+		return errors.Wrap(err, "mapping [cache] section")
 	}
 
 	// Check run user when the install is locked.
