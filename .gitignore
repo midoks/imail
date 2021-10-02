@@ -21,7 +21,6 @@ tmp
 logs
 data
 internal/app/logs
-conf/app.conf
 *.db3
 
 dist/
@@ -29,3 +28,4 @@ internal/smtpd/logs
 internal/imap/index.html
 internal/pop3/index.html
 internal/smtpd/index.html
+custom/*

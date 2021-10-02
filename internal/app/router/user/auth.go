@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	// "github.com/pkg/errors"
 
 	"github.com/go-macaron/captcha"
@@ -37,10 +38,14 @@ func LoginPost(c *context.Context, f form.SignIn) {
 	// }
 	// c.Data["LoginSources"] = loginSources
 
+	loginBool, err := db.LoginByUserPassword(f.UserName, f.Password, "123")
+	fmt.Println(loginBool, err, f.UserName, f.Password)
 	if c.HasError() {
 		c.Success(LOGIN)
 		return
 	}
+
+	fmt.Println(c.Data["HasError"])
 
 	// u, err := db.Users.Authenticate(f.UserName, f.Password, f.LoginSource)
 	// if err != nil {
@@ -178,5 +183,5 @@ func SignUpPost(c *context.Context, cpt *captcha.Captcha, f form.Register) {
 	// 	return
 	// }
 
-	// c.RedirectSubpath("/user/login")
+	c.RedirectSubpath("/user/login")
 }

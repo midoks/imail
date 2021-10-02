@@ -15,6 +15,7 @@ type User struct {
 	Code     string `gorm:"size:50;comment:编码"`
 	Token    string `gorm:"unique;size:50;comment:Token"`
 	Status   int    `gorm:"comment:状态"`
+	Salt     string `gorm:"TYPE:VARCHAR(10)"`
 
 	IsActive bool
 	IsAdmin  bool
@@ -33,6 +34,8 @@ func (User) TableName() string {
 // Deprecated: Use Users.Create instead.
 func CreateUser(u *User) (err error) {
 	data := db.First(u, "name = ?", u.Name)
+
+	u.Salt = tools.RandString(10)
 	if data.Error != nil {
 		db.Create(u)
 	}
