@@ -59,9 +59,8 @@ func newService() {
 	// startService("pop3")
 	// startService("imap")
 
-	if conf.Web.Enable {
-		app.Start(conf.Web.Port)
-	}
+	app.Start(conf.Web.HttpPort)
+
 }
 
 func runAllService(c *cli.Context) error {

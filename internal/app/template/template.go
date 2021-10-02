@@ -31,7 +31,7 @@ func FuncMap() []template.FuncMap {
 				return time.Now().Year()
 			},
 			"AppSubURL": func() string {
-				return conf.Server.Subpath
+				return conf.Web.Subpath
 			},
 			"AppName": func() string {
 				return conf.App.Name

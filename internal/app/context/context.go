@@ -5,6 +5,7 @@
 package context
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -105,10 +106,16 @@ func (c *Context) Success(name string) {
 	c.HTML(http.StatusOK, name)
 }
 
+// NotFound renders the 404 page.
+func (c *Context) NotFound() {
+	c.Title("status.page_not_found")
+	c.HTML(http.StatusNotFound, fmt.Sprintf("status/%d", http.StatusNotFound))
+}
+
 // RedirectSubpath responses redirection with given location and status.
 // It prepends setting.Server.Subpath to the location string.
 func (c *Context) RedirectSubpath(location string, status ...int) {
-	c.Redirect(conf.Server.Subpath+location, status...)
+	c.Redirect(conf.Web.Subpath+location, status...)
 }
 
 // Contexter initializes a classic context for a request.

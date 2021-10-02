@@ -33,19 +33,35 @@ var (
 		RootPath string
 	}
 
-	// mail
-	Mail struct {
-		Domain      string
-		AppDataPath string
-	}
-
 	// web settings
 	Web struct {
-		Enable                   bool
-		Port                     int
+		HttpAddr                 string `ini:"http_addr"`
+		HttpPort                 string `ini:"http_port"`
 		Domain                   string
 		AppDataPath              string
 		AccessControlAllowOrigin string
+
+		ExternalURL          string `ini:"EXTERNAL_URL"`
+		Protocol             string
+		CertFile             string
+		KeyFile              string
+		TLSMinVersion        string `ini:"TLS_MIN_VERSION"`
+		UnixSocketPermission string
+		LocalRootURL         string `ini:"LOCAL_ROOT_URL"`
+
+		OfflineMode      bool
+		DisableRouterLog bool
+		EnableGzip       bool
+
+		LoadAssetsFromDisk bool
+
+		LandingURL string `ini:"LANDING_URL"`
+
+		// Derived from other static values
+		URL            *url.URL    `ini:"-"` // Parsed URL object of ExternalURL.
+		Subpath        string      `ini:"-"` // Subpath found the ExternalURL. Should be empty when not found.
+		SubpathDepth   int         `ini:"-"` // The number of slashes found in the Subpath.
+		UnixSocketMode os.FileMode `ini:"-"` // Parsed file mode of UnixSocketPermission.
 	}
 
 	// Session settings
@@ -110,37 +126,6 @@ var (
 		SecretKey   string
 	}
 )
-
-type ServerOpts struct {
-	ExternalURL          string `ini:"EXTERNAL_URL"`
-	Domain               string
-	Protocol             string
-	HTTPAddr             string `ini:"HTTP_ADDR"`
-	HTTPPort             string `ini:"HTTP_PORT"`
-	CertFile             string
-	KeyFile              string
-	TLSMinVersion        string `ini:"TLS_MIN_VERSION"`
-	UnixSocketPermission string
-	LocalRootURL         string `ini:"LOCAL_ROOT_URL"`
-
-	OfflineMode      bool
-	DisableRouterLog bool
-	EnableGzip       bool
-
-	AppDataPath        string
-	LoadAssetsFromDisk bool
-
-	LandingURL string `ini:"LANDING_URL"`
-
-	// Derived from other static values
-	URL            *url.URL    `ini:"-"` // Parsed URL object of ExternalURL.
-	Subpath        string      `ini:"-"` // Subpath found the ExternalURL. Should be empty when not found.
-	SubpathDepth   int         `ini:"-"` // The number of slashes found in the Subpath.
-	UnixSocketMode os.FileMode `ini:"-"` // Parsed file mode of UnixSocketPermission.
-}
-
-// Server settings
-var Server ServerOpts
 
 type DatabaseOpts struct {
 	Type         string

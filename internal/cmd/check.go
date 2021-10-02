@@ -27,7 +27,7 @@ func doCheck(c *cli.Context) error {
 		return err
 	}
 
-	domain := conf.Mail.Domain
+	domain := conf.Web.Domain
 
 	//mx
 	mx, _ := net.LookupMX(domain)

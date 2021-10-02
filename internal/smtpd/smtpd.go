@@ -364,7 +364,7 @@ func (smtp *SmtpdServer) cmdAuthPlainLogin(input string) bool {
 }
 
 func (smtp *SmtpdServer) isAllowDomain(domain string) bool {
-	mdomain := conf.Mail.Domain
+	mdomain := conf.Web.Domain
 	domainN := strings.Split(mdomain, ",")
 	// fmt.Println(domainN)
 
@@ -793,7 +793,7 @@ func (smtp *SmtpdServer) ready() {
 	//mode
 	smtp.runModeIn = false
 	smtp.modeIn = conf.Smtp.ModeIn
-	smtp.Domain = conf.Mail.Domain
+	smtp.Domain = conf.Web.Domain
 }
 
 func (smtp *SmtpdServer) start(conn net.Conn) {

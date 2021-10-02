@@ -34,7 +34,7 @@ func GetMailSubject(content string) string {
 func GetMailReturnToSender(to string, err_to_mail string, err_content string, msg string) (string, error) {
 	sendSubject := GetMailSubject(err_content)
 
-	domain := conf.Mail.Domain
+	domain := conf.Web.Domain
 	postmaster := fmt.Sprintf("postmaster@%s", domain)
 
 	sendTime := time.Now().Format("Mon, 02 Jan 2006 15:04:05 -0700 (MST)")

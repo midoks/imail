@@ -28,14 +28,9 @@ func ReadFile(file string) (string, error) {
 func Init(customConf string) error {
 	fmt.Println("init conf")
 
-	appConf := filepath.Join(WorkDir(), "conf", "app.defined.conf")
-	definedConf, err := ReadFile(appConf)
-
-	if err != nil {
-		return err
-	}
-
-	File, err = ini.LoadSources(ini.LoadOptions{
+	appConf := filepath.Join(WorkDir(), "conf", "app.conf")
+	definedConf, _ := ReadFile(appConf)
+	File, err := ini.LoadSources(ini.LoadOptions{
 		IgnoreInlineComment: true,
 	}, []byte(definedConf))
 	if err != nil {
@@ -70,32 +65,6 @@ func Init(customConf string) error {
 	// ----- Server settings -----
 	// ***************************
 
-	if err = File.Section("server").MapTo(&Server); err != nil {
-		return errors.Wrap(err, "mapping [server] section")
-	}
-	Server.AppDataPath = ensureAbs(Server.AppDataPath)
-
-	if !strings.HasSuffix(Server.ExternalURL, "/") {
-		Server.ExternalURL += "/"
-	}
-	Server.URL, err = url.Parse(Server.ExternalURL)
-	if err != nil {
-		return errors.Wrapf(err, "parse '[server] EXTERNAL_URL' %q", err)
-	}
-
-	// Subpath should start with '/' and end without '/', i.e. '/{subpath}'.
-	Server.Subpath = strings.TrimRight(Server.URL.Path, "/")
-	Server.SubpathDepth = strings.Count(Server.Subpath, "/")
-
-	unixSocketMode, err := strconv.ParseUint(Server.UnixSocketPermission, 8, 32)
-	if err != nil {
-		return errors.Wrapf(err, "parse '[server] unix_socket_permission' %q", Server.UnixSocketPermission)
-	}
-	if unixSocketMode > 0777 {
-		unixSocketMode = 0666
-	}
-	Server.UnixSocketMode = os.FileMode(unixSocketMode)
-
 	// ***************************
 	// ----- Log settings -----
 	// ***************************
@@ -117,6 +86,29 @@ func Init(customConf string) error {
 	if err = File.Section("web").MapTo(&Web); err != nil {
 		return errors.Wrap(err, "mapping [web] section")
 	}
+
+	Web.AppDataPath = ensureAbs(Web.AppDataPath)
+
+	if !strings.HasSuffix(Web.ExternalURL, "/") {
+		Web.ExternalURL += "/"
+	}
+	Web.URL, err = url.Parse(Web.ExternalURL)
+	if err != nil {
+		return errors.Wrapf(err, "parse '[server] EXTERNAL_URL' %q", err)
+	}
+
+	// Subpath should start with '/' and end without '/', i.e. '/{subpath}'.
+	Web.Subpath = strings.TrimRight(Web.URL.Path, "/")
+	Web.SubpathDepth = strings.Count(Web.Subpath, "/")
+
+	unixSocketMode, err := strconv.ParseUint(Web.UnixSocketPermission, 8, 32)
+	if err != nil {
+		return errors.Wrapf(err, "parse '[server] unix_socket_permission' %q", Web.UnixSocketPermission)
+	}
+	if unixSocketMode > 0777 {
+		unixSocketMode = 0666
+	}
+	Web.UnixSocketMode = os.FileMode(unixSocketMode)
 
 	// ****************************
 	// ----- Session settings -----

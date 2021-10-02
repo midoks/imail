@@ -66,13 +66,11 @@ func Install(c *context.Context) {
 		f.RunUser = conf.App.RunUser
 	}
 
-	f.Domain = conf.Server.Domain
-	f.HTTPPort = conf.Server.HTTPPort
-	f.AppUrl = conf.Server.ExternalURL
-	f.LogRootPath = conf.Log.RootPath
+	f.Domain = conf.Web.Domain
+	f.HttpPort = conf.Web.HttpPort
+	f.LogRootPath = fmt.Sprintf("%s/%s", conf.WorkDir(), conf.Log.RootPath)
 
 	// Server and other services settings
-
 	form.Assign(f, c.Data)
 	c.Success(INSTALL)
 }
@@ -81,9 +79,6 @@ func InstallPost(c *context.Context, f form.Install) {
 	c.Data["CurDbOption"] = f.DbType
 
 	if c.HasError() {
-		if c.HasValue("Err_SMTPEmail") {
-			c.FormErr("SMTP")
-		}
 		if c.HasValue("Err_AdminName") ||
 			c.HasValue("Err_AdminPasswd") ||
 			c.HasValue("Err_AdminEmail") {
@@ -166,10 +161,6 @@ func InstallPost(c *context.Context, f form.Install) {
 		return
 	}
 
-	if f.AppUrl[len(f.AppUrl)-1] != '/' {
-		f.AppUrl += "/"
-	}
-
 	// Save settings.
 	cfg := ini.Empty()
 	if tools.IsFile(conf.CustomConf) {
@@ -178,6 +169,11 @@ func InstallPost(c *context.Context, f form.Install) {
 			log.Error("Failed to load custom conf %q: %v", conf.CustomConf, err)
 		}
 	}
+
+	cfg.Section("").Key("brand_name").SetValue(f.AppName)
+	cfg.Section("").Key("run_user").SetValue(f.RunUser)
+	cfg.Section("").Key("run_mode").SetValue("prod")
+
 	cfg.Section("database").Key("type").SetValue(conf.Database.Type)
 	cfg.Section("database").Key("host").SetValue(conf.Database.Host)
 	cfg.Section("database").Key("name").SetValue(conf.Database.Name)
@@ -186,13 +182,9 @@ func InstallPost(c *context.Context, f form.Install) {
 	cfg.Section("database").Key("ssl_mode").SetValue(conf.Database.SSLMode)
 	cfg.Section("database").Key("path").SetValue(conf.Database.Path)
 
-	cfg.Section("").Key("brand_name").SetValue(f.AppName)
-	cfg.Section("").Key("run_user").SetValue(f.RunUser)
-	cfg.Section("server").Key("domain").SetValue(f.Domain)
-	cfg.Section("server").Key("http_port").SetValue(f.HTTPPort)
-	cfg.Section("server").Key("EXTERNAL_URL").SetValue(f.AppUrl)
+	cfg.Section("web").Key("domain").SetValue(f.Domain)
+	cfg.Section("web").Key("http_port").SetValue(f.HttpPort)
 
-	cfg.Section("").Key("run_mode").SetValue("prod")
 	cfg.Section("session").Key("provider").SetValue("file")
 
 	mode := "file"
@@ -247,5 +239,5 @@ func InstallPost(c *context.Context, f form.Install) {
 
 	log.Info("first-time run install finished!")
 	c.Flash.Success(c.Tr("install.install_success"))
-	c.Redirect(f.AppUrl + "user/login")
+	c.Redirect("/user/login")
 }

@@ -53,18 +53,13 @@ func newMacaron() *macaron.Macaron {
 
 func setRouter(m *macaron.Macaron) *macaron.Macaron {
 
-	// if !conf.Security.InstallLock {
-	// 	c.RedirectSubpath("/install")
-	// 	return
-	// }
-
 	reqSignIn := context.Toggle(&context.ToggleOptions{SignInRequired: true})
 	// ignSignIn := context.Toggle(&context.ToggleOptions{SignInRequired: conf.Auth.RequireSigninView})
 	// reqSignOut := context.Toggle(&context.ToggleOptions{SignOutRequired: true})
 
 	bindIgnErr := binding.BindIgnErr
 
-	// m.SetAutoHead(true)
+	m.SetAutoHead(true)
 
 	m.Group("", func() {
 		m.Get("/", reqSignIn, func(ctx *context.Context) {
@@ -76,7 +71,7 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 		Provider:       conf.Session.Provider,
 		ProviderConfig: conf.Session.ProviderConfig,
 		CookieName:     conf.Session.CookieName,
-		CookiePath:     conf.Server.Subpath,
+		CookiePath:     conf.Web.Subpath,
 		Gclifetime:     conf.Session.GCInterval,
 		Maxlifetime:    conf.Session.MaxLifeTime,
 		Secure:         conf.Session.CookieSecure,
@@ -84,18 +79,18 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 		Secret:         conf.Security.SecretKey,
 		Header:         "X-CSRF-Token",
 		Cookie:         conf.Session.CSRFCookieName,
-		CookieDomain:   conf.Server.URL.Hostname(),
-		CookiePath:     conf.Server.Subpath,
+		CookieDomain:   conf.Web.URL.Hostname(),
+		CookiePath:     conf.Web.Subpath,
 		CookieHttpOnly: true,
 		SetCookie:      true,
-		Secure:         conf.Server.URL.Scheme == "https",
+		Secure:         conf.Web.URL.Scheme == "https",
 	}), context.Contexter())
 	return m
 }
 
-func Start(port int) {
+func Start(port string) {
 	m := newMacaron()
 	m = setRouter(m)
 	fmt.Println(port)
-	m.Run(port)
+	m.Run(1080)
 }

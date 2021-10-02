@@ -25,7 +25,7 @@ func makeDkim(c *cli.Context) error {
 		return err
 	}
 
-	domain := conf.Mail.Domain
+	domain := conf.Web.Domain
 	content, err := dkim.MakeDkimConfFile(domain)
 
 	fmt.Println(content)
