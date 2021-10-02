@@ -62,10 +62,6 @@ func Init(customConf string) error {
 	}
 
 	// ***************************
-	// ----- Server settings -----
-	// ***************************
-
-	// ***************************
 	// ----- Log settings -----
 	// ***************************
 	if err = File.Section("log").MapTo(&Log); err != nil {

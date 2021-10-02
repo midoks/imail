@@ -8,7 +8,7 @@ type Install struct {
 	DbUser   string
 	DbPasswd string
 	DbName   string
-	SSLMode  string
+	SslMode  string
 	DbPath   string
 
 	AppName           string `binding:"Required" locale:"install.app_name"`

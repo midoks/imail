@@ -106,7 +106,7 @@ func InstallPost(c *context.Context, f form.Install) {
 	conf.Database.User = f.DbUser
 	conf.Database.Password = f.DbPasswd
 	conf.Database.Name = f.DbName
-	conf.Database.SSLMode = f.SSLMode
+	conf.Database.SslMode = f.SslMode
 	conf.Database.Path = f.DbPath
 
 	if conf.Database.Type == "sqlite3" && len(conf.Database.Path) == 0 {
@@ -179,7 +179,7 @@ func InstallPost(c *context.Context, f form.Install) {
 	cfg.Section("database").Key("name").SetValue(conf.Database.Name)
 	cfg.Section("database").Key("user").SetValue(conf.Database.User)
 	cfg.Section("database").Key("password").SetValue(conf.Database.Password)
-	cfg.Section("database").Key("ssl_mode").SetValue(conf.Database.SSLMode)
+	cfg.Section("database").Key("ssl_mode").SetValue(conf.Database.SslMode)
 	cfg.Section("database").Key("path").SetValue(conf.Database.Path)
 
 	cfg.Section("web").Key("domain").SetValue(f.Domain)

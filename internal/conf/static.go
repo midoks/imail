@@ -133,7 +133,7 @@ type DatabaseOpts struct {
 	Name         string
 	User         string
 	Password     string
-	SSLMode      string `ini:"ssl_mode"`
+	SslMode      string `ini:"ssl_mode"`
 	Path         string
 	Charset      string
 	MaxOpenConns int
