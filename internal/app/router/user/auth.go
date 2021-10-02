@@ -38,7 +38,7 @@ func LoginPost(c *context.Context, f form.SignIn) {
 	// }
 	// c.Data["LoginSources"] = loginSources
 
-	loginBool, err := db.LoginByUserPassword(f.UserName, f.Password, "123")
+	loginBool, err := db.LoginByUserPassword(f.UserName, f.Password)
 	fmt.Println(loginBool, err, f.UserName, f.Password)
 	if c.HasError() {
 		c.Success(LOGIN)

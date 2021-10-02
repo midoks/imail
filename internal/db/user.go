@@ -15,7 +15,7 @@ type User struct {
 	Code     string `gorm:"size:50;comment:编码"`
 	Token    string `gorm:"unique;size:50;comment:Token"`
 	Status   int    `gorm:"comment:状态"`
-	Salt     string `gorm:"TYPE:VARCHAR(10)"`
+	Salt     string `gorm:"type:varchar(10)"`
 
 	IsActive bool
 	IsAdmin  bool
@@ -36,6 +36,7 @@ func CreateUser(u *User) (err error) {
 	data := db.First(u, "name = ?", u.Name)
 
 	u.Salt = tools.RandString(10)
+	u.Password = tools.Md5(tools.Md5(u.Password) + u.Salt)
 	if data.Error != nil {
 		db.Create(u)
 	}
@@ -59,20 +60,19 @@ func LoginWithCode(name string, code string) (bool, int64) {
 	return false, 0
 }
 
-func LoginByUserPassword(name string, password string, rand string) (bool, int64) {
+func LoginByUserPassword(name string, password string) (bool, int64) {
 
-	var user User
-	err := db.First(&user, "name = ?", name).Error
+	var u User
+	err := db.First(&u, "name = ?", name).Error
 
 	if err != nil {
 		return false, 0
 	}
 
-	passMd5 := tools.Md5(user.Password + rand)
+	passMd5 := tools.Md5(u.Password + u.Salt)
 	if passMd5 == password {
-		return true, user.Id
+		return true, u.Id
 	}
-
 	return false, 0
 }
 

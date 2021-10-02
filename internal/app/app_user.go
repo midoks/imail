@@ -66,7 +66,7 @@ func UserLogin(c *gin.Context) {
 		return
 	}
 
-	b, _ := db.LoginByUserPassword(name, password, sessRand)
+	b, _ := db.LoginByUserPassword(name, password)
 	loginToken := tools.Md5(tools.RandString(10))
 
 	db.UserUpdateTokenGetByName(name, loginToken)

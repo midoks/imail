@@ -3,12 +3,14 @@ package db
 import (
     "errors"
     "fmt"
+    // "os"
+    "time"
+
     "github.com/midoks/imail/internal/conf"
     "github.com/midoks/imail/internal/log"
     "gorm.io/driver/mysql"
     "gorm.io/driver/sqlite"
     "gorm.io/gorm"
-    "time"
 )
 
 var db *gorm.DB
@@ -28,12 +30,13 @@ func Init() error {
         db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
     case "sqlite3":
         dbPath := conf.Database.Path
-        db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{
-            SkipDefaultTransaction: true,
-        })
+        // os.MkdirAll(conf.WorkDir()+"/data", os.ModePerm)
+        // fmt.Println("sqlite3 err:", dbPath)
+        db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{SkipDefaultTransaction: true})
+        //&gorm.Config{SkipDefaultTransaction: true,}
 
         // synchronous close
-        db.Exec("PRAGMA synchronous = OFF; ")
+        db.Exec("PRAGMA synchronous = OFF;")
     default:
         log.Errorf("database type not found")
         return errors.New("database type not found")
@@ -45,9 +48,9 @@ func Init() error {
 
     sqlDB, err := db.DB()
     // SetMaxIdleConns sets the maximum number of connections in the free connection pool
-    sqlDB.SetMaxIdleConns(200)
+    sqlDB.SetMaxIdleConns(conf.Database.MaxIdleConns)
     // SetMaxOpenConns sets the maximum number of open database connections.
-    sqlDB.SetMaxOpenConns(500)
+    sqlDB.SetMaxOpenConns(conf.Database.MaxOpenConns)
     // SetConnMaxLifetime Sets the maximum time that the connection can be reused.
     sqlDB.SetConnMaxLifetime(time.Hour)
 
@@ -75,17 +78,6 @@ func Init() error {
     // postmaster := db.First(&userPostmaster, "name = ?", "postmaster")
     // if postmaster.Error != nil {
     //     db.Create(&User{Name: "postmaster", Password: "21232f297a57a5a743894a0e4a801fc3", Code: "postmaster", Token: "21232f297a57a5a743894a0e4a801fc2"})
-    // }
-
-    // //管理员角色
-    // var role Role
-    // ruleResult := db.First(&role, "pid = ?", "0")
-    // if ruleResult.Error != nil {
-    //     db.Create(&Role{
-    //         Name:   "管理员",
-    //         Pid:    0,
-    //         Status: 1,
-    //     })
     // }
 
     return nil
