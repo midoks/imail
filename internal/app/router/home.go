@@ -5,12 +5,63 @@ import (
 	// "net/http"
 
 	"github.com/midoks/imail/internal/app/context"
-	// "github.com/midoks/imail/internal/conf"
+	// "github.com/midoks/imail/internal/db"
+	// "github.com/midoks/imail/internal/tools/paginater"
 )
 
 const (
 	HOME = "home"
 )
+
+// type UserSearchOptions struct {
+// 	Type     db.UserType
+// 	Counter  func() int64
+// 	Ranger   func(int, int) ([]*db.User, error)
+// 	PageSize int
+// 	OrderBy  string
+// 	TplName  string
+// }
+
+// func RenderUserSearch(c *context.Context, opts *UserSearchOptions) {
+// 	page := c.QueryInt("page")
+// 	if page <= 1 {
+// 		page = 1
+// 	}
+
+// 	var (
+// 		users []*db.User
+// 		count int64
+// 		err   error
+// 	)
+
+// 	keyword := c.Query("q")
+// 	if len(keyword) == 0 {
+// 		users, err = opts.Ranger(page, opts.PageSize)
+// 		if err != nil {
+// 			c.Error(err, "ranger")
+// 			return
+// 		}
+// 		count = opts.Counter()
+// 	} else {
+// 		users, count, err = db.SearchUserByName(&db.SearchUserOptions{
+// 			Keyword:  keyword,
+// 			Type:     opts.Type,
+// 			OrderBy:  opts.OrderBy,
+// 			Page:     page,
+// 			PageSize: opts.PageSize,
+// 		})
+// 		if err != nil {
+// 			c.Error(err, "search user by name")
+// 			return
+// 		}
+// 	}
+// 	c.Data["Keyword"] = keyword
+// 	c.Data["Total"] = count
+// 	c.Data["Page"] = paginater.New(int(count), opts.PageSize, page, 5)
+// 	c.Data["Users"] = users
+
+// 	c.Success(opts.TplName)
+// }
 
 func Home(c *context.Context) {
 	// if c.IsLogged {

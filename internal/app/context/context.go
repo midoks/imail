@@ -106,6 +106,11 @@ func (c *Context) Success(name string) {
 	c.HTML(http.StatusOK, name)
 }
 
+// JSONSuccess responses JSON with status http.StatusOK.
+func (c *Context) JSONSuccess(data interface{}) {
+	c.JSON(http.StatusOK, data)
+}
+
 // NotFound renders the 404 page.
 func (c *Context) NotFound() {
 	c.Title("status.page_not_found")

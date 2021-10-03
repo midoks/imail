@@ -1,19 +1,13 @@
-// Copyright 2014 The Gogs Authors. All rights reserved.
-// Use of this source code is governed by a MIT-style
-// license that can be found in the LICENSE file.
-
 package admin
 
 import (
-	"strings"
+	// "strings"
 
+	"github.com/midoks/imail/internal/app/context"
 	"github.com/midoks/imail/internal/app/form"
-	"github.com/midoks/imail/internal/conf"
-	"github.com/midoks/imail/internal/context"
-	"github.com/midoks/imail/internal/db"
-	"github.com/midoks/imail/internal/log"
-
-	"github.com/unknwon/com"
+	// "github.com/midoks/imail/internal/conf"
+	// "github.com/midoks/imail/internal/db"
+	// "github.com/midoks/imail/internal/log"
 )
 
 const (
@@ -27,94 +21,32 @@ func Users(c *context.Context) {
 	c.Data["PageIsAdmin"] = true
 	c.Data["PageIsAdminUsers"] = true
 
-	route.RenderUserSearch(c, &route.UserSearchOptions{
-		Type:     db.UserIndividual,
-		Counter:  db.CountUsers,
-		Ranger:   db.ListUsers,
-		PageSize: conf.UI.Admin.UserPagingNum,
-		OrderBy:  "id ASC",
-		TplName:  USERS,
-	})
+	// db.RenderUserSearch(c, &route.UserSearchOptions{
+	// 	Type:     db.UserIndividual,
+	// 	Counter:  db.CountUsers,
+	// 	Ranger:   db.ListUsers,
+	// 	PageSize: conf.UI.Admin.UserPagingNum,
+	// 	OrderBy:  "id ASC",
+	// 	TplName:  USERS,
+	// })
+
+	c.Success(USERS)
 }
 
-// func NewUser(c *context.Context) {
-// 	c.Data["Title"] = c.Tr("admin.users.new_account")
-// 	c.Data["PageIsAdmin"] = true
-// 	c.Data["PageIsAdminUsers"] = true
+func NewUser(c *context.Context) {
+	c.Data["Title"] = c.Tr("admin.users.new_account")
+	c.Data["PageIsAdmin"] = true
+	c.Data["PageIsAdminUsers"] = true
 
-// 	c.Data["login_type"] = "0-0"
+	c.Success(USER_NEW)
+}
 
-// 	sources, err := db.LoginSources.List(db.ListLoginSourceOpts{})
-// 	if err != nil {
-// 		c.Error(err, "list login sources")
-// 		return
-// 	}
-// 	c.Data["Sources"] = sources
+func NewUserPost(c *context.Context, f form.AdminCreateUser) {
+	c.Data["Title"] = c.Tr("admin.users.new_account")
+	c.Data["PageIsAdmin"] = true
+	c.Data["PageIsAdminUsers"] = true
 
-// 	c.Data["CanSendEmail"] = conf.Email.Enabled
-// 	c.Success(USER_NEW)
-// }
-
-// func NewUserPost(c *context.Context, f form.AdminCrateUser) {
-// 	c.Data["Title"] = c.Tr("admin.users.new_account")
-// 	c.Data["PageIsAdmin"] = true
-// 	c.Data["PageIsAdminUsers"] = true
-
-// 	sources, err := db.LoginSources.List(db.ListLoginSourceOpts{})
-// 	if err != nil {
-// 		c.Error(err, "list login sources")
-// 		return
-// 	}
-// 	c.Data["Sources"] = sources
-
-// 	c.Data["CanSendEmail"] = conf.Email.Enabled
-
-// 	if c.HasError() {
-// 		c.Success(USER_NEW)
-// 		return
-// 	}
-
-// 	u := &db.User{
-// 		Name:     f.UserName,
-// 		Email:    f.Email,
-// 		Passwd:   f.Password,
-// 		IsActive: true,
-// 	}
-
-// 	if len(f.LoginType) > 0 {
-// 		fields := strings.Split(f.LoginType, "-")
-// 		if len(fields) == 2 {
-// 			u.LoginSource = com.StrTo(fields[1]).MustInt64()
-// 			u.LoginName = f.LoginName
-// 		}
-// 	}
-
-// 	if err := db.CreateUser(u); err != nil {
-// 		switch {
-// 		case db.IsErrUserAlreadyExist(err):
-// 			c.Data["Err_UserName"] = true
-// 			c.RenderWithErr(c.Tr("form.username_been_taken"), USER_NEW, &f)
-// 		case db.IsErrEmailAlreadyUsed(err):
-// 			c.Data["Err_Email"] = true
-// 			c.RenderWithErr(c.Tr("form.email_been_used"), USER_NEW, &f)
-// 		case db.IsErrNameNotAllowed(err):
-// 			c.Data["Err_UserName"] = true
-// 			c.RenderWithErr(c.Tr("user.form.name_not_allowed", err.(db.ErrNameNotAllowed).Value()), USER_NEW, &f)
-// 		default:
-// 			c.Error(err, "create user")
-// 		}
-// 		return
-// 	}
-// 	log.Trace("Account created by admin (%s): %s", c.User.Name, u.Name)
-
-// 	// Send email notification.
-// 	if f.SendNotify && conf.Email.Enabled {
-// 		email.SendRegisterNotifyMail(c.Context, db.NewMailerUser(u))
-// 	}
-
-// 	c.Flash.Success(c.Tr("admin.users.new_success", u.Name))
-// 	c.Redirect(conf.Server.Subpath + "/admin/users/" + com.ToStr(u.ID))
-// }
+}
 
 // func prepareUserInfo(c *context.Context) *db.User {
 // 	u, err := db.GetUserByID(c.ParamsInt64(":userid"))
