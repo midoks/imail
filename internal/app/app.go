@@ -91,7 +91,7 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 		// ***** START: Admin *****
 		m.Group("/admin", func() {
 			m.Combo("").Get(admin.Dashboard) //.Post(admin.Operation) // "/admin"
-			// m.Get("/config", admin.Config)
+			m.Get("/config", admin.Config)
 			// m.Post("/config/test_mail", admin.SendTestMail)
 			m.Get("/monitor", admin.Monitor)
 

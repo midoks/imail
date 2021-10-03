@@ -14,9 +14,9 @@ require (
 	github.com/go-macaron/i18n v0.6.0
 	github.com/go-macaron/session v1.0.2
 	github.com/go-resty/resty/v2 v2.6.0
-	github.com/gogs/cron v0.0.0-20171120032916-9f6c956d3e14
 	github.com/jarcoal/httpmock v1.0.8
 	github.com/jonboulle/clockwork v0.2.2 // indirect
+	github.com/json-iterator/go v1.1.11
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/lestrrat-go/strftime v1.0.5 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect

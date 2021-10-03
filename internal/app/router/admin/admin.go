@@ -6,7 +6,10 @@ import (
 	// "strings"
 	"time"
 
+	_ "github.com/json-iterator/go"
+
 	"github.com/midoks/imail/internal/app/context"
+	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/task"
 	"github.com/midoks/imail/internal/tools"
@@ -157,4 +160,23 @@ func Monitor(c *context.Context) {
 	// c.Data["Processes"] = process.Processes
 	c.Data["Entries"] = task.ListTasks()
 	c.Success(tmplMonitor)
+}
+
+func Config(c *context.Context) {
+	c.Title("admin.config")
+	c.PageIs("Admin")
+	c.PageIs("AdminConfig")
+
+	c.Data["App"] = conf.App
+	c.Data["Web"] = conf.Web
+	c.Data["Database"] = conf.Database
+	c.Data["Security"] = conf.Security
+	// c.Data["Auth"] = conf.Auth
+	c.Data["Session"] = conf.Session
+	c.Data["Cache"] = conf.Cache
+	// c.Data["Picture"] = conf.Picture
+	c.Data["LogRootPath"] = conf.Log.RootPath
+	// c.Data["Loggers"] = loggers
+
+	c.Success(tmplConfig)
 }
