@@ -93,6 +93,9 @@ func GlobalInit(customConf string) error {
 		db.Init()
 		task.Init()
 
+		startService("smtpd")
+		startService("pop3")
+		startService("imap")
 	}
 
 	checkRunMode()
