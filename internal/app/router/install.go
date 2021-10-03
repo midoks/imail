@@ -57,6 +57,8 @@ func checkRunMode() {
 	if conf.IsProdMode() {
 		macaron.Env = macaron.PROD
 		macaron.ColorLog = false
+	} else {
+		macaron.Env = macaron.DEV
 	}
 	log.Infof("Run mode: %s", strings.Title(macaron.Env))
 }

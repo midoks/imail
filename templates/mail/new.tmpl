@@ -2,18 +2,36 @@
 <div class="admin user">
 	<div class="ui container">
 		<div class="ui grid">
-			{{template "mail/navbar" .}}
-			<div class="twelve wide column content">
-				{{template "base/alert" .}}
-				<div class="ui unstackable attached table segment">
-		
-
-
-
+			{{template "base/alert" .}}
+			{{/*<div class="twelve wide column content">*/}}
+				
+				
+				<div class="ui labeled input">
+				  <div class="ui label">收件人</div>
+				  <input type="text" name="revice" placeholder="xxx@xxx.xx">
 				</div>
-			</div>
+
+				</hr>
+
+				<div class="ui labeled input">
+				  <div class="ui label">主题</div>
+				  <input type="text" name="subject">
+				</div>
+
+				</hr>
+
+				<div id="content"></div>
+
+			{{/*</div>*/}}
 		</div>
 	</div>
 </div>
+
+<script>
+const E = window.wangEditor;
+const editor = new E('#content');
+editor.config.uploadImgShowBase64 = true;
+editor.create()
+</script>
 
 {{template "base/footer" .}}

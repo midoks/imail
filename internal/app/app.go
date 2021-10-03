@@ -11,6 +11,7 @@ import (
 	"github.com/go-macaron/gzip"
 	"github.com/go-macaron/i18n"
 	"github.com/go-macaron/session"
+	"gopkg.in/macaron.v1"
 
 	"github.com/midoks/imail/internal/app/context"
 	"github.com/midoks/imail/internal/app/form"
@@ -22,7 +23,6 @@ import (
 	"github.com/midoks/imail/internal/conf"
 	// "github.com/midoks/imail/internal/log"
 	// "github.com/midoks/imail/internal/tools"
-	"gopkg.in/macaron.v1"
 )
 
 func newMacaron() *macaron.Macaron {
