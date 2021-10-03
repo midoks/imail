@@ -6,7 +6,7 @@
 
 	{{if not .PageIsAdmin}}
 		<meta name="author" content="midoks" />
-		<meta name="description" content="imail is a painless self-hosted mail service" />
+		<meta name="description" content="imail is a painless self-hosted email service" />
 		<meta name="keywords" content="go, imail, self-hosted, email">
 	{{end}}
 
@@ -51,22 +51,27 @@
 							<img class="ui mini image" src="{{AppSubURL}}/img/favicon.png">
 						</a>
 
-						{{if .IsLogged}}
+						{{if .IsLogged }}
 							<a class="item{{if .PageIsDashboard}} active{{end}}" href="{{AppSubURL}}/">{{.i18n.Tr "dashboard"}}</a>
 						{{else}}
 							<a class="item{{if .PageIsHome}} active{{end}}" href="{{AppSubURL}}/">{{.i18n.Tr "home"}}</a>
 						{{end}}
 
-				
-						{{/*<div class="item">
-							<div class="ui icon input">
-							<input class="searchbox" type="text" placeholder="{{.i18n.Tr "search_project"}}">
-							<i class="search icon"></i>
-							</div>
-							</div>*/}}
 
 						{{if .IsLogged}}
 							<div class="right menu">
+
+								<div class="ui dropdown head link jump item poping up" data-content="{{.i18n.Tr "create_new"}}" data-variation="tiny inverted">
+									<span class="text">
+										<i class="octicon octicon-plus"><span class="sr-only">{{.i18n.Tr "create_new"}}</span></i>
+										<i class="octicon octicon-triangle-down"></i>
+									</span>
+									<div class="menu">
+										<a class="item" href="{{AppSubURL}}/mail/new">
+											<i class="octicon octicon-quote"></i> {{.i18n.Tr "mail.write_letter"}}
+										</a>
+									</div><!-- end content create new menu -->
+								</div><!-- end dropdown menu create new -->
 
 								<div class="ui dropdown head link jump item poping up" tabindex="-1" data-content="{{.i18n.Tr "user_profile_and_more"}}" data-variation="tiny inverted">
 									<span class="text avatar">
@@ -80,13 +85,13 @@
 										</div>
 
 										<div class="divider"></div>
-										<a class="item" href="{{AppSubURL}}/{{.LoggedUser.Name}}">
-											<i class="octicon octicon-person"></i> {{.i18n.Tr "your_profile"}}
+										<a class="item" href="{{AppSubURL}}">
+											<i class="octicon octicon-file-submodule"></i> {{.i18n.Tr "your_mail"}}
 										</a>
 										<a class="{{if .PageIsUserSettings}}active{{end}} item" href="{{AppSubURL}}/user/settings">
 											<i class="octicon octicon-settings"></i> {{.i18n.Tr "your_settings"}}
 										</a>
-										<a class="item" target="_blank" rel="noopener noreferrer" href="https://gogs.io/docs" rel="noreferrer">
+										<a class="item" target="_blank" rel="noopener noreferrer" href="https://github.com/midoks/imail/wiki" rel="noreferrer">
 											<i class="octicon octicon-question"></i> {{.i18n.Tr "help"}}
 										</a>
 										{{if .IsAdmin}}

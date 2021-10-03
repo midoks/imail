@@ -170,17 +170,17 @@ func Contexter() macaron.Handler {
 		}
 
 		// Get user from session or header when possible
-		uname := c.Session.Get("uname").(string)
-		fmt.Println(uname)
-		u, err := db.UserGetByName(uname)
-		fmt.Println(u, err)
-		if err == nil {
-			c.IsLogged = true
-			c.Data["IsLogged"] = c.IsLogged
-			c.Data["LoggedUser"] = u
-			c.Data["LoggedUserID"] = u.Id
-			c.Data["LoggedUserName"] = u.Name
-			c.Data["IsAdmin"] = u.IsAdmin
+		uid := c.Session.Get("uid")
+		if uid != nil {
+			u, err := db.UserGetById(uid.(int64))
+			if err == nil {
+				c.IsLogged = true
+				c.Data["IsLogged"] = c.IsLogged
+				c.Data["LoggedUser"] = u
+				c.Data["LoggedUserID"] = u.Id
+				c.Data["LoggedUserName"] = u.Name
+				c.Data["IsAdmin"] = u.IsAdmin
+			}
 		} else {
 			c.Data["LoggedUserID"] = 0
 			c.Data["LoggedUserName"] = ""

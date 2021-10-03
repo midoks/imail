@@ -17,17 +17,14 @@
 					</span>
 			{{end}}
 			<div class="ui language bottom floating slide up dropdown link item">
-					<i class="world icon"></i>
-					<div class="text">{{.LangName}}</div>
-					<div class="menu">
-						{{range .AllLangs}}
-							<a class="item {{if eq $.Lang .Lang}}active selected{{end}}" href="{{if eq $.Lang .Lang}}#{{else}}{{$.Link}}?lang={{.Lang}}{{end}}">{{.Name}}</a>
-						{{end}}
-					</div>
+				<i class="world icon"></i>
+				<div class="text">{{.LangName}}</div>
+				<div class="menu">
+					{{range .AllLangs}}
+						<a class="item {{if eq $.Lang .Lang}}active selected{{end}}" href="{{if eq $.Lang .Lang}}#{{else}}{{$.Link}}?lang={{.Lang}}{{end}}">{{.Name}}</a>
+					{{end}}
 				</div>
-			<a href="/assets/librejs/librejs.html" style="display:none" data-jslicense="1">Javascript Licenses</a>
-			<a target="_blank" rel="noopener noreferrer" href="{{.Website}}">官方网站</a>
-			
+			</div>
 		</div>
 	</div>
 </footer>

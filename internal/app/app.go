@@ -16,6 +16,7 @@ import (
 	"github.com/midoks/imail/internal/app/form"
 	"github.com/midoks/imail/internal/app/router"
 	"github.com/midoks/imail/internal/app/router/admin"
+	"github.com/midoks/imail/internal/app/router/mail"
 	"github.com/midoks/imail/internal/app/router/user"
 	"github.com/midoks/imail/internal/app/template"
 	"github.com/midoks/imail/internal/conf"
@@ -88,38 +89,6 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 
 		m.Group("/user/settings", func() {
 			m.Get("", user.Settings)
-			// m.Post("", bindIgnErr(form.UpdateProfile{}), user.SettingsPost)
-			// m.Combo("/avatar").Get(user.SettingsAvatar).
-			// 	Post(binding.MultipartForm(form.Avatar{}), user.SettingsAvatarPost)
-			// m.Post("/avatar/delete", user.SettingsDeleteAvatar)
-			// m.Combo("/email").Get(user.SettingsEmails).
-			// 	Post(bindIgnErr(form.AddEmail{}), user.SettingsEmailPost)
-			// m.Post("/email/delete", user.DeleteEmail)
-			// m.Get("/password", user.SettingsPassword)
-			// m.Post("/password", bindIgnErr(form.ChangePassword{}), user.SettingsPasswordPost)
-			// m.Combo("/ssh").Get(user.SettingsSSHKeys).
-			// 	Post(bindIgnErr(form.AddSSHKey{}), user.SettingsSSHKeysPost)
-			// m.Post("/ssh/delete", user.DeleteSSHKey)
-			// m.Group("/security", func() {
-			// 	m.Get("", user.SettingsSecurity)
-			// 	m.Combo("/two_factor_enable").Get(user.SettingsTwoFactorEnable).
-			// 		Post(user.SettingsTwoFactorEnablePost)
-			// 	m.Combo("/two_factor_recovery_codes").Get(user.SettingsTwoFactorRecoveryCodes).
-			// 		Post(user.SettingsTwoFactorRecoveryCodesPost)
-			// 	m.Post("/two_factor_disable", user.SettingsTwoFactorDisable)
-			// })
-			// m.Group("/repositories", func() {
-			// 	m.Get("", user.SettingsRepos)
-			// 	m.Post("/leave", user.SettingsLeaveRepo)
-			// })
-			// m.Group("/organizations", func() {
-			// 	m.Get("", user.SettingsOrganizations)
-			// 	m.Post("/leave", user.SettingsLeaveOrganization)
-			// })
-			// m.Combo("/applications").Get(user.SettingsApplications).
-			// 	Post(bindIgnErr(form.NewAccessToken{}), user.SettingsApplicationsPost)
-			// m.Post("/applications/delete", user.SettingsDeleteApplication)
-			// m.Route("/delete", "GET,POST", user.SettingsDelete)
 		}, reqSignIn, func(c *context.Context) {
 			c.Data["PageIsUserSettings"] = true
 		})
@@ -139,6 +108,13 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 				// m.Combo("/:userid").Get(admin.EditUser).Post(bindIgnErr(form.AdminEditUser{}), admin.EditUserPost)
 				// m.Post("/:userid/delete", admin.DeleteUser)
 			})
+
+		}, reqAdmin)
+		// ***** END: Admin *****
+
+		// ***** START: Admin *****
+		m.Group("/mail", func() {
+			m.Combo("/new").Get(mail.New)
 
 		}, reqAdmin)
 		// ***** END: Admin *****

@@ -134,3 +134,12 @@ func UserGetByName(name string) (User, error) {
 	}
 	return user, nil
 }
+
+func UserGetById(id int64) (User, error) {
+	var user User
+	err := db.First(&user, "id = ?", id).Error
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+}

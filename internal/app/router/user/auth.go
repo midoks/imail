@@ -45,26 +45,29 @@ func AutoLogin(c *context.Context) (bool, error) {
 		}
 	}()
 
-	uname = c.Session.Get("uname").(string)
-	u, err := db.UserGetByName(uname)
-	if err != nil {
-		// if !db.IsErrUserNotExist(err) {
-		// 	return false, fmt.Errorf("get user by name: %v", err)
-		// }
-		return false, nil
+	uid := c.Session.Get("uid")
+	if uid != nil {
+		u, err := db.UserGetById(uid.(int64))
+		if err != nil {
+			// if !db.IsErrUserNotExist(err) {
+			// 	return false, fmt.Errorf("get user by name: %v", err)
+			// }
+			return false, nil
+		}
+
+		if val, ok := c.GetSuperSecureCookie(u.Salt+u.Password, conf.Security.CookieRememberName); !ok || val != u.Name {
+			return false, nil
+		}
+
+		isSucceed = true
+		_ = c.Session.Set("uid", u.Id)
+		_ = c.Session.Set("uname", u.Name)
+		c.SetCookie(conf.Session.CSRFCookieName, "", -1, conf.Web.Subpath)
+		if conf.Security.EnableLoginStatusCookie {
+			c.SetCookie(conf.Security.LoginStatusCookieName, "true", 0, conf.Web.Subpath)
+		}
 	}
 
-	if val, ok := c.GetSuperSecureCookie(u.Salt+u.Password, conf.Security.CookieRememberName); !ok || val != u.Name {
-		return false, nil
-	}
-
-	isSucceed = true
-	_ = c.Session.Set("uid", u.Id)
-	_ = c.Session.Set("uname", u.Name)
-	c.SetCookie(conf.Session.CSRFCookieName, "", -1, conf.Web.Subpath)
-	if conf.Security.EnableLoginStatusCookie {
-		c.SetCookie(conf.Security.LoginStatusCookieName, "true", 0, conf.Web.Subpath)
-	}
 	return true, nil
 }
 
