@@ -42,9 +42,7 @@ func FuncMap() []template.FuncMap {
 			"AppDomain": func() string {
 				return conf.Web.Domain
 			},
-			"LoadTimes": func(startTime time.Time) string {
-				return fmt.Sprint(time.Since(startTime).Nanoseconds()/1e6) + "ms"
-			},
+
 			"Safe":        Safe,
 			"Str2HTML":    Str2HTML,
 			"Sanitize":    bluemonday.UGCPolicy().Sanitize,
@@ -66,6 +64,12 @@ func FuncMap() []template.FuncMap {
 					return str
 				}
 				return str[start:end]
+			},
+			"ShowFooterTemplateLoadTime": func() bool {
+				return conf.Other.ShowFooterTemplateLoadTime
+			},
+			"LoadTimes": func(startTime time.Time) string {
+				return fmt.Sprint(time.Since(startTime).Nanoseconds()/1e6) + "ms"
 			},
 			"Join": strings.Join,
 			"DateFmtLong": func(t time.Time) string {

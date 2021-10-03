@@ -138,6 +138,15 @@ var (
 		EnableLoginStatusCookie bool
 		LoginStatusCookieName   string
 	}
+
+	// Other settings
+	Other struct {
+		ShowFooterBranding         bool
+		ShowFooterTemplateLoadTime bool
+	}
+
+	// Global setting
+	HasRobotsTxt bool
 )
 
 type DatabaseOpts struct {

@@ -11,7 +11,11 @@
 			© {{Year}} {{AppName}}
 		</div>
 		<div class="ui right links">
-			
+			{{if ShowFooterTemplateLoadTime}}
+					<span>
+						{{.i18n.Tr "page"}}: <strong>{{LoadTimes .PageStartTime}}</strong> {{.i18n.Tr "template"}}: <strong>{{call .TmplLoadTimes}}</strong>
+					</span>
+			{{end}}
 			<div class="ui language bottom floating slide up dropdown link item">
 					<i class="world icon"></i>
 					<div class="text">{{.LangName}}</div>

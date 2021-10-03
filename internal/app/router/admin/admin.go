@@ -8,6 +8,7 @@ import (
 
 	"github.com/midoks/imail/internal/app/context"
 	"github.com/midoks/imail/internal/db"
+	"github.com/midoks/imail/internal/task"
 	"github.com/midoks/imail/internal/tools"
 )
 
@@ -147,4 +148,13 @@ func Operation(c *context.Context) {
 	// 	c.Flash.Success(success)
 	// }
 	c.RedirectSubpath("/admin")
+}
+
+func Monitor(c *context.Context) {
+	c.Data["Title"] = c.Tr("admin.monitor")
+	c.Data["PageIsAdmin"] = true
+	c.Data["PageIsAdminMonitor"] = true
+	// c.Data["Processes"] = process.Processes
+	c.Data["Entries"] = task.ListTasks()
+	c.Success(tmplMonitor)
 }

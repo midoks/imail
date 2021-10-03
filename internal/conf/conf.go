@@ -161,6 +161,8 @@ func Init(customConf string) error {
 
 	if err = File.Section("cache").MapTo(&Cache); err != nil {
 		return errors.Wrap(err, "mapping [cache] section")
+	} else if err = File.Section("other").MapTo(&Other); err != nil {
+		return errors.Wrap(err, "mapping [other] section")
 	}
 
 	// Check run user when the install is locked.

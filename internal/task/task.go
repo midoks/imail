@@ -7,10 +7,13 @@ import (
 	"github.com/midoks/imail/internal/log"
 	"github.com/midoks/imail/internal/smtpd"
 	"github.com/midoks/imail/internal/tools/mail"
-	"github.com/robfig/cron"
+	// "github.com/robfig/cron"
+	"github.com/midoks/imail/internal/tools/cron"
 	// "sync"
 	// "os"
 )
+
+var c = cron.New()
 
 func TaskQueueeSendMail() {
 	postmaster := fmt.Sprintf("postmaster@%s", conf.Web.Domain)
@@ -53,16 +56,18 @@ func TaskRspamdCheck() {
 }
 
 func Init() {
-	c := cron.New()
 
-	c.AddFunc("*/5 * * * * * ", func() {
-		// fmt.Println(fmt.Sprintf("TaskQueueeSendMail! time:%d", time.Now().Unix()))
-		TaskQueueeSendMail()
-	})
+	// c.AddFunc("cc", "*/5 * * * * * ", func() {
+	// 	// fmt.Println(fmt.Sprintf("TaskQueueeSendMail! time:%d", time.Now().Unix()))
+	// 	TaskQueueeSendMail()
+	// })
 
-	c.AddFunc("*/10 * * * * * ", func() {
-		TaskRspamdCheck()
-	})
+	c.AddFunc("dd ", "@every 10m", func() { TaskRspamdCheck() })
 
 	c.Start()
+}
+
+// ListTasks returns all running cron tasks.
+func ListTasks() []*cron.Entry {
+	return c.Entries()
 }

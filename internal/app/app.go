@@ -93,7 +93,7 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 			m.Combo("").Get(admin.Dashboard) //.Post(admin.Operation) // "/admin"
 			// m.Get("/config", admin.Config)
 			// m.Post("/config/test_mail", admin.SendTestMail)
-			// m.Get("/monitor", admin.Monitor)
+			m.Get("/monitor", admin.Monitor)
 
 			// m.Group("/users", func() {
 			// 	m.Get("", admin.Users)
