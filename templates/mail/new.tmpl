@@ -1,36 +1,49 @@
 {{template "base/header" .}}
 <div class="admin user">
 	<div class="ui container">
-		<div class="ui grid">
+		{{/*<div class="ui grid">*/}}
 			{{template "base/alert" .}}
 			{{/*<div class="twelve wide column content">*/}}
 				
+				<form class="ui form" action="{{AppSubURL}}/mail/new" method="post">
 				
-				<div class="ui labeled input">
-				  <div class="ui label">收件人</div>
-				  <input type="text" name="revice" placeholder="xxx@xxx.xx">
-				</div>
+					<div class="inline field" >
+					  <div class="ui label">收件人</div>
+					  <input type="email" name="revice" placeholder="xxx@xxx.xx">
+					</div>
 
-				</hr>
 
-				<div class="ui labeled input">
-				  <div class="ui label">主题</div>
-				  <input type="text" name="subject">
-				</div>
+					<div class="inline field">
+					  <div class="ui label">主&nbsp;&nbsp;&nbsp;题</div>
+					  <input type="text" name="subject">
+					</div>
 
-				</hr>
+					</hr>
 
-				<div id="content"></div>
+					<div id="content"></div>
+
+					<div class="ui divider"></div>
+
+					<div class="inline field">
+						<button class="ui primary button">{{.i18n.Tr "install.install_imail"}}</button>
+						<button class="ui primary button">{{.i18n.Tr "install.install_imail"}}</button>
+					</div>
+					
+				</form>
 
 			{{/*</div>*/}}
-		</div>
+		{{/*</div>*/}}
 	</div>
 </div>
 
 <script>
 const E = window.wangEditor;
 const editor = new E('#content');
+editor.config.zIndex = 500;
 editor.config.uploadImgShowBase64 = true;
+editor.config.showFullScreen = true;
+editor.config.showMenuTooltips = true;
+editor.config.height = 400;
 editor.create()
 </script>
 

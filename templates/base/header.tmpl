@@ -23,6 +23,14 @@
 
 	{{ if .PageIsWriteMail}}
 	<script src="{{AppSubURL}}/js/wangEditor.min.js"></script>
+	<style>
+	.w-e-toolbar {
+		display: flex;
+		padding: 0 0px;
+	  	flex-wrap: nowrap;
+		/* 单个菜单 */
+	}
+	</style>
 	{{end}}
 
 	<meta name="referrer" content="no-referrer" />
@@ -89,7 +97,7 @@
 										</div>
 
 										<div class="divider"></div>
-										<a class="item" href="{{AppSubURL}}">
+										<a class="item" href="{{AppSubURL}}/">
 											<i class="octicon octicon-file-submodule"></i> {{.i18n.Tr "your_mail"}}
 										</a>
 										<a class="{{if .PageIsUserSettings}}active{{end}} item" href="{{AppSubURL}}/user/settings">
