@@ -102,11 +102,6 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 			// 	m.Post("/:userid/delete", admin.DeleteUser)
 			// })
 
-			// m.Group("/notices", func() {
-			// 	m.Get("", admin.Notices)
-			// 	m.Post("/delete", admin.DeleteNotices)
-			// 	m.Get("/empty", admin.EmptyNotices)
-			// })
 		}, reqAdmin)
 		// ***** END: Admin *****
 

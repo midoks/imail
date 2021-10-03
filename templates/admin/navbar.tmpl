@@ -7,16 +7,9 @@
 		<a class="{{if .PageIsAdminUsers}}active{{end}} item" href="{{AppSubURL}}/admin/users">
 			{{.i18n.Tr "admin.users"}}
 		</a>
-
-
-		<a class="{{if .PageIsAdminAuthentications}}active{{end}} item" href="{{AppSubURL}}/admin/auths">
-			{{.i18n.Tr "admin.authentication"}}
-		</a>
+		
 		<a class="{{if .PageIsAdminConfig}}active{{end}} item" href="{{AppSubURL}}/admin/config">
 			{{.i18n.Tr "admin.config"}}
-		</a>
-		<a class="{{if .PageIsAdminNotices}}active{{end}} item" href="{{AppSubURL}}/admin/notices">
-			{{.i18n.Tr "admin.notices"}}
 		</a>
 		<a class="{{if .PageIsAdminMonitor}}active{{end}} item" href="{{AppSubURL}}/admin/monitor">
 			{{.i18n.Tr "admin.monitor"}}
