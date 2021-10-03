@@ -28,4 +28,4 @@ internal/smtpd/logs
 internal/imap/index.html
 internal/pop3/index.html
 internal/smtpd/index.html
-custom/*
+custom
