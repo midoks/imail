@@ -14,8 +14,8 @@ imail
 lib/.DS_Store
 .DS_Store
 .idea
-vendor/*
-vendor_bak/*
+vendor
+vendor_bak
 conf/dkim/*
 tmp
 logs
