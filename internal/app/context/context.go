@@ -112,6 +112,32 @@ func (c *Context) NotFound() {
 	c.HTML(http.StatusNotFound, fmt.Sprintf("status/%d", http.StatusNotFound))
 }
 
+// Error renders the 500 page.
+func (c *Context) Error(err error, msg string) {
+	// log.ErrorDepth(4, "%s: %v", msg, err)
+	c.Title("status.internal_server_error")
+
+	// Only in non-production mode or admin can see the actual error message.
+	if !conf.IsProdMode() || (c.IsLogged && c.User.IsAdmin) {
+		c.Data["ErrorMsg"] = err
+	}
+	c.HTML(http.StatusInternalServerError, fmt.Sprintf("status/%d", http.StatusInternalServerError))
+}
+
+// Errorf renders the 500 response with formatted message.
+func (c *Context) Errorf(err error, format string, args ...interface{}) {
+	c.Error(err, fmt.Sprintf(format, args...))
+}
+
+// NotFoundOrError responses with 404 page for not found error and 500 page otherwise.
+func (c *Context) NotFoundOrError(err error, msg string) {
+	// if errutil.IsNotFound(err) {
+	// 	c.NotFound()
+	// 	return
+	// }
+	c.Error(err, msg)
+}
+
 // RedirectSubpath responses redirection with given location and status.
 // It prepends setting.Server.Subpath to the location string.
 func (c *Context) RedirectSubpath(location string, status ...int) {

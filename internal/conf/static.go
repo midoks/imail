@@ -129,8 +129,14 @@ var (
 
 	// Security settings
 	Security struct {
-		InstallLock bool
-		SecretKey   string
+		InstallLock             bool
+		SecretKey               string
+		LoginRememberDays       int
+		CookieRememberName      string
+		CookieUsername          string
+		CookieSecure            bool
+		EnableLoginStatusCookie bool
+		LoginStatusCookieName   string
 	}
 )
 

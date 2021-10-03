@@ -2,15 +2,16 @@ package user
 
 import (
 	"fmt"
+	"net/url"
 	// "github.com/pkg/errors"
 
 	"github.com/go-macaron/captcha"
 	"github.com/midoks/imail/internal/app/context"
 	"github.com/midoks/imail/internal/app/form"
-	// "github.com/midoks/imail/internal/conf"
+	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/log"
-	// "github.com/midoks/imail/internal/tools"
+	"github.com/midoks/imail/internal/tools"
 )
 
 const (
@@ -23,8 +24,76 @@ const (
 	RESET_PASSWORD           = "user/auth/reset_passwd"
 )
 
+// AutoLogin reads cookie and try to auto-login.
+func AutoLogin(c *context.Context) (bool, error) {
+	// if !db.HasEngine {
+	// 	return false, nil
+	// }
+
+	uname := c.GetCookie(conf.Security.CookieUsername)
+	if len(uname) == 0 {
+		return false, nil
+	}
+
+	isSucceed := false
+	defer func() {
+		if !isSucceed {
+			log.Trace("auto-login cookie cleared: %s", uname)
+			c.SetCookie(conf.Security.CookieUsername, "", -1, conf.Web.Subpath)
+			c.SetCookie(conf.Security.CookieRememberName, "", -1, conf.Web.Subpath)
+			c.SetCookie(conf.Security.LoginStatusCookieName, "", -1, conf.Web.Subpath)
+		}
+	}()
+
+	uname = c.Session.Get("uname").(string)
+	u, err := db.UserGetByName(uname)
+	if err != nil {
+		// if !db.IsErrUserNotExist(err) {
+		// 	return false, fmt.Errorf("get user by name: %v", err)
+		// }
+		return false, nil
+	}
+
+	if val, ok := c.GetSuperSecureCookie(u.Salt+u.Password, conf.Security.CookieRememberName); !ok || val != u.Name {
+		return false, nil
+	}
+
+	isSucceed = true
+	_ = c.Session.Set("uid", u.Id)
+	_ = c.Session.Set("uname", u.Name)
+	c.SetCookie(conf.Session.CSRFCookieName, "", -1, conf.Web.Subpath)
+	if conf.Security.EnableLoginStatusCookie {
+		c.SetCookie(conf.Security.LoginStatusCookieName, "true", 0, conf.Web.Subpath)
+	}
+	return true, nil
+}
+
 func Login(c *context.Context) {
 	c.Title("sign_in")
+
+	// Check auto-login
+	isSucceed, err := AutoLogin(c)
+	if err != nil {
+		c.Error(err, "auto login")
+		return
+	}
+
+	redirectTo := c.Query("redirect_to")
+	if len(redirectTo) > 0 {
+		c.SetCookie("redirect_to", redirectTo, 0, conf.Web.Subpath)
+	} else {
+		redirectTo, _ = url.QueryUnescape(c.GetCookie("redirect_to"))
+	}
+
+	if isSucceed {
+		if tools.IsSameSiteURLPath(redirectTo) {
+			c.Redirect(redirectTo)
+		} else {
+			c.RedirectSubpath("/")
+		}
+		c.SetCookie("redirect_to", "", -1, conf.Web.Subpath)
+		return
+	}
 
 	c.Success(LOGIN)
 }
@@ -39,45 +108,44 @@ func LoginPost(c *context.Context, f form.SignIn) {
 	// }
 	// c.Data["LoginSources"] = loginSources
 
-	loginBool, err := db.LoginByUserPassword(f.UserName, f.Password)
-	fmt.Println(loginBool, err, f.UserName, f.Password)
+	loginBool, uid := db.LoginByUserPassword(f.UserName, f.Password)
+	fmt.Println(loginBool, uid, f.UserName, f.Password)
+
+	if !loginBool {
+		c.FormErr("UserName", "Password")
+		c.RenderWithErr(c.Tr("form.username_password_incorrect"), LOGIN, &f)
+
+	}
+
 	if c.HasError() {
 		c.Success(LOGIN)
 		return
 	}
 
-	fmt.Println(c.Data["HasError"])
+	u, _ := db.UserGetByName(f.UserName)
+	if f.Remember {
+		days := 86400 * conf.Security.LoginRememberDays
+		c.SetCookie(conf.Security.CookieUsername, u.Name, days, conf.Web.Subpath, "", conf.Security.CookieSecure, true)
+		c.SetSuperSecureCookie(u.Salt+u.Password, conf.Security.CookieRememberName, u.Name, days, conf.Web.Subpath, "", conf.Security.CookieSecure, true)
+	}
 
-	// u, err := db.Users.Authenticate(f.UserName, f.Password, f.LoginSource)
-	// if err != nil {
-	// 	switch errors.Cause(err).(type) {
-	// 	case auth.ErrBadCredentials:
-	// 		c.FormErr("UserName", "Password")
-	// 		c.RenderWithErr(c.Tr("form.username_password_incorrect"), LOGIN, &f)
-	// 	case db.ErrLoginSourceMismatch:
-	// 		c.FormErr("LoginSource")
-	// 		c.RenderWithErr(c.Tr("form.auth_source_mismatch"), LOGIN, &f)
+	_ = c.Session.Set("uid", uid)
+	_ = c.Session.Set("uname", f.UserName)
 
-	// 	default:
-	// 		c.Error(err, "authenticate user")
-	// 	}
-	// 	for i := range loginSources {
-	// 		if loginSources[i].IsDefault {
-	// 			c.Data["DefaultLoginSource"] = loginSources[i]
-	// 			break
-	// 		}
-	// 	}
-	// 	return
-	// }
+	// Clear whatever CSRF has right now, force to generate a new one
+	c.SetCookie(conf.Session.CSRFCookieName, "", -1, conf.Web.Subpath)
+	if conf.Security.EnableLoginStatusCookie {
+		c.SetCookie(conf.Security.LoginStatusCookieName, "true", 0, conf.Web.Subpath)
+	}
 
-	// if !u.IsEnabledTwoFactor() {
-	// 	afterLogin(c, u, f.Remember)
-	// 	return
-	// }
+	redirectTo, _ := url.QueryUnescape(c.GetCookie("redirect_to"))
+	c.SetCookie("redirect_to", "", -1, conf.Web.Subpath)
+	if tools.IsSameSiteURLPath(redirectTo) {
+		c.Redirect(redirectTo)
+		return
+	}
 
-	// _ = c.Session.Set("twoFactorRemember", f.Remember)
-	// _ = c.Session.Set("twoFactorUserID", u.ID)
-	// c.RedirectSubpath("/user/login/two_factor")
+	c.RedirectSubpath("/")
 }
 
 func LoginTwoFactor(c *context.Context) {
