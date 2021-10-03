@@ -15,6 +15,7 @@ import (
 	"github.com/midoks/imail/internal/app/context"
 	"github.com/midoks/imail/internal/app/form"
 	"github.com/midoks/imail/internal/app/router"
+	"github.com/midoks/imail/internal/app/router/admin"
 	"github.com/midoks/imail/internal/app/router/user"
 	"github.com/midoks/imail/internal/app/template"
 	"github.com/midoks/imail/internal/conf"
@@ -72,15 +73,11 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 	m.SetAutoHead(true)
 
 	m.Group("", func() {
-		m.Get("/", reqSignIn, func(ctx *context.Context) {
-			ctx.Success("home")
-		})
+		m.Get("/", reqSignIn, router.Home)
 
 		m.Group("/user", func() {
 			m.Group("/login", func() {
 				m.Combo("").Get(user.Login).Post(bindIgnErr(form.SignIn{}), user.LoginPost)
-				m.Combo("/two_factor").Get(user.LoginTwoFactor).Post(user.LoginTwoFactorPost)
-				m.Combo("/two_factor_recovery_code").Get(user.LoginTwoFactorRecoveryCode).Post(user.LoginTwoFactorRecoveryCodePost)
 			})
 
 			m.Get("/sign_up", user.SignUp)
@@ -88,6 +85,31 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 		}, reqSignOut)
 
 		m.Combo("/install", router.InstallInit).Get(router.Install).Post(bindIgnErr(form.Install{}), router.InstallPost)
+
+		reqAdmin := context.Toggle(&context.ToggleOptions{SignInRequired: true, AdminRequired: true})
+
+		// ***** START: Admin *****
+		m.Group("/admin", func() {
+			m.Combo("").Get(admin.Dashboard) //.Post(admin.Operation) // "/admin"
+			// m.Get("/config", admin.Config)
+			// m.Post("/config/test_mail", admin.SendTestMail)
+			// m.Get("/monitor", admin.Monitor)
+
+			// m.Group("/users", func() {
+			// 	m.Get("", admin.Users)
+			// 	m.Combo("/new").Get(admin.NewUser).Post(bindIgnErr(form.AdminCrateUser{}), admin.NewUserPost)
+			// 	m.Combo("/:userid").Get(admin.EditUser).Post(bindIgnErr(form.AdminEditUser{}), admin.EditUserPost)
+			// 	m.Post("/:userid/delete", admin.DeleteUser)
+			// })
+
+			// m.Group("/notices", func() {
+			// 	m.Get("", admin.Notices)
+			// 	m.Post("/delete", admin.DeleteNotices)
+			// 	m.Get("/empty", admin.EmptyNotices)
+			// })
+		}, reqAdmin)
+		// ***** END: Admin *****
+
 	}, session.Sessioner(session.Options{
 		Provider:       conf.Session.Provider,
 		ProviderConfig: conf.Session.ProviderConfig,

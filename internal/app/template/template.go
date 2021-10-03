@@ -68,6 +68,9 @@ func FuncMap() []template.FuncMap {
 				return str[start:end]
 			},
 			"Join": strings.Join,
+			"DateFmtLong": func(t time.Time) string {
+				return t.Format(time.RFC1123Z)
+			},
 			"DateFmtShort": func(t time.Time) string {
 				return t.Format("Jan 02, 2006")
 			},

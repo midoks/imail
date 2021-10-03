@@ -11,9 +11,9 @@ import (
 
 	"github.com/go-macaron/cache"
 	"github.com/go-macaron/csrf"
-	"gopkg.in/macaron.v1"
-	// "github.com/go-macaron/i18n"
+	"github.com/go-macaron/i18n"
 	"github.com/go-macaron/session"
+	"gopkg.in/macaron.v1"
 
 	"github.com/midoks/imail/internal/app/form"
 	"github.com/midoks/imail/internal/app/template"
@@ -145,12 +145,11 @@ func (c *Context) RedirectSubpath(location string, status ...int) {
 }
 
 // Contexter initializes a classic context for a request.
-//l i18n.Locale, cache cache.Cache, sess session.Store, f *session.Flash,
 func Contexter() macaron.Handler {
-	return func(ctx *macaron.Context, sess session.Store, f *session.Flash, x csrf.CSRF) {
+	return func(ctx *macaron.Context, l i18n.Locale, cache cache.Cache, sess session.Store, f *session.Flash, x csrf.CSRF) {
 		c := &Context{
 			Context: ctx,
-			// Cache:   cache,
+			Cache:   cache,
 			csrf:    x,
 			Flash:   f,
 			Session: sess,
@@ -166,23 +165,25 @@ func Contexter() macaron.Handler {
 		}
 
 		// Get user from session or header when possible
-		// c.User, c.IsBasicAuth, c.IsTokenAuth = authenticatedUser(c.Context, c.Session)
-
-		// if c.User != nil {
-		// 	c.IsLogged = true
-		// 	c.Data["IsLogged"] = c.IsLogged
-		// 	c.Data["LoggedUser"] = c.User
-		// 	c.Data["LoggedUserID"] = c.User.ID
-		// 	c.Data["LoggedUserName"] = c.User.Name
-		// 	c.Data["IsAdmin"] = c.User.IsAdmin
-		// } else {
-		// 	c.Data["LoggedUserID"] = 0
-		// 	c.Data["LoggedUserName"] = ""
-		// }
+		uname := c.Session.Get("uname").(string)
+		fmt.Println(uname)
+		u, err := db.UserGetByName(uname)
+		fmt.Println(u, err)
+		if err == nil {
+			c.IsLogged = true
+			c.Data["IsLogged"] = c.IsLogged
+			c.Data["LoggedUser"] = u
+			c.Data["LoggedUserID"] = u.Id
+			c.Data["LoggedUserName"] = u.Name
+			c.Data["IsAdmin"] = u.IsAdmin
+		} else {
+			c.Data["LoggedUserID"] = 0
+			c.Data["LoggedUserName"] = ""
+		}
 
 		c.Data["CSRFToken"] = x.GetToken()
 		c.Data["CSRFTokenHTML"] = template.Safe(`<input type="hidden" name="_csrf" value="` + x.GetToken() + `">`)
-		// log.Trace("Session ID: %s", sess.ID())
+		log.Trace("Session ID: %s", sess.ID())
 		log.Trace("CSRF Token: %v", c.Data["CSRFToken"])
 
 		// c.Data["ShowRegistrationButton"] = !conf.Auth.DisableRegistration

@@ -11,10 +11,14 @@ import (
     "gorm.io/driver/mysql"
     "gorm.io/driver/sqlite"
     "gorm.io/gorm"
+    "xorm.io/xorm"
 )
 
-var db *gorm.DB
-var err error
+var (
+    db  *gorm.DB
+    x   *xorm.Engine
+    err error
+)
 
 func Init() error {
     switch conf.Database.Type {
@@ -81,6 +85,19 @@ func Init() error {
     // }
 
     return nil
+}
+
+type Statistic struct {
+    Counter struct {
+        User int64
+    }
+}
+
+func GetStatistic() (stats Statistic) {
+    stats.Counter.User = 0
+
+    fmt.Println(stats)
+    return stats
 }
 
 func CheckDb() bool {

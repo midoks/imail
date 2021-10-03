@@ -30,6 +30,34 @@ func (User) TableName() string {
 	return "im_users"
 }
 
+// RelAvatarLink returns relative avatar link to the site domain,
+// which includes app sub-url as prefix. However, it is possible
+// to return full URL if user enables Gravatar-like service.
+func (u *User) RelAvatarLink() string {
+	return "123123"
+	// defaultImgUrl := conf.Server.Subpath + "/img/avatar_default.png"
+	// if u.ID == -1 {
+	// 	return defaultImgUrl
+	// }
+
+	// switch {
+	// case u.UseCustomAvatar:
+	// 	if !com.IsExist(u.CustomAvatarPath()) {
+	// 		return defaultImgUrl
+	// 	}
+	// 	return fmt.Sprintf("%s/%s/%d", conf.Server.Subpath, USER_AVATAR_URL_PREFIX, u.ID)
+	// case conf.Picture.DisableGravatar:
+	// 	if !com.IsExist(u.CustomAvatarPath()) {
+	// 		if err := u.GenerateRandomAvatar(); err != nil {
+	// 			log.Error("GenerateRandomAvatar: %v", err)
+	// 		}
+	// 	}
+
+	// 	return fmt.Sprintf("%s/%s/%d", conf.Server.Subpath, USER_AVATAR_URL_PREFIX, u.ID)
+	// }
+	// return tool.AvatarLink(u.AvatarEmail)
+}
+
 // CreateUser creates record of a new user.
 // Deprecated: Use Users.Create instead.
 func CreateUser(u *User) (err error) {

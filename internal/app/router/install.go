@@ -288,8 +288,6 @@ func InstallPost(c *context.Context, f form.Install) {
 		return
 	}
 
-	fmt.Println(conf.Database.Type, conf.Database.Path)
-
 	// // Create admin account
 	if len(f.AdminName) > 0 {
 		u := &db.User{
