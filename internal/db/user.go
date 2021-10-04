@@ -10,7 +10,8 @@ import (
 
 type User struct {
 	Id       int64  `gorm:"primaryKey"`
-	Name     string `gorm:"unique;size:50;comment:用户名"`
+	Name     string `gorm:"unique;size:50;comment:登录账户"`
+	Nick     string `gorm:"unique;size:50;comment:昵称"`
 	Password string `gorm:"size:32;comment:用户密码"`
 	Code     string `gorm:"size:50;comment:编码"`
 	Token    string `gorm:"unique;size:50;comment:Token"`
@@ -28,6 +29,10 @@ type User struct {
 
 func (User) TableName() string {
 	return "im_users"
+}
+
+func (u *User) GetNick() string {
+	return "123123"
 }
 
 // RelAvatarLink returns relative avatar link to the site domain,
@@ -62,13 +67,13 @@ func (u *User) RelAvatarLink() string {
 // Deprecated: Use Users.Create instead.
 func CreateUser(u *User) (err error) {
 	data := db.First(u, "name = ?", u.Name)
-
 	u.Salt = tools.RandString(10)
+	u.Nick = u.Name
 	u.Password = tools.Md5(tools.Md5(u.Password) + u.Salt)
 	if data.Error != nil {
 		db.Create(u)
 	}
-	return nil
+	return data.Error
 }
 
 func LoginWithCode(name string, code string) (bool, int64) {

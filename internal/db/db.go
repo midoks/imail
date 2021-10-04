@@ -3,7 +3,7 @@ package db
 import (
     "errors"
     "fmt"
-    // "os"
+    "os"
     "time"
 
     "github.com/midoks/imail/internal/conf"
@@ -11,12 +11,10 @@ import (
     "gorm.io/driver/mysql"
     "gorm.io/driver/sqlite"
     "gorm.io/gorm"
-    "xorm.io/xorm"
 )
 
 var (
     db  *gorm.DB
-    x   *xorm.Engine
     err error
 )
 
@@ -34,8 +32,8 @@ func Init() error {
         db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
     case "sqlite3":
         dbPath := conf.Database.Path
-        // os.MkdirAll(conf.WorkDir()+"/data", os.ModePerm)
-        // fmt.Println("sqlite3 err:", dbPath)
+        os.MkdirAll(conf.WorkDir()+"/data", os.ModePerm)
+        fmt.Println("sqlite3 Path:", dbPath)
         db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{SkipDefaultTransaction: true})
         //&gorm.Config{SkipDefaultTransaction: true,}
 

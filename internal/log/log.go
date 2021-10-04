@@ -19,7 +19,6 @@ var (
 
 func Init() *logrus.Logger {
 	fileName := path.Join(conf.Log.RootPath, logFileName)
-
 	src, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		fmt.Println("log error", err)

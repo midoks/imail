@@ -62,7 +62,7 @@ func Init() {
 	// 	TaskQueueeSendMail()
 	// })
 
-	c.AddFunc("dd ", "@every 1s", func() { TaskRspamdCheck() })
+	c.AddFunc("dd ", "@every 10m", func() { TaskRspamdCheck() })
 
 	c.Start()
 }

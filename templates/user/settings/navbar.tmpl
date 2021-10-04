@@ -1,6 +1,7 @@
 <div class="four wide column">
 	<div class="ui vertical menu">
 		<div class="header item">{{.i18n.Tr "settings"}}</div>
+
 		<a class="{{if .PageIsSettingsProfile}}active{{end}} item" href="{{AppSubURL}}/user/settings">
 			{{.i18n.Tr "settings.profile"}}
 		</a>
@@ -9,9 +10,6 @@
 			{{.i18n.Tr "settings.password"}}
 		</a>
 		
-		<a class="{{if .PageIsSettingsApplications}}active{{end}} item" href="{{AppSubURL}}/user/settings/applications">
-			{{.i18n.Tr "settings.applications"}}
-		</a>
 		<a class="{{if .PageIsSettingsDelete}}active{{end}} item" href="{{AppSubURL}}/user/settings/delete">
 			{{.i18n.Tr "settings.delete"}}
 		</a>

@@ -9,27 +9,14 @@
 					{{.i18n.Tr "settings.public_profile"}}
 				</h4>
 				<div class="ui attached segment">
-					<p>{{.i18n.Tr "settings.profile_desc"}}</p>
 					<form class="ui form" action="{{.Link}}" method="post">
 						{{.CSRFTokenHTML}}
 					
-						<div class="field {{if .Err_FullName}}error{{end}}">
-							<label for="full_name">{{.i18n.Tr "settings.full_name"}}</label>
-							<input id="full_name" name="full_name" value="{{.full_name}}">
+						<div class="field {{if .Err_NickName}}error{{end}}">
+							<label for="nick">{{.i18n.Tr "settings.nick_name"}}</label>
+							<input id="nick" name="nick" value="{{ .User.GetNick }}">
 						</div>
-						<div class="required field {{if .Err_Email}}error{{end}}">
-							<label for="email">{{.i18n.Tr "email"}}</label>
-							<input id="email" name="email" value="{{.email}}" required>
-						</div>
-						<div class="field {{if .Err_Website}}error{{end}}">
-							<label for="website">{{.i18n.Tr "settings.website"}}</label>
-							<input id="website" name="website" type="url" value="{{.website}}">
-						</div>
-						<div class="field">
-							<label for="location">{{.i18n.Tr "settings.location"}}</label>
-							<input id="location" name="location"  value="{{.location}}">
-						</div>
-
+						
 						<div class="field">
 							<button class="ui green button">{{$.i18n.Tr "settings.update_profile"}}</button>
 						</div>

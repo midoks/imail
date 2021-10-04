@@ -87,11 +87,16 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 			m.Post("/sign_up", bindIgnErr(form.Register{}), user.SignUpPost)
 		}, reqSignOut)
 
+		// ***** END: User *****
 		m.Group("/user/settings", func() {
 			m.Get("", user.Settings)
+
+			m.Get("/password", user.SettingsPassword)
+			// m.Post("/password", bindIgnErr(form.ChangePassword{}), user.SettingsPasswordPost)
 		}, reqSignIn, func(c *context.Context) {
 			c.Data["PageIsUserSettings"] = true
 		})
+		// ***** END: User *****
 
 		reqAdmin := context.Toggle(&context.ToggleOptions{SignInRequired: true, AdminRequired: true})
 
@@ -112,12 +117,12 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 		}, reqAdmin)
 		// ***** END: Admin *****
 
-		// ***** START: Admin *****
+		// ***** START: Mail *****
 		m.Group("/mail", func() {
 			m.Combo("/new").Get(mail.New)
 
 		}, reqAdmin)
-		// ***** END: Admin *****
+		// ***** END: Mail *****
 
 	}, session.Sessioner(session.Options{
 		Provider:       conf.Session.Provider,

@@ -29,7 +29,6 @@ func Init(customConf string) error {
 
 	appConf := filepath.Join(WorkDir(), "conf", "app.conf")
 
-	fmt.Println(WorkDir())
 	contentConf, _ := ReadFile(appConf)
 	File, err := ini.LoadSources(ini.LoadOptions{
 		IgnoreInlineComment: true,

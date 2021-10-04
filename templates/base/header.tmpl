@@ -47,7 +47,13 @@
 	<script src="{{AppSubURL}}/js/semantic.min.js"></script>
 	<script src="{{AppSubURL}}/js/imail.js"></script>
 
-	
+	<style>
+	.ui.vertical.menu {
+	    width: 16rem;
+	}
+	</style>
+
+	<title>{{if .Title}}{{.Title}} - {{end}}{{AppName}}</title>
 </head>
 <body>
 	<div class="full height">

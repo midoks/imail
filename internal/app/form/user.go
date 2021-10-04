@@ -12,3 +12,9 @@ type Register struct {
 	Password string `binding:"Required;MaxSize(255)"`
 	Retype   string
 }
+
+type ChangePassword struct {
+	OldPassword string `binding:"Required;MinSize(1);MaxSize(255)"`
+	Password    string `binding:"Required;MaxSize(255)"`
+	Retype      string
+}

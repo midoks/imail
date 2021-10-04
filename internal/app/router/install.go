@@ -23,6 +23,7 @@ import (
 	"github.com/midoks/imail/internal/task"
 	"github.com/midoks/imail/internal/tools"
 	"github.com/midoks/imail/internal/tools/debug"
+	"github.com/midoks/imail/internal/tools/syscall"
 )
 
 const (
@@ -66,7 +67,6 @@ func checkRunMode() {
 func GlobalInit(customConf string) error {
 
 	err := conf.Init(customConf)
-
 	if err != nil {
 		return errors.Wrap(err, "init configuration")
 	}
@@ -89,13 +89,24 @@ func GlobalInit(customConf string) error {
 		logger.SetLevel(logrus.InfoLevel)
 	}
 
+	logFile, err := os.OpenFile("./logs/run_away.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+	if err != nil {
+		panic("Exception capture:Failed to open exception log file")
+	}
+
+	// Redirect the process standard error to the file.
+	// When the process crashes, the runtime will record the co process call stack information to the file
+	syscall.Dup2(int(logFile.Fd()), int(os.Stderr.Fd()))
+
 	if conf.Security.InstallLock {
+
 		db.Init()
 		task.Init()
 
 		startService("smtpd")
 		startService("pop3")
 		startService("imap")
+
 	}
 
 	checkRunMode()
@@ -250,6 +261,7 @@ func InstallPost(c *context.Context, f form.Install) {
 		}
 	}
 
+	cfg.Section("").Key("app_name").SetValue("imail")
 	cfg.Section("").Key("brand_name").SetValue(f.AppName)
 	cfg.Section("").Key("run_user").SetValue(f.RunUser)
 	cfg.Section("").Key("run_mode").SetValue("prod")
@@ -314,8 +326,8 @@ func InstallPost(c *context.Context, f form.Install) {
 		}
 
 		// Auto-login for admin
-		// _ = c.Session.Set("uid", u.Id)
-		// _ = c.Session.Set("uname", u.Name)
+		_ = c.Session.Set("uid", u.Id)
+		_ = c.Session.Set("uname", u.Name)
 	}
 
 	log.Info("first-time run install finished!")
