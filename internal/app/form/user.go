@@ -18,3 +18,7 @@ type ChangePassword struct {
 	Password    string `binding:"Required;MaxSize(255)"`
 	Retype      string
 }
+
+type UpdateProfile struct {
+	Nick string `binding:"Required;AlphaDashDot;MaxSize(35)"`
+}

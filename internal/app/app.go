@@ -70,14 +70,12 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 	reqSignOut := context.Toggle(&context.ToggleOptions{SignOutRequired: true})
 
 	bindIgnErr := binding.BindIgnErr
-
 	m.SetAutoHead(true)
 
 	m.Group("", func() {
 		m.Combo("/install", router.InstallInit).Get(router.Install).Post(bindIgnErr(form.Install{}), router.InstallPost)
 
 		m.Get("/", reqSignIn, router.Home)
-
 		m.Group("/user", func() {
 			m.Group("/login", func() {
 				m.Combo("").Get(user.Login).Post(bindIgnErr(form.SignIn{}), user.LoginPost)
@@ -90,9 +88,10 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 		// ***** END: User *****
 		m.Group("/user/settings", func() {
 			m.Get("", user.Settings)
+			m.Post("", bindIgnErr(form.UpdateProfile{}), user.SettingsPost)
 
 			m.Get("/password", user.SettingsPassword)
-			// m.Post("/password", bindIgnErr(form.ChangePassword{}), user.SettingsPasswordPost)
+			m.Post("/password", bindIgnErr(form.ChangePassword{}), user.SettingsPasswordPost)
 		}, reqSignIn, func(c *context.Context) {
 			c.Data["PageIsUserSettings"] = true
 		})

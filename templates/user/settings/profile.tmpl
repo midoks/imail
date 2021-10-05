@@ -14,7 +14,7 @@
 					
 						<div class="field {{if .Err_NickName}}error{{end}}">
 							<label for="nick">{{.i18n.Tr "settings.nick_name"}}</label>
-							<input id="nick" name="nick" value="{{ .User.GetNick }}">
+							<input id="nick" name="nick" value="{{.LoggedUser.Nick}}">
 						</div>
 						
 						<div class="field">

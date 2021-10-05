@@ -3,7 +3,7 @@ package user
 import (
 	// "bytes"
 	// "encoding/base64"
-	// "fmt"
+	"fmt"
 	// "html/template"
 	// "image/png"
 	// "io/ioutil"
@@ -16,6 +16,7 @@ import (
 	"github.com/midoks/imail/internal/app/form"
 	// "github.com/midoks/imail/internal/conf"
 	// "github.com/midoks/imail/internal/db"
+	// "github.com/midoks/imail/internal/log"
 )
 
 const (
@@ -29,12 +30,32 @@ const (
 func Settings(c *context.Context) {
 	c.Title("settings.profile")
 	c.PageIs("SettingsProfile")
-	// c.Data["origin_name"] = c.User.Name
-	// c.Data["name"] = c.User.Name
-	// c.Data["full_name"] = c.User.FullName
-	// c.Data["email"] = c.User.Email
-	// c.Data["website"] = c.User.Website
-	// c.Data["location"] = c.User.Location
+	c.Success(SETTINGS_PROFILE)
+}
+
+func SettingsPost(c *context.Context, f form.UpdateProfile) {
+	c.Title("settings.profile")
+	c.PageIs("SettingsProfile")
+
+	// if c.HasError() {
+	// 	c.Success(SETTINGS_PROFILE)
+	// 	return
+	// }
+
+	// c.User.Nick = f.Nick
+	// if err := db.UserUpdate(c.User); err != nil {
+	// 	if db.IsErrEmailAlreadyUsed(err) {
+	// 		msg := c.Tr("form.email_been_used")
+	// 		c.RenderWithErr(msg, SETTINGS_PROFILE, &f)
+	// 		return
+	// 	}
+	// 	c.Errorf(err, "update user")
+	// 	return
+	// }
+
+	// c.Flash.Success(c.Tr("settings.update_profile_success"))
+	// c.RedirectSubpath("/user/settings")
+
 	c.Success(SETTINGS_PROFILE)
 }
 
@@ -53,6 +74,7 @@ func SettingsPasswordPost(c *context.Context, f form.ChangePassword) {
 		return
 	}
 
+	fmt.Println(c.User.GetNick())
 	// if !c.User.ValidatePassword(f.OldPassword) {
 	// 	c.Flash.Error(c.Tr("settings.password_incorrect"))
 	// } else if f.Password != f.Retype {

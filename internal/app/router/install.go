@@ -317,8 +317,8 @@ func InstallPost(c *context.Context, f form.Install) {
 			fmt.Println("db error:", err)
 			// if !db.IsErrUserAlreadyExist(err) {
 			// 	conf.Security.InstallLock = false
-			// 	c.FormErr("AdminName", "AdminEmail")
-			// 	c.RenderWithErr(c.Tr("install.invalid_admin_setting", err), INSTALL, &f)
+			c.FormErr("AdminName", "AdminEmail")
+			c.RenderWithErr(c.Tr("install.invalid_admin_setting", err), INSTALL, &f)
 			// 	return
 			// }
 			// log.Info("Admin account already exist")
