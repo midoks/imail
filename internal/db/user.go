@@ -89,6 +89,17 @@ func UserUpdater(u *User) error {
 	return r.Error
 }
 
+type UserSearchOptions struct {
+	keyword  string
+	OrderBy  string
+	Page     int
+	PageSize int
+}
+
+func UserSearchByName(opts *UserSearchOptions) {
+
+}
+
 func LoginWithCode(name string, code string) (bool, int64) {
 	list := strings.SplitN(name, "@", 2)
 

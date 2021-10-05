@@ -13,15 +13,6 @@ const (
 	HOME = "home"
 )
 
-// type UserSearchOptions struct {
-// 	Type     db.UserType
-// 	Counter  func() int64
-// 	Ranger   func(int, int) ([]*db.User, error)
-// 	PageSize int
-// 	OrderBy  string
-// 	TplName  string
-// }
-
 // func RenderUserSearch(c *context.Context, opts *UserSearchOptions) {
 // 	page := c.QueryInt("page")
 // 	if page <= 1 {

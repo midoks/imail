@@ -6,16 +6,17 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"fmt"
-	"github.com/midoks/imail/internal/conf"
-	"github.com/midoks/imail/internal/db"
-	"github.com/midoks/imail/internal/log"
-	"github.com/midoks/imail/internal/tools"
-	"github.com/midoks/imail/internal/tools/mail"
 	"io"
 	"net"
 	"net/textproto"
 	"strings"
 	"time"
+
+	"github.com/midoks/imail/internal/conf"
+	"github.com/midoks/imail/internal/db"
+	"github.com/midoks/imail/internal/log"
+	"github.com/midoks/imail/internal/tools"
+	"github.com/midoks/imail/internal/tools/mail"
 )
 
 const (
