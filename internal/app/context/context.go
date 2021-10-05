@@ -182,6 +182,8 @@ func Contexter() macaron.Handler {
 				c.Data["IsAdmin"] = u.IsAdmin
 			}
 
+			c.User = &u
+
 		} else {
 			c.Data["LoggedUserID"] = 0
 			c.Data["LoggedUserName"] = ""

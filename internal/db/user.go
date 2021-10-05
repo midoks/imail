@@ -35,10 +35,19 @@ func (u *User) GetNick() string {
 	return "123123"
 }
 
+func (u *User) ValidPassword(oldPwd string) bool {
+	inputPwd := tools.Md5(tools.Md5(oldPwd) + u.Salt)
+
+	if strings.EqualFold(u.Password, inputPwd) {
+		return true
+	}
+	return false
+}
+
 // RelAvatarLink returns relative avatar link to the site domain,
 // which includes app sub-url as prefix. However, it is possible
 // to return full URL if user enables Gravatar-like service.
-func (u *User) RelAvatarLink() string {
+func (User) RelAvatarLink() string {
 	return "123123"
 	// defaultImgUrl := conf.Server.Subpath + "/img/avatar_default.png"
 	// if u.ID == -1 {
@@ -64,7 +73,6 @@ func (u *User) RelAvatarLink() string {
 }
 
 // CreateUser creates record of a new user.
-// Deprecated: Use Users.Create instead.
 func CreateUser(u *User) (err error) {
 	data := db.First(u, "name = ?", u.Name)
 	u.Salt = tools.RandString(10)
@@ -74,6 +82,11 @@ func CreateUser(u *User) (err error) {
 		db.Create(u)
 	}
 	return data.Error
+}
+
+func UserUpdater(u *User) error {
+	r := db.Model(&User{}).Where("id = ?", u.Id).Save(u)
+	return r.Error
 }
 
 func LoginWithCode(name string, code string) (bool, int64) {
@@ -125,9 +138,24 @@ func UserUpdateTokenGetByName(name string, token string) bool {
 	return true
 }
 
+func UserUpdateTokenGetById(id int64, token string) error {
+	r := db.Model(&User{}).Where("id = ?", id).Update("token", token)
+	return r.Error
+}
+
 func UserUpdateCodeGetByName(name string, code string) bool {
 	db.Model(&User{}).Where("name = ?", name).Update("code", code)
 	return true
+}
+
+func UserUpdateCodeGetById(id int64, code string) error {
+	r := db.Model(&User{}).Where("id = ?", id).Update("code", code)
+	return r.Error
+}
+
+func UserUpdateNickGetByName(name string, nick string) error {
+	r := db.Model(&User{}).Where("name = ?", name).Update("nick", nick)
+	return r.Error
 }
 
 func UserGetByName(name string) (User, error) {

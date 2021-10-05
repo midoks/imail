@@ -57,11 +57,6 @@
 						<dd><code>{{.Web.AppDataPath}}</code></dd>
 						<dt>{{.i18n.Tr "admin.config.server.load_assets_from_disk"}}</dt>
 						<dd><i class="fa fa{{if .Web.LoadAssetsFromDisk}}-check{{end}}-square-o"></i></dd>
-
-						<div class="ui divider"></div>
-
-						<dt>{{.i18n.Tr "admin.config.server.landing_url"}}</dt>
-						<dd><code>{{.Web.LandingURL}}</code></dd>
 					</dl>
 				</div>
 
@@ -168,21 +163,6 @@
 						<dt>{{.i18n.Tr "admin.config.log_file_root_path"}}</dt>
 						<dd><code>{{.LogRootPath}}</code></dd>
 					</dl>
-
-					<div class="ui divider"></div>
-
-					<table class="ui very basic table">
-						{{range .Loggers}}
-							<tr>
-								<td>{{$.i18n.Tr "admin.config.log_mode"}}</td>
-								<td>{{.Mode}}</td>
-							<tr>
-							</tr>
-								<td>{{$.i18n.Tr "admin.config.log_options"}}</td>
-								<td><pre><code>{{.Config}}</code></pre></td>
-							</tr>
-						{{end}}
-					</table>
 				</div>
 			</div>
 		</div>

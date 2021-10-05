@@ -8,6 +8,10 @@ import (
 	"github.com/midoks/imail/internal/tools"
 )
 
+type Empty struct {
+	No bool
+}
+
 func init() {
 	binding.SetNameMapper(tools.ToSnakeCase)
 	// binding.AddRule(&binding.Rule{

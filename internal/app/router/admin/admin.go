@@ -171,7 +171,6 @@ func Config(c *context.Context) {
 	c.Data["Web"] = conf.Web
 	c.Data["Database"] = conf.Database
 	c.Data["Security"] = conf.Security
-	// c.Data["Auth"] = conf.Auth
 	c.Data["Session"] = conf.Session
 	c.Data["Cache"] = conf.Cache
 	// c.Data["Picture"] = conf.Picture

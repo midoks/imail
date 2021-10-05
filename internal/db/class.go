@@ -11,9 +11,9 @@ import (
 
 type Class struct {
 	Id         int64  `gorm:"primaryKey"`
+	Uid        int64  `gorm:"comment:用户ID"`
 	Name       string `gorm:"size:50;comment:分类名"`
 	Type       string `gorm:"size:50;comment:类型"`
-	Userid     int64  `gorm:"comment:用户ID"`
 	UpdateTime int64  `gorm:"autoCreateTime;comment:更新时间"`
 	CreateTime int64  `gorm:"autoCreateTime;comment:创建时间"`
 }

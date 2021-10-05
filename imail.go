@@ -10,7 +10,7 @@ import (
 	"github.com/midoks/imail/internal/log"
 )
 
-const Version = "0.1.0"
+const Version = "0.0.9"
 const AppName = "Imail"
 
 func init() {

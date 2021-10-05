@@ -90,6 +90,9 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 			m.Get("", user.Settings)
 			m.Post("", bindIgnErr(form.UpdateProfile{}), user.SettingsPost)
 
+			m.Get("/authpassword", user.SettingsAuthPassword)
+			m.Post("/authpassword", bindIgnErr(form.Empty{}), user.SettingsAuthPasswordPost)
+
 			m.Get("/password", user.SettingsPassword)
 			m.Post("/password", bindIgnErr(form.ChangePassword{}), user.SettingsPasswordPost)
 		}, reqSignIn, func(c *context.Context) {

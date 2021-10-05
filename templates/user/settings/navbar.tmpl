@@ -6,12 +6,14 @@
 			{{.i18n.Tr "settings.profile"}}
 		</a>
 	
+
+		<a class="{{if .PageIsSettingsAuthPassword}}active{{end}} item" href="{{AppSubURL}}/user/settings/authpassword">
+			{{.i18n.Tr "settings.auth_password"}}
+		</a>
+
 		<a class="{{if .PageIsSettingsPassword}}active{{end}} item" href="{{AppSubURL}}/user/settings/password">
 			{{.i18n.Tr "settings.password"}}
 		</a>
 		
-		<a class="{{if .PageIsSettingsDelete}}active{{end}} item" href="{{AppSubURL}}/user/settings/delete">
-			{{.i18n.Tr "settings.delete"}}
-		</a>
 	</div>
 </div>
