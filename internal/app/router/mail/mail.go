@@ -52,7 +52,7 @@ func RenderMailSearch(c *context.Context, opts *MailSearchOptions) {
 	c.Data["Total"] = count
 	c.Data["Page"] = paginater.New(int(count), opts.PageSize, page, 5)
 
-	fmt.Println(c.Data["Page"])
+	fmt.Println("page:", c.Data["Page"], count)
 	c.Data["Mail"] = mail
 
 	c.Success(opts.TplName)

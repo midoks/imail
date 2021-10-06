@@ -34,7 +34,7 @@ func (*Mail) TableName() string {
 
 func MailCount() int64 {
 	var count int64
-	db.Model(&User{}).Count(&count)
+	db.Model(&Mail{}).Count(&count)
 	return count
 }
 
