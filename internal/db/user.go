@@ -21,9 +21,9 @@ type User struct {
 	IsActive bool
 	IsAdmin  bool
 
-	Created     time.Time `xorm:"-" gorm:"-" json:"-"`
+	Created     time.Time `gorm:"autoCreateTime;comment:创建时间"`
 	CreatedUnix int64     `gorm:"autoCreateTime;comment:创建时间"`
-	Updated     time.Time `xorm:"-" gorm:"-" json:"-"`
+	Updated     time.Time `gorm:"autoCreateTime;comment:更新时间"`
 	UpdatedUnix int64     `gorm:"autoCreateTime;comment:更新时间"`
 }
 
@@ -90,14 +90,46 @@ func UserUpdater(u *User) error {
 }
 
 type UserSearchOptions struct {
-	keyword  string
+	Keyword  string
 	OrderBy  string
 	Page     int
 	PageSize int
 }
 
-func UserSearchByName(opts *UserSearchOptions) {
+func UserSearchByName(opts *UserSearchOptions) (user []*User, _ int64, _ error) {
+	if len(opts.Keyword) == 0 {
+		return user, 0, nil
+	}
 
+	opts.Keyword = strings.ToLower(opts.Keyword)
+
+	if opts.PageSize <= 0 || opts.PageSize > 20 {
+		opts.PageSize = 10
+	}
+	if opts.Page <= 0 {
+		opts.Page = 1
+	}
+
+	searchQuery := "%" + opts.Keyword + "%"
+	users := make([]*User, 0, opts.PageSize)
+
+	err := db.Model(&User{}).
+		Where("LOWER(name) LIKE ?", searchQuery).
+		Or("LOWER(nick) LIKE ?", searchQuery).
+		Find(&users)
+	return users, UsersCount(), err.Error
+}
+
+func UsersList(page, pageSize int) ([]*User, error) {
+	users := make([]*User, 0, pageSize)
+	err := db.Limit(pageSize).Offset((page - 1) * pageSize).Order("id desc").Find(&users)
+	return users, err.Error
+}
+
+func UsersCount() int64 {
+	var count int64
+	db.Model(&User{}).Count(&count)
+	return count
 }
 
 func LoginWithCode(name string, code string) (bool, int64) {

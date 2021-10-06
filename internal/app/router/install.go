@@ -23,7 +23,6 @@ import (
 	"github.com/midoks/imail/internal/task"
 	"github.com/midoks/imail/internal/tools"
 	"github.com/midoks/imail/internal/tools/debug"
-	"github.com/midoks/imail/internal/tools/syscall"
 )
 
 const (
@@ -88,15 +87,6 @@ func GlobalInit(customConf string) error {
 	} else {
 		logger.SetLevel(logrus.InfoLevel)
 	}
-
-	logFile, err := os.OpenFile("./logs/run_away.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
-	if err != nil {
-		panic("Exception capture:Failed to open exception log file")
-	}
-
-	// Redirect the process standard error to the file.
-	// When the process crashes, the runtime will record the co process call stack information to the file
-	syscall.Dup2(int(logFile.Fd()), int(os.Stderr.Fd()))
 
 	if conf.Security.InstallLock {
 

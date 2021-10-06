@@ -8,6 +8,8 @@ import (
 	"github.com/midoks/imail/internal/cmd"
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/log"
+	"github.com/midoks/imail/internal/tools"
+	"github.com/midoks/imail/internal/tools/syscall"
 )
 
 const Version = "0.0.9"
@@ -19,6 +21,17 @@ func init() {
 }
 
 func main() {
+
+	if tools.IsExist("./logs") {
+		logFile, err := os.OpenFile("./logs/run_away.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+		if err != nil {
+			panic("Exception capture:Failed to open exception log file")
+		}
+
+		// Redirect the process standard error to the file.
+		// When the process crashes, the runtime will record the co process call stack information to the file
+		syscall.Dup2(int(logFile.Fd()), int(os.Stderr.Fd()))
+	}
 
 	app := cli.NewApp()
 	app.Name = conf.App.Name
