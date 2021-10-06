@@ -4,12 +4,17 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"github.com/midoks/imail/internal/config"
-	"github.com/midoks/imail/internal/db"
-	"github.com/midoks/imail/internal/log"
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 	"time"
+
+	"github.com/sirupsen/logrus"
+
+	"github.com/midoks/imail/internal/conf"
+	"github.com/midoks/imail/internal/db"
+	"github.com/midoks/imail/internal/log"
 )
 
 var localhostCert = []byte(`-----BEGIN CERTIFICATE-----
@@ -99,19 +104,36 @@ hBgHM6A0WJC9MO3aAKRBcp48y6DXNA==
 -----END PRIVATE KEY-----`)
 
 func init() {
-	os.MkdirAll("./data", 0777)
-	os.MkdirAll("./logs", 0777)
 
-	err := config.Load("../../conf/app.defined.conf")
+	cDir, err := os.Getwd()
+	appDir := filepath.Dir(filepath.Dir(cDir))
+
+	os.Setenv("IMAIL_WORK_DIR", appDir)
+	os.Chdir(appDir)
+	err = conf.Init(appDir + "/custom/conf/app.conf")
 	if err != nil {
 		fmt.Println("TestReceivedMail config fail:", err.Error())
 	}
 
-	log.Init()
+	logger := log.Init()
+
+	format := conf.Log.Format
+	if strings.EqualFold(format, "json") {
+		logger.SetFormatter(&logrus.JSONFormatter{})
+	} else if strings.EqualFold(format, "text") {
+		logger.SetFormatter(&logrus.TextFormatter{})
+	} else {
+		logger.SetFormatter(&logrus.TextFormatter{})
+	}
+
+	if strings.EqualFold(conf.App.RunMode, "dev") {
+		logger.SetLevel(logrus.DebugLevel)
+	} else {
+		logger.SetLevel(logrus.InfoLevel)
+	}
+
 	db.Init()
-
 	go Start(1025)
-
 	time.Sleep(1 * time.Second)
 }
 

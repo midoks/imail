@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
-	"github.com/midoks/imail/internal/libs"
 	"github.com/midoks/imail/internal/log"
+	"github.com/midoks/imail/internal/tools"
 	"github.com/stretchr/testify/assert"
 	"net/http/httptest"
 	"net/url"
@@ -22,7 +22,7 @@ func init() {
 	os.MkdirAll("./data", 0777)
 	os.MkdirAll("./logs", 0777)
 
-	err := config.Load("../../conf/app.defined.conf")
+	err := conf.Load("../../conf/app.defined.conf")
 	if err != nil {
 		fmt.Println("init config fail:", err.Error())
 	}
@@ -92,7 +92,7 @@ func initToken() string {
 	postBody := make(url.Values)
 	postBody.Add("name", user)
 	postBody.Add("token", wcode["token"])
-	postBody.Add("password", libs.Md5str(libs.Md5str(password)+wcode["rand"]))
+	postBody.Add("password", tools.Md5(tools.Md5(password)+wcode["rand"]))
 
 	w = PostForm("/v1/login", postBody, r)
 
@@ -133,7 +133,7 @@ func TestUserLogin(t *testing.T) {
 	postBody := make(url.Values)
 	postBody.Add("name", user)
 	postBody.Add("token", wcode["token"])
-	postBody.Add("password", libs.Md5str(libs.Md5str(password)+wcode["rand"]))
+	postBody.Add("password", tools.Md5(tools.Md5(password)+wcode["rand"]))
 
 	// fmt.Println("in", password, wcode["rand"])
 

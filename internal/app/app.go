@@ -2,177 +2,166 @@ package app
 
 import (
 	"fmt"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
-	"github.com/gin-contrib/sessions/redis"
-	"github.com/gin-gonic/gin"
-	"github.com/midoks/imail/internal/config"
-	"github.com/midoks/imail/internal/denyip"
-	"github.com/midoks/imail/internal/log"
-	uuid "github.com/satori/go.uuid"
-	"net"
-	"net/http"
-	"strings"
-	"time"
+	"path/filepath"
+	"strconv"
+
+	"github.com/go-macaron/binding"
+	"github.com/go-macaron/cache"
+	"github.com/go-macaron/captcha"
+	"github.com/go-macaron/csrf"
+	"github.com/go-macaron/gzip"
+	"github.com/go-macaron/i18n"
+	"github.com/go-macaron/session"
+	"gopkg.in/macaron.v1"
+
+	"github.com/midoks/imail/internal/app/context"
+	"github.com/midoks/imail/internal/app/form"
+	"github.com/midoks/imail/internal/app/router"
+	"github.com/midoks/imail/internal/app/router/admin"
+	"github.com/midoks/imail/internal/app/router/mail"
+	"github.com/midoks/imail/internal/app/router/user"
+	"github.com/midoks/imail/internal/app/template"
+	"github.com/midoks/imail/internal/conf"
 )
 
-var checker *denyip.Checker
+func newMacaron() *macaron.Macaron {
+	m := macaron.New()
+	m.Use(macaron.Logger())
+	m.Use(gzip.Gziper())
+	m.Use(macaron.Logger())
+	m.Use(macaron.Recovery())
 
-// LogMiddleware
-func LogMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// catch
-		defer func() {
-			if err := recover(); err != nil {
-				log.Error(err)
-			}
-		}()
+	m.Use(macaron.Static("public"))
 
-		startTime := time.Now()
-		// processing requests
-		c.Next()
-		endTime := time.Now()
+	opt := macaron.Renderer(macaron.RenderOptions{
+		Directory: "templates",
+		Funcs:     template.FuncMap(),
+	})
+	m.Use(opt)
 
-		// run time
-		latencyTime := endTime.Sub(startTime)
-		// method
-		reqMethod := c.Request.Method
-		// uri
-		reqUrl := c.Request.RequestURI
-		// X-Request-Id
-		requestID := c.Request.Header.Get("X-Request-Id")
-		// status code
-		statusCode := c.Writer.Status()
-		// request ip
-		clientIP := c.ClientIP()
-		// request protocol
-		proto := c.Request.Proto
+	m.Use(i18n.I18n(i18n.Options{
+		Directory:       filepath.Join(conf.WorkDir(), "conf", "locale"),
+		CustomDirectory: filepath.Join(conf.CustomDir(), "conf", "locale"),
+		Langs:           conf.I18n.Langs,
+		Names:           conf.I18n.Names,
+		Format:          "locale_%s.ini",
+		DefaultLang:     "en-US",
+		Redirect:        true,
+	}))
 
-		logger := log.GetLogger()
-		logger.Infof("| %3d | %13v | %15s | %s | %s | %s | %s |",
-			statusCode,
-			latencyTime,
-			clientIP,
-			proto,
-			reqMethod,
-			requestID,
-			reqUrl,
-		)
-	}
+	m.Use(cache.Cacher(cache.Options{
+		Adapter:       conf.Cache.Adapter,
+		AdapterConfig: conf.Cache.Host,
+		Interval:      conf.Cache.Interval,
+	}))
+
+	m.Use(captcha.Captchaer(captcha.Options{
+		SubURL: conf.Web.Subpath,
+	}))
+
+	return m
 }
 
-const xRequestIDKey = "X-Request-ID"
+func setRouter(m *macaron.Macaron) *macaron.Macaron {
 
-// RequestIDMiddleware 请求ID 中间件
-func RequestIDMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		u4 := uuid.NewV4()
-		xRequestID := u4.String()
-		c.Request.Header.Set(xRequestIDKey, xRequestID)
-		c.Writer.Header().Set(xRequestIDKey, xRequestID)
-		c.Set(xRequestIDKey, xRequestID)
-		c.Next()
-	}
+	reqSignIn := context.Toggle(&context.ToggleOptions{SignInRequired: true})
+	// ignSignIn := context.Toggle(&context.ToggleOptions{SignInRequired: conf.Auth.RequireSigninView})
+	reqSignOut := context.Toggle(&context.ToggleOptions{SignOutRequired: true})
+
+	bindIgnErr := binding.BindIgnErr
+	m.SetAutoHead(true)
+
+	m.Group("", func() {
+		m.Combo("/install", router.InstallInit).Get(router.Install).Post(bindIgnErr(form.Install{}), router.InstallPost)
+
+		m.Get("/", reqSignIn, router.Home)
+		m.Group("/user", func() {
+			m.Group("/login", func() {
+				m.Combo("").Get(user.Login).Post(bindIgnErr(form.SignIn{}), user.LoginPost)
+			})
+
+			m.Get("/sign_up", user.SignUp)
+			m.Post("/sign_up", bindIgnErr(form.Register{}), user.SignUpPost)
+		}, reqSignOut)
+
+		// ***** START: User *****
+		m.Group("/user/settings", func() {
+			m.Get("", user.Settings)
+			m.Post("", bindIgnErr(form.UpdateProfile{}), user.SettingsPost)
+
+			m.Get("/authpassword", user.SettingsAuthPassword)
+			m.Post("/authpassword", bindIgnErr(form.Empty{}), user.SettingsAuthPasswordPost)
+
+			m.Get("/password", user.SettingsPassword)
+			m.Post("/password", bindIgnErr(form.ChangePassword{}), user.SettingsPasswordPost)
+		}, reqSignIn, func(c *context.Context) {
+			c.Data["PageIsUserSettings"] = true
+		})
+		// ***** END: User *****
+
+		// ***** START: Mail *****
+		m.Group("/mail", func() {
+			m.Get("", mail.Mail)
+			// m.Post("", bindIgnErr(form.UpdateProfile{}), user.SettingsPost)
+
+		}, reqSignIn, func(c *context.Context) {
+			c.Data["PageIsMail"] = true
+		})
+		// ***** END: Mail *****
+
+		reqAdmin := context.Toggle(&context.ToggleOptions{SignInRequired: true, AdminRequired: true})
+
+		// ***** START: Admin *****
+		m.Group("/admin", func() {
+			m.Combo("").Get(admin.Dashboard) //.Post(admin.Operation) // "/admin"
+			m.Get("/config", admin.Config)
+			// m.Post("/config/test_mail", admin.SendTestMail)
+			m.Get("/monitor", admin.Monitor)
+
+			m.Group("/users", func() {
+				m.Get("", admin.Users)
+				m.Combo("/new").Get(admin.NewUser).Post(bindIgnErr(form.AdminCreateUser{}), admin.NewUserPost)
+				m.Combo("/:userid").Get(admin.EditUser).Post(bindIgnErr(form.AdminEditUser{}), admin.EditUserPost)
+			})
+
+		}, reqAdmin)
+		// ***** END: Admin *****
+
+		// ***** START: Mail *****
+		m.Group("/mail", func() {
+			m.Combo("/new").Get(mail.New)
+
+		}, reqAdmin)
+		// ***** END: Mail *****
+
+	}, session.Sessioner(session.Options{
+		Provider:       conf.Session.Provider,
+		ProviderConfig: conf.Session.ProviderConfig,
+		CookieName:     conf.Session.CookieName,
+		CookiePath:     conf.Web.Subpath,
+		Gclifetime:     conf.Session.GCInterval,
+		Maxlifetime:    conf.Session.MaxLifeTime,
+		Secure:         conf.Session.CookieSecure,
+	}), csrf.Csrfer(csrf.Options{
+		Secret:         conf.Security.SecretKey,
+		Header:         "X-CSRF-Token",
+		Cookie:         conf.Session.CSRFCookieName,
+		CookieDomain:   conf.Web.URL.Hostname(),
+		CookiePath:     conf.Web.Subpath,
+		CookieHttpOnly: true,
+		SetCookie:      true,
+		Secure:         conf.Web.URL.Scheme == "https",
+	}), context.Contexter())
+	return m
 }
 
-const xForwardedFor = "X-Forwarded-For"
+func Start(port string) {
+	m := newMacaron()
+	m = setRouter(m)
 
-func getRemoteIP(req *http.Request) []string {
-	var ipList []string
-
-	xff := req.Header.Get(xForwardedFor)
-	xffs := strings.Split(xff, ",")
-
-	for i := len(xffs) - 1; i >= 0; i-- {
-		xffsTrim := strings.TrimSpace(xffs[i])
-
-		if len(xffsTrim) > 0 {
-			ipList = append(ipList, xffsTrim)
-		}
-	}
-
-	host, _, err := net.SplitHostPort(req.RemoteAddr)
+	portInt, err := strconv.Atoi(port)
 	if err != nil {
-		remoteAddrTrim := strings.TrimSpace(req.RemoteAddr)
-		if len(remoteAddrTrim) > 0 {
-			ipList = append(ipList, remoteAddrTrim)
-		}
-	} else {
-		ipTrim := strings.TrimSpace(host)
-		if len(ipTrim) > 0 {
-			ipList = append(ipList, ipTrim)
-		}
+		fmt.Println("port need number!")
 	}
-
-	return ipList
-}
-
-func IPWhiteMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		ipWhiteList := strings.Split(config.GetString("http.ip_white", "*"), ",")
-		if !config.InSliceString("*", ipWhiteList) && len(ipWhiteList) != 0 {
-			reqIPAddr := getRemoteIP(c.Request)
-			reeIPadLenOffset := len(reqIPAddr) - 1
-			for i := reeIPadLenOffset; i >= 0; i-- {
-				err := checker.IsAuthorized(reqIPAddr[i])
-				if err != nil {
-					log.Error(err)
-					c.String(http.StatusForbidden, err.Error())
-					return
-				}
-			}
-		}
-		c.Next()
-	}
-}
-
-func IndexWeb(c *gin.Context) {
-	c.String(http.StatusOK, "hello world")
-}
-
-func SetupRouter() *gin.Engine {
-	r := gin.Default()
-
-	r.Use(RequestIDMiddleware(), LogMiddleware(), IPWhiteMiddleware())
-
-	if b, _ := config.GetBool("redis.enable", false); b {
-		store, err := redis.NewStoreWithDB(
-			10, "tcp",
-			config.GetString("redis.address", "127.0.0.1:6379"),
-			config.GetString("redis.password", ""),
-			config.GetString("redis.db", "0"),
-			[]byte("secret"),
-		)
-		if err != nil {
-			store = cookie.NewStore([]byte("SESSION_SECRET"))
-		}
-		store.Options(sessions.Options{MaxAge: 60 * 60})
-		r.Use(sessions.Sessions("sessionid", store))
-	}
-
-	r.GET("/", IndexWeb)
-	v1 := r.Group("v1")
-	{
-		v1.GET("/get_code", GetUserCode)
-		v1.POST("/update_user_code", UpdateUserCodeByName)
-		v1.POST("/login", UserLogin)
-	}
-
-	return r
-}
-
-func Start(port int) {
-	ipWhiteList := strings.Split(config.GetString("http.ip_white", "*"), ",")
-	if !config.InSliceString("*", ipWhiteList) && len(ipWhiteList) != 0 {
-		var err error
-		checker, err = denyip.NewChecker(ipWhiteList)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-	r := SetupRouter()
-
-	//Listening port
-	listen_port := fmt.Sprintf(":%d", port)
-	r.Run(listen_port)
+	m.Run(portInt)
 }

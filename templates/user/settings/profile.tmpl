@@ -1,0 +1,29 @@
+{{template "base/header" .}}
+<div class="user settings profile">
+	<div class="ui container">
+		<div class="ui grid">
+			{{template "user/settings/navbar" .}}
+			<div class="twelve wide column content">
+				{{template "base/alert" .}}
+				<h4 class="ui top attached header">
+					{{.i18n.Tr "settings.public_profile"}}
+				</h4>
+				<div class="ui attached segment">
+					<form class="ui form" action="{{.Link}}" method="post">
+						{{.CSRFTokenHTML}}
+					
+						<div class="field {{if .Err_NickName}}error{{end}}">
+							<label for="nick">{{.i18n.Tr "settings.nick_name"}}</label>
+							<input id="nick" name="nick" value="{{.LoggedUser.Nick}}">
+						</div>
+						
+						<div class="field">
+							<button class="ui green button">{{$.i18n.Tr "settings.update_profile"}}</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{{template "base/footer" .}}

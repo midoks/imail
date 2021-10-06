@@ -1,0 +1,71 @@
+{{template "base/header" .}}
+<div class="admin edit user">
+	<div class="ui container">
+		<div class="ui grid">
+			{{template "admin/navbar" .}}
+			<div class="twelve wide column content">
+				{{template "base/alert" .}}
+				<h4 class="ui top attached header">
+					{{.i18n.Tr "admin.users.edit_account"}}
+				</h4>
+				<div class="ui attached segment">
+					<form class="ui form" action="{{.Link}}" method="post">
+						{{.CSRFTokenHTML}}
+						<div class="inline field {{if .Err_UserName}}error{{end}}">
+							<label for="user_name">{{.i18n.Tr "username"}}</label>
+							<span>{{.User.Name}}</span>
+						</div>
+						
+						
+						
+						
+						<input class="fake" type="password">
+						<div class="local field {{if .Err_Password}}error{{end}}">
+							<label for="password">{{.i18n.Tr "password"}}</label>
+							<input id="password" name="password" type="password">
+							<p class="help">{{.i18n.Tr "admin.users.password_helper"}}</p>
+						</div>
+
+						<div class="ui divider"></div>
+
+				
+
+
+						<div class="ui divider"></div>
+
+						<div class="inline field">
+							<div class="ui checkbox">
+								<label><strong>{{.i18n.Tr "admin.users.is_activated"}}</strong></label>
+								<input name="active" type="checkbox" {{if .User.IsActive}}checked{{end}}>
+							</div>
+						</div>
+						<div class="inline field">
+							<div class="ui checkbox">
+								<label><strong>{{.i18n.Tr "admin.users.is_admin"}}</strong></label>
+								<input name="admin" type="checkbox" {{if .User.IsAdmin}}checked{{end}}>
+							</div>
+						</div>
+
+						{{if .EnableLocalPathMigration}}
+							<div class="inline field">
+								<div class="ui checkbox">
+									<label><strong>{{.i18n.Tr "admin.users.allow_import_local"}}</strong></label>
+									<input name="allow_import_local" type="checkbox" {{if .User.CanImportLocal}}checked{{end}}>
+								</div>
+							</div>
+						{{end}}
+
+						<div class="ui divider"></div>
+
+						<div class="field">
+							<button class="ui green button">{{.i18n.Tr "admin.users.update_profile"}}</button>
+							<div class="ui red button delete-button" data-url="{{$.Link}}/delete" data-id="{{.User.Id}}">{{.i18n.Tr "admin.users.delete_account"}}</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{{template "base/footer" .}}

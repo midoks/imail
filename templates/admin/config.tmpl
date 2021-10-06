@@ -1,0 +1,171 @@
+{{template "base/header" .}}
+<div class="admin config">
+	<div class="ui container">
+		<div class="ui grid">
+			{{template "admin/navbar" .}}
+			<div class="twelve wide column content">
+				{{template "base/alert" .}}
+
+				{{/* Web settings */}}
+				<h4 class="ui top attached header">
+					{{.i18n.Tr "admin.config.server_config"}}
+				</h4>
+				<div class="ui attached table segment">
+					<dl class="dl-horizontal admin-dl-horizontal">
+						<dt>{{.i18n.Tr "admin.config.brand_name"}}</dt>
+						<dd>{{.App.BrandName}}</dd>
+						<dt>{{.i18n.Tr "admin.config.run_user"}}</dt>
+						<dd>{{.App.RunUser}}</dd>
+						<dt>{{.i18n.Tr "admin.config.run_mode"}}</dt>
+						<dd>{{.App.RunMode}}</dd>
+
+						<div class="ui divider"></div>
+
+						<dt>{{.i18n.Tr "admin.config.server.external_url"}}</dt>
+						<dd>{{.Web.ExternalURL}}</dd>
+						<dt>{{.i18n.Tr "admin.config.server.domain"}}</dt>
+						<dd>{{.Web.Domain}}</dd>
+						<dt>{{.i18n.Tr "admin.config.server.protocol"}}</dt>
+						<dd>{{.Web.Protocol}}</dd>
+						<dt>{{.i18n.Tr "admin.config.server.http_addr"}}</dt>
+						<dd>{{.Web.HttpAddr}}</dd>
+						<dt>{{.i18n.Tr "admin.config.server.http_port"}}</dt>
+						<dd>{{.Web.HttpPort}}</dd>
+						<dt>{{.i18n.Tr "admin.config.server.cert_file"}}</dt>
+						<dd><code>{{.Web.CertFile}}</code></dd>
+						<dt>{{.i18n.Tr "admin.config.server.key_file"}}</dt>
+						<dd><code>{{.Web.KeyFile}}</code></dd>
+						<dt>{{.i18n.Tr "admin.config.server.tls_min_version"}}</dt>
+						<dd>{{.Web.TLSMinVersion}}</dd>
+						<dt>{{.i18n.Tr "admin.config.server.unix_socket_permission"}}</dt>
+						<dd><code>{{.Web.UnixSocketPermission}}</code></dd>
+						<dt>{{.i18n.Tr "admin.config.server.local_root_url"}}</dt>
+						<dd>{{.Web.LocalRootURL}}</dd>
+
+						<div class="ui divider"></div>
+
+						<dt>{{.i18n.Tr "admin.config.server.offline_mode"}}</dt>
+						<dd><i class="fa fa{{if .Server.OfflineMode}}-check{{end}}-square-o"></i></dd>
+						<dt>{{.i18n.Tr "admin.config.server.disable_router_log"}}</dt>
+						<dd><i class="fa fa{{if .Server.DisableRouterLog}}-check{{end}}-square-o"></i></dd>
+						<dt>{{.i18n.Tr "admin.config.server.enable_gzip"}}</dt>
+						<dd><i class="fa fa{{if .Server.EnableGzip}}-check{{end}}-square-o"></i></dd>
+
+						<div class="ui divider"></div>
+
+						<dt>{{.i18n.Tr "admin.config.server.app_data_path"}}</dt>
+						<dd><code>{{.Web.AppDataPath}}</code></dd>
+						<dt>{{.i18n.Tr "admin.config.server.load_assets_from_disk"}}</dt>
+						<dd><i class="fa fa{{if .Web.LoadAssetsFromDisk}}-check{{end}}-square-o"></i></dd>
+					</dl>
+				</div>
+
+				{{/* Database settings */}}
+				<h4 class="ui top attached header">
+					{{.i18n.Tr "admin.config.db_config"}}
+				</h4>
+				<div class="ui attached table segment">
+					<dl class="dl-horizontal admin-dl-horizontal">
+						<dt>{{.i18n.Tr "admin.config.db.type"}}</dt>
+						<dd>{{.Database.Type}}</dd>
+						<dt>{{.i18n.Tr "admin.config.db.host"}}</dt>
+						<dd>{{.Database.Host}}</dd>
+						<dt>{{.i18n.Tr "admin.config.db.name"}}</dt>
+						<dd>{{.Database.Name}}</dd>
+						<dt>{{.i18n.Tr "admin.config.db.user"}}</dt>
+						<dd>{{.Database.User}}</dd>
+						<dt>{{.i18n.Tr "admin.config.db.ssl_mode"}}</dt>
+						<dd>{{.Database.SslMode}} {{.i18n.Tr "admin.config.db.ssl_mode_helper"}}</dd>
+						<dt>{{.i18n.Tr "admin.config.db.path"}}</dt>
+						<dd><code>{{.Database.Path}}</code> {{.i18n.Tr "admin.config.db.path_helper"}}</dd>
+
+						<div class="ui divider"></div>
+
+						<dt>{{.i18n.Tr "admin.config.db.max_open_conns"}}</dt>
+						<dd>{{.Database.MaxOpenConns}}</dd>
+						<dt>{{.i18n.Tr "admin.config.db.max_idle_conns"}}</dt>
+						<dd>{{.Database.MaxIdleConns}}</dd>
+					</dl>
+				</div>
+
+				{{/* Security settings */}}
+				<h4 class="ui top attached header">
+					{{.i18n.Tr "admin.config.security_config"}}
+				</h4>
+				<div class="ui attached table segment">
+					<dl class="dl-horizontal admin-dl-horizontal">
+						<dt>{{.i18n.Tr "admin.config.security.login_remember_days"}}</dt>
+						<dd>{{.Security.LoginRememberDays}}</dd>
+						<dt>{{.i18n.Tr "admin.config.security.cookie_remember_name"}}</dt>
+						<dd>{{.Security.CookieRememberName}}</dd>
+						<dt>{{.i18n.Tr "admin.config.security.cookie_username"}}</dt>
+						<dd>{{.Security.CookieUsername}}</dd>
+						<dt>{{.i18n.Tr "admin.config.security.cookie_secure"}}</dt>
+						<dd><i class="fa fa{{if .Security.CookieSecure}}-check{{end}}-square-o"></i></dd>
+						<dt>{{.i18n.Tr "admin.config.security.enable_login_status_cookie"}}</dt>
+						<dd><i class="fa fa{{if .Security.EnableLoginStatusCookie}}-check{{end}}-square-o"></i></dd>
+						<dt>{{.i18n.Tr "admin.config.security.login_status_cookie_name"}}</dt>
+						<dd>{{.Security.LoginStatusCookieName}}</dd>
+					</dl>
+				</div>
+
+
+				{{/* Session settings */}}
+				<h4 class="ui top attached header">
+					{{.i18n.Tr "admin.config.session_config"}}
+				</h4>
+				<div class="ui attached table segment">
+					<dl class="dl-horizontal admin-dl-horizontal">
+						<dt>{{.i18n.Tr "admin.config.session_provider"}}</dt>
+						<dd>{{.Session.Provider}}</dd>
+						<dt>{{.i18n.Tr "admin.config.session.provider_config"}}</dt>
+						<dd><code>{{.Session.ProviderConfig}}</code></dd>
+						<dt>{{.i18n.Tr "admin.config.session.cookie_name"}}</dt>
+						<dd>{{.Session.CookieName}}</dd>
+						<dt>{{.i18n.Tr "admin.config.session.https_only"}}</dt>
+						<dd><i class="fa fa{{if .Session.CookieSecure}}-check{{end}}-square-o"></i></dd>
+						<dt>{{.i18n.Tr "admin.config.session.gc_interval"}}</dt>
+						<dd>{{.Session.GCInterval}} {{.i18n.Tr "tool.raw_seconds"}}</dd>
+						<dt>{{.i18n.Tr "admin.config.session.max_life_time"}}</dt>
+						<dd>{{.Session.MaxLifeTime}} {{.i18n.Tr "tool.raw_seconds"}}</dd>
+						<dt>{{.i18n.Tr "admin.config.session.csrf_cookie_name"}}</dt>
+						<dd>{{.Session.CSRFCookieName}}</dd>
+					</dl>
+				</div>
+
+				{{/* Cache settings */}}
+				<h4 class="ui top attached header">
+					{{.i18n.Tr "admin.config.cache_config"}}
+				</h4>
+				<div class="ui attached table segment">
+					<dl class="dl-horizontal admin-dl-horizontal">
+						<dt>{{.i18n.Tr "admin.config.cache.adapter"}}</dt>
+						<dd>{{.Cache.Adapter}}</dd>
+						<dt>{{.i18n.Tr "admin.config.cache.interval"}}</dt>
+						<dd>{{.Cache.Interval}} {{.i18n.Tr "tool.raw_seconds"}}</dd>
+						<dt>{{.i18n.Tr "admin.config.cache.host"}}</dt>
+						<dd>
+							{{if .CacheConn}}
+								<code>{{.CacheConn}}</code>
+							{{else}}
+								<i>{{.i18n.Tr "admin.config.not_set"}}</i>
+							{{end}}
+						</dd>
+					</dl>
+				</div>
+
+				{{/* Log settings */}}
+				<h4 class="ui top attached header">
+					{{.i18n.Tr "admin.config.log_config"}}
+				</h4>
+				<div class="ui attached log-config table segment">
+					<dl class="dl-horizontal admin-dl-horizontal">
+						<dt>{{.i18n.Tr "admin.config.log_file_root_path"}}</dt>
+						<dd><code>{{.LogRootPath}}</code></dd>
+					</dl>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{{template "base/footer" .}}

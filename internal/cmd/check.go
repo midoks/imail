@@ -2,8 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/midoks/imail/internal/config"
-	"github.com/midoks/imail/internal/libs"
+	"github.com/midoks/imail/internal/app/router"
+	"github.com/midoks/imail/internal/conf"
+	"github.com/midoks/imail/internal/tools"
 	"github.com/urfave/cli"
 	"net"
 	"strings"
@@ -11,7 +12,7 @@ import (
 
 var Check = cli.Command{
 	Name:        "check",
-	Usage:       "This command Check domain configuration",
+	Usage:       "This command check domain configuration",
 	Description: `check domain configuration`,
 	Action:      doCheck,
 	Flags: []cli.Flag{
@@ -21,12 +22,12 @@ var Check = cli.Command{
 
 func doCheck(c *cli.Context) error {
 
-	_, err := initConfig(c, "")
+	err := router.GlobalInit(c.String("config"))
 	if err != nil {
 		return err
 	}
 
-	domain := config.GetString("mail.domain", "xxx.com")
+	domain := conf.Web.Domain
 
 	//mx
 	mx, _ := net.LookupMX(domain)
@@ -70,7 +71,7 @@ func doCheck(c *cli.Context) error {
 	if 0 == len(dkimRecord) {
 		fmt.Println("dkim check fail")
 	} else {
-		dkimContent, _ := libs.ReadFile(fmt.Sprintf("conf/dkim/%s/default.val", domain))
+		dkimContent, _ := tools.ReadFile(fmt.Sprintf("conf/dkim/%s/default.val", domain))
 		for _, dkimDomainContent := range dkimRecord {
 			if strings.EqualFold(dkimContent, dkimDomainContent) {
 				fmt.Println("dkim check done")

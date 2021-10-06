@@ -1,0 +1,39 @@
+{{/*
+<html>
+<body>
+	<div>
+*/}}
+</div>
+
+
+<footer>
+	<div class="ui container">
+		<div class="ui left">
+			© {{Year}} {{AppName}}
+		</div>
+		<div class="ui right links">
+			{{if ShowFooterTemplateLoadTime}}
+					<span>
+						{{.i18n.Tr "page"}}: <strong>{{LoadTimes .PageStartTime}}</strong> {{.i18n.Tr "template"}}: <strong>{{call .TmplLoadTimes}}</strong>
+					</span>
+			{{end}}
+			<div class="ui language bottom floating slide up dropdown link item">
+				<i class="world icon"></i>
+				<div class="text">{{.LangName}}</div>
+				<div class="menu">
+					{{range .AllLangs}}
+						<a class="item {{if eq $.Lang .Lang}}active selected{{end}}" href="{{if eq $.Lang .Lang}}#{{else}}{{$.Link}}?lang={{.Lang}}{{end}}">{{.Name}}</a>
+					{{end}}
+				</div>
+			</div>
+		</div>
+	</div>
+</footer>
+
+
+<script src="{{AppSubURL}}/js/libs/emojify-1.1.0.min.js"></script>
+<script src="{{AppSubURL}}/js/libs/clipboard-2.0.4.min.js"></script>
+
+
+</body>
+</html>

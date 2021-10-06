@@ -2,48 +2,30 @@ package log
 
 import (
 	"fmt"
-	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
-	"github.com/midoks/imail/internal/config"
-	"github.com/rifflock/lfshook"
-	"github.com/sirupsen/logrus"
 	"os"
 	"path"
-	"strings"
 	"time"
+
+	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
+	"github.com/midoks/imail/internal/conf"
+	"github.com/rifflock/lfshook"
+	"github.com/sirupsen/logrus"
 )
 
 var (
-	logFilePath = "./logs"
 	logFileName = "system.log"
 	logger      *logrus.Logger
 )
 
-func Init() {
-	fileName := path.Join(logFilePath, logFileName)
-
-	src, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
+func Init() *logrus.Logger {
+	fileName := path.Join(conf.Log.RootPath, logFileName)
+	src, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		fmt.Println("log error", err)
 	}
 
 	logger = logrus.New()
 	logger.Out = src
-
-	format := config.GetString("log.format", "json")
-	if strings.EqualFold(format, "json") {
-		logger.SetFormatter(&logrus.JSONFormatter{})
-	} else if strings.EqualFold(format, "text") {
-		logger.SetFormatter(&logrus.TextFormatter{})
-	} else {
-		logger.SetFormatter(&logrus.TextFormatter{})
-	}
-
-	runmode := config.GetString("runmode", "dev")
-	if strings.EqualFold(runmode, "dev") {
-		logger.SetLevel(logrus.DebugLevel)
-	} else {
-		logger.SetLevel(logrus.InfoLevel)
-	}
 
 	// setting rotatelogs
 	logWriter, err := rotatelogs.New(
@@ -78,7 +60,7 @@ func Init() {
 	// logger.WithFields(logrus.Fields{
 	// 	"animal": "walrus",
 	// }).Info("A walrus appears")
-
+	return logger
 }
 
 func GetLogger() *logrus.Logger {

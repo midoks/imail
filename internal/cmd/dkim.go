@@ -2,7 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/midoks/imail/internal/config"
+	"github.com/midoks/imail/internal/app/router"
+	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/dkim"
 	"github.com/urfave/cli"
 )
@@ -19,12 +20,12 @@ var Dkim = cli.Command{
 
 func makeDkim(c *cli.Context) error {
 
-	_, err := initConfig(c, "")
+	err := router.GlobalInit(c.String("config"))
 	if err != nil {
 		return err
 	}
 
-	domain := config.GetString("mail.domain", "xxx.com")
+	domain := conf.Web.Domain
 	content, err := dkim.MakeDkimConfFile(domain)
 
 	fmt.Println(content)

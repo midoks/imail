@@ -4,14 +4,15 @@ import (
 	"bufio"
 	"crypto/tls"
 	"fmt"
-	"github.com/midoks/imail/internal/config"
-	"github.com/midoks/imail/internal/db"
-	"github.com/midoks/imail/internal/libs"
-	"github.com/midoks/imail/internal/log"
 	"net"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/midoks/imail/internal/conf"
+	"github.com/midoks/imail/internal/db"
+	"github.com/midoks/imail/internal/log"
+	"github.com/midoks/imail/internal/tools"
 )
 
 const (
@@ -65,7 +66,7 @@ const (
 	MSG_AUTH_PLAIN    = "+\r\n"
 )
 
-var GO_EOL = libs.GetGoEol()
+var GO_EOL = tools.GetGoEol()
 
 type Pop3Server struct {
 	debug         bool
@@ -101,8 +102,7 @@ func (this *Pop3Server) D(args ...interface{}) {
 		return
 	}
 
-	pop3Debug, _ := config.GetBool("pop3.debug", false)
-	if pop3Debug {
+	if conf.Pop3.Debug {
 		// fmt.Println(args...)
 		log.Debug(args...)
 	}
@@ -265,7 +265,7 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 					if err == nil && len(list) > 0 {
 						for i := 1; i <= len(list); i++ {
 							uid := strconv.FormatInt(list[i-1].Id, 10)
-							this.writeArgs(MSG_POS_DATA, pos, libs.Md5str(uid))
+							this.writeArgs(MSG_POS_DATA, pos, tools.Md5(uid))
 						}
 						return true
 					}
@@ -280,7 +280,7 @@ func (this *Pop3Server) cmdUidl(input string) bool {
 			list, _ := db.MailListAllForPop(this.userID)
 			for i := 1; i <= len(list); i++ {
 				uid := strconv.FormatInt(list[i-1].Id, 10)
-				t := fmt.Sprintf("%d %s\r\n", i, libs.Md5str(uid))
+				t := fmt.Sprintf("%d %s\r\n", i, tools.Md5(uid))
 				this.w(t)
 			}
 			this.w(".\r\n")
@@ -346,7 +346,7 @@ func (this *Pop3Server) cmdAuthPlain(input string) bool {
 
 func (this *Pop3Server) cmdParseAuthPlain(input string) bool {
 
-	data, err := libs.Base64decode(input)
+	data, err := tools.Base64decode(input)
 	if err == nil {
 		this.D("pop3[AuthPlain][Iuput]:", data)
 
@@ -426,7 +426,7 @@ func (this *Pop3Server) handle() {
 }
 
 func (this *Pop3Server) initTLSConfig() {
-	this.TLSConfig = libs.InitAutoMakeTLSConfig()
+	this.TLSConfig = tools.InitAutoMakeTLSConfig()
 }
 
 func (this *Pop3Server) ready() {
@@ -454,7 +454,7 @@ func (this *Pop3Server) StartPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
-		log.Panicf("pop[start]:%s", err)
+		this.D("pop[start]:", err)
 		return
 	}
 	defer ln.Close()
@@ -474,7 +474,7 @@ func (this *Pop3Server) StartSSLPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := tls.Listen("tcp", addr, this.TLSConfig)
 	if err != nil {
-		log.Panicf("pop[start][ssl]:%s", err)
+		this.D("pop[start][ssl]:", err)
 		return
 	}
 	defer ln.Close()
