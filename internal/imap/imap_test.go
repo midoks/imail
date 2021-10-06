@@ -15,7 +15,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/midoks/imail/internal/conf"
-	"github.com/midoks/imail/internal/db"
+	// "github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/log"
 )
 
