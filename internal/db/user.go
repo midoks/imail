@@ -13,9 +13,9 @@ type User struct {
 	Name     string `gorm:"unique;size:50;comment:登录账户"`
 	Nick     string `gorm:"unique;size:50;comment:昵称"`
 	Password string `gorm:"size:32;comment:用户密码"`
+	Salt     string `gorm:"type:varchar(10)"`
 	Code     string `gorm:"size:50;comment:编码"`
 	Status   int    `gorm:"comment:状态"`
-	Salt     string `gorm:"type:varchar(10)"`
 
 	IsActive bool
 	IsAdmin  bool

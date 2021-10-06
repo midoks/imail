@@ -21,8 +21,6 @@ import (
 	"github.com/midoks/imail/internal/app/router/user"
 	"github.com/midoks/imail/internal/app/template"
 	"github.com/midoks/imail/internal/conf"
-	// "github.com/midoks/imail/internal/log"
-	// "github.com/midoks/imail/internal/tools"
 )
 
 func newMacaron() *macaron.Macaron {
