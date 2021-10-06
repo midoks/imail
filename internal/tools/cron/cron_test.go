@@ -27,7 +27,7 @@ func TestFuncPanicRecovery(t *testing.T) {
 type DummyJob struct{}
 
 func (d DummyJob) Run() {
-	panic("YOLO")
+	// panic("YOLO")
 }
 
 func TestJobPanicRecovery(t *testing.T) {

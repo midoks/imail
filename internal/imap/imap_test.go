@@ -7,9 +7,12 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
