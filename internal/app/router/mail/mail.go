@@ -9,6 +9,13 @@ const (
 	USER_NEW = "mail/new"
 )
 
+func Mail(c *context.Context) {
+	c.Data["Title"] = c.Tr("mail.write_letter")
+	c.Data["PageIsWriteMail"] = true
+
+	c.Success(MAIL)
+}
+
 func New(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.write_letter")
 	c.Data["PageIsWriteMail"] = true

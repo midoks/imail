@@ -4,12 +4,12 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"github.com/midoks/imail/internal/conf"
-	"github.com/midoks/imail/internal/db"
-	"github.com/midoks/imail/internal/log"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/midoks/imail/internal/conf"
+	"github.com/midoks/imail/internal/db"
 )
 
 var localhostCert = []byte(`-----BEGIN CERTIFICATE-----
@@ -99,18 +99,18 @@ hBgHM6A0WJC9MO3aAKRBcp48y6DXNA==
 -----END PRIVATE KEY-----`)
 
 func init() {
-	os.MkdirAll("./data", 0777)
-	os.MkdirAll("./logs", 0777)
 
-	err := conf.Load("../../conf/app.defined.conf")
+	os.Chdir("../../")
+	err := conf.Init("costom/conf/app.conf")
+	fmt.Println("init:", err)
 	if err != nil {
 		fmt.Println("TestReceivedMail config fail:", err.Error())
 	}
 
-	log.Init()
-	db.Init()
+	// log.Init()
+	// db.Init()
 
-	go Start(1025)
+	// go Start(1025)
 
 	time.Sleep(1 * time.Second)
 }

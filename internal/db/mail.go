@@ -1,8 +1,8 @@
 package db
 
 import (
-	// "errors"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -28,8 +28,51 @@ func MailTableName() string {
 	return "im_mail"
 }
 
-func (Mail) TableName() string {
+func (*Mail) TableName() string {
 	return MailTableName()
+}
+
+func MailCount() int64 {
+	var count int64
+	db.Model(&User{}).Count(&count)
+	return count
+}
+
+func MailList(page, pageSize int) ([]*Mail, error) {
+	mail := make([]*Mail, 0, pageSize)
+	err := db.Limit(pageSize).Offset((page - 1) * pageSize).Order("id desc").Find(&mail)
+	return mail, err.Error
+}
+
+type MailSearchOptions struct {
+	Keyword  string
+	OrderBy  string
+	Page     int
+	PageSize int
+}
+
+func MailSearchByName(opts *MailSearchOptions) (user []*Mail, _ int64, _ error) {
+	if len(opts.Keyword) == 0 {
+		return user, 0, nil
+	}
+
+	opts.Keyword = strings.ToLower(opts.Keyword)
+
+	if opts.PageSize <= 0 || opts.PageSize > 20 {
+		opts.PageSize = 10
+	}
+	if opts.Page <= 0 {
+		opts.Page = 1
+	}
+
+	searchQuery := "%" + opts.Keyword + "%"
+	email := make([]*Mail, 0, opts.PageSize)
+
+	err := db.Model(&Mail{}).
+		Where("LOWER(name) LIKE ?", searchQuery).
+		Or("LOWER(nick) LIKE ?", searchQuery).
+		Find(&email)
+	return email, MailCount(), err.Error
 }
 
 func MailStatInfoForImap(uid int64, mtype int64) (int64, int64) {
