@@ -30,11 +30,11 @@
 							{{range .Users}}
 								<tr>
 									<td>{{.Id}}</td>
-									<td><a href="{{AppSubURL}}/{{.Name}}">{{.Name}}</a></td>
+									<td><a href="#">{{.Name}}</a></td>
 									<td><i class="fa fa{{if .IsActive}}-check{{end}}-square-o"></i></td>
 									<td><i class="fa fa{{if .IsAdmin}}-check{{end}}-square-o"></i></td>
 									<td><span title="{{DateFmtLong .Created}}">{{DateFmtShort .Created }}</span></td>
-									<td><a href="{{$.Link}}/{{.Id}}"><i class="fa fa-pencil-square-o"></i></a></td>
+									<td><a href="{{$.Link}}/admin/users/{{.Id}}"><i class="fa fa-pencil-square-o"></i></a></td>
 								</tr>
 							{{end}}
 						</tbody>

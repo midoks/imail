@@ -112,8 +112,7 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 			m.Group("/users", func() {
 				m.Get("", admin.Users)
 				m.Combo("/new").Get(admin.NewUser).Post(bindIgnErr(form.AdminCreateUser{}), admin.NewUserPost)
-				// m.Combo("/:userid").Get(admin.EditUser).Post(bindIgnErr(form.AdminEditUser{}), admin.EditUserPost)
-				// m.Post("/:userid/delete", admin.DeleteUser)
+				m.Combo("/:userid").Get(admin.EditUser).Post(bindIgnErr(form.AdminEditUser{}), admin.EditUserPost)
 			})
 
 		}, reqAdmin)

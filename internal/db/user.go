@@ -14,7 +14,6 @@ type User struct {
 	Nick     string `gorm:"unique;size:50;comment:昵称"`
 	Password string `gorm:"size:32;comment:用户密码"`
 	Code     string `gorm:"size:50;comment:编码"`
-	Token    string `gorm:"unique;size:50;comment:Token"`
 	Status   int    `gorm:"comment:状态"`
 	Salt     string `gorm:"type:varchar(10)"`
 
@@ -79,7 +78,8 @@ func CreateUser(u *User) (err error) {
 	u.Nick = u.Name
 	u.Password = tools.Md5(tools.Md5(u.Password) + u.Salt)
 	if data.Error != nil {
-		db.Create(u)
+		result := db.Create(u)
+		return result.Error
 	}
 	return data.Error
 }
