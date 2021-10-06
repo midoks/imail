@@ -832,7 +832,7 @@ func (smtp *SmtpdServer) StartPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
-		smtp.D("StartPort:%s", err)
+		smtp.D("StartPort:", err)
 		return
 	}
 	defer ln.Close()
@@ -852,7 +852,7 @@ func (smtp *SmtpdServer) StartSSLPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := tls.Listen("tcp", addr, smtp.TLSConfig)
 	if err != nil {
-		smtp.D("[smtp]StartSSLPort:%s", err)
+		smtp.D("[smtp]StartSSLPort:", err)
 		return
 	}
 	defer ln.Close()
