@@ -28,6 +28,8 @@ func init() {
 		fmt.Println("TestReceivedMail config fail:", err.Error())
 	}
 
+	conf.Web.Domain = "cachecha.com"
+
 	logger := log.Init()
 
 	format := conf.Log.Format
