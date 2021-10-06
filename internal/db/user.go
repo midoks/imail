@@ -150,7 +150,7 @@ func LoginWithCode(name string, code string) (bool, int64) {
 }
 
 func LoginByUserPassword(name string, password string) (bool, int64) {
-
+	fmt.Println("name", name)
 	var u User
 	err := db.First(&u, "name = ?", name).Error
 
@@ -160,7 +160,7 @@ func LoginByUserPassword(name string, password string) (bool, int64) {
 
 	inputPwd := tools.Md5(tools.Md5(password) + u.Salt)
 
-	fmt.Println(password, inputPwd, u)
+	fmt.Println(password, inputPwd, u.Password)
 	if inputPwd == u.Password {
 		return true, u.Id
 	}

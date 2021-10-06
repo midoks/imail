@@ -1,7 +1,7 @@
 package user
 
 import (
-	"fmt"
+	// "fmt"
 	"net/url"
 	// "github.com/pkg/errors"
 
@@ -104,16 +104,7 @@ func Login(c *context.Context) {
 func LoginPost(c *context.Context, f form.SignIn) {
 	c.Title("sign_in")
 
-	// loginSources, err := db.LoginSources.List(db.ListLoginSourceOpts{OnlyActivated: true})
-	// if err != nil {
-	// 	c.Error(err, "list activated login sources")
-	// 	return
-	// }
-	// c.Data["LoginSources"] = loginSources
-
 	loginBool, uid := db.LoginByUserPassword(f.UserName, f.Password)
-	fmt.Println(loginBool, uid, f.UserName, f.Password)
-
 	if !loginBool {
 		c.FormErr("UserName", "Password")
 		c.RenderWithErr(c.Tr("form.username_password_incorrect"), LOGIN, &f)

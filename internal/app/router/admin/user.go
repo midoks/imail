@@ -121,7 +121,6 @@ func EditUser(c *context.Context) {
 	c.Data["Title"] = c.Tr("admin.users.edit_account")
 	c.Data["PageIsAdmin"] = true
 	c.Data["PageIsAdminUsers"] = true
-	// c.Data["EnableLocalPathMigration"] = conf.Repository.EnableLocalPathMigration
 
 	prepareUserInfo(c)
 	if c.Written() {

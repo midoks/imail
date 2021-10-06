@@ -454,7 +454,7 @@ func (this *Pop3Server) StartPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
-		this.D("pop[start]:%s", err)
+		this.D("pop[start]:", err)
 		return
 	}
 	defer ln.Close()
@@ -474,7 +474,7 @@ func (this *Pop3Server) StartSSLPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := tls.Listen("tcp", addr, this.TLSConfig)
 	if err != nil {
-		this.D("pop[start][ssl]:%s", err)
+		this.D("pop[start][ssl]:", err)
 		return
 	}
 	defer ln.Close()
