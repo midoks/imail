@@ -5,28 +5,46 @@ import (
 	// "errors"
 	"bufio"
 	"fmt"
-	"github.com/midoks/imail/internal/conf"
-	"github.com/midoks/imail/internal/db"
-	"github.com/midoks/imail/internal/log"
 	"net"
 	"os"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/midoks/imail/internal/conf"
+	"github.com/midoks/imail/internal/db"
+	"github.com/midoks/imail/internal/log"
 )
 
 // go test -v ./internal/imap
 func init() {
-	os.MkdirAll("./data", 0777)
-	os.MkdirAll("./logs", 0777)
+	cDir, err := os.Getwd()
+	appDir := filepath.Dir(filepath.Dir(cDir))
 
-	err := conf.Load("../../conf/app.defined.conf")
+	os.Setenv("IMAIL_WORK_DIR", appDir)
+	os.Chdir(appDir)
+	err = conf.Init(appDir + "/custom/conf/app.conf")
 	if err != nil {
-		fmt.Println("init config fail:", err.Error())
+		fmt.Println("TestReceivedMail config fail:", err.Error())
 	}
 
-	log.Init()
-	db.Init()
+	logger := log.Init()
+
+	format := conf.Log.Format
+	if strings.EqualFold(format, "json") {
+		logger.SetFormatter(&logrus.JSONFormatter{})
+	} else if strings.EqualFold(format, "text") {
+		logger.SetFormatter(&logrus.TextFormatter{})
+	} else {
+		logger.SetFormatter(&logrus.TextFormatter{})
+	}
+
+	if strings.EqualFold(conf.App.RunMode, "dev") {
+		logger.SetLevel(logrus.DebugLevel)
+	} else {
+		logger.SetLevel(logrus.InfoLevel)
+	}
+
 	go Start(10143)
 
 	time.Sleep(1 * time.Second)
