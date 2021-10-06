@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"path/filepath"
+	"strconv"
 
 	"github.com/go-macaron/binding"
 	"github.com/go-macaron/cache"
@@ -157,6 +158,10 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 func Start(port string) {
 	m := newMacaron()
 	m = setRouter(m)
-	fmt.Println(port)
-	m.Run(1080)
+
+	portInt, err := strconv.Atoi(port)
+	if err != nil {
+		fmt.Println("port need number!")
+	}
+	m.Run(portInt)
 }
