@@ -4,25 +4,43 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"gorm.io/gorm"
+
+	"github.com/midoks/imail/internal/tools/mail"
 )
 
 type Mail struct {
-	Id         int64  `gorm:"primaryKey"`
-	Uid        int64  `gorm:"comment:用户ID"`
-	Type       int    `gorm:"comment:0:发送;1:接到"`
-	MailFrom   string `gorm:"size:50;comment:邮件来源"`
-	MailTo     string `gorm:"size:50;comment:接收邮件"`
-	Content    string `gorm:"comment:邮件内容"`
-	Size       int    `gorm:"size:50;comment:邮件内容大小"`
-	Status     int    `gorm:"comment:0:准备发送;1:发送成功;2:发送失败;3:已接收"`
-	IsRead     int    `gorm:"default:0;comment:是否已读"`
-	IsDelete   int    `gorm:"default:0;comment:是否删除"`
-	IsFlags    int    `gorm:"default:0;comment:是否星标"`
-	IsJunk     int    `gorm:"default:0;comment:是否无用"`
-	IsCheck    int    `gorm:"default:0;comment:是否通过检查"`
-	UpdateTime int64  `gorm:"autoCreateTime;comment:更新时间"`
-	CreateTime int64  `gorm:"autoCreateTime;comment:创建时间"`
+	Id       int64  `gorm:"primaryKey"`
+	Uid      int64  `gorm:"comment:用户ID"`
+	Type     int    `gorm:"comment:0:发送;1:接到"`
+	MailFrom string `gorm:"size:50;comment:邮件来源"`
+	MailTo   string `gorm:"size:50;comment:接收邮件"`
+	Subject  string `gorm:"size:250;comment:标题"`
+	Content  string `gorm:"comment:邮件内容"`
+	Size     int    `gorm:"size:50;comment:邮件内容大小"`
+	Status   int    `gorm:"comment:0:准备发送;1:发送成功;2:发送失败;3:已接收"`
+
+	IsRead   int `gorm:"default:0;comment:是否已读"`
+	IsDelete int `gorm:"default:0;comment:是否删除"`
+	IsFlags  int `gorm:"default:0;comment:是否星标"`
+	IsJunk   int `gorm:"default:0;comment:是否无用"`
+	IsCheck  int `gorm:"default:0;comment:是否通过检查"`
+
+	Created     time.Time `gorm:"autoCreateTime;comment:创建时间"`
+	CreatedUnix int64     `gorm:"autoCreateTime;comment:创建时间"`
+	Updated     time.Time `gorm:"autoCreateTime;comment:更新时间"`
+	UpdatedUnix int64     `gorm:"autoCreateTime;comment:更新时间"`
 }
+
+const (
+	MailSearchOptionsTypeSend = iota
+	MailSearchOptionsTypeInbox
+	MailSearchOptionsTypeDelete
+	MailSearchOptionsTypeFlags
+	MailSearchOptionsTypeJunk
+	MailSearchOptionsTypeUnread
+)
 
 func MailTableName() string {
 	return "im_mail"
@@ -38,9 +56,20 @@ func MailCount() int64 {
 	return count
 }
 
-func MailList(page, pageSize int) ([]*Mail, error) {
+func MailCountWithOpts(opts *MailSearchOptions) int64 {
+	var count int64
+	dbm := db.Model(&Mail{})
+	dbm = MailSearchByNameCond(opts, dbm)
+	dbm.Count(&count)
+	return count
+}
+
+func MailList(page, pageSize int, opts *MailSearchOptions) ([]*Mail, error) {
 	mail := make([]*Mail, 0, pageSize)
-	err := db.Limit(pageSize).Offset((page - 1) * pageSize).Order("id desc").Find(&mail)
+	dbm := db.Limit(pageSize).Offset((page - 1) * pageSize).Order("id desc")
+	dbm = MailSearchByNameCond(opts, dbm)
+
+	err := dbm.Find(&mail)
 	return mail, err.Error
 }
 
@@ -49,6 +78,30 @@ type MailSearchOptions struct {
 	OrderBy  string
 	Page     int
 	PageSize int
+	Type     int
+}
+
+func MailSearchByNameCond(opts *MailSearchOptions, dbm *gorm.DB) *gorm.DB {
+	if opts.Type == MailSearchOptionsTypeSend {
+		dbm = dbm.Where("type = ?", 0).
+			Where("is_junk = ?", 0).
+			Where("is_flags = ?", 0)
+	}
+
+	if opts.Type == MailSearchOptionsTypeInbox {
+		dbm = dbm.Where("type = ?", 1).
+			Where("is_junk = ?", 0).
+			Where("is_flags = ?", 0)
+	}
+
+	if opts.Type == MailSearchOptionsTypeJunk {
+		dbm = dbm.Where("is_junk = ?", 1)
+	}
+
+	if opts.Type == MailSearchOptionsTypeFlags {
+		dbm = dbm.Where("is_flags = ?", 1)
+	}
+	return dbm
 }
 
 func MailSearchByName(opts *MailSearchOptions) (user []*Mail, _ int64, _ error) {
@@ -68,11 +121,11 @@ func MailSearchByName(opts *MailSearchOptions) (user []*Mail, _ int64, _ error) 
 	searchQuery := "%" + opts.Keyword + "%"
 	email := make([]*Mail, 0, opts.PageSize)
 
-	err := db.Model(&Mail{}).
-		Where("LOWER(name) LIKE ?", searchQuery).
-		Or("LOWER(nick) LIKE ?", searchQuery).
-		Find(&email)
-	return email, MailCount(), err.Error
+	dbm := db.Model(&Mail{}).Where("LOWER(name) LIKE ?", searchQuery).
+		Or("LOWER(nick) LIKE ?", searchQuery)
+	dbm = MailSearchByNameCond(opts, dbm)
+	err := dbm.Find(&email)
+	return email, MailCountWithOpts(opts), err.Error
 }
 
 func MailStatInfoForImap(uid int64, mtype int64) (int64, int64) {
@@ -232,24 +285,28 @@ func MailSetStatusById(id int64, status int64) bool {
 
 func MailPush(uid int64, mtype int, mail_from string, mail_to string, content string, status int) (int64, error) {
 	tx := db.Begin()
-	user := Mail{
+
+	subject := mail.GetMailSubject(content)
+
+	m := Mail{
 		Uid:      uid,
 		Type:     mtype,
 		MailFrom: mail_from,
 		MailTo:   mail_to,
 		Content:  content,
+		Subject:  subject,
 		Size:     len(content),
 		Status:   status,
 	}
 
-	user.UpdateTime = time.Now().Unix()
-	user.CreateTime = time.Now().Unix()
-	result := db.Create(&user)
+	m.UpdatedUnix = time.Now().Unix()
+	m.CreatedUnix = time.Now().Unix()
+	result := db.Create(&m)
 
 	if result.Error != nil {
 		tx.Rollback()
 	}
 
 	tx.Commit()
-	return user.Id, result.Error
+	return m.Id, result.Error
 }

@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/midoks/imail/internal/app/context"
 	"github.com/midoks/imail/internal/app/router/mail"
+	"github.com/midoks/imail/internal/db"
 )
 
 const (
@@ -16,5 +17,6 @@ func Home(c *context.Context) {
 		PageSize: 10,
 		OrderBy:  "id ASC",
 		TplName:  HOME,
+		Type:     db.MailSearchOptionsTypeInbox,
 	})
 }

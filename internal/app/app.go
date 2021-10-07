@@ -104,6 +104,11 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 			m.Get("", mail.Mail)
 			// m.Post("", bindIgnErr(form.UpdateProfile{}), user.SettingsPost)
 
+			m.Combo("/flags").Get(mail.Flags)
+			m.Combo("/sent").Get(mail.Sent)
+			m.Combo("/junk").Get(mail.Junk)
+
+			m.Combo("/new").Get(mail.New)
 		}, reqSignIn, func(c *context.Context) {
 			c.Data["PageIsMail"] = true
 		})
@@ -126,13 +131,6 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 
 		}, reqAdmin)
 		// ***** END: Admin *****
-
-		// ***** START: Mail *****
-		m.Group("/mail", func() {
-			m.Combo("/new").Get(mail.New)
-
-		}, reqAdmin)
-		// ***** END: Mail *****
 
 	}, session.Sessioner(session.Options{
 		Provider:       conf.Session.Provider,

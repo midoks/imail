@@ -15,9 +15,7 @@
 								<th>ID</th>
 								<th>{{.i18n.Tr "admin.users.name"}}</th>
 								<th>{{.i18n.Tr "admin.users.activated"}}</th>
-								<th>{{.i18n.Tr "admin.users.admin"}}</th>
 								<th>{{.i18n.Tr "admin.users.created"}}</th>
-								<th>{{.i18n.Tr "admin.users.edit"}}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -25,10 +23,8 @@
 								<tr>
 									<td>{{.Id}}</td>
 									<td>{{.MailFrom}}</a></td>
-									<td>{{.MailTo}}</td>
-									<td></td>
-									<td></td>
-									<td><a href="{{$.Link}}/{{.Id}}"><i class="fa fa-pencil-square-o"></i></a></td>
+									<td>{{.Subject}}</td>
+									<td>{{DateFmtShort .Created }}</td>
 								</tr>
 							{{end}}
 						</tbody>

@@ -16,7 +16,7 @@ func GetMailSubject(content string) string {
 	match := valid.FindAllStringSubmatch(content, -1)
 
 	val := match[0][0]
-	tmp := strings.Split(val, ":")
+	tmp := strings.SplitN(val, ":", 2)
 	val = strings.TrimSpace(tmp[1])
 
 	if strings.Contains(val, "=?utf-8?B?") {

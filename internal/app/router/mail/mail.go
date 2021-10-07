@@ -18,6 +18,7 @@ type MailSearchOptions struct {
 	PageSize int
 	OrderBy  string
 	TplName  string
+	Type     int
 }
 
 func RenderMailSearch(c *context.Context, opts *MailSearchOptions) {
@@ -33,16 +34,19 @@ func RenderMailSearch(c *context.Context, opts *MailSearchOptions) {
 	)
 
 	keyword := c.Query("q")
+	opt := &db.MailSearchOptions{
+		Keyword:  keyword,
+		OrderBy:  opts.OrderBy,
+		Page:     page,
+		PageSize: opts.PageSize,
+		Type:     opts.Type,
+	}
+
 	if len(keyword) == 0 {
-		mail, err = db.MailList(page, opts.PageSize)
-		count = db.MailCount()
+		mail, err = db.MailList(page, opts.PageSize, opt)
+		count = db.MailCountWithOpts(opt)
 	} else {
-		mail, count, err = db.MailSearchByName(&db.MailSearchOptions{
-			Keyword:  keyword,
-			OrderBy:  opts.OrderBy,
-			Page:     page,
-			PageSize: opts.PageSize,
-		})
+		mail, count, err = db.MailSearchByName(opt)
 		if err != nil {
 			c.Error(err, "search user by name")
 			return
@@ -56,6 +60,42 @@ func RenderMailSearch(c *context.Context, opts *MailSearchOptions) {
 	c.Data["Mail"] = mail
 
 	c.Success(opts.TplName)
+}
+
+func Flags(c *context.Context) {
+	c.Data["Title"] = c.Tr("mail.flags")
+	c.Data["PageIsWriteMail"] = true
+
+	RenderMailSearch(c, &MailSearchOptions{
+		PageSize: 10,
+		OrderBy:  "id ASC",
+		TplName:  MAIL,
+		Type:     db.MailSearchOptionsTypeFlags,
+	})
+}
+
+func Sent(c *context.Context) {
+	c.Data["Title"] = c.Tr("mail.sent")
+	c.Data["PageIsWriteMail"] = true
+
+	RenderMailSearch(c, &MailSearchOptions{
+		PageSize: 10,
+		OrderBy:  "id ASC",
+		TplName:  MAIL,
+		Type:     db.MailSearchOptionsTypeSend,
+	})
+}
+
+func Junk(c *context.Context) {
+	c.Data["Title"] = c.Tr("mail.junk")
+	c.Data["PageIsWriteMail"] = true
+
+	RenderMailSearch(c, &MailSearchOptions{
+		PageSize: 10,
+		OrderBy:  "id ASC",
+		TplName:  MAIL,
+		Type:     db.MailSearchOptionsTypeJunk,
+	})
 }
 
 func Mail(c *context.Context) {
