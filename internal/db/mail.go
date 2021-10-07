@@ -36,7 +36,7 @@ type Mail struct {
 const (
 	MailSearchOptionsTypeSend = iota
 	MailSearchOptionsTypeInbox
-	MailSearchOptionsTypeDelete
+	MailSearchOptionsTypeDeleted
 	MailSearchOptionsTypeFlags
 	MailSearchOptionsTypeJunk
 	MailSearchOptionsTypeUnread
@@ -94,6 +94,10 @@ func MailSearchByNameCond(opts *MailSearchOptions, dbm *gorm.DB) *gorm.DB {
 			Where("is_flags = ?", 0)
 	}
 
+	if opts.Type == MailSearchOptionsTypeDeleted {
+		dbm = dbm.Where("is_delete = ?", 1)
+	}
+
 	if opts.Type == MailSearchOptionsTypeJunk {
 		dbm = dbm.Where("is_junk = ?", 1)
 	}
@@ -101,6 +105,7 @@ func MailSearchByNameCond(opts *MailSearchOptions, dbm *gorm.DB) *gorm.DB {
 	if opts.Type == MailSearchOptionsTypeFlags {
 		dbm = dbm.Where("is_flags = ?", 1)
 	}
+
 	return dbm
 }
 
@@ -121,8 +126,7 @@ func MailSearchByName(opts *MailSearchOptions) (user []*Mail, _ int64, _ error) 
 	searchQuery := "%" + opts.Keyword + "%"
 	email := make([]*Mail, 0, opts.PageSize)
 
-	dbm := db.Model(&Mail{}).Where("LOWER(name) LIKE ?", searchQuery).
-		Or("LOWER(nick) LIKE ?", searchQuery)
+	dbm := db.Model(&Mail{}).Where("LOWER(subject) LIKE ?", searchQuery)
 	dbm = MailSearchByNameCond(opts, dbm)
 	err := dbm.Find(&email)
 	return email, MailCountWithOpts(opts), err.Error

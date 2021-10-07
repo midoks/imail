@@ -86,6 +86,18 @@ func Sent(c *context.Context) {
 	})
 }
 
+func Deleted(c *context.Context) {
+	c.Data["Title"] = c.Tr("mail.deleted")
+	c.Data["PageIsWriteMail"] = true
+
+	RenderMailSearch(c, &MailSearchOptions{
+		PageSize: 10,
+		OrderBy:  "id ASC",
+		TplName:  MAIL,
+		Type:     db.MailSearchOptionsTypeDeleted,
+	})
+}
+
 func Junk(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.junk")
 	c.Data["PageIsWriteMail"] = true

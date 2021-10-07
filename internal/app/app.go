@@ -106,6 +106,7 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 
 			m.Combo("/flags").Get(mail.Flags)
 			m.Combo("/sent").Get(mail.Sent)
+			m.Combo("/deleted").Get(mail.Deleted)
 			m.Combo("/junk").Get(mail.Junk)
 
 			m.Combo("/new").Get(mail.New)
