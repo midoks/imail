@@ -1,7 +1,7 @@
 package mail
 
 import (
-	"fmt"
+	// "fmt"
 
 	"github.com/midoks/imail/internal/app/context"
 	"github.com/midoks/imail/internal/db"
@@ -55,8 +55,6 @@ func RenderMailSearch(c *context.Context, opts *MailSearchOptions) {
 	c.Data["Keyword"] = keyword
 	c.Data["Total"] = count
 	c.Data["Page"] = paginater.New(int(count), opts.PageSize, page, 5)
-
-	fmt.Println("page:", c.Data["Page"], count)
 	c.Data["Mail"] = mail
 
 	c.Success(opts.TplName)
