@@ -1,6 +1,7 @@
 package db
 
 import (
+    "database/sql"
     "errors"
     "fmt"
     "os"
@@ -17,6 +18,53 @@ var (
     db  *gorm.DB
     err error
 )
+
+func getEngine() (*sql.DB, error) {
+    switch conf.Database.Type {
+    case "mysql":
+        dbUser := conf.Database.User
+        dbPwd := conf.Database.Password
+        dbHost := conf.Database.Host
+
+        dbName := conf.Database.Name
+        dbCharset := conf.Database.Charset
+
+        dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=True", dbUser, dbPwd, dbHost, dbName, dbCharset)
+        db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+    case "sqlite3":
+        dbPath := conf.Database.Path
+        os.MkdirAll(conf.WorkDir()+"/data", os.ModePerm)
+        fmt.Println("sqlite3 Path:", dbPath)
+        db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{SkipDefaultTransaction: true})
+        //&gorm.Config{SkipDefaultTransaction: true,}
+
+        // synchronous close
+        db.Exec("PRAGMA synchronous = OFF;")
+    default:
+        log.Errorf("database type not found")
+        return nil, errors.New("database type not found")
+    }
+
+    if err != nil {
+        log.Errorf("init db err,link error:", err)
+        return nil, err
+    }
+
+    sqlDB, err := db.DB()
+    if err != nil {
+        log.Errorf("[DB]:", err)
+        return nil, err
+    }
+
+    // SetMaxIdleConns sets the maximum number of connections in the free connection pool
+    sqlDB.SetMaxIdleConns(conf.Database.MaxIdleConns)
+    // SetMaxOpenConns sets the maximum number of open database connections.
+    sqlDB.SetMaxOpenConns(conf.Database.MaxOpenConns)
+    // SetConnMaxLifetime Sets the maximum time that the connection can be reused.
+    sqlDB.SetConnMaxLifetime(time.Hour)
+
+    return sqlDB, nil
+}
 
 func Init() error {
     switch conf.Database.Type {
