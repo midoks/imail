@@ -19,14 +19,24 @@
 						<thead>
 							<tr>
 								<th>ID</th>
-								<th>{{.i18n.Tr "admin.users.name"}}</th>
-								<th>{{.i18n.Tr "admin.users.edit"}}</th>
+								<th>{{.i18n.Tr "admin.domain.name"}}</th>
+								<th>{{.i18n.Tr "admin.domain.mx"}}</th>
+								<th>{{.i18n.Tr "admin.domain.a"}}</th>
+								<th>{{.i18n.Tr "admin.domain.spf"}}</th>
+								<th>{{.i18n.Tr "admin.domain.dkim"}}</th>
+								<th>{{.i18n.Tr "admin.domain.dmarc"}}</th>
+								<th>{{.i18n.Tr "admin.domain.op"}}</th>
 							</tr>
 						</thead>
 						<tbody>
 							{{range .Users}}
 								<tr>
 									<td>{{.Id}}</td>
+									<td><a href="#">{{.Name}}</a></td>
+									<td><a href="#">{{.Name}}</a></td>
+									<td><a href="#">{{.Name}}</a></td>
+									<td><a href="#">{{.Name}}</a></td>
+									<td><a href="#">{{.Name}}</a></td>
 									<td><a href="#">{{.Name}}</a></td>
 									<td><a href="{{$.Link}}/admin/users/{{.Id}}"><i class="fa fa-pencil-square-o"></i></a></td>
 								</tr>
