@@ -2,6 +2,7 @@ package admin
 
 import (
 	"github.com/midoks/imail/internal/app/context"
+	"github.com/midoks/imail/internal/db"
 )
 
 const (
@@ -13,5 +14,6 @@ func Domain(c *context.Context) {
 	c.Data["PageIsAdmin"] = true
 	c.Data["PageIsAdminDomain"] = true
 
+	c.Data["Total"] = db.DomainCount()
 	c.Success(DOMAIN)
 }
