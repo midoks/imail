@@ -28,3 +28,9 @@ func DomainTableName() string {
 func (*Domain) TableName() string {
 	return DomainTableName()
 }
+
+func DomainCount() int64 {
+	var count int64
+	db.Model(&Domain{}).Count(&count)
+	return count
+}

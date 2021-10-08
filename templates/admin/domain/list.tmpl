@@ -6,7 +6,7 @@
 			<div class="twelve wide column content">
 				{{template "base/alert" .}}
 				<h4 class="ui top attached header">
-					{{.i18n.Tr "admin.users.user_manage_panel"}} ({{.i18n.Tr "admin.total" .Total}})
+					{{.i18n.Tr "admin.domain.manage_panel"}} ({{.i18n.Tr "admin.total" .Total}})
 					<div class="ui right">
 						<a class="ui black tiny button" href="{{AppSubURL}}/admin/users/new">{{.i18n.Tr "admin.users.new_account"}}</a>
 					</div>
@@ -20,9 +20,6 @@
 							<tr>
 								<th>ID</th>
 								<th>{{.i18n.Tr "admin.users.name"}}</th>
-								<th>{{.i18n.Tr "admin.users.activated"}}</th>
-								<th>{{.i18n.Tr "admin.users.admin"}}</th>
-								<th>{{.i18n.Tr "admin.users.created"}}</th>
 								<th>{{.i18n.Tr "admin.users.edit"}}</th>
 							</tr>
 						</thead>
@@ -31,9 +28,6 @@
 								<tr>
 									<td>{{.Id}}</td>
 									<td><a href="#">{{.Name}}</a></td>
-									<td><i class="fa fa{{if .IsActive}}-check{{end}}-square-o"></i></td>
-									<td><i class="fa fa{{if .IsAdmin}}-check{{end}}-square-o"></i></td>
-									<td><span title="{{DateFmtLong .Created}}">{{DateFmtShort .Created }}</span></td>
 									<td><a href="{{$.Link}}/admin/users/{{.Id}}"><i class="fa fa-pencil-square-o"></i></a></td>
 								</tr>
 							{{end}}
