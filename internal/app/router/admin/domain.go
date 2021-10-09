@@ -134,18 +134,14 @@ func CheckDomain(c *context.Context) {
 
 	//dkim check
 	dataDir := conf.Web.Subpath + conf.Web.AppDataPath
+	d.Dkim = false
 	dkimRecord, _ := net.LookupTXT(fmt.Sprintf("default._domainkey.%s", domain))
 	fmt.Println("dkimRecord:", dkimRecord, domain)
-	if 0 == len(dkimRecord) {
-		d.Dkim = false
-	} else {
-
+	if 0 != len(dkimRecord) {
 		dkimContent, _ := dkim.GetDomainDkimVal(dataDir, domain)
 		for _, dkimDomainContent := range dkimRecord {
 			if strings.EqualFold(dkimContent, dkimDomainContent) {
 				d.Dkim = true
-			} else {
-				d.Dkim = false
 			}
 		}
 	}
