@@ -6,24 +6,19 @@
 			<div class="twelve wide column content">
 				{{template "base/alert" .}}
 				<h4 class="ui top attached header">
-					{{.i18n.Tr "admin.users.new_account"}}
+					{{.i18n.Tr "admin.domain.add_domain"}}
 				</h4>
 				<div class="ui attached segment">
 					<form class="ui form" action="{{.Link}}" method="post">
 						{{.CSRFTokenHTML}}
 		
-						<div class="required field {{if .Err_UserName}}error{{end}}">
-							<label for="user_name">{{.i18n.Tr "username"}}</label>
-							<input id="user_name" name="user_name" value="{{.user_name}}" autofocus required>
-						</div>
-
-						<div class="required local field">
-							<label for="password">{{.i18n.Tr "password"}}</label>
-							<input id="password" name="password" type="password" value="{{.password}}">
+						<div class="required field {{if .ErrorDomain}}error{{end}}">
+							<label for="domain">{{.i18n.Tr "admin.domain.name"}}</label>
+							<input id="domain" name="domain" value="{{.Domain}}" autofocus required>
 						</div>
 
 						<div class="field">
-							<button class="ui green button">{{.i18n.Tr "admin.users.new_account"}}</button>
+							<button class="ui green button">{{.i18n.Tr "admin.domain.add_domain"}}</button>
 						</div>
 					</form>
 				</div>

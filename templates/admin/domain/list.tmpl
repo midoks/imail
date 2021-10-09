@@ -30,17 +30,17 @@
 							</tr>
 						</thead>
 						<tbody>
-							{{range .Users}}
+							{{range .Domain}}
 								<tr>
 									<td>{{.Id}}</td>
-									<td><a href="#">{{.Name}}</a></td>
-									<td><a href="#">{{.Name}}</a></td>
-									<td><a href="#">{{.Name}}</a></td>
-									<td><a href="#">{{.Name}}</a></td>
-									<td><a href="#">{{.Name}}</a></td>
-									<td><a href="#">{{.Name}}</a></td>
-									<td><a href="#">{{.Name}}</a></td>
-									<td><a href="{{$.Link}}/admin/users/{{.Id}}"><i class="fa fa-pencil-square-o"></i></a></td>
+									<td><a href="#">{{.Domain}}</a></td>
+									<td><i class="fa fa{{if .Mx}}-check{{end}}-square-o"></i></td>
+									<td><i class="fa fa{{if .A}}-check{{end}}-square-o"></i></td>
+									<td><i class="fa fa{{if .Spf}}-check{{end}}-square-o"></i></td>
+									<td><i class="fa fa{{if .Dkim}}-check{{end}}-square-o"></i></td>
+									<td><i class="fa fa{{if .Dmarc}}-check{{end}}-square-o"></i></td>
+									<td><i class="fa fa{{if .IsDefault}}-check{{end}}-square-o"></i></td>
+									<td><a href="{{$.Link}}/admin/domain/{{.Id}}"><i class="fa fa-pencil-square-o"></i></a></td>
 								</tr>
 							{{end}}
 						</tbody>
