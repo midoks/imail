@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
+	// "strings"
 	"testing"
 	"time"
 
@@ -110,7 +110,7 @@ func init() {
 
 	os.Setenv("IMAIL_WORK_DIR", appDir)
 	os.Chdir(appDir)
-	err = conf.Init(appDir + "/custom/conf/app.conf")
+	err = conf.Init(appDir + "/conf/app.conf")
 	if err != nil {
 		fmt.Println("TestReceivedMail config fail:", err.Error())
 	}
@@ -118,8 +118,6 @@ func init() {
 	conf.Web.Domain = "cachecha.com"
 
 	logger := log.Init()
-
-	format := conf.Log.Format
 	logger.SetFormatter(&logrus.TextFormatter{})
 	logger.SetLevel(logrus.DebugLevel)
 
