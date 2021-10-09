@@ -55,7 +55,7 @@ func Init(customConf string) error {
 			return errors.Wrapf(err, "append %q", customConf)
 		}
 	} else {
-		log.Println("Custom config %q not found. Ignore this warning if you're running for the first time", customConf)
+		log.Println("Custom config ", customConf, " not found. Ignore this warning if you're running for the first time")
 	}
 
 	if err = File.Section(ini.DefaultSection).MapTo(&App); err != nil {

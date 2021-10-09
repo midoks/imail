@@ -1,7 +1,7 @@
 package admin
 
 import (
-	// "fmt"
+	"fmt"
 	// "errors"
 
 	"github.com/midoks/imail/internal/app/context"
@@ -75,6 +75,28 @@ func DeleteDomain(c *context.Context) {
 		c.Flash.Success(c.Tr("admin.domain.deletion_fail"))
 	} else {
 		c.Flash.Success(c.Tr("admin.domain.deletion_success"))
+	}
+	c.Redirect(conf.Web.Subpath + "/admin/domain")
+}
+
+func CheckDomain(c *context.Context) {
+	id := c.ParamsInt64(":id")
+
+	fmt.Println(id)
+
+	c.Flash.Success(c.Tr("admin.domain.deletion_success"))
+	c.Redirect(conf.Web.Subpath + "/admin/domain")
+}
+
+func SetDefaultDomain(c *context.Context) {
+	id := c.ParamsInt64(":id")
+	d, _ := db.DomainGetById(id)
+	err := db.DomainSetDefaultOnlyOne(id)
+	fmt.Println("SetDefaultDomain:", err)
+	if err != nil {
+		c.Flash.Error(c.Tr("admin.domain.set_default_fail", d.Domain))
+	} else {
+		c.Flash.Success(c.Tr("admin.domain.set_default_success", d.Domain))
 	}
 	c.Redirect(conf.Web.Subpath + "/admin/domain")
 }

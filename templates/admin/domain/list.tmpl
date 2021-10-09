@@ -34,9 +34,13 @@
 									<td><i class="fa fa{{if .Spf}}-check{{end}}-circle-o"></i></td>
 									<td><i class="fa fa{{if .Dkim}}-check{{end}}-circle-o"></i></td>
 									<td><i class="fa fa{{if .Dmarc}}-check{{end}}-circle-o"></i></td>
-									<td><i class="fa fa{{if .IsDefault}}-check{{end}}-square-o"></i></td>
 									<td>
-										<a href="{{$.Link}}/admin/domain/{{.Id}}"><i class="fa fa-pencil-square-o"></i></a>
+										<a href="{{$.Link}}/admin/domain/default/{{.Id}}">
+											<i class="fa fa{{if .IsDefault}}-check{{end}}-square-o"></i>
+										</a>
+									</td>
+									<td>
+										<a href="{{$.Link}}/admin/domain/check/{{.Id}}"><i class="fa fa-pencil-square-o"></i></a>
 
 										<a href="{{$.Link}}/admin/domain/delete/{{.Id}}"><i class="fa fa-times"></i></a>
 									</td>

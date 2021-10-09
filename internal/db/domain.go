@@ -1,6 +1,7 @@
 package db
 
 import (
+	// "fmt"
 	"time"
 )
 
@@ -57,4 +58,28 @@ func DomainDeleteByName(name string) error {
 func DomainDeleteById(id int64) error {
 	var d Domain
 	return db.Where("id = ?", id).Delete(&d).Error
+}
+
+func DomainGetById(id int64) (*Domain, error) {
+	var d Domain
+	err := db.First(&d, "id = ?", id).Error
+	return &d, err
+}
+
+func DomainSetDefaultOnlyOne(id int64) error {
+	// r := db.Model(&Domain{}).Where("1 = ?", 1).Update("is_default", 0)
+	// fmt.Println(r)
+
+	// r = db.Model(&Domain{}).Where("id = ?", id).Update("is_default", 1)
+	// fmt.Println(r)
+	result := db.Model(&Domain{}).Where("1 = ?", 1).Update("is_default", 0).Error
+	if result != nil {
+		return err
+	}
+
+	result = db.Model(&Domain{}).Where("id = ?", id).Update("is_default", 1).Error
+	if result != nil {
+		return err
+	}
+	return nil
 }
