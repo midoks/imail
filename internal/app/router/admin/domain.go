@@ -60,7 +60,7 @@ func NewDomainPost(c *context.Context, f form.AdminCreateDomain) {
 	err := db.DomainCreate(d)
 	if err != nil {
 		c.FormErr("Domain")
-		c.RenderWithErr(c.Tr("form.email_been_used"), DOMAIN_NEW, &f)
+		c.RenderWithErr(c.Tr("admin.domain.add_fail", f.Domain), DOMAIN_NEW, &f)
 		return
 	}
 
@@ -68,8 +68,13 @@ func NewDomainPost(c *context.Context, f form.AdminCreateDomain) {
 	c.Redirect(conf.Web.Subpath + "/admin/domain")
 }
 
-func DeleteDomainPost(c *context.Context, f form.AdminDeleteDomain) {
-
-	c.Flash.Success(c.Tr("admin.domain.add_success", f.Domain))
+func DeleteDomain(c *context.Context) {
+	id := c.ParamsInt64(":id")
+	err := db.DomainDeleteById(id)
+	if err != nil {
+		c.Flash.Success(c.Tr("admin.domain.deletion_fail"))
+	} else {
+		c.Flash.Success(c.Tr("admin.domain.deletion_success"))
+	}
 	c.Redirect(conf.Web.Subpath + "/admin/domain")
 }

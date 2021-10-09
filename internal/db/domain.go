@@ -49,6 +49,12 @@ func DomainList(page, pageSize int) ([]*Domain, error) {
 	return domain, err.Error
 }
 
-func DomainDeleteById(id int64) {
+func DomainDeleteByName(name string) error {
+	var d Domain
+	return db.Where("domain = ?", name).Delete(&d).Error
+}
 
+func DomainDeleteById(id int64) error {
+	var d Domain
+	return db.Where("id = ?", id).Delete(&d).Error
 }

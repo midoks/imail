@@ -5,5 +5,5 @@ type AdminCreateDomain struct {
 }
 
 type AdminDeleteDomain struct {
-	Domain string `binding:"Required;AlphaDashDot;MaxSize(255)"`
+	Id int64 `binding:"Required;AlphaDashDot;MaxSize(255)"`
 }

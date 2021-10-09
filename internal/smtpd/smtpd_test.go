@@ -120,19 +120,8 @@ func init() {
 	logger := log.Init()
 
 	format := conf.Log.Format
-	if strings.EqualFold(format, "json") {
-		logger.SetFormatter(&logrus.JSONFormatter{})
-	} else if strings.EqualFold(format, "text") {
-		logger.SetFormatter(&logrus.TextFormatter{})
-	} else {
-		logger.SetFormatter(&logrus.TextFormatter{})
-	}
-
-	if strings.EqualFold(conf.App.RunMode, "dev") {
-		logger.SetLevel(logrus.DebugLevel)
-	} else {
-		logger.SetLevel(logrus.InfoLevel)
-	}
+	logger.SetFormatter(&logrus.TextFormatter{})
+	logger.SetLevel(logrus.DebugLevel)
 
 	db.Init()
 
