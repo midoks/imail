@@ -140,6 +140,7 @@ func CheckDomain(c *context.Context) {
 	if 0 != len(dkimRecord) {
 		dkimContent, _ := dkim.GetDomainDkimVal(dataDir, domain)
 		for _, dkimDomainContent := range dkimRecord {
+			fmt.Println("cc:", dkimContent, dkimDomainContent, strings.EqualFold(dkimContent, dkimDomainContent))
 			if strings.EqualFold(dkimContent, dkimDomainContent) {
 				d.Dkim = true
 			}
