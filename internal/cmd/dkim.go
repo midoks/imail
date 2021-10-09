@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/midoks/imail/internal/app/router"
 	"github.com/midoks/imail/internal/conf"
-	"github.com/midoks/imail/internal/dkim"
+	"github.com/midoks/imail/internal/tools/dkim"
 	"github.com/urfave/cli"
 )
 
@@ -26,7 +26,8 @@ func makeDkim(c *cli.Context) error {
 	}
 
 	domain := conf.Web.Domain
-	content, err := dkim.MakeDkimConfFile(domain)
+	dataDir := conf.Web.Subpath + conf.Web.AppDataPath
+	content, err := dkim.MakeDkimConfFile(dataDir, domain)
 
 	fmt.Println(content)
 	fmt.Println(fmt.Sprintf("_dmarc in TXT ( v=DMARC1;p=quarantine;rua=mailto:admin@%s )", domain))

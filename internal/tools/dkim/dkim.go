@@ -8,12 +8,11 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/midoks/imail/internal/tools"
-	"io/ioutil"
 	"net"
-	"net/http"
 	"os"
 	"strings"
+
+	"github.com/midoks/imail/internal/tools"
 )
 
 func makeRsa() ([]byte, []byte, error) {
@@ -29,18 +28,6 @@ func makeRsa() ([]byte, []byte, error) {
 		}
 	}
 	return []byte{}, []byte{}, err
-}
-
-func GetPublicIP() (ip string, err error) {
-	// - http://myexternalip.com/raw
-	// - http://ip.dhcp.cn/?ip
-	resp, err := http.Get("http://ip.dhcp.cn/?ip")
-	content, err := ioutil.ReadAll(resp.Body)
-
-	if err == nil {
-		return string(content), nil
-	}
-	return "", err
 }
 
 func CheckDomainA(domain string) error {
@@ -64,7 +51,7 @@ func CheckDomainA(domain string) error {
 		return errors.New("It's not a top-level domain name!")
 	}
 
-	ip, err := GetPublicIP()
+	ip, err := tools.GetPublicIP()
 	if err != nil {
 		return err
 	}
@@ -84,20 +71,17 @@ func CheckDomainA(domain string) error {
 	return nil
 }
 
-func PathExists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
-	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	return false, err
-}
+func MakeDkimFile(path, domain string) (string, error) {
+	priFile := fmt.Sprintf("%s/dkim/%s/default.private", path, domain)
+	defalutTextFile := fmt.Sprintf("%s/dkim/%s/default.txt", path, domain)
+	defalutValFile := fmt.Sprintf("%s/dkim/%s/default.val", path, domain)
 
-func MakeDkimFile(domain string) (string, error) {
+	if tools.IsExist(priFile) {
+		pubContent, _ := tools.ReadFile(defalutTextFile)
+		return pubContent, nil
+	}
+
 	Priv, Pub, err := makeRsa()
-
 	if err != nil {
 		return "", err
 	}
@@ -108,7 +92,6 @@ func MakeDkimFile(domain string) (string, error) {
 	}
 
 	// pri := b64.StdEncoding.EncodeToString(Priv)
-	priFile := fmt.Sprintf("conf/dkim/%s/default.private", domain)
 	file, err := os.Create(priFile)
 	if err != nil {
 		return "", err
@@ -120,28 +103,29 @@ func MakeDkimFile(domain string) (string, error) {
 	}
 
 	pub := b64.StdEncoding.EncodeToString(Pub)
-
 	pubContent := fmt.Sprintf("default._domainkey\tIN\tTXT\t(\r\nv=DKIM1;k=rsa;p=%s\r\n)\r\n----- DKIM key default for %s", pub, domain)
 
-	err = tools.WriteFile(fmt.Sprintf("conf/dkim/%s/default.txt", domain), pubContent)
-	err = tools.WriteFile(fmt.Sprintf("conf/dkim/%s/default.val", domain), fmt.Sprintf("v=DKIM1;k=rsa;p=%s", pub))
+	err = tools.WriteFile(defalutTextFile, pubContent)
+	err = tools.WriteFile(defalutValFile, fmt.Sprintf("v=DKIM1;k=rsa;p=%s", pub))
 
 	return pubContent, err
 }
 
-func MakeDkimConfFile(domain string) (string, error) {
-	// if err := CheckDomainA(domain); err != nil {
-	// 	fmt.Println(err)
-	// 	return err
-	// }
-
-	path := fmt.Sprintf("conf/dkim/%s", domain)
-	if _, err := PathExists(path); err == nil {
-		err := os.MkdirAll(path, 0755)
+func MakeDkimConfFile(path, domain string) (string, error) {
+	pathDir := fmt.Sprintf("%s/dkim/%s", path, domain)
+	if b := tools.IsExist(pathDir); !b {
+		err := os.MkdirAll(pathDir, os.ModePerm)
 		if err != nil {
 			return "", err
 		}
 	}
 
-	return MakeDkimFile(domain)
+	return MakeDkimFile(path, domain)
+}
+
+func GetDomainDkimVal(path, domain string) (string, error) {
+	_, _ = MakeDkimConfFile(path, domain)
+	defalutValFile := fmt.Sprintf("%s/dkim/%s/default.val", path, domain)
+	pubContentRecord, err := tools.ReadFile(defalutValFile)
+	return pubContentRecord, err
 }

@@ -10,6 +10,8 @@ import (
 	"github.com/midoks/imail/internal/app/form"
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
+	// "github.com/midoks/imail/internal/tools"
+	"github.com/midoks/imail/internal/tools/dkim"
 )
 
 const (
@@ -97,6 +99,13 @@ func CheckDomain(c *context.Context) {
 		}
 	}
 
+	//A
+	d.A = false
+	err := dkim.CheckDomainA(domain)
+	if err == nil {
+		d.A = true
+	}
+
 	//DMARC
 	dmarcRecord, _ := net.LookupTXT(fmt.Sprintf("_dmarc.%s", domain))
 	if 0 == len(dmarcRecord) {
@@ -111,7 +120,35 @@ func CheckDomain(c *context.Context) {
 		}
 	}
 
-	fmt.Println(id, d)
+	//spf
+	spfRecord, _ := net.LookupTXT(domain)
+	if 0 == len(spfRecord) {
+		d.Spf = false
+	} else {
+		for _, spfRecordContent := range spfRecord {
+			if strings.Contains(strings.ToLower(spfRecordContent), "v=spf1") {
+				d.Spf = true
+			}
+		}
+	}
+
+	//dkim check
+	dataDir := conf.Web.Subpath + conf.Web.AppDataPath
+	dkimRecord, _ := net.LookupTXT(fmt.Sprintf("default._domainkey.%s", domain))
+	fmt.Println("dkimRecord:", dkimRecord, domain)
+	if 0 == len(dkimRecord) {
+		d.Dkim = false
+	} else {
+
+		dkimContent, _ := dkim.GetDomainDkimVal(dataDir, domain)
+		for _, dkimDomainContent := range dkimRecord {
+			if strings.EqualFold(dkimContent, dkimDomainContent) {
+				d.Dkim = true
+			} else {
+				d.Dkim = false
+			}
+		}
+	}
 
 	_ = db.DomainUpdateById(id, d)
 

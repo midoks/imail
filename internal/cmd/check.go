@@ -40,6 +40,8 @@ func doCheck(c *cli.Context) error {
 		}
 	}
 
+	//A
+
 	//DMARC
 	dmarcRecord, _ := net.LookupTXT(fmt.Sprintf("_dmarc.%s", domain))
 	if 0 == len(dmarcRecord) {
