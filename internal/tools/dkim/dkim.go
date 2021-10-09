@@ -32,7 +32,7 @@ func makeRsa() ([]byte, []byte, error) {
 
 func CheckDomainA(domain string) error {
 	findIp, err := net.LookupIP(domain)
-	fmt.Println(findIp)
+	fmt.Println(domain, findIp)
 	if err != nil {
 		return err
 	}
