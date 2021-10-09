@@ -8,7 +8,7 @@
 				<h4 class="ui top attached header">
 					{{.i18n.Tr "admin.domain.manage_panel"}} ({{.i18n.Tr "admin.total" .Total}})
 					<div class="ui right">
-						<a class="ui black tiny button" href="{{AppSubURL}}/admin/users/new">{{.i18n.Tr "admin.domain.add_domain"}}</a>
+						<a class="ui black tiny button" href="{{AppSubURL}}/admin/domain/new">{{.i18n.Tr "admin.domain.add_domain"}}</a>
 					</div>
 				</h4>
 				<div class="ui attached segment">
@@ -25,6 +25,7 @@
 								<th>{{.i18n.Tr "admin.domain.spf"}}</th>
 								<th>{{.i18n.Tr "admin.domain.dkim"}}</th>
 								<th>{{.i18n.Tr "admin.domain.dmarc"}}</th>
+								<th>{{.i18n.Tr "admin.domain.is_default"}}</th>
 								<th>{{.i18n.Tr "admin.domain.op"}}</th>
 							</tr>
 						</thead>
@@ -32,6 +33,7 @@
 							{{range .Users}}
 								<tr>
 									<td>{{.Id}}</td>
+									<td><a href="#">{{.Name}}</a></td>
 									<td><a href="#">{{.Name}}</a></td>
 									<td><a href="#">{{.Name}}</a></td>
 									<td><a href="#">{{.Name}}</a></td>
