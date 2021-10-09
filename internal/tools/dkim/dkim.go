@@ -32,7 +32,6 @@ func makeRsa() ([]byte, []byte, error) {
 
 func CheckDomainA(domain string) error {
 	findIp, err := net.LookupIP(domain)
-	fmt.Println(domain, findIp)
 	if err != nil {
 		return err
 	}
@@ -44,7 +43,7 @@ func CheckDomainA(domain string) error {
 
 	var isFind = false
 	for _, fIp := range findIp {
-		if strings.EqualFold(string(fIp), ip) {
+		if strings.EqualFold(string(fIp[:]), ip) {
 			isFind = true
 			break
 		}

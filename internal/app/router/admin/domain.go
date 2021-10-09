@@ -106,7 +106,6 @@ func CheckDomain(c *context.Context) {
 			//A
 			host := strings.Trim(mx[0].Host, ".")
 			err := dkim.CheckDomainA(host)
-			fmt.Println("CheckDomainA", err)
 			if err == nil {
 				d.A = true
 			}
