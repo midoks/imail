@@ -37,21 +37,6 @@ func CheckDomainA(domain string) error {
 		return err
 	}
 
-	mx, err := net.LookupMX(domain)
-	if err != nil {
-		return err
-	}
-
-	if len(mx) < 1 {
-		return errors.New("not find domain mx!")
-	}
-
-	mxHost := fmt.Sprintf("%s", mx[0].Host)
-	mxHost = strings.Trim(mxHost, ".")
-	if !strings.HasSuffix(mxHost, domain) {
-		return errors.New("It's not a top-level domain name!")
-	}
-
 	ip, err := tools.GetPublicIP()
 	if err != nil {
 		return err
