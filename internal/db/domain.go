@@ -66,12 +66,12 @@ func DomainGetById(id int64) (*Domain, error) {
 	return &d, err
 }
 
-func DomainSetDefaultOnlyOne(id int64) error {
-	// r := db.Model(&Domain{}).Where("1 = ?", 1).Update("is_default", 0)
-	// fmt.Println(r)
+func DomainUpdateById(id int64, d *Domain) error {
+	err := db.Where("id = ?", id).Save(&d).Error
+	return err
+}
 
-	// r = db.Model(&Domain{}).Where("id = ?", id).Update("is_default", 1)
-	// fmt.Println(r)
+func DomainSetDefaultOnlyOne(id int64) error {
 	result := db.Model(&Domain{}).Where("1 = ?", 1).Update("is_default", 0).Error
 	if result != nil {
 		return err

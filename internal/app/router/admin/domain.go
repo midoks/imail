@@ -2,6 +2,8 @@ package admin
 
 import (
 	"fmt"
+	"net"
+	"strings"
 	// "errors"
 
 	"github.com/midoks/imail/internal/app/context"
@@ -81,10 +83,39 @@ func DeleteDomain(c *context.Context) {
 
 func CheckDomain(c *context.Context) {
 	id := c.ParamsInt64(":id")
+	d, _ := db.DomainGetById(id)
+	domain := d.Domain
 
-	fmt.Println(id)
+	//MX
+	mx, _ := net.LookupMX(domain)
+	lenMx := len(mx)
+	if 0 == lenMx {
+		d.Mx = false
+	} else {
+		if strings.Contains(mx[0].Host, ".") {
+			d.Mx = true
+		}
+	}
 
-	c.Flash.Success(c.Tr("admin.domain.deletion_success"))
+	//DMARC
+	dmarcRecord, _ := net.LookupTXT(fmt.Sprintf("_dmarc.%s", domain))
+	if 0 == len(dmarcRecord) {
+		d.Dmarc = false
+	} else {
+		for _, dmarcDomainRecord := range dmarcRecord {
+			if strings.Contains(strings.ToLower(dmarcDomainRecord), "v=dmarc1") {
+				d.Dmarc = true
+			} else {
+				d.Dmarc = false
+			}
+		}
+	}
+
+	fmt.Println(id, d)
+
+	_ = db.DomainUpdateById(id, d)
+
+	c.Flash.Success(c.Tr("admin.domain.check_success", d.Domain))
 	c.Redirect(conf.Web.Subpath + "/admin/domain")
 }
 
