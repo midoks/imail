@@ -42,7 +42,7 @@ func NewDomainPost(c *context.Context, f form.AdminCreateDomain) {
 	count := db.DomainCount()
 
 	limit := 9
-	if int(count) > limit {
+	if int(count) >= limit {
 		c.FormErr("Domain")
 		c.RenderWithErr(c.Tr("form.domain_add_limit_exceeded", limit), DOMAIN_NEW, &f)
 		return
@@ -63,6 +63,12 @@ func NewDomainPost(c *context.Context, f form.AdminCreateDomain) {
 		c.RenderWithErr(c.Tr("form.email_been_used"), DOMAIN_NEW, &f)
 		return
 	}
+
+	c.Flash.Success(c.Tr("admin.domain.add_success", f.Domain))
+	c.Redirect(conf.Web.Subpath + "/admin/domain")
+}
+
+func DeleteDomainPost(c *context.Context, f form.AdminDeleteDomain) {
 
 	c.Flash.Success(c.Tr("admin.domain.add_success", f.Domain))
 	c.Redirect(conf.Web.Subpath + "/admin/domain")

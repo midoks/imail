@@ -48,3 +48,7 @@ func DomainList(page, pageSize int) ([]*Domain, error) {
 	err := dbm.Find(&domain)
 	return domain, err.Error
 }
+
+func DomainDeleteById(id int64) {
+
+}

@@ -135,6 +135,15 @@ func init() {
 	}
 
 	db.Init()
+
+	//create default user
+	db.CreateUser(&db.User{
+		Name:     "admin",
+		Password: "21232f297a57a5a743894a0e4a801fc3",
+		Salt:     "123123",
+		Code:     "admin",
+	})
+
 	go Start(1025)
 	time.Sleep(1 * time.Second)
 }
