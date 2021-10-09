@@ -112,6 +112,14 @@ func MakeDkimFile(path, domain string) (string, error) {
 }
 
 func MakeDkimConfFile(path, domain string) (string, error) {
+	pDir := fmt.Sprintf("%s/dkim", path)
+	if b := tools.IsExist(pDir); !b {
+		err := os.MkdirAll(pDir, os.ModePerm)
+		if err != nil {
+			return "", err
+		}
+	}
+
 	pathDir := fmt.Sprintf("%s/dkim/%s", path, domain)
 	if b := tools.IsExist(pathDir); !b {
 		err := os.MkdirAll(pathDir, os.ModePerm)
