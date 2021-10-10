@@ -2,7 +2,6 @@ package conf
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/url"
 	"os"
@@ -10,30 +9,37 @@ import (
 	"strconv"
 	"strings"
 
-	// "github.com/midoks/imail/internal/log"
-	"github.com/midoks/imail/internal/tools"
 	"github.com/pkg/errors"
 	"gopkg.in/ini.v1"
+
+	// "github.com/midoks/imail/internal/log"
+	"github.com/midoks/imail/internal/assets/conf"
+	"github.com/midoks/imail/internal/tools"
 )
+
+// Asset is a wrapper for getting conf assets.
+func Asset(name string) ([]byte, error) {
+	return conf.Asset(name)
+}
+
+// AssetDir is a wrapper for getting conf assets.
+func AssetDir(name string) ([]string, error) {
+	return conf.AssetDir(name)
+}
+
+// MustAsset is a wrapper for getting conf assets.
+func MustAsset(name string) []byte {
+	return conf.MustAsset(name)
+}
 
 // File is the configuration object.
 var File *ini.File
 
-func ReadFile(file string) (string, error) {
-	f, err := os.OpenFile(file, os.O_RDONLY, 0600)
-	defer f.Close()
-	b, err := ioutil.ReadAll(f)
-	return string(b), err
-}
-
 func Init(customConf string) error {
 
-	appConf := filepath.Join(WorkDir(), "conf", "app.conf")
-
-	contentConf, _ := ReadFile(appConf)
 	File, err := ini.LoadSources(ini.LoadOptions{
 		IgnoreInlineComment: true,
-	}, []byte(contentConf))
+	}, conf.MustAsset("conf/app.conf"))
 	if err != nil {
 		return errors.Wrap(err, "parse 'conf/app.conf'")
 	}

@@ -19,6 +19,7 @@ PACK_NAME=imail
 mkdir -p $rootPath/tmp/build
 mkdir -p $rootPath/tmp/package
 
+source ~/.bash_profile
 
 build_app(){
 
@@ -39,6 +40,8 @@ build_app(){
 
 	export CGO_ENABLED=1 GOOS=$1 GOARCH=$2
 	# export CGO_ENABLED=1 GOOS=linux GOARCH=amd64
+
+	cd $rootPath/ && go generate internal/assets/conf/conf.go
 
 
 	if [ $1 == "windows" ];then
@@ -83,10 +86,6 @@ build_app(){
 		cd $rootPath && go build imail.go
 	fi
 	
-	
-	cp -r $rootPath/conf $rootPath/tmp/build
-	cd $rootPath/tmp/build/conf/dkim && rm -rf ./* && echo "#dkim" > ./README.md
-	cd $rootPath/tmp/build/conf/ && rm -rf ./app.conf
 
 	cp -r $rootPath/scripts $rootPath/tmp/build
 	cp -r $rootPath/LICENSE $rootPath/tmp/build
@@ -115,10 +114,10 @@ golist=`go tool dist list`
 echo $golist
 
 build_app linux amd64
-build_app linux 386
-build_app linux arm64
-build_app linux arm
-build_app darwin amd64
-build_app windows 386
-build_app windows amd64
+# build_app linux 386
+# build_app linux arm64
+# build_app linux arm
+# build_app darwin amd64
+# build_app windows 386
+# build_app windows amd64
 
