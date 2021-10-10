@@ -31,6 +31,8 @@ func init() {
 		fmt.Println("TestReceivedMail config fail:", err.Error())
 	}
 
+	conf.Log.RootPath = "/tmp"
+	conf.Database.Path = "/tmp/data.imail.db3"
 	conf.Web.Domain = "cachecha.com"
 
 	logger := log.Init()

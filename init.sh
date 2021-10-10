@@ -12,6 +12,9 @@ go mod tidy
 go mod vendor
 
 
+go generate internal/assets/conf/conf.go
+
+
 # test cover
 cd $curPath/internal/imap
 go test -coverprofile=cov.out -coverpkg ./...
