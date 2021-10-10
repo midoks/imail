@@ -183,7 +183,6 @@ func (smtp *SmtpdServer) base64Encode(en string) string {
 func (smtp *SmtpdServer) base64Decode(de string) string {
 	dst, err := base64.StdEncoding.DecodeString(de)
 	if err != nil {
-		fmt.Println(err)
 		return ""
 	}
 	return string(dst)
@@ -204,12 +203,12 @@ func (smtp *SmtpdServer) getState() int {
 }
 
 func (smtp *SmtpdServer) D(args ...interface{}) {
-	if smtp.LinkSSL {
-		log.Debugf("[SSL]:%s", args...)
-		return
-	}
-
 	if conf.Smtp.Debug {
+
+		if smtp.LinkSSL {
+			log.Debug("[SSL] start")
+		}
+
 		// fmt.Println(args...)
 		log.Debug(args...)
 	}
@@ -669,6 +668,7 @@ func (smtp *SmtpdServer) handle() {
 		input, err := smtp.getString(state)
 
 		if err != nil {
+			fmt.Println("handle:", err)
 			smtp.write(MSG_COMMAND_TM_CTC)
 			smtp.close()
 			break
@@ -785,7 +785,10 @@ func (smtp *SmtpdServer) initTLSConfig() {
 }
 
 func (smtp *SmtpdServer) ready() {
-	smtp.initTLSConfig()
+
+	if smtp.LinkSSL {
+		smtp.initTLSConfig()
+	}
 
 	smtp.startTime = time.Now()
 	smtp.isLogin = false

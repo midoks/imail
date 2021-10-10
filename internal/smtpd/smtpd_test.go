@@ -115,6 +115,8 @@ func init() {
 		fmt.Println("TestReceivedMail config fail:", err.Error())
 	}
 
+	conf.Log.RootPath = "/tmp"
+	conf.Database.Path = "/tmp/imail.db3"
 	conf.Web.Domain = "cachecha.com"
 
 	logger := log.Init()
@@ -255,7 +257,7 @@ func ReceivedMail() error {
 	fEmail := "midoks@163.com"
 	tEmail := "admin@cachecha.com"
 
-	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail[%s]\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, now, tEmail)
+	content := fmt.Sprintf("From: =?UTF-8?B?6Zi/6YeM5LqR?= <%s>\r\nSubject: Hello imail[%s]\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, now, tEmail)
 	err := Delivery("127.0.0.1:1025", fEmail, tEmail, []byte(content))
 
 	return err

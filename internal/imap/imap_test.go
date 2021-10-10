@@ -32,7 +32,7 @@ func init() {
 	}
 
 	conf.Log.RootPath = "/tmp"
-	conf.Database.Path = "/tmp/data.imail.db3"
+	conf.Database.Path = "/tmp/imail.db3"
 	conf.Web.Domain = "cachecha.com"
 
 	logger := log.Init()
