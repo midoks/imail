@@ -11,15 +11,16 @@ import (
 )
 
 type Mail struct {
-	Id       int64  `gorm:"primaryKey"`
-	Uid      int64  `gorm:"comment:用户ID"`
-	Type     int    `gorm:"comment:0:发送;1:接到"`
-	MailFrom string `gorm:"size:50;comment:邮件来源"`
-	MailTo   string `gorm:"size:50;comment:接收邮件"`
-	Subject  string `gorm:"size:250;comment:标题"`
-	Content  string `gorm:"comment:邮件内容"`
-	Size     int    `gorm:"size:50;comment:邮件内容大小"`
-	Status   int    `gorm:"comment:0:准备发送;1:发送成功;2:发送失败;3:已接收"`
+	Id                int64  `gorm:"primaryKey"`
+	Uid               int64  `gorm:"comment:用户ID"`
+	Type              int    `gorm:"comment:0:发送;1:接到"`
+	MailFrom          string `gorm:"size:50;comment:邮件来源"`
+	MailFromInContent string `gorm:"text;comment:邮件来源"`
+	MailTo            string `gorm:"size:50;comment:接收邮件"`
+	Subject           string `gorm:"size:250;comment:标题"`
+	Content           string `gorm:"comment:邮件内容"`
+	Size              int    `gorm:"size:50;comment:邮件内容大小"`
+	Status            int    `gorm:"comment:0:准备发送;1:发送成功;2:发送失败;3:已接收"`
 
 	IsRead   int `gorm:"default:0;comment:是否已读"`
 	IsDelete int `gorm:"default:0;comment:是否删除"`
@@ -291,16 +292,18 @@ func MailPush(uid int64, mtype int, mail_from string, mail_to string, content st
 	tx := db.Begin()
 
 	subject := mail.GetMailSubject(content)
+	mail_from_in_content := mail.GetMailFromInContent(content)
 
 	m := Mail{
-		Uid:      uid,
-		Type:     mtype,
-		MailFrom: mail_from,
-		MailTo:   mail_to,
-		Content:  content,
-		Subject:  subject,
-		Size:     len(content),
-		Status:   status,
+		Uid:               uid,
+		Type:              mtype,
+		MailFrom:          mail_from,
+		MailFromInContent: mail_from_in_content,
+		MailTo:            mail_to,
+		Content:           content,
+		Subject:           subject,
+		Size:              len(content),
+		Status:            status,
 	}
 
 	m.UpdatedUnix = time.Now().Unix()
