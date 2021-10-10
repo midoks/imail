@@ -97,7 +97,7 @@ func (c *Context) HasValue(name string) bool {
 
 // HTML responses template with given status.
 func (c *Context) HTML(status int, name string) {
-	log.Trace("Template: %s", name)
+	log.Trace("Template:", name)
 	c.Context.HTML(status, name)
 }
 
@@ -191,8 +191,8 @@ func Contexter() macaron.Handler {
 
 		c.Data["CSRFToken"] = x.GetToken()
 		c.Data["CSRFTokenHTML"] = template.Safe(`<input type="hidden" name="_csrf" value="` + x.GetToken() + `">`)
-		log.Trace("Session ID: %s", sess.ID())
-		log.Trace("CSRF Token: %v", c.Data["CSRFToken"])
+		log.Trace("Session ID: ", sess.ID())
+		log.Trace("CSRF Token: ", c.Data["CSRFToken"])
 
 		// c.Data["ShowRegistrationButton"] = !conf.Auth.DisableRegistration
 		// c.Data["ShowFooterBranding"] = conf.Other.ShowFooterBranding

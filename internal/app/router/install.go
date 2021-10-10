@@ -247,7 +247,7 @@ func InstallPost(c *context.Context, f form.Install) {
 	if tools.IsFile(conf.CustomConf) {
 		// Keeps custom settings if there is already something.
 		if err := cfg.Append(conf.CustomConf); err != nil {
-			log.Error("Failed to load custom conf %q: %v", conf.CustomConf, err)
+			log.Errorf("Failed to load custom conf %s: %s", conf.CustomConf, err)
 		}
 	}
 

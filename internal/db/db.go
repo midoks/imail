@@ -46,13 +46,13 @@ func getEngine() (*sql.DB, error) {
     }
 
     if err != nil {
-        log.Errorf("init db err,link error:", err)
+        log.Errorf("init db err,link error:%s", err)
         return nil, err
     }
 
     sqlDB, err := db.DB()
     if err != nil {
-        log.Errorf("[DB]:", err)
+        log.Errorf("[DB]:%s", err)
         return nil, err
     }
 
