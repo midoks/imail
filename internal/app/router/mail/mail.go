@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	MAIL     = "mail/list"
-	USER_NEW = "mail/new"
+	MAIL        = "mail/list"
+	MAIL_NEW    = "mail/new"
+	MAIL_CONENT = "mail/content"
 )
 
 type MailSearchOptions struct {
@@ -119,5 +120,12 @@ func New(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.write_letter")
 	c.Data["PageIsWriteMail"] = true
 
-	c.Success(USER_NEW)
+	c.Success(MAIL_NEW)
+}
+
+func Content(c *context.Context) {
+	c.Data["Title"] = c.Tr("mail.write_letter")
+	c.Data["PageIsMailContent"] = true
+
+	c.Success(MAIL_CONENT)
 }

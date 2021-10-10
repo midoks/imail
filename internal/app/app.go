@@ -102,14 +102,15 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 		// ***** START: Mail *****
 		m.Group("/mail", func() {
 			m.Get("", mail.Mail)
+			m.Combo("/new").Get(mail.New)
 			// m.Post("", bindIgnErr(form.UpdateProfile{}), user.SettingsPost)
 
 			m.Combo("/flags").Get(mail.Flags)
 			m.Combo("/sent").Get(mail.Sent)
 			m.Combo("/deleted").Get(mail.Deleted)
 			m.Combo("/junk").Get(mail.Junk)
+			m.Combo("/content").Get(mail.Content)
 
-			m.Combo("/new").Get(mail.New)
 		}, reqSignIn, func(c *context.Context) {
 			c.Data["PageIsMail"] = true
 		})
