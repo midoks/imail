@@ -2,12 +2,13 @@ package mail
 
 import (
 	"fmt"
-	"github.com/midoks/imail/internal/conf"
-	"github.com/midoks/imail/internal/tools"
 	"io/ioutil"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/midoks/imail/internal/conf"
+	"github.com/midoks/imail/internal/tools"
 )
 
 func GetMailSubject(content string) string {
@@ -19,14 +20,48 @@ func GetMailSubject(content string) string {
 	tmp := strings.SplitN(val, ":", 2)
 	val = strings.TrimSpace(tmp[1])
 
-	if strings.Contains(val, "=?utf-8?B?") {
+	if strings.ContainsAny(val, "=?utf-8?B?") {
 		val = strings.Replace(val, "=?utf-8?B?", "", -1)
+		val = strings.Replace(val, "=?UTF-8?B?", "", -1)
 		val = strings.Replace(val, "?=", "", -1)
 		val = strings.TrimSpace(val)
 		val, err = tools.Base64decode(val)
-		// if err != nil {
-		fmt.Println(val, err)
-		// }
+		if err != nil {
+			return val
+		}
+	}
+	return val
+}
+
+func GetMailFromInContent(content string) string {
+	var err error
+	valid := regexp.MustCompile(`From: (.*)`)
+	match := valid.FindAllStringSubmatch(content, -1)
+
+	val := match[0][0]
+	tmp := strings.SplitN(val, ":", 2)
+	val = strings.TrimSpace(tmp[1])
+
+	tmp = strings.SplitN(val, "<", 2)
+	val = strings.TrimSpace(tmp[0])
+	val = strings.Trim(val, "\"")
+
+	if strings.EqualFold(val, "") {
+		val = tmp[1]
+		val = strings.Trim(val, ">")
+		tmp = strings.SplitN(val, "@", 2)
+		return tmp[0]
+	}
+
+	if strings.Contains(val, "=?utf-8?B?") || strings.Contains(val, "=?UTF-8?B?") {
+		val = strings.Replace(val, "=?utf-8?B?", "", -1)
+		val = strings.Replace(val, "=?UTF-8?B?", "", -1)
+		val = strings.Replace(val, "?=", "", -1)
+		val = strings.TrimSpace(val)
+		val, err = tools.Base64decode(val)
+		if err == nil {
+			return val
+		}
 	}
 	return val
 }
