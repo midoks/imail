@@ -20,13 +20,25 @@ func GetMailSubject(content string) string {
 	tmp := strings.SplitN(val, ":", 2)
 	val = strings.TrimSpace(tmp[1])
 
-	if strings.ContainsAny(val, "=?utf-8?B?") {
+	if strings.Contains(val, "=?utf-8?B?") || strings.Contains(val, "=?UTF-8?B?") {
 		val = strings.Replace(val, "=?utf-8?B?", "", -1)
 		val = strings.Replace(val, "=?UTF-8?B?", "", -1)
 		val = strings.Replace(val, "?=", "", -1)
 		val = strings.TrimSpace(val)
 		val, err = tools.Base64decode(val)
-		if err != nil {
+		if err == nil {
+			return val
+		}
+	}
+
+	if strings.Contains(val, "=?gbk?B?") || strings.Contains(val, "=?GBK?B?") {
+		val = strings.Replace(val, "=?gbk?B?", "", -1)
+		val = strings.Replace(val, "=?GBK?B?", "", -1)
+		val = strings.Replace(val, "?=", "", -1)
+		val = strings.TrimSpace(val)
+		val, err = tools.Base64decode(val)
+		if err == nil {
+			val = tools.ConvertToString(val, "gbk", "utf-8")
 			return val
 		}
 	}

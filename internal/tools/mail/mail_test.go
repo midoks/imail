@@ -33,6 +33,7 @@ var GetMailSubjectData = []struct {
 }{
 	{"Subject: [GitHub] A third-party OAuth application has been added to your", "[GitHub] A third-party OAuth application has been added to your", true},
 	{"Subject: =?utf-8?B?5rWL6K+V?=", "测试", true},
+	{"Subject: =?GBK?B?suLK1A==?=", "测试", true},
 }
 
 //go test -v ./internal/tools/mail -run TestGetMailSubject
