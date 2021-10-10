@@ -10,7 +10,6 @@ import (
 	"github.com/midoks/imail/internal/app/form"
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
-	// "github.com/midoks/imail/internal/tools"
 	"github.com/midoks/imail/internal/tools/dkim"
 )
 
@@ -154,7 +153,6 @@ func SetDefaultDomain(c *context.Context) {
 	id := c.ParamsInt64(":id")
 	d, _ := db.DomainGetById(id)
 	err := db.DomainSetDefaultOnlyOne(id)
-	fmt.Println("SetDefaultDomain:", err)
 	if err != nil {
 		c.Flash.Error(c.Tr("admin.domain.set_default_fail", d.Domain))
 	} else {

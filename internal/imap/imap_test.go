@@ -15,7 +15,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/midoks/imail/internal/conf"
-	// "github.com/midoks/imail/internal/db"
+	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/log"
 )
 
@@ -36,6 +36,16 @@ func init() {
 	logger := log.Init()
 	logger.SetFormatter(&logrus.TextFormatter{})
 	logger.SetLevel(logrus.DebugLevel)
+
+	db.Init()
+
+	//create default user
+	db.CreateUser(&db.User{
+		Name:     "admin",
+		Password: "21232f297a57a5a743894a0e4a801fc3",
+		Salt:     "123123",
+		Code:     "admin",
+	})
 
 	go Start(10143)
 
