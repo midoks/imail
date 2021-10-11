@@ -19,5 +19,3 @@ action:
   - go generate internal/assets/conf/conf.go
   - go generate internal/assets/public/public.go
   - go generate internal/assets/templates/templates.go
-  after:
-  - echo ""
