@@ -7,13 +7,13 @@ dirfilter:
 - vendor
 - logs
 - templates
+- assets
 ext:
 - go
 action:
   before:
-  - go mod tidy
-  - go mod vendor
   - find . -name ".DS_Store" -print -delete
+  - rm -rf logs/run_away.log
   - go generate internal/assets/conf/conf.go
   after:
-  - rm -rf logs/run_away.log
+  - echo ""
