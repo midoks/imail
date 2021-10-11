@@ -8,6 +8,8 @@ dirfilter:
 - logs
 - templates
 - assets
+- .github
+- data
 ext:
 - go
 action:
