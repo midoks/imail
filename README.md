@@ -17,10 +17,14 @@ imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件
 
 ```
 
+## Go实时开发工具
+
+- https://github.com/midoks/zzz
+
 
 ## 快速入口
+
 - [文档主页](https://github.com/midoks/imail/wiki)
-- [API](https://github.com/midoks/imail/wiki/API%E6%96%87%E6%A1%A3)
 
 ### 版本详情
 
@@ -30,10 +34,6 @@ imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件
 * 添加单元测试
 * 添加日志配置
 ```
-
-### 待解决问题
-- [ ] [wiki](https://github.com/midoks/imail)
-
 
 ## 计划功能
 
