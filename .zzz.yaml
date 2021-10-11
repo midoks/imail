@@ -17,5 +17,7 @@ action:
   - find . -name ".DS_Store" -print -delete
   - rm -rf logs/run_away.log
   - go generate internal/assets/conf/conf.go
+  - go generate internal/assets/public/public.go
+  - go generate internal/assets/templates/templates.go
   after:
   - echo ""

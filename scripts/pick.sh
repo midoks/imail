@@ -89,8 +89,6 @@ build_app(){
 
 	cp -r $rootPath/scripts $rootPath/tmp/build
 	cp -r $rootPath/LICENSE $rootPath/tmp/build
-	cp -r $rootPath/public $rootPath/tmp/build
-	cp -r $rootPath/templates $rootPath/tmp/build
 	cp -r $rootPath/README.md $rootPath/tmp/build
 
 	cd $rootPath/tmp/build && xattr -c * && rm -rf ./*/.DS_Store && rm -rf ./*/*/.DS_Store
