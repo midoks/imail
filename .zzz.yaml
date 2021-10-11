@@ -1,0 +1,19 @@
+title: zzz
+dirfilter:
+- tmp
+- .git
+- public
+- scripts
+- vendor
+- logs
+- templates
+ext:
+- go
+action:
+  before:
+  - go mod tidy
+  - go mod vendor
+  - find . -name ".DS_Store" -print -delete
+  - go generate internal/assets/conf/conf.go
+  after:
+  - rm -rf logs/run_away.log
