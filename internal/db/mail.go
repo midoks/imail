@@ -61,7 +61,7 @@ func MailCountWithOpts(opts *MailSearchOptions) int64 {
 	var count int64
 	dbm := db.Model(&Mail{})
 	dbm = MailSearchByNameCond(opts, dbm)
-	dbm.Count(&count)
+	dbm.Where("uid=?", opts.Uid).Count(&count)
 	return count
 }
 
@@ -70,7 +70,7 @@ func MailList(page, pageSize int, opts *MailSearchOptions) ([]*Mail, error) {
 	dbm := db.Limit(pageSize).Offset((page - 1) * pageSize).Order("id desc")
 	dbm = MailSearchByNameCond(opts, dbm)
 
-	err := dbm.Find(&mail)
+	err := dbm.Where("uid=?", opts.Uid).Find(&mail)
 	return mail, err.Error
 }
 
@@ -80,6 +80,7 @@ type MailSearchOptions struct {
 	Page     int
 	PageSize int
 	Type     int
+	Uid      int64
 }
 
 func MailSearchByNameCond(opts *MailSearchOptions, dbm *gorm.DB) *gorm.DB {
@@ -129,7 +130,7 @@ func MailSearchByName(opts *MailSearchOptions) (user []*Mail, _ int64, _ error) 
 
 	dbm := db.Model(&Mail{}).Where("LOWER(subject) LIKE ?", searchQuery)
 	dbm = MailSearchByNameCond(opts, dbm)
-	err := dbm.Find(&email)
+	err := dbm.Where("uid=?", opts.Uid).Find(&email)
 	return email, MailCountWithOpts(opts), err.Error
 }
 

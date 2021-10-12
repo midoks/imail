@@ -41,6 +41,7 @@ func RenderMailSearch(c *context.Context, opts *MailSearchOptions) {
 		Page:     page,
 		PageSize: opts.PageSize,
 		Type:     opts.Type,
+		Uid:      c.User.Id,
 	}
 
 	if len(keyword) == 0 {

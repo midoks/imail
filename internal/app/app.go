@@ -82,6 +82,7 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 
 			m.Get("/sign_up", user.SignUp)
 			m.Post("/sign_up", bindIgnErr(form.Register{}), user.SignUpPost)
+			m.Post("/logout", user.SignOut)
 		}, reqSignOut)
 
 		// ***** START: User *****

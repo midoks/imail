@@ -142,6 +142,15 @@ func LoginPost(c *context.Context, f form.SignIn) {
 	c.RedirectSubpath("/")
 }
 
+func SignOut(c *context.Context) {
+	_ = c.Session.Flush()
+	_ = c.Session.Destory(c.Context)
+	c.SetCookie(conf.Security.CookieUsername, "", -1, conf.Web.Subpath)
+	c.SetCookie(conf.Security.CookieRememberName, "", -1, conf.Web.Subpath)
+	c.SetCookie(conf.Session.CSRFCookieName, "", -1, conf.Web.Subpath)
+	c.RedirectSubpath("/")
+}
+
 func LoginTwoFactor(c *context.Context) {
 	c.Title("sign_in")
 }
