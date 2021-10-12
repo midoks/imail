@@ -1,4 +1,5 @@
 title: zzz
+frequency: 3
 dirfilter:
 - tmp
 - .git
