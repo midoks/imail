@@ -76,8 +76,12 @@ func FuncMap() []template.FuncMap {
 				return t.Format(time.RFC1123Z)
 			},
 			"DateFmtShort": func(t time.Time) string {
+				fmt.Println(t)
 				return t.Format("Jan 02, 2006")
 			},
+
+			"DateFmtMail": DateFmtMail,
+
 			"FilenameIsImage": func(filename string) bool {
 				mimeType := mime.TypeByExtension(filepath.Ext(filename))
 				return strings.HasPrefix(mimeType, "image/")
@@ -112,4 +116,22 @@ func NewLine2br(raw string) string {
 // TODO: Use url.Escape.
 func EscapePound(str string) string {
 	return strings.NewReplacer("%", "%25", "#", "%23", " ", "%20", "?", "%3F").Replace(str)
+}
+
+func DateFmtMail(t time.Time) string {
+	n := time.Now()
+
+	in := t.Format("2006-01-02")
+	now := n.Format("2006-01-02")
+
+	if in == now {
+		return t.Format("15:04")
+	}
+	in2, _ := time.Parse("2006-01-02 15:04:05", in+" 00:00:00")
+	now2, _ := time.Parse("2006-01-02 15:04:05", now+" 00:00:00")
+	if in2.Unix()+86400 == now2.Unix() {
+		return "昨天"
+	} else {
+		return t.Format("2006-01-02")
+	}
 }
