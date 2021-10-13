@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"net/http"
 	"path/filepath"
 	"strconv"
 
@@ -34,7 +35,7 @@ func newMacaron() *macaron.Macaron {
 	m.Use(macaron.Recovery())
 
 	var publicFs http.FileSystem
-	if !conf.Server.LoadAssetsFromDisk {
+	if !conf.Web.LoadAssetsFromDisk {
 		publicFs = public.NewFileSystem()
 	}
 	m.Use(macaron.Static(
