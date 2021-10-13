@@ -12,6 +12,7 @@ const (
 
 func Home(c *context.Context) {
 	c.Data["PageIsHome"] = true
+	c.Data["PageIsMail"] = true
 
 	mail.RenderMailSearch(c, &mail.MailSearchOptions{
 		PageSize: 10,

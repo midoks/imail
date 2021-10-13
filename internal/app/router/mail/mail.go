@@ -1,9 +1,10 @@
 package mail
 
 import (
-	// "fmt"
+	"fmt"
 
 	"github.com/midoks/imail/internal/app/context"
+	"github.com/midoks/imail/internal/app/form"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/tools/paginater"
 )
@@ -124,9 +125,22 @@ func New(c *context.Context) {
 	c.Success(MAIL_NEW)
 }
 
+func NewPost(c *context.Context, f form.SendMail) {
+	c.Data["Title"] = c.Tr("mail.write_letter")
+	c.Data["PageIsWriteMail"] = true
+
+	fmt.Println("newpost")
+
+	c.Success(MAIL_NEW)
+}
+
 func Content(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.write_letter")
 	c.Data["PageIsMailContent"] = true
+
+	id := c.ParamsInt64(":id")
+
+	fmt.Println(id)
 
 	c.Success(MAIL_CONENT)
 }

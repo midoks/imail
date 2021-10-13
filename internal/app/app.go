@@ -34,6 +34,13 @@ func newMacaron() *macaron.Macaron {
 	m.Use(macaron.Logger())
 	m.Use(macaron.Recovery())
 
+	m.Use(macaron.Static(
+		filepath.Join(conf.CustomDir(), "public"),
+		macaron.StaticOptions{
+			SkipLogging: true,
+		},
+	))
+
 	var publicFs http.FileSystem
 	if !conf.Web.LoadAssetsFromDisk {
 		publicFs = public.NewFileSystem()
@@ -41,9 +48,11 @@ func newMacaron() *macaron.Macaron {
 	m.Use(macaron.Static(
 		filepath.Join(conf.WorkDir(), "public"),
 		macaron.StaticOptions{
-			FileSystem: publicFs,
+			FileSystem:  publicFs,
+			SkipLogging: false,
 		},
 	))
+
 	//template start
 	renderOpt := macaron.RenderOptions{
 		Directory:         filepath.Join(conf.WorkDir(), "templates"),
@@ -126,14 +135,13 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 		// ***** START: Mail *****
 		m.Group("/mail", func() {
 			m.Get("", mail.Mail)
-			m.Combo("/new").Get(mail.New)
-			// m.Post("", bindIgnErr(form.UpdateProfile{}), user.SettingsPost)
+			m.Combo("/new").Get(mail.New).Post(bindIgnErr(form.SendMail{}), mail.NewPost)
 
 			m.Combo("/flags").Get(mail.Flags)
 			m.Combo("/sent").Get(mail.Sent)
 			m.Combo("/deleted").Get(mail.Deleted)
 			m.Combo("/junk").Get(mail.Junk)
-			m.Combo("/content").Get(mail.Content)
+			m.Combo("/content/:id").Get(mail.Content)
 
 		}, reqSignIn, func(c *context.Context) {
 			c.Data["PageIsMail"] = true

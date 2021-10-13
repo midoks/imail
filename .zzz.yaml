@@ -1,19 +1,19 @@
 title: zzz
-frequency: 3
+frequency: 1
 dirfilter:
 - tmp
 - .git
-- public
 - scripts
 - vendor
 - logs
-- templates
 - assets
 - .github
 - data
 ext:
 - go
-- yaml
+- js
+- tmpl
+- ini
 action:
   before:
   - find . -name ".DS_Store" -print -delete

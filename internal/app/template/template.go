@@ -9,6 +9,7 @@ import (
 	"html/template"
 	"mime"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -28,7 +29,11 @@ func FuncMap() []template.FuncMap {
 	funcMapOnce.Do(func() {
 		funcMap = []template.FuncMap{map[string]interface{}{
 			"BuildCommit": func() string {
-				return conf.BuildCommit
+
+				t := time.Now().Unix()
+				s := strconv.FormatInt(t, 10)
+				return s
+				// return conf.BuildCommit
 			},
 
 			"Year": func() int {
