@@ -139,6 +139,11 @@ type Statistic struct {
     }
 }
 
+func Ping() error {
+    sqlDB, _ := db.DB()
+    return sqlDB.Ping()
+}
+
 func GetStatistic() (stats Statistic) {
     stats.Counter.User = 0
 

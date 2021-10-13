@@ -108,7 +108,11 @@ func Dashboard(c *context.Context) {
 	c.PageIs("Admin")
 	c.PageIs("AdminDashboard")
 
+	fmt.Println(conf.BuildTime, conf.BuildCommit)
+
 	c.Data["GoVersion"] = runtime.Version()
+	c.Data["BuildTime"] = conf.BuildTime
+	c.Data["BuildCommit"] = conf.BuildCommit
 
 	c.Data["Stats"] = db.GetStatistic()
 	// // FIXME: update periodically

@@ -14,6 +14,17 @@
 						<dd>{{AppVer}}</dd>
 						<dt>{{.i18n.Tr "admin.dashboard.go_version"}}</dt>
 						<dd>{{.GoVersion}}</dd>
+
+						<dt>{{.i18n.Tr "admin.dashboard.build_time"}}</dt>
+						<dd>{{.BuildTime}}</dd>
+						<dt>{{.i18n.Tr "admin.dashboard.build_commit"}}</dt>
+						<dd>
+							{{if .BuildCommit}}
+								<a target="_blank" href="https://github.com/midoks/imail/commit/{{.BuildCommit}}">{{.BuildCommit}} <i class="fa fa-external-link" aria-hidden="true"></i></a>
+							{{else}}
+								N/A
+							{{end}}
+						</dd>
 						
 					</dl>
 				</div>

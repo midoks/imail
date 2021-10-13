@@ -1,12 +1,10 @@
 #!/bin/bash
-
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 
 # https://github.com/FiloSottile/homebrew-musl-cross
 # brew install FiloSottile/musl-cross/musl-cross --without-x86_64 --with-i486 --with-aarch64 --with-arm
 
 # brew install mingw-w64
-
 # sudo port install mingw-w64
 
 VERSION=0.0.6
@@ -21,6 +19,12 @@ mkdir -p $rootPath/tmp/package
 
 source ~/.bash_profile
 
+cd $rootPath
+LDFLAGS="-X \"github.com/midoks/imail/internal/conf.BuildTime=$(date -u '+%Y-%m-%d %I:%M:%S %Z')\""
+LDFLAGS="${LDFLAGS} -X \"github.com/midoks/imail/internal/conf.BuildCommit=$(git rev-parse HEAD)\""
+
+
+echo $LDFLAGS
 build_app(){
 
 	if [ -f $rootPath/tmp/build/imail ]; then
@@ -41,7 +45,9 @@ build_app(){
 	export CGO_ENABLED=1 GOOS=$1 GOARCH=$2
 	# export CGO_ENABLED=1 GOOS=linux GOARCH=amd64
 
-	cd $rootPath/ && go generate internal/assets/conf/conf.go
+	cd $rootPath && go generate internal/assets/conf/conf.go
+	cd $rootPath && go generate internal/assets/templates/templates.go
+	cd $rootPath && go generate internal/assets/public/public.go
 
 
 	if [ $1 == "windows" ];then
@@ -79,11 +85,12 @@ build_app(){
 			export CC=arm-linux-musleabi-gcc
 		fi
 
-		cd $rootPath && go build -a imail.go
+		cd $rootPath && go build -ldflags "${LDFLAGS}"  imail.go 
 	fi
 
 	if [ $1 == "darwin" ]; then
-		cd $rootPath && go build imail.go
+		echo "cd $rootPath && go build -v  -ldflags '${LDFLAGS}'"
+		cd $rootPath && go build -v -ldflags "${LDFLAGS}"
 	fi
 	
 
@@ -111,11 +118,11 @@ build_app(){
 golist=`go tool dist list`
 echo $golist
 
-build_app linux amd64
+# build_app linux amd64
 # build_app linux 386
 # build_app linux arm64
 # build_app linux arm
-# build_app darwin amd64
+build_app darwin amd64
 # build_app windows 386
 # build_app windows amd64
 

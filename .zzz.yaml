@@ -13,6 +13,7 @@ dirfilter:
 - data
 ext:
 - go
+- yaml
 action:
   before:
   - find . -name ".DS_Store" -print -delete

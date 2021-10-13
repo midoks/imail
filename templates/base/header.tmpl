@@ -17,12 +17,12 @@
 	<script src="{{AppSubURL}}/js/libs/jquery.are-you-sure.js"></script>
 
 	<link rel="stylesheet" href="{{AppSubURL}}/css/semantic.min.css">
-	<link rel="stylesheet" href="{{AppSubURL}}/css/imail.min.css">
+	<link rel="stylesheet" href="{{AppSubURL}}/css/imail.min.css?v={{BuildCommit}}">
 	<link rel="stylesheet" href="{{AppSubURL}}/assets/font-awesome-4.6.3/css/font-awesome.min.css">
 	<link rel="stylesheet" href="{{AppSubURL}}/assets/octicons-4.3.0/octicons.min.css">
 
 	{{ if .PageIsWriteMail}}
-	<script src="{{AppSubURL}}/js/wangEditor.min.js"></script>
+	<script src="{{AppSubURL}}/js/wangEditor.min.js?v={{BuildCommit}}"></script>
 	<style>
 	.w-e-toolbar {
 		display: flex;
@@ -31,6 +31,10 @@
 		/* 单个菜单 */
 	}
 	</style>
+	{{end}}
+
+	{{ if .PageIsMail}}
+	<script src="{{AppSubURL}}/js/box.js?v={{BuildCommit}}"></script>
 	{{end}}
 
 	<meta name="referrer" content="no-referrer" />

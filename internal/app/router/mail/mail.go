@@ -64,7 +64,7 @@ func RenderMailSearch(c *context.Context, opts *MailSearchOptions) {
 
 func Flags(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.flags")
-	c.Data["PageIsWriteMail"] = true
+	c.Data["PageIsMail"] = true
 
 	RenderMailSearch(c, &MailSearchOptions{
 		PageSize: 10,
@@ -76,7 +76,7 @@ func Flags(c *context.Context) {
 
 func Sent(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.sent")
-	c.Data["PageIsWriteMail"] = true
+	c.Data["PageIsMail"] = true
 
 	RenderMailSearch(c, &MailSearchOptions{
 		PageSize: 10,
@@ -88,7 +88,7 @@ func Sent(c *context.Context) {
 
 func Deleted(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.deleted")
-	c.Data["PageIsWriteMail"] = true
+	c.Data["PageIsMail"] = true
 
 	RenderMailSearch(c, &MailSearchOptions{
 		PageSize: 10,
@@ -100,7 +100,7 @@ func Deleted(c *context.Context) {
 
 func Junk(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.junk")
-	c.Data["PageIsWriteMail"] = true
+	c.Data["PageIsMail"] = true
 
 	RenderMailSearch(c, &MailSearchOptions{
 		PageSize: 10,
@@ -112,7 +112,7 @@ func Junk(c *context.Context) {
 
 func Mail(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.write_letter")
-	c.Data["PageIsWriteMail"] = true
+	c.Data["PageIsMail"] = true
 
 	c.Success(MAIL)
 }

@@ -2,28 +2,10 @@
 curPath=`pwd`
 
 
-# init
+export GIT_COMMIT=$(git rev-parse HEAD)
+export BUILD_TIME=$(date -u '+%Y-%m-%d %I:%M:%S %Z')
 
-# if [ ! -f go.mod ]; then
-# 	go mod init
-# fi
+# zzz run -ldflags "-w -s -X \"github.com/midoks/imail/internal/conf.BuildCommit=$(git rev-parse HEAD)\" -X \"github.com/midoks/imail/internal/conf.BuildTime=$(date -u '+%Y-%m-%d %I:%M:%S %Z')\""
 
-# go mod tidy
-# go mod vendor
-
-
-go generate internal/assets/conf/conf.go
-
-
-# test cover
-# cd $curPath/internal/imap
-# go test -coverprofile=cov.out -coverpkg ./...
-# go tool cover -html cov.out -o index.html
-
-# cd $curPath/internal/pop3
-# go test -coverprofile=cov.out -coverpkg ./...
-# go tool cover -html cov.out -o index.html
-
-# cd $curPath/internal/smtpd
-# go test -coverprofile=cov.out -coverpkg ./...
-# go tool cover -html cov.out -o index.html
+echo zzz run -ldflags "-X \"github.com/midoks/imail/internal/conf.BuildTime=${BUILD_TIME}\" -X \"github.com/midoks/imail/internal/conf.BuildCommit=${GIT_COMMIT}\""
+zzz run --ld "-X \"github.com/midoks/imail/internal/conf.BuildTime=${BUILD_TIME}\" -X \"github.com/midoks/imail/internal/conf.BuildCommit=${GIT_COMMIT}\""

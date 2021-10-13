@@ -27,6 +27,10 @@ var (
 func FuncMap() []template.FuncMap {
 	funcMapOnce.Do(func() {
 		funcMap = []template.FuncMap{map[string]interface{}{
+			"BuildCommit": func() string {
+				return conf.BuildCommit
+			},
+
 			"Year": func() int {
 				return time.Now().Year()
 			},

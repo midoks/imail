@@ -21,6 +21,8 @@ import (
 	"github.com/midoks/imail/internal/app/router/mail"
 	"github.com/midoks/imail/internal/app/router/user"
 	"github.com/midoks/imail/internal/app/template"
+	"github.com/midoks/imail/internal/assets/public"
+	"github.com/midoks/imail/internal/assets/templates"
 	"github.com/midoks/imail/internal/conf"
 )
 
@@ -31,20 +33,40 @@ func newMacaron() *macaron.Macaron {
 	m.Use(macaron.Logger())
 	m.Use(macaron.Recovery())
 
-	m.Use(macaron.Static("public"))
+	var publicFs http.FileSystem
+	if !conf.Server.LoadAssetsFromDisk {
+		publicFs = public.NewFileSystem()
+	}
+	m.Use(macaron.Static(
+		filepath.Join(conf.WorkDir(), "public"),
+		macaron.StaticOptions{
+			FileSystem: publicFs,
+		},
+	))
+	//template start
+	renderOpt := macaron.RenderOptions{
+		Directory:         filepath.Join(conf.WorkDir(), "templates"),
+		AppendDirectories: []string{filepath.Join(conf.CustomDir(), "templates")},
+		Funcs:             template.FuncMap(),
+		IndentJSON:        macaron.Env != macaron.PROD,
+	}
+	if !conf.Web.LoadAssetsFromDisk {
+		renderOpt.TemplateFileSystem = templates.NewTemplateFileSystem("", renderOpt.AppendDirectories[0])
+	}
 
-	opt := macaron.Renderer(macaron.RenderOptions{
-		Directory: "templates",
-		Funcs:     template.FuncMap(),
-	})
-	m.Use(opt)
+	m.Use(macaron.Renderer(renderOpt))
+	//template end
 
+	localeNames, _ := conf.AssetDir("conf/locale")
+	localeFiles := make(map[string][]byte)
+	for _, name := range localeNames {
+		localeFiles[name] = conf.MustAsset("conf/locale/" + name)
+	}
 	m.Use(i18n.I18n(i18n.Options{
-		Directory:       filepath.Join(conf.WorkDir(), "conf", "locale"),
 		CustomDirectory: filepath.Join(conf.CustomDir(), "conf", "locale"),
+		Files:           localeFiles,
 		Langs:           conf.I18n.Langs,
 		Names:           conf.I18n.Names,
-		Format:          "locale_%s.ini",
 		DefaultLang:     "en-US",
 		Redirect:        true,
 	}))
