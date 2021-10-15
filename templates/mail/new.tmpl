@@ -9,7 +9,7 @@
 				
 					<div class="inline field" >
 					  <div class="ui label">收件人</div>
-					  <input type="email" name="revice" placeholder="xxx@xxx.xx">
+					  <input type="email" name="to_mail" placeholder="xxx@xxx.xx">
 					</div>
 
 
@@ -19,8 +19,8 @@
 					</div>
 
 					</hr>
-
 					<div id="content"></div>
+					<textarea class="hide" name="content" id="area_content"></textarea>
 
 					<div class="ui divider"></div>
 
@@ -39,6 +39,13 @@
 <script>
 const E = window.wangEditor;
 const editor = new E('#content');
+const $area_content = $('#area_content');
+
+editor.config.onchange = function (html) {
+    $area_content.val(html);
+}
+$area_content.val(editor.txt.html());
+
 editor.config.zIndex = 500;
 editor.config.uploadImgShowBase64 = true;
 editor.config.showFullScreen = true;

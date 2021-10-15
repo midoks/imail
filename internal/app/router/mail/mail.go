@@ -129,6 +129,7 @@ func NewPost(c *context.Context, f form.SendMail) {
 	c.Data["Title"] = c.Tr("mail.write_letter")
 	c.Data["PageIsWriteMail"] = true
 
+	fmt.Println("vv:", f)
 	fmt.Println("newpost")
 
 	c.Success(MAIL_NEW)

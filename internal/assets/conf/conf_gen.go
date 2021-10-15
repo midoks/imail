@@ -7,6 +7,7 @@
 // ../../../conf/locale/locale_zh-CN.ini
 // ../../../conf/tpl/return_to_sender.tpl
 // ../../../conf/tpl/return_to_sender_html.tpl
+// ../../../conf/tpl/send.tpl
 package conf
 
 import (
@@ -223,6 +224,26 @@ func confTplReturn_to_sender_htmlTpl() (*asset, error) {
 	return a, nil
 }
 
+var _confTplSendTpl = "\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x01\x00\x00\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00"
+
+func confTplSendTplBytes() ([]byte, error) {
+	return bindataRead(
+		_confTplSendTpl,
+		"conf/tpl/send.tpl",
+	)
+}
+
+func confTplSendTpl() (*asset, error) {
+	bytes, err := confTplSendTplBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "conf/tpl/send.tpl", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
+}
+
 // Asset loads and returns the asset for the given name.
 // It returns an error if the asset could not be found or
 // could not be loaded.
@@ -282,6 +303,7 @@ var _bindata = map[string]func() (*asset, error){
 	"conf/locale/locale_zh-CN.ini":       confLocaleLocale_zhCnIni,
 	"conf/tpl/return_to_sender.tpl":      confTplReturn_to_senderTpl,
 	"conf/tpl/return_to_sender_html.tpl": confTplReturn_to_sender_htmlTpl,
+	"conf/tpl/send.tpl":                  confTplSendTpl,
 }
 
 // AssetDir returns the file names below a certain
@@ -338,6 +360,7 @@ var _bintree = &bintree{nil, map[string]*bintree{
 		"tpl": &bintree{nil, map[string]*bintree{
 			"return_to_sender.tpl":      &bintree{confTplReturn_to_senderTpl, map[string]*bintree{}},
 			"return_to_sender_html.tpl": &bintree{confTplReturn_to_sender_htmlTpl, map[string]*bintree{}},
+			"send.tpl":                  &bintree{confTplSendTpl, map[string]*bintree{}},
 		}},
 	}},
 }}
