@@ -129,8 +129,16 @@ func NewPost(c *context.Context, f form.SendMail) {
 	c.Data["Title"] = c.Tr("mail.write_letter")
 	c.Data["PageIsWriteMail"] = true
 
+	mail, err := db.DomainGetMainForDomain()
+	fmt.Println(mail, err)
 	fmt.Println("vv:", f)
-	fmt.Println("newpost")
+
+	if err != nil {
+		// c.Flash.Success("邮件未设置")
+
+		c.RenderWithErr("邮件未设置", MAIL_NEW, &f)
+		return
+	}
 
 	c.Success(MAIL_NEW)
 }

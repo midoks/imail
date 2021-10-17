@@ -83,3 +83,21 @@ func DomainSetDefaultOnlyOne(id int64) error {
 	}
 	return nil
 }
+
+func DomainGetMain() (Domain, error) {
+	var d Domain
+	err := db.Model(&Domain{}).
+		Where("a=?", 1).
+		Where("mx=?", 1).
+		Where("spf=?", 1).
+		Where("dkim=?", 1).
+		Where("dmarc=?", 1).
+		Where("is_default=?", 1).
+		First(&d).Error
+	return d, err
+}
+
+func DomainGetMainForDomain() (string, error) {
+	d, err := DomainGetMain()
+	return d.Domain, err
+}

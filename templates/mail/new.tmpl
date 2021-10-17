@@ -9,18 +9,18 @@
 				
 					<div class="inline field" >
 					  <div class="ui label">收件人</div>
-					  <input type="email" name="to_mail" placeholder="xxx@xxx.xx">
+					  <input type="email" name="to_mail" placeholder="xxx@xxx.xx" value="{{.to_mail}}">
 					</div>
 
 
 					<div class="inline field">
 					  <div class="ui label">主&nbsp;&nbsp;&nbsp;题</div>
-					  <input type="text" name="subject">
+					  <input type="text" name="subject" value="{{.subject}}">
 					</div>
 
 					</hr>
 					<div id="content"></div>
-					<textarea class="hide" name="content" id="area_content"></textarea>
+					<textarea class="hide" name="content" id="area_content">{{.content}}</textarea>
 
 					<div class="ui divider"></div>
 
@@ -40,18 +40,24 @@
 const E = window.wangEditor;
 const editor = new E('#content');
 const $area_content = $('#area_content');
-
 editor.config.onchange = function (html) {
     $area_content.val(html);
 }
-$area_content.val(editor.txt.html());
 
 editor.config.zIndex = 500;
 editor.config.uploadImgShowBase64 = true;
 editor.config.showFullScreen = true;
 editor.config.showMenuTooltips = true;
 editor.config.height = 400;
-editor.create()
+editor.create();
+
+
+{{if .content}}
+editor.txt.html('{{.content}}');
+$area_content.val('{{.content}}');
+{{else}}
+$area_content.val(editor.txt.html());
+{{end}}
 </script>
 
 {{template "base/footer" .}}
