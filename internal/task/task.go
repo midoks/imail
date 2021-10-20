@@ -13,23 +13,21 @@ import (
 var c = cron.New()
 
 func TaskQueueeSendMail() {
-	postmaster := fmt.Sprintf("postmaster@%s", conf.Web.Domain)
 
+	postmaster := fmt.Sprintf("postmaster@%s", conf.Web.Domain)
 	result := db.MailSendListForStatus(2, 1)
 	if len(result) == 0 {
 
 		result = db.MailSendListForStatus(0, 1)
-		fmt.Println(result)
 		for _, val := range result {
 			db.MailSetStatusById(val.Id, 2)
 			err := smtpd.Delivery("", val.MailFrom, val.MailTo, []byte(val.Content))
-			if err != nil {
 
+			if err != nil {
 				content, _ := mail.GetMailReturnToSender(val.MailFrom, val.MailTo, val.Content, err.Error())
 				db.MailPush(val.Uid, 1, postmaster, val.MailFrom, content, 1)
 			}
 			db.MailSetStatusById(val.Id, 1)
-			fmt.Println("send mail:", err)
 		}
 	}
 }

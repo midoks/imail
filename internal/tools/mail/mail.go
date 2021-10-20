@@ -106,7 +106,7 @@ func GetMailReturnToSender(to string, err_to_mail string, err_content string, ms
 	tmp := conf.MustAsset("conf/tpl/return_to_sender.tpl")
 	data := string(tmp)
 
-	tmp2 := conf.MustAsset("conf/tpl/return_to_sender.tpl")
+	tmp2 := conf.MustAsset("conf/tpl/return_to_sender_html.tpl")
 	dataHtml := string(tmp2)
 
 	contentHtml := strings.Replace(string(dataHtml), "{TILTE}", "邮箱退信", -1)
