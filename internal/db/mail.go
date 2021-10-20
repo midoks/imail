@@ -179,6 +179,7 @@ func MailListForImap(uid int64) []Mail {
 func MailSendListForStatus(status int64, limit int64) []Mail {
 	var result []Mail
 	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE status=%d and type=0 order by created_unix limit %d", MailTableName(), status, limit)
+	fmt.Println(sql)
 	db.Raw(sql).Find(&result)
 	return result
 }
@@ -289,8 +290,8 @@ func MailSetStatusById(id int64, status int64) bool {
 	return true
 }
 
-func MailPushSend(uid int64, mail_from string, mail_to string, content string, status int) (int64, error) {
-	return MailPush(uid, 0, mail_from, mail_to, content, status)
+func MailPushSend(uid int64, mail_from string, mail_to string, content string) (int64, error) {
+	return MailPush(uid, 0, mail_from, mail_to, content, 0)
 }
 
 func MailPushReceive(uid int64, mail_from string, mail_to string, content string, status int) (int64, error) {
