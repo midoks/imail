@@ -6,9 +6,8 @@ import (
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/log"
 	"github.com/midoks/imail/internal/smtpd"
-	"github.com/midoks/imail/internal/tools/mail"
-	// "github.com/robfig/cron"
 	"github.com/midoks/imail/internal/tools/cron"
+	"github.com/midoks/imail/internal/tools/mail"
 )
 
 var c = cron.New()
@@ -20,6 +19,7 @@ func TaskQueueeSendMail() {
 	if len(result) == 0 {
 
 		result = db.MailSendListForStatus(0, 1)
+		fmt.Println(result)
 		for _, val := range result {
 			db.MailSetStatusById(val.Id, 2)
 			err := smtpd.Delivery("", val.MailFrom, val.MailTo, []byte(val.Content))
@@ -29,7 +29,7 @@ func TaskQueueeSendMail() {
 				db.MailPush(val.Uid, 1, postmaster, val.MailFrom, content, 1)
 			}
 			db.MailSetStatusById(val.Id, 1)
-			// fmt.Println("send mail:", err)
+			fmt.Println("send mail:", err)
 		}
 	}
 }

@@ -3,7 +3,6 @@ package mail
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"regexp"
 	"strings"
 	"time"
@@ -104,16 +103,11 @@ func GetMailReturnToSender(to string, err_to_mail string, err_content string, ms
 	sendTime := time.Now().Format("Mon, 02 Jan 2006 15:04:05 -0700 (MST)")
 	sendVersion := fmt.Sprintf("imail/%s", conf.App.Version)
 	boundaryRand := tools.RandString(20)
+	tmp := conf.MustAsset("conf/tpl/return_to_sender.tpl")
+	data := string(tmp)
 
-	data, err := ioutil.ReadFile(conf.WorkDir() + "conf/tpl/return_to_sender.tpl")
-	if err != nil {
-		return "", err
-	}
-
-	dataHtml, err := ioutil.ReadFile(conf.WorkDir() + "conf/tpl/return_to_sender_html.tpl")
-	if err != nil {
-		return "", err
-	}
+	tmp2 := conf.MustAsset("conf/tpl/return_to_sender.tpl")
+	dataHtml := string(tmp2)
 
 	contentHtml := strings.Replace(string(dataHtml), "{TILTE}", "邮箱退信", -1)
 	contentHtml = strings.Replace(contentHtml, "{ERR_MSG}", msg, -1)

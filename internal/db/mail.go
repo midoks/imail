@@ -179,7 +179,6 @@ func MailListForImap(uid int64) []Mail {
 func MailSendListForStatus(status int64, limit int64) []Mail {
 	var result []Mail
 	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE status=%d and type=0 order by created_unix limit %d", MailTableName(), status, limit)
-	fmt.Println(sql)
 	db.Raw(sql).Find(&result)
 	return result
 }
