@@ -1,6 +1,7 @@
 package mail
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"regexp"
@@ -76,6 +77,22 @@ func GetMailFromInContent(content string) string {
 		}
 	}
 	return val
+}
+
+func GetMailRealContent(from, to, subject, content string) string {
+	tplContent := conf.MustAsset("conf/tpl/send.tpl")
+	sendTime := time.Now().Format("Mon, 02 Jan 2006 15:04:05 -0700 (MST)")
+	sendVersion := fmt.Sprintf("imail/%s", conf.App.Version)
+	boundaryRand := tools.RandString(20)
+
+	tplContent = bytes.Replace(tplContent, []byte("{VERSION}"), []byte(sendVersion), -1)
+	tplContent = bytes.Replace(tplContent, []byte("{TIME}"), []byte(sendTime), -1)
+	tplContent = bytes.Replace(tplContent, []byte("{BOUNDARY_LINE}"), []byte(boundaryRand), -1)
+	tplContent = bytes.Replace(tplContent, []byte("{MAIL_FROM}"), []byte(from), -1)
+	tplContent = bytes.Replace(tplContent, []byte("{RCPT_TO}"), []byte(to), -1)
+	tplContent = bytes.Replace(tplContent, []byte("{SUBJECT}"), []byte(subject), -1)
+	tplContent = bytes.Replace(tplContent, []byte("{CONTENT}"), []byte(tools.Base64encode(content)), -1)
+	return string(tplContent)
 }
 
 func GetMailReturnToSender(to string, err_to_mail string, err_content string, msg string) (string, error) {

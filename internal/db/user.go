@@ -211,6 +211,20 @@ func UserGetByName(name string) (User, error) {
 	return user, nil
 }
 
+func UserGetAdmin() (User, error) {
+	var user User
+	err := db.Model(&User{}).
+		Where("is_active=?", 1).
+		Where("is_admin=?", 1).
+		Find(&user)
+	return user, err.Error
+}
+
+func UserGetAdminForName() (string, error) {
+	u, err := UserGetAdmin()
+	return u.Name, err
+}
+
 func UserGetById(id int64) (User, error) {
 	var user User
 	err := db.First(&user, "id = ?", id).Error

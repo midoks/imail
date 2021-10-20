@@ -6,6 +6,7 @@ import (
 	"github.com/midoks/imail/internal/app/context"
 	"github.com/midoks/imail/internal/app/form"
 	"github.com/midoks/imail/internal/db"
+	tmail "github.com/midoks/imail/internal/tools/mail"
 	"github.com/midoks/imail/internal/tools/paginater"
 )
 
@@ -129,17 +130,21 @@ func NewPost(c *context.Context, f form.SendMail) {
 	c.Data["Title"] = c.Tr("mail.write_letter")
 	c.Data["PageIsWriteMail"] = true
 
-	mail, err := db.DomainGetMainForDomain()
-	fmt.Println(mail, err)
-	fmt.Println("vv:", f)
-
+	from, err := db.DomainGetMainForDomain()
 	if err != nil {
-		// c.Flash.Success("邮件未设置")
-
-		c.RenderWithErr("邮件未设置", MAIL_NEW, &f)
+		c.RenderWithErr(c.Tr("mail.new.default_not_set"), MAIL_NEW, &f)
 		return
 	}
 
+	mail_from := fmt.Sprintf("%s@%s", c.User.Name, from)
+	tc := tmail.GetMailRealContent(mail_from, f.ToMail, f.Subject, f.Content)
+
+	_, err = db.MailPushSend(c.User.Id, mail_from, f.ToMail, tc, 1)
+	if err != nil {
+		c.RenderWithErr(err.Error(), MAIL_NEW, &f)
+		return
+	}
+	c.Flash.Success("OK")
 	c.Success(MAIL_NEW)
 }
 

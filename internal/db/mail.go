@@ -289,6 +289,14 @@ func MailSetStatusById(id int64, status int64) bool {
 	return true
 }
 
+func MailPushSend(uid int64, mail_from string, mail_to string, content string, status int) (int64, error) {
+	return MailPush(uid, 0, mail_from, mail_to, content, status)
+}
+
+func MailPushReceive(uid int64, mail_from string, mail_to string, content string, status int) (int64, error) {
+	return MailPush(uid, 1, mail_from, mail_to, content, status)
+}
+
 func MailPush(uid int64, mtype int, mail_from string, mail_to string, content string, status int) (int64, error) {
 	tx := db.Begin()
 

@@ -9,8 +9,6 @@ import (
 	"github.com/midoks/imail/internal/tools/mail"
 	// "github.com/robfig/cron"
 	"github.com/midoks/imail/internal/tools/cron"
-	// "sync"
-	// "os"
 )
 
 var c = cron.New()
@@ -57,12 +55,8 @@ func TaskRspamdCheck() {
 
 func Init() {
 
-	// c.AddFunc("cc", "*/5 * * * * * ", func() {
-	// 	// fmt.Println(fmt.Sprintf("TaskQueueeSendMail! time:%d", time.Now().Unix()))
-	// 	TaskQueueeSendMail()
-	// })
-
-	c.AddFunc("dd ", "@every 10m", func() { TaskRspamdCheck() })
+	c.AddFunc("mail send task", "@every 5s", func() { TaskQueueeSendMail() })
+	c.AddFunc("mail rspamd check", "@every 10m", func() { TaskRspamdCheck() })
 
 	c.Start()
 }
