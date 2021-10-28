@@ -43,6 +43,18 @@ func DomainCount() int64 {
 	return count
 }
 
+func DomainVaildList(page, pageSize int) ([]Domain, error) {
+	domain := make([]Domain, 0, pageSize)
+	dbm := db.Limit(pageSize).Offset((page - 1) * pageSize).Order("id desc")
+	err := dbm.Where("a=?", 1).
+		Where("mx=?", 1).
+		Where("spf=?", 1).
+		Where("dkim=?", 1).
+		Where("dmarc=?", 1).
+		Find(&domain)
+	return domain, err.Error
+}
+
 func DomainList(page, pageSize int) ([]*Domain, error) {
 	domain := make([]*Domain, 0, pageSize)
 	dbm := db.Limit(pageSize).Offset((page - 1) * pageSize).Order("id desc")

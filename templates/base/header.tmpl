@@ -100,17 +100,22 @@
 									</div><!-- end content create new menu -->
 								</div><!-- end dropdown menu create new -->
 
+								
+								{{if .MenuDomains}}
 								<div class="ui dropdown head link jump item poping up" data-content="{{.i18n.Tr "mail.choose_mailbox"}}" data-variation="tiny inverted">
 									<span class="text">
 										<i class="octicon octicon-inbox"><span class="sr-only">{{.i18n.Tr "mail.choose_mailbox"}}</span></i>
 										<i class="octicon octicon-triangle-down"></i>
 									</span>
 									<div class="menu">
-										<a class="item" href="{{AppSubURL}}/mail/new">
-											<i class="octicon octicon-quote"></i> {{.i18n.Tr "mail.write_letter"}}
+										{{range .MenuDomains}}
+										<a class="item" href="{{AppSubURL}}/mailbox/{{.Id}}">
+											<i class="octicon octicon-quote"></i> {{.Domain}}
 										</a>
+										{{end}}
 									</div><!-- end content choose mail box menu -->
 								</div><!-- end dropdown menu choose mail box -->
+								{{end}}
 
 								<div class="ui dropdown head link jump item poping up" tabindex="-1" data-content="{{.i18n.Tr "user_profile_and_more"}}" data-variation="tiny inverted">
 									<span class="text avatar">
