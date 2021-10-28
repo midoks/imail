@@ -44,6 +44,7 @@ build_app(){
 
 	export CGO_ENABLED=1 GOOS=$1 GOARCH=$2
 	# export CGO_ENABLED=1 GOOS=linux GOARCH=amd64
+	export CGO_LDFLAGS="-static"
 
 	cd $rootPath && go generate internal/assets/conf/conf.go
 	cd $rootPath && go generate internal/assets/templates/templates.go
@@ -60,7 +61,7 @@ build_app(){
 			export CXX=i686-w64-mingw32-g++
 		fi
 
-		cd $rootPath && go build -o imail.exe -ldflags "-H windowsgui" imail.go
+		cd $rootPath && go build -o imail.exe -ldflags "${LDFLAGS}" imail.go
 
 		# -ldflags="-s -w"
 		# cd $rootPath && go build imail.go && /usr/local/bin/strip imail
