@@ -32,8 +32,6 @@ type Context struct {
 
 	Link        string // Current request URL
 	User        *db.User
-	Domain      *db.Domain
-	Domains     []db.Domain
 	IsLogged    bool
 	IsBasicAuth bool
 	IsTokenAuth bool
@@ -192,8 +190,6 @@ func Contexter() macaron.Handler {
 		}
 
 		c.Data["MenuDomains"], _ = db.DomainVaildList(1, 10)
-
-		fmt.Println(c.Data["MenuDomains"])
 
 		c.Data["CSRFToken"] = x.GetToken()
 		c.Data["CSRFTokenHTML"] = template.Safe(`<input type="hidden" name="_csrf" value="` + x.GetToken() + `">`)
