@@ -1,6 +1,6 @@
 module github.com/midoks/imail
 
-go 1.16
+go 1.17
 
 require (
 	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
@@ -38,4 +38,28 @@ require (
 	gorm.io/driver/mysql v1.1.2
 	gorm.io/driver/sqlite v1.1.5
 	gorm.io/gorm v1.21.15
+)
+
+require (
+	github.com/aymerick/douceur v0.2.0 // indirect
+	github.com/chris-ramon/douceur v0.2.0 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/go-macaron/inject v0.0.0-20200308113650-138e5925c53b // indirect
+	github.com/go-sql-driver/mysql v1.6.0 // indirect
+	github.com/gopherjs/gopherjs v0.0.0-20190430165422-3e4dfb77656c // indirect
+	github.com/gorilla/css v1.0.0 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.2 // indirect
+	github.com/jtolds/gls v4.20.0+incompatible // indirect
+	github.com/klauspost/compress v1.10.3 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/russross/blackfriday/v2 v2.0.1 // indirect
+	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
+	github.com/smartystreets/assertions v1.0.1 // indirect
+	github.com/unknwon/com v1.0.1 // indirect
+	github.com/unknwon/i18n v0.0.0-20190805065654-5c6446a380b6 // indirect
+	golang.org/x/mod v0.5.0 // indirect
+	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )
