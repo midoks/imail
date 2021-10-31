@@ -183,13 +183,11 @@ func Contexter() macaron.Handler {
 			}
 
 			c.User = &u
-
+			c.Data["MenuDomains"], _ = db.DomainVaildList(1, 10)
 		} else {
 			c.Data["LoggedUserID"] = 0
 			c.Data["LoggedUserName"] = ""
 		}
-
-		c.Data["MenuDomains"], _ = db.DomainVaildList(1, 10)
 
 		c.Data["CSRFToken"] = x.GetToken()
 		c.Data["CSRFTokenHTML"] = template.Safe(`<input type="hidden" name="_csrf" value="` + x.GetToken() + `">`)
