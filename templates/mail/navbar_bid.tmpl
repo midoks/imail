@@ -1,0 +1,17 @@
+<div class="four wide column">
+	
+	<div class="ui two item tabable menu">
+		<a class="item" href="{{AppSubURL}}/mailbox/{{.Bid}}">{{.i18n.Tr "mail.receive"}}</a>
+		<a class="item" href="{{AppSubURL}}/mailbox/{{.Bid}}/new">{{.i18n.Tr "mail.write_letter"}}</a>
+	</div>
+
+	<div class="ui vertical menu">
+		
+		<div class="header item">{{.i18n.Tr "mail.mail_panel"}}</div>
+		<a class="item" href="{{AppSubURL}}/mailbox/{{.Bid}}">{{.i18n.Tr "mail.inbox"}}</a>
+		<a class="item" href="{{AppSubURL}}/mailbox/{{.Bid}}/flags">{{.i18n.Tr "mail.flags"}}</a>
+		<a class="item" href="{{AppSubURL}}/mailbox/{{.Bid}}/sent">{{.i18n.Tr "mail.sent"}}</a>
+		<a class="item" href="{{AppSubURL}}/mailbox/{{.Bid}}/deleted">{{.i18n.Tr "mail.deleted"}}</a>
+		<a class="item" href="{{AppSubURL}}/mailbox/{{.Bid}}/junk">{{.i18n.Tr "mail.junk"}}</a>
+	</div>
+</div>

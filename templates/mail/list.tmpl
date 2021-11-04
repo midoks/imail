@@ -2,7 +2,12 @@
 <div class="admin user">
 	<div class="ui container">
 		<div class="ui grid">
-			{{template "mail/navbar" .}}
+			{{if gt .Bid 0}}
+				{{template "mail/navbar_bid" .}}
+			{{else}}
+				{{template "mail/navbar" .}}
+			{{end}}
+
 			<div class="twelve wide column content">
 				{{template "base/alert" .}}
 				<div class="ui attached segment">

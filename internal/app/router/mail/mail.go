@@ -22,6 +22,7 @@ type MailSearchOptions struct {
 	OrderBy  string
 	TplName  string
 	Type     int
+	Bid      int64
 }
 
 func RenderMailSearch(c *context.Context, opts *MailSearchOptions) {
@@ -58,6 +59,7 @@ func RenderMailSearch(c *context.Context, opts *MailSearchOptions) {
 	}
 	c.Data["Keyword"] = keyword
 	c.Data["Total"] = count
+	c.Data["Bid"] = opts.Bid
 	c.Data["Page"] = paginater.New(int(count), opts.PageSize, page, 5)
 	c.Data["Mail"] = mail
 
@@ -68,11 +70,13 @@ func Flags(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.flags")
 	c.Data["PageIsMail"] = true
 
+	bid := c.ParamsInt64(":bid")
 	RenderMailSearch(c, &MailSearchOptions{
 		PageSize: 10,
 		OrderBy:  "id ASC",
 		TplName:  MAIL,
 		Type:     db.MailSearchOptionsTypeFlags,
+		Bid:      bid,
 	})
 }
 
@@ -80,11 +84,13 @@ func Sent(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.sent")
 	c.Data["PageIsMail"] = true
 
+	bid := c.ParamsInt64(":bid")
 	RenderMailSearch(c, &MailSearchOptions{
 		PageSize: 10,
 		OrderBy:  "id ASC",
 		TplName:  MAIL,
 		Type:     db.MailSearchOptionsTypeSend,
+		Bid:      bid,
 	})
 }
 
@@ -92,11 +98,13 @@ func Deleted(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.deleted")
 	c.Data["PageIsMail"] = true
 
+	bid := c.ParamsInt64(":bid")
 	RenderMailSearch(c, &MailSearchOptions{
 		PageSize: 10,
 		OrderBy:  "id ASC",
 		TplName:  MAIL,
 		Type:     db.MailSearchOptionsTypeDeleted,
+		Bid:      bid,
 	})
 }
 
@@ -104,24 +112,37 @@ func Junk(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.junk")
 	c.Data["PageIsMail"] = true
 
+	bid := c.ParamsInt64(":bid")
 	RenderMailSearch(c, &MailSearchOptions{
 		PageSize: 10,
 		OrderBy:  "id ASC",
 		TplName:  MAIL,
 		Type:     db.MailSearchOptionsTypeJunk,
+		Bid:      bid,
 	})
 }
 
 func Mail(c *context.Context) {
+
 	c.Data["Title"] = c.Tr("mail.write_letter")
 	c.Data["PageIsMail"] = true
 
-	c.Success(MAIL)
+	// c.Success(MAIL)
+	bid := c.ParamsInt64(":bid")
+	RenderMailSearch(c, &MailSearchOptions{
+		PageSize: 10,
+		OrderBy:  "id ASC",
+		TplName:  MAIL,
+		Type:     db.MailSearchOptionsTypeInbox,
+		Bid:      bid,
+	})
 }
 
 func New(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.write_letter")
 	c.Data["PageIsWriteMail"] = true
+	bid := c.ParamsInt64(":bid")
+	c.Data["Bid"] = bid
 
 	c.Success(MAIL_NEW)
 }

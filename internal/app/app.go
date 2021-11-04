@@ -146,6 +146,20 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 		}, reqSignIn, func(c *context.Context) {
 			c.Data["PageIsMail"] = true
 		})
+
+		m.Group("/mailbox/:bid", func() {
+			m.Get("", mail.Mail)
+			m.Combo("/new").Get(mail.New).Post(bindIgnErr(form.SendMail{}), mail.NewPost)
+
+			m.Combo("/flags").Get(mail.Flags)
+			m.Combo("/sent").Get(mail.Sent)
+			m.Combo("/deleted").Get(mail.Deleted)
+			m.Combo("/junk").Get(mail.Junk)
+			m.Combo("/content/:id").Get(mail.Content)
+
+		}, reqSignIn, func(c *context.Context) {
+			c.Data["PageIsMail"] = true
+		})
 		// ***** END: Mail *****
 
 		reqAdmin := context.Toggle(&context.ToggleOptions{SignInRequired: true, AdminRequired: true})
