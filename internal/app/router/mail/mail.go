@@ -151,6 +151,9 @@ func NewPost(c *context.Context, f form.SendMail) {
 	c.Data["Title"] = c.Tr("mail.write_letter")
 	c.Data["PageIsWriteMail"] = true
 
+	bid := c.ParamsInt64(":bid")
+	c.Data["Bid"] = bid
+
 	from, err := db.DomainGetMainForDomain()
 	if err != nil {
 		c.RenderWithErr(c.Tr("mail.new.default_not_set"), MAIL_NEW, &f)
