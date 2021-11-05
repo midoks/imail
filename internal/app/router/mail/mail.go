@@ -176,7 +176,7 @@ func Content(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.write_letter")
 	c.Data["PageIsMailContent"] = true
 
-	id := c.ParamsInt64(":id")
+	bid := c.ParamsInt64(":bid")
 	c.Data["Bid"] = bid
 
 	c.Success(MAIL_CONENT)
