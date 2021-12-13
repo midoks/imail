@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -298,6 +299,10 @@ func MailPushReceive(uid int64, mail_from string, mail_to string, content string
 }
 
 func MailPush(uid int64, mtype int, mail_from string, mail_to string, content string, status int) (int64, error) {
+	if uid == 0 {
+		return 0, errors.New("user id is error!")
+	}
+
 	tx := db.Begin()
 
 	subject := mail.GetMailSubject(content)

@@ -103,7 +103,7 @@ TXU5YrNA8ao1B6CFdyjmLzoY2C9d9SDQTXMX8f8f3GUo9gZ0IzSIFVGFpsKBU0QM
 hBgHM6A0WJC9MO3aAKRBcp48y6DXNA==
 -----END PRIVATE KEY-----`)
 
-func init() {
+func init_BAK() {
 
 	cDir, err := os.Getwd()
 	appDir := filepath.Dir(filepath.Dir(cDir))
@@ -125,7 +125,8 @@ func init() {
 
 	db.Init()
 
-	//create default user
+	// create default user
+
 	db.CreateUser(&db.User{
 		Name:     "admin",
 		Password: "21232f297a57a5a743894a0e4a801fc3",
@@ -258,7 +259,8 @@ func ReceivedMail() error {
 	tEmail := "admin@cachecha.com"
 
 	content := fmt.Sprintf("From: =?UTF-8?B?6Zi/6YeM5LqR?= <%s>\r\nSubject: Hello imail[%s]\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, now, tEmail)
-	err := Delivery("127.0.0.1:1025", fEmail, tEmail, []byte(content))
+
+	err := Delivery("127.0.0.1:25", fEmail, tEmail, []byte(content))
 
 	return err
 }

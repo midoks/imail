@@ -50,6 +50,10 @@ build_app(){
 	cd $rootPath && go generate internal/assets/templates/templates.go
 	cd $rootPath && go generate internal/assets/public/public.go
 
+	cd $rootPath && go generate internal/assets/conf/conf.go
+	cd $rootPath && go generate internal/assets/templates/templates.go
+	cd $rootPath && go generate internal/assets/public/public.go
+
 
 	if [ $1 == "windows" ];then
 		

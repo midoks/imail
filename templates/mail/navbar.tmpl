@@ -2,9 +2,11 @@
 	
 	<div class="ui two item tabable menu">
 		<a class="item" href="{{AppSubURL}}">{{.i18n.Tr "mail.receive"}}</a>
+
 		<a class="item" href="{{if gt .Bid 0}}{{AppSubURL}}/mailbox/{{.Bid}}/new
 		{{else}}{{AppSubURL}}/mail/new
 		{{end}}">{{.i18n.Tr "mail.write_letter"}}</a>
+
 	</div>
 
 	<div class="ui vertical menu">

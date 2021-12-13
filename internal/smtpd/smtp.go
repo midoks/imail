@@ -205,7 +205,7 @@ func (c *Client) cmd(expectCode int, format string, args ...interface{}) (int, s
 	c.Text.StartResponse(id)
 	defer c.Text.EndResponse(id)
 	code, msg, err := c.Text.ReadResponse(expectCode)
-	// fmt.Println("cmd", code, ":", msg, ":", err, "exp:", expectCode)
+	// fmt.Println("cmd", format, args, msg, code, ":", err, "expectCode:", expectCode)
 	return code, msg, err
 }
 
@@ -378,7 +378,7 @@ func (c *Client) Rcpt(to string) error {
 	if err := validateLine(to); err != nil {
 		return err
 	}
-	_, _, err := c.cmd(25, "RCPT TO:<%s>", to)
+	_, _, err := c.cmd(250, "RCPT TO:<%s>", to)
 	return err
 }
 

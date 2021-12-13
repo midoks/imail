@@ -55,6 +55,21 @@ func DomainVaildList(page, pageSize int) ([]Domain, error) {
 	return domain, err.Error
 }
 
+func DomainVaild(name string) bool {
+	var d Domain
+	result := db.Model(&Domain{}).Where("domain=?", name).Where("a=?", 1).
+		Where("mx=?", 1).
+		Where("spf=?", 1).
+		Where("dkim=?", 1).
+		Where("dmarc=?", 1).
+		Find(&d).Error
+
+	if result == nil && d.Id > 0 {
+		return true
+	}
+	return false
+}
+
 func DomainList(page, pageSize int) ([]*Domain, error) {
 	domain := make([]*Domain, 0, pageSize)
 	dbm := db.Limit(pageSize).Offset((page - 1) * pageSize).Order("id desc")

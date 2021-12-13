@@ -364,59 +364,48 @@ func (smtp *SmtpdServer) cmdAuthPlainLogin(input string) bool {
 }
 
 func (smtp *SmtpdServer) isAllowDomain(domain string) bool {
-	mdomain := conf.Web.Domain
-	domainN := strings.Split(mdomain, ",")
-	// fmt.Println(domainN)
-
-	for _, d := range domainN {
-		if strings.EqualFold(d, domain) {
-			return true
-		}
-	}
-	return false
+	return db.DomainVaild(domain)
 }
 
 func (smtp *SmtpdServer) cmdMailFrom(input string) bool {
 	inputN := strings.SplitN(input, ":", 2)
 
-	if len(inputN) == 2 {
-		if smtp.cmdCompare(inputN[0], CMD_MAIL_FROM) {
+	if len(inputN) == 2 && smtp.cmdCompare(inputN[0], CMD_MAIL_FROM) {
 
-			inputN[1] = strings.TrimSpace(inputN[1])
-			inputN[1] = tools.FilterAddressBody(inputN[1])
+		inputN[1] = strings.TrimSpace(inputN[1])
+		inputN[1] = tools.FilterAddressBody(inputN[1])
 
-			if !tools.CheckStandardMail(inputN[1]) {
-				smtp.write(MSG_BAD_SYNTAX)
+		if !tools.CheckStandardMail(inputN[1]) {
+			smtp.write(MSG_BAD_SYNTAX)
+			return false
+		}
+
+		mailFrom := tools.GetRealMail(inputN[1])
+		if !tools.IsEmailRe(mailFrom) {
+			smtp.write(MSG_BAD_USER)
+			return false
+		}
+
+		if smtp.isLogin {
+			info := strings.Split(mailFrom, "@")
+
+			if !smtp.isAllowDomain(info[1]) {
+				smtp.write(MSG_BAD_MAIL_ADDR)
 				return false
 			}
 
-			mailFrom := tools.GetRealMail(inputN[1])
-			if !tools.IsEmailRe(mailFrom) {
+			user, err := db.UserGetByName(info[0])
+			if err != nil {
 				smtp.write(MSG_BAD_USER)
 				return false
 			}
-
-			if smtp.isLogin {
-				info := strings.Split(mailFrom, "@")
-
-				if !smtp.isAllowDomain(info[1]) {
-					smtp.write(MSG_BAD_MAIL_ADDR)
-					return false
-				}
-
-				user, err := db.UserGetByName(info[0])
-				if err != nil {
-					smtp.write(MSG_BAD_USER)
-					return false
-				}
-				smtp.userID = user.Id
-			}
-
-			smtp.recordCmdMailFrom = mailFrom
-			smtp.write(MSG_MAIL_OK)
-
-			return true
+			smtp.userID = user.Id
 		}
+
+		smtp.recordCmdMailFrom = mailFrom
+		smtp.write(MSG_MAIL_OK)
+
+		return true
 	}
 	return false
 }
@@ -505,6 +494,7 @@ func (smtp *SmtpdServer) cmdRcptTo(input string) bool {
 			if smtp.runModeIn { //外部邮件,邮件地址检查
 				info := strings.Split(rcptTo, "@")
 
+				fmt.Println("info", info)
 				if !smtp.isAllowDomain(info[1]) {
 					smtp.write(MSG_BAD_OPEN_RELAY)
 					return false
@@ -682,7 +672,7 @@ func (smtp *SmtpdServer) handle() {
 
 		//CMD_READY
 		if smtp.stateCompare(state, CMD_READY) {
-
+			smtp.runModeIn = false
 			if smtp.cmdHelo(input) {
 				smtp.setState(CMD_HELO)
 			} else if smtp.cmdEhlo(input) {
@@ -701,7 +691,6 @@ func (smtp *SmtpdServer) handle() {
 				smtp.setState(CMD_EHLO)
 			}
 
-			smtp.runModeIn = false
 			if smtp.modeIn {
 				if smtp.cmdModeInMailFrom(input) {
 					smtp.setState(CMD_MAIL_FROM)
@@ -718,8 +707,10 @@ func (smtp *SmtpdServer) handle() {
 			}
 		}
 
-		if smtp.runModeIn {
+		fmt.Println("smtp.runModeIn:", smtp.runModeIn)
 
+		if smtp.runModeIn {
+			//收取外邮模式
 			//CMD_MAIL_FROM
 			if smtp.stateCompare(state, CMD_MAIL_FROM) {
 
@@ -737,7 +728,7 @@ func (smtp *SmtpdServer) handle() {
 			}
 
 		} else {
-
+			//登录模式
 			if smtp.cmdAuthPlainLogin(input) {
 				smtp.setState(CMD_AUTH_LOGIN_PWD)
 			} else if smtp.cmdAuthLogin(input) {

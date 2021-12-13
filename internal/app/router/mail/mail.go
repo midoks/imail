@@ -76,7 +76,8 @@ func Flags(c *context.Context) {
 		OrderBy:  "id ASC",
 		TplName:  MAIL,
 		Type:     db.MailSearchOptionsTypeFlags,
-		Bid:      bid,
+
+		Bid: bid,
 	})
 }
 
@@ -85,6 +86,7 @@ func Sent(c *context.Context) {
 	c.Data["PageIsMail"] = true
 
 	bid := c.ParamsInt64(":bid")
+
 	RenderMailSearch(c, &MailSearchOptions{
 		PageSize: 10,
 		OrderBy:  "id ASC",
@@ -99,6 +101,7 @@ func Deleted(c *context.Context) {
 	c.Data["PageIsMail"] = true
 
 	bid := c.ParamsInt64(":bid")
+
 	RenderMailSearch(c, &MailSearchOptions{
 		PageSize: 10,
 		OrderBy:  "id ASC",
@@ -113,6 +116,7 @@ func Junk(c *context.Context) {
 	c.Data["PageIsMail"] = true
 
 	bid := c.ParamsInt64(":bid")
+
 	RenderMailSearch(c, &MailSearchOptions{
 		PageSize: 10,
 		OrderBy:  "id ASC",
@@ -161,7 +165,7 @@ func NewPost(c *context.Context, f form.SendMail) {
 	}
 
 	mail_from := fmt.Sprintf("%s@%s", c.User.Name, from)
-	tc := tmail.GetMailRealContent(mail_from, f.ToMail, f.Subject, f.Content)
+	tc, err := tmail.GetMailReturnToSender(mail_from, f.ToMail, f.Subject, f.Content)
 
 	_, err = db.MailPushSend(c.User.Id, mail_from, f.ToMail, tc)
 	if err != nil {
