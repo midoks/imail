@@ -183,5 +183,6 @@ func Content(c *context.Context) {
 	bid := c.ParamsInt64(":bid")
 	c.Data["Bid"] = bid
 
+	//
 	c.Success(MAIL_CONENT)
 }
