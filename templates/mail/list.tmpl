@@ -63,6 +63,7 @@
 								{{range .Mail}}
 									<tr>
 										<td><div class="ui checkbox"><input type="checkbox" name="mail_select" value="{{.Id}}"></div></td>
+										<td><i class="star outline icon"></i></td>
 										<td><a href="{{AppSubURL}}/mail/content/{{.Id}}">{{.MailFromInContent}}</a></td>
 										<td>{{.Subject}}</td>
 										<td>{{DateFmtMail .Created }}</td>
@@ -70,7 +71,7 @@
 								{{end}}
 							{{else}}
 								<tr>
-									<td colspan="4"><p class="center">{{$.i18n.Tr  "mail.list_no_data"}}</p></td>
+									<td colspan="5"><p class="center">{{$.i18n.Tr  "mail.list_no_data"}}</p></td>
 								</tr>
 							{{end}}
 						</tbody>
