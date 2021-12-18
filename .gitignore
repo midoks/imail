@@ -23,6 +23,8 @@ data
 internal/app/logs
 *.db3
 
+.*.sh
+
 dist/
 internal/smtpd/logs
 internal/imap/index.html
