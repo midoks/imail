@@ -180,9 +180,18 @@ func Content(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.write_letter")
 	c.Data["PageIsMailContent"] = true
 
+	id := c.ParamsInt64(":id")
+	c.Data["id"] = id
+
 	bid := c.ParamsInt64(":bid")
 	c.Data["Bid"] = bid
 
-	//
+	r, err := db.MailById(id)
+	fmt.Println(r, err)
+
+	if err == nil {
+		c.Data["Mail"] = r
+	}
+
 	c.Success(MAIL_CONENT)
 }

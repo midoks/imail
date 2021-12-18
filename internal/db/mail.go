@@ -254,6 +254,13 @@ func MailSoftDeleteById(id int64, status int64) bool {
 	return true
 }
 
+//用过ID获取邮件的全部信息
+func MailById(id int64) (Mail, error) {
+	var m Mail
+	result := db.Model(&Mail{}).Where("id=?", id).Take(&m)
+	return m, result.Error
+}
+
 func MailHardDeleteById(id int64) bool {
 	db.Where("id = ? and is_delete=1", id).Delete(&Mail{})
 	return true
