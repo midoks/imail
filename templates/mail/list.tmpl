@@ -59,12 +59,18 @@
 					<table class="ui unstackable very basic striped table">
 			
 						<tbody>
-							{{range .Mail}}
+							{{if .Mail}}
+								{{range .Mail}}
+									<tr>
+										<td><div class="ui checkbox"><input type="checkbox" name="mail_select" value="{{.Id}}"></div></td>
+										<td><a href="{{AppSubURL}}/mail/content/{{.Id}}">{{.MailFromInContent}}</a></td>
+										<td>{{.Subject}}</td>
+										<td>{{DateFmtMail .Created }}</td>
+									</tr>
+								{{end}}
+							{{else}}
 								<tr>
-									<td><div class="ui checkbox"><input type="checkbox" name="mail_select" value="{{.Id}}"></div></td>
-									<td><a href="{{AppSubURL}}/mail/content/{{.Id}}">{{.MailFromInContent}}</a></td>
-									<td>{{.Subject}}</td>
-									<td>{{DateFmtMail .Created }}</td>
+									<td colspan="4"><p class="center">{{$.i18n.Tr  "mail.list_no_data"}}</p></td>
 								</tr>
 							{{end}}
 						</tbody>

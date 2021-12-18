@@ -187,8 +187,6 @@ func Content(c *context.Context) {
 	c.Data["Bid"] = bid
 
 	r, err := db.MailById(id)
-	fmt.Println(r, err)
-
 	if err == nil {
 		c.Data["Mail"] = r
 	}
