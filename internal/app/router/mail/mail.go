@@ -193,3 +193,10 @@ func Content(c *context.Context) {
 
 	c.Success(MAIL_CONENT)
 }
+
+/**
+ * API
+ **/
+func ApiStar(c *context.Context) {
+
+}
