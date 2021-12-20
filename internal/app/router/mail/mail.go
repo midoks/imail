@@ -198,5 +198,19 @@ func Content(c *context.Context) {
  * API
  **/
 func ApiStar(c *context.Context) {
+	id := c.ParamsInt64(":id")
+	if db.MailSetFlagsById(id, 1) {
+		c.JSON(1, "ok")
+	} else {
+		c.JSON(-1, "fail")
+	}
+}
 
+func ApiUnStar(c *context.Context) {
+	id := c.ParamsInt64(":id")
+	if db.MailSetFlagsById(id, 0) {
+		c.JSON(1, "ok")
+	} else {
+		c.JSON(-1, "fail")
+	}
 }
