@@ -8,7 +8,7 @@ import (
 func GetPublicIP() (ip string, err error) {
 	// - http://myexternalip.com/raw
 	// - http://ip.dhcp.cn/?ip
-	resp, err := http.Get("http://ip.dhcp.cn/?ip")
+	resp, err := http.Get("https://www.bt.cn/Api/getIpAddress")
 	content, err := ioutil.ReadAll(resp.Body)
 
 	if err == nil {
