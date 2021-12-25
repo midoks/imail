@@ -37,7 +37,8 @@
 					    {{$.i18n.Tr "mail.menu.move"}}
 					    <i class="dropdown icon"></i>
 					    <div class="menu">
-					      <div class="item">{{$.i18n.Tr "mail.menu.move_junk"}}</div>
+					    	<div class="item">{{$.i18n.Tr "mail.menu.move_deleted"}}</div>
+					     	<div class="item">{{$.i18n.Tr "mail.menu.move_junk"}}</div>
 					    </div>
 					  </div>
 
@@ -45,7 +46,14 @@
 					    {{$.i18n.Tr "mail.menu.more"}}
 					    <i class="dropdown icon"></i>
 					    <div class="menu">
-					      <div class="item">{{$.i18n.Tr "mail.menu.more_sort"}}</div>
+					      <div class="item">
+					      	<i class="dropdown icon"></i>
+					      	<span class="text">{{$.i18n.Tr "mail.menu.more_sort"}}</span>
+					      	<div class="menu">
+					      		<div class="item">{{$.i18n.Tr "mail.menu.more_sort_time_desc"}}</div>
+					      		<div class="item">{{$.i18n.Tr "mail.menu.more_sort_time_asc"}}</div>
+					      	</div>
+					      </div>
 					    </div>
 					  </div>
 					</div>

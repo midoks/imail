@@ -476,13 +476,13 @@ func (this *ImapServer) cmdUid(input string) bool {
 					mid, _ := strconv.ParseInt(inputN[3], 10, 64)
 					inputN[4] = strings.Trim(inputN[4], "\"")
 					if strings.EqualFold(inputN[4], "Deleted Messages") {
-						db.MailSoftDeleteById(mid, 1)
+						db.MailDeleteById(mid, 1)
 						db.MailSetJunkById(mid, 0)
 					} else if strings.EqualFold(inputN[4], "INBOX") {
-						db.MailSoftDeleteById(mid, 0)
+						db.MailDeleteById(mid, 0)
 						db.MailSetJunkById(mid, 0)
 					} else if strings.EqualFold(inputN[4], "Junk") {
-						db.MailSoftDeleteById(mid, 0)
+						db.MailDeleteById(mid, 0)
 						db.MailSetJunkById(mid, 1)
 					}
 
@@ -510,7 +510,7 @@ func (this *ImapServer) cmdUid(input string) bool {
 					if strings.EqualFold(inputN[5], "DELETED") &&
 						strings.HasPrefix(inputN[4], "+") && !this.uidVnw.Copy {
 						this.uidVnw.Copy = false
-						db.MailSoftDeleteById(mid, 1)
+						db.MailDeleteById(mid, 1)
 					}
 				}
 			}

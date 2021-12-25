@@ -238,7 +238,7 @@ func MailPosContentForPop(uid int64, pos int64) (string, int, error) {
 	return result[0].Content, result[0].Size, nil
 }
 
-func MailSoftDeleteById(id int64, status int64) bool {
+func MailDeleteById(id int64, status int64) bool {
 
 	var result []Mail
 	sql := fmt.Sprintf("SELECT id FROM `%s` WHERE is_delete=1 and id='%d' order by id limit 1", MailTableName(), id)
@@ -259,6 +259,11 @@ func MailById(id int64) (Mail, error) {
 	var m Mail
 	result := db.Model(&Mail{}).Where("id=?", id).Take(&m)
 	return m, result.Error
+}
+
+func MailSoftDeleteById(id int64) bool {
+	db.Model(&Mail{}).Where("id = ?", id).Update("is_delete", 1)
+	return true
 }
 
 func MailHardDeleteById(id int64) bool {

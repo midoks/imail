@@ -2,6 +2,7 @@ package mail
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/midoks/imail/internal/app/context"
 	"github.com/midoks/imail/internal/app/form"
@@ -197,6 +198,24 @@ func Content(c *context.Context) {
 /**
  * API
  **/
+func ApiRead(c *context.Context) {
+	id := c.ParamsInt64(":id")
+	if db.MailSeenById(id) {
+		c.JSON(1, "ok")
+	} else {
+		c.JSON(-1, "fail")
+	}
+}
+
+func ApiUnread(c *context.Context) {
+	id := c.ParamsInt64(":id")
+	if db.MailUnSeenById(id) {
+		c.JSON(1, "ok")
+	} else {
+		c.JSON(-1, "fail")
+	}
+}
+
 func ApiStar(c *context.Context) {
 	id := c.ParamsInt64(":id")
 	if db.MailSetFlagsById(id, 1) {
@@ -213,4 +232,26 @@ func ApiUnStar(c *context.Context) {
 	} else {
 		c.JSON(-1, "fail")
 	}
+}
+
+func ApiMove(c *context.Context) {
+	id := c.ParamsInt64(":id")
+	dir := c.ParamsEscape(":dir")
+
+	if strings.EqualFold(dir, "delete") {
+		if db.MailSoftDeleteById(id) {
+			c.JSON(1, "ok")
+			return
+		}
+	}
+
+	if strings.EqualFold(dir, "junk") {
+		if db.MailSetJunkById(id, 1) {
+			c.JSON(1, "ok")
+			return
+		}
+	}
+
+	c.JSON(-1, "fail")
+	return
 }
