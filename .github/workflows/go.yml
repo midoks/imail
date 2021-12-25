@@ -27,6 +27,3 @@ jobs:
 
     - name: Test
       run: go test -v ./...
-
-    - name: Bench_MailDbPush
-      run: go test -bench BenchmarkMailDbPush -benchtime 3s -benchmem ./internal/smtpd
