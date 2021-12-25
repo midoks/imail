@@ -13,13 +13,17 @@
 	<meta name="referrer" content="no-referrer" />
 	<link rel="shortcut icon" href="/img/favicon.png" />
 
-	<script src="{{AppSubURL}}/js/jquery-3.6.0.min.js"></script>
-	<script src="{{AppSubURL}}/js/libs/jquery.are-you-sure.js"></script>
+	<script src="{{AppSubURL}}/js/jquery-3.6.0.min.js?v={{BuildCommit}}"></script>
+	<script src="{{AppSubURL}}/js/libs/jquery.are-you-sure.js?v={{BuildCommit}}"></script>
+	<link rel="stylesheet" href="{{AppSubURL}}/js/toast/jquery.toast.min.css?v={{BuildCommit}}">
+	<script src="{{AppSubURL}}/js/toast/jquery.toast.min.js?v={{BuildCommit}}"></script>
 
-	<link rel="stylesheet" href="{{AppSubURL}}/css/semantic.min.css">
+
+	<link rel="stylesheet" href="{{AppSubURL}}/css/semantic.min.css?v={{BuildCommit}}">
+	<link rel="stylesheet" href="{{AppSubURL}}/assets/font-awesome-4.7.0/css/font-awesome.min.css?v={{BuildCommit}}">
+	<link rel="stylesheet" href="{{AppSubURL}}/assets/octicons-4.3.0/octicons.min.css?v={{BuildCommit}}">
+
 	<link rel="stylesheet" href="{{AppSubURL}}/css/imail.min.css?v={{BuildCommit}}">
-	<link rel="stylesheet" href="{{AppSubURL}}/assets/font-awesome-4.7.0/css/font-awesome.min.css">
-	<link rel="stylesheet" href="{{AppSubURL}}/assets/octicons-4.3.0/octicons.min.css">
 
 	{{ if .PageIsWriteMail}}
 	<script src="{{AppSubURL}}/js/wangEditor.min.js?v={{BuildCommit}}"></script>

@@ -1,9 +1,32 @@
+function toast(msg, afterHidden, beforeShow){
+	$.toast({
+	    text: '<div style="text-align:center;">'+msg+'</div>',
+	    position: 'mid-center',
+	    showHideTransition: 'fade',
+	    stack: false,
+	    hideAfter: 1000,
+	    allowToastClose: false,
+	    loader: false,
+	    beforeShow: function () {
+	    	if (typeof beforeShow == 'function') {
+	    		beforeShow();
+	    	} 	
+	    }, // will be triggered before the toast is shown
+    	afterShown: function () {
+    	}, // will be triggered after the toat has been shown
+    	beforeHide: function () {
+    	}, // will be triggered before the toast gets hidden
+    	afterHidden: function () {
+    		if (typeof afterHidden == 'function') {
+	    		afterHidden();
+	    	}
+    	}  // will be triggered after the toast has been hidden
+	});
+}
 
 function selectAll(obj){
 	$('input[name=mail_select]').attr("checked",obj.checked);
 	var mailSelect = $('input[name=mail_select]');
-	console.log($('input[name=mail_select]'));
-
 	getSelectVal();
 }
 
@@ -22,5 +45,5 @@ function setMailStar(obj){
 
 	console.log(id,obj);
 
-	$('.tiny.modal').modal('show');
+	toast("设置成功!");
 }
