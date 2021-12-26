@@ -8,4 +8,5 @@ type SendMail struct {
 
 type MailIDs struct {
 	Ids string
+	Dir string
 }

@@ -6,17 +6,19 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/axgle/mahonia"
 	"io/ioutil"
 	"math"
 	"math/rand"
 	"net/http"
 	"net/mail"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 	"unicode"
 	"unicode/utf8"
+
+	"github.com/axgle/mahonia"
 )
 
 func GetGoEol() string {
@@ -34,6 +36,22 @@ func Md5Byte(buf []byte) string {
 
 func Md5(s string) string {
 	return Md5Byte([]byte(s))
+}
+
+func ToSlice(input string) ([]int64, error) {
+	ret := []int64{}
+	inputN := strings.SplitN(input, ",", -1)
+	fmt.Println(inputN)
+
+	for _, i := range inputN {
+		ival, err := strconv.ParseInt(i, 10, 64)
+		if err != nil {
+			return ret, err
+		}
+		ret = append(ret, ival)
+	}
+
+	return ret, nil
 }
 
 func CheckStringIsExist(source string, check []string) bool {

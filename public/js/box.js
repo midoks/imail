@@ -27,7 +27,6 @@ function toast(msg, afterHidden, beforeShow){
 function selectAll(obj){
 	$('input[name=mail_select]').attr("checked",obj.checked);
 	var mailSelect = $('input[name=mail_select]');
-	getSelectVal();
 }
 
 
@@ -35,11 +34,17 @@ function getSelectVal(){
 	var ids = "";
 	$("input[name=mail_select]").each(function(){
 	   if(this.checked){
-	       console.log("id",$(this).val());
+	       ids += $(this).val()+',';
 	   }
 	});
+	ids = $.trim(ids);
+	if (ids.length>0){
+		ids = ids.substring(0,ids.length-1);
+	}
+	return ids;
 }
 
+// set mail star
 function setMailStar(obj){
 	var id = $(obj).attr("data-id");
 	var isHadStar = $(obj).hasClass('outline');
@@ -57,5 +62,19 @@ function setMailStar(obj){
 			});
 		});
 	}
-	
+}
+
+// move dir
+function mailMove(dir){
+	var ids = getSelectVal();
+	if (ids.length==0){
+		toast("no selected options");
+		return;
+	}
+
+	$.post("/api/mail/move",{'ids':ids,"dir":dir}, function(data){
+		toast(data['msg'],function(){
+			location.reload();
+		});
+	});
 }

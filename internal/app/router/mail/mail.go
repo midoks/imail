@@ -8,6 +8,7 @@ import (
 	"github.com/midoks/imail/internal/app/context"
 	"github.com/midoks/imail/internal/app/form"
 	"github.com/midoks/imail/internal/db"
+	"github.com/midoks/imail/internal/tools"
 	tmail "github.com/midoks/imail/internal/tools/mail"
 	"github.com/midoks/imail/internal/tools/paginater"
 )
@@ -235,24 +236,30 @@ func ApiUnStar(c *context.Context, f form.MailIDs) {
 	}
 }
 
-func ApiMove(c *context.Context) {
-	id := c.ParamsInt64(":id")
-	dir := c.ParamsEscape(":dir")
+func ApiMove(c *context.Context, f form.MailIDs) {
+	ids := f.Ids
+	dir := f.Dir
 
-	if strings.EqualFold(dir, "delete") {
-		if db.MailSoftDeleteById(id) {
-			c.JSON(1, "ok")
+	idsSlice, err := tools.ToSlice(ids)
+	if err != nil {
+		c.Fail(-1, c.Tr("common.fail"))
+		return
+	}
+
+	if strings.EqualFold(dir, "deleted") {
+		if db.MailSoftDeleteByIds(idsSlice) {
+			c.OK(c.Tr("common.success"))
 			return
 		}
 	}
 
 	if strings.EqualFold(dir, "junk") {
-		if db.MailSetJunkById(id, 1) {
-			c.JSON(1, "ok")
+		if db.MailSetJunkByIds(idsSlice, 1) {
+			c.OK(c.Tr("common.success"))
 			return
 		}
 	}
 
-	c.JSON(-1, "fail")
+	c.Fail(-1, c.Tr("common.fail"))
 	return
 }

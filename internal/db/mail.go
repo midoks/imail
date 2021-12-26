@@ -265,8 +265,19 @@ func MailSoftDeleteById(id int64) bool {
 	return true
 }
 
+func MailSoftDeleteByIds(ids []int64) bool {
+	err := db.Model(&Mail{}).Where("id IN  ?", ids).Update("is_delete", 1).Error
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 func MailHardDeleteById(id int64) bool {
-	db.Where("id = ? and is_delete=1", id).Delete(&Mail{})
+	err := db.Where("id = ? and is_delete=1", id).Delete(&Mail{}).Error
+	if err != nil {
+		return false
+	}
 	return true
 }
 
@@ -291,6 +302,14 @@ func MailSetFlagsById(id int64, status int64) bool {
 func MailSetJunkById(id int64, status int64) bool {
 	// fmt.Println("MailSetJunkById", id, status)
 	db.Model(&Mail{}).Where("id = ?", id).Update("is_junk", status)
+	return true
+}
+
+func MailSetJunkByIds(ids []int64, status int64) bool {
+	err := db.Model(&Mail{}).Where("id IN  ?", ids).Update("is_junk", status).Error
+	if err != nil {
+		return false
+	}
 	return true
 }
 
