@@ -200,7 +200,7 @@ func Content(c *context.Context) {
 /**
  * API
  **/
-func ApiRead(c *context.Context) {
+func ApiRead(c *context.Context, f form.MailIDs) {
 	id := c.ParamsInt64(":id")
 	if db.MailSeenById(id) {
 		c.JSON(1, "ok")
@@ -209,7 +209,7 @@ func ApiRead(c *context.Context) {
 	}
 }
 
-func ApiUnread(c *context.Context) {
+func ApiUnread(c *context.Context, f form.MailIDs) {
 	id := c.ParamsInt64(":id")
 	if db.MailUnSeenById(id) {
 		c.JSON(1, "ok")
