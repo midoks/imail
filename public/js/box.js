@@ -42,8 +42,20 @@ function getSelectVal(){
 
 function setMailStar(obj){
 	var id = $(obj).attr("data-id");
+	var isHadStar = $(obj).hasClass('outline');
 
-	console.log(id,obj);
-
-	toast("设置成功!");
+	if (isHadStar){
+		$.post("/api/mail/star",{'ids':id}, function(data){
+			toast(data['msg'],function(){
+				location.reload();
+			});
+		});
+	} else {
+		$.post("/api/mail/unstar",{'ids':id}, function(data){
+			toast(data['msg'],function(){
+				location.reload();
+			});
+		});
+	}
+	
 }

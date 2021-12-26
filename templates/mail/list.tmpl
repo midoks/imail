@@ -68,7 +68,7 @@
 						{{range .Mail}}
 						<tr>
 							<td><div class="ui checkbox"><input type="checkbox" name="mail_select" value="{{.Id}}"></div></td>
-							<td><i style="cursor:pointer;" data-id="{{.Id}}" onclick="setMailStar(this);" class="star outline icon"></i></td>
+							<td><i style="cursor:pointer;" data-id="{{.Id}}" onclick="setMailStar(this);" class="star {{if eq .IsFlags 0}}outline{{end}} icon"></i></td>
 							<td><a href="{{AppSubURL}}/mail/content/{{.Id}}">{{.MailFromInContent}}</a></td>
 							<td>{{.Subject}}</td>
 							<td>{{DateFmtMail .Created }}</td>

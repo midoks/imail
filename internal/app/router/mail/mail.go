@@ -2,6 +2,7 @@ package mail
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/midoks/imail/internal/app/context"
@@ -216,21 +217,21 @@ func ApiUnread(c *context.Context) {
 	}
 }
 
-func ApiStar(c *context.Context) {
-	id := c.ParamsInt64(":id")
-	if db.MailSetFlagsById(id, 1) {
-		c.JSON(1, "ok")
+func ApiStar(c *context.Context, f form.MailIDs) {
+	int64, _ := strconv.ParseInt(f.Ids, 10, 64)
+	if db.MailSetFlagsById(int64, 1) {
+		c.OK(c.Tr("common.success"))
 	} else {
-		c.JSON(-1, "fail")
+		c.Fail(-1, c.Tr("common.fail"))
 	}
 }
 
-func ApiUnStar(c *context.Context) {
-	id := c.ParamsInt64(":id")
-	if db.MailSetFlagsById(id, 0) {
-		c.JSON(1, "ok")
+func ApiUnStar(c *context.Context, f form.MailIDs) {
+	int64, _ := strconv.ParseInt(f.Ids, 10, 64)
+	if db.MailSetFlagsById(int64, 0) {
+		c.OK(c.Tr("common.success"))
 	} else {
-		c.JSON(-1, "fail")
+		c.Fail(-1, c.Tr("common.fail"))
 	}
 }
 

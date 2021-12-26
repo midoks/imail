@@ -189,8 +189,8 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 
 		m.Group("/api", func() {
 			m.Group("/mail", func() {
-				m.Post("star", mail.ApiStar)
-				m.Post("unstar", mail.ApiUnStar)
+				m.Post("/star", bindIgnErr(form.MailIDs{}), mail.ApiStar)
+				m.Post("/unstar", bindIgnErr(form.MailIDs{}), mail.ApiUnStar)
 			})
 
 		}, reqAdmin)

@@ -5,3 +5,7 @@ type SendMail struct {
 	Subject string
 	Content string
 }
+
+type MailIDs struct {
+	Ids string
+}

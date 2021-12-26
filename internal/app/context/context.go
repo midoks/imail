@@ -37,6 +37,13 @@ type Context struct {
 	IsTokenAuth bool
 }
 
+//json api common data
+type JsonMsg struct {
+	Code int64       `json:"code"`
+	Msg  string      `json:"msg"`
+	Data interface{} `json:"data,omitempty"`
+}
+
 // RawTitle sets the "Title" field in template data.
 func (c *Context) RawTitle(title string) {
 	c.Data["Title"] = title
@@ -109,6 +116,16 @@ func (c *Context) Success(name string) {
 // JSONSuccess responses JSON with status http.StatusOK.
 func (c *Context) JSONSuccess(data interface{}) {
 	c.JSON(http.StatusOK, data)
+}
+
+//JSON Success Message
+func (c *Context) OK(msg string) {
+	c.JSONSuccess(JsonMsg{Code: 0, Msg: msg})
+}
+
+//JSON Fail Message
+func (c *Context) Fail(code int64, msg string) {
+	c.JSONSuccess(JsonMsg{Code: code, Msg: msg})
 }
 
 // NotFound renders the 404 page.

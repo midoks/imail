@@ -93,8 +93,7 @@ func MailSearchByNameCond(opts *MailSearchOptions, dbm *gorm.DB) *gorm.DB {
 
 	if opts.Type == MailSearchOptionsTypeInbox {
 		dbm = dbm.Where("type = ?", 1).
-			Where("is_junk = ?", 0).
-			Where("is_flags = ?", 0)
+			Where("is_junk = ?", 0)
 	}
 
 	if opts.Type == MailSearchOptionsTypeDeleted {
@@ -282,7 +281,10 @@ func MailUnSeenById(id int64) bool {
 }
 
 func MailSetFlagsById(id int64, status int64) bool {
-	db.Model(&Mail{}).Where("id = ?", id).Update("is_flags", status)
+	err := db.Model(&Mail{}).Where("id = ?", id).Update("is_flags", status).Error
+	if err != nil {
+		return false
+	}
 	return true
 }
 
