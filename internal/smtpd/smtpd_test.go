@@ -103,7 +103,7 @@ TXU5YrNA8ao1B6CFdyjmLzoY2C9d9SDQTXMX8f8f3GUo9gZ0IzSIFVGFpsKBU0QM
 hBgHM6A0WJC9MO3aAKRBcp48y6DXNA==
 -----END PRIVATE KEY-----`)
 
-func init_BAK() {
+func init() {
 
 	cDir, err := os.Getwd()
 	appDir := filepath.Dir(filepath.Dir(cDir))
@@ -278,9 +278,9 @@ Hi! yes is test. imail ok?`
 	return fid, err
 }
 
-// go test -run TestReceivedMail
+// go test -v -run TestReceivedMail
 // go test -v ./internal/smtpd -run TestReceivedMail
-func TestReceivedMail(t *testing.T) {
+func GTestReceivedMail(t *testing.T) {
 	err := ReceivedMail()
 	if err != nil {
 		t.Error("TestReceivedMail fail:" + err.Error())
