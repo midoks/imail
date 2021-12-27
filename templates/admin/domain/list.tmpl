@@ -43,7 +43,7 @@
 							<td>
 								{{if not .Mx}}
 								<a>
-									<i onclick="showModelInfo(this);"  style="cursor:pointer;" class="fa fa-info-circle"></i>
+									<i domain="{{.Domain}}" onclick="showModelInfo(this);"  style="cursor:pointer;" class="fa fa-info-circle"></i>
 								</a>
 								{{end}}
 
@@ -67,29 +67,31 @@
 </div>
 
 {{/* 模态 */}}
-<div class="ui modal">
+<div id="domain_help" class="ui modal">
   <i class="close icon"></i>
-  <div class="header">
-    Modal Title
+  <div class="header center">Modal Title</div>
+  <div class="content">
+    <div class="ui unstackable attached table segment">
+		<table class="ui unstackable very basic striped table">
+			<tbody>
+				<tr><td>MX</td><td><i class="fa fa{{if .A}}-check{{end}}-circle-o"></i></td></tr>
+				<tr><td>A</td><td><i class="fa fa{{if .A}}-check{{end}}-circle-o"></i></td></tr>
+			</tbody>
+		</table>
+	</div>
   </div>
-  <div class="image content">
-    <div class="image">
-      An image can appear on left or an icon
-    </div>
-    <div class="description">
-      A description can appear on the right
-    </div>
-  </div>
-  <div class="actions">
+  <div class="actions center">
     <div class="ui button">Cancel</div>
     <div class="ui button">OK</div>
   </div>
 </div>
 
 <script>
-function showModelInfo(){
-	$('.ui.modal').modal();
-	console.log("ddd");
+function showModelInfo(obj){
+	var domain = $(obj).attr("domain");
+	$('#domain_help .header').text(domain);
+
+	$('#domain_help').modal('show');
 }
 
 </script>
