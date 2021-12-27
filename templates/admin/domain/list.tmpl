@@ -77,33 +77,35 @@
 				<tr>
 					<td>MX</td>
 					<td>MX</td>
-					<td class="domain_set"></td>
+					<td class="domain_set">exp.com</td>
 					<td>S</td>
 				</tr>
 				<tr>
 					<td>A</td>
 					<td>A</td>
-					<td class="domain_set"></td>
+					<td class="domain_set">exp.com</td>
 					<td><i class="fa fa{{if .A}}-check{{end}}-circle-o"></i></td>
 				</tr>
 				<tr>
 					<td>SPF</td>
 					<td>TXT</td>
-					<td class="domain_set"></td>
+					<td class="domain_set">exp.com</td>
 					<td>v=spf1 a mx ~all</td>
 				</tr>
 				<tr>
 					<td>DKIM</td>
 					<td>TXT</td>
 					<td>default._domainkey</td>
-					<td style="line-height:50px;">v=DKIM1;k=rsa;p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCtBHPB1mr2Wp6JePkOxuTV3BNk/HwtKwk616CrxrzYI+YsUYzUsCCGx2UjOs9dpxBvlifGMLx+VkTwIu0ZBiIQJ7vWhX8zvnFnXonDLypXL2B6N9Muz/XCKwdFFc/NJMmOFY1iel9wFznKmuMnnW74B6KEKwtSkGUsXjJgIS//7wIDAQAB</td>
+					<td style="word-wrap:break-word;word-break:break-all;white-space:nowrap;">
+						<p>v=DKIM1;k=rsa;p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCtBHPB1mr2Wp6JePkOxuTV3BNk/HwtKwk616CrxrzYI+YsUYzUsCCGx2UjOs9dpxBvlifGMLx+VkTwIu0ZBiIQJ7vWhX8zvnFnXonDLypXL2B6N9Muz/XCKwdFFc/NJMmOFY1iel9wFznKmuMnnW74B6KEKwtSkGUsXjJgIS//7wIDAQAB</p>
+					</td>
 				</tr>
 
 				<tr>
 					<td>DMARC</td>
 					<td>TXT</td>
 					<td>_dmarc</td>
-					<td>v=DMARC1;p=quarantine;rua=mailto:admin@cachecha.com</td>
+					<td>v=DMARC1;p=quarantine;rua=mailto:admin@<span class="domain_set">exp.com</span></td>
 				</tr>
 			</tbody>
 		</table>
