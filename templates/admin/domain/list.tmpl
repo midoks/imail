@@ -31,12 +31,7 @@
 							<td><a href="#">{{.Domain}}</a></td>
 							<td>
 								<i class="fa fa{{if .Mx}}-check{{end}}-circle-o"></i>
-								{{if not .Mx}}
-									<i class="fa fa-info-circle"></i>
-									<div class="ui icon button" data-content="The default theme's basic popup removes the pointing arrow." data-variation="basic">
-									  <i class="add icon"></i>
-									</div>
-								{{end}}
+								
 							</td>
 							<td><i class="fa fa{{if .A}}-check{{end}}-circle-o"></i></td>
 							<td><i class="fa fa{{if .Spf}}-check{{end}}-circle-o"></i></td>
@@ -46,8 +41,18 @@
 								<a href="{{$.Link}}/admin/domain/default/{{.Id}}"><i class="fa fa{{if .IsDefault}}-check{{end}}-square-o"></i></a>
 							</td>
 							<td>
-								<a href="{{$.Link}}/admin/domain/check/{{.Id}}"><i class="fa fa-pencil-square-o"></i></a>
-								<a href="{{$.Link}}/admin/domain/delete/{{.Id}}"><i class="fa fa-times"></i></a>
+								{{if not .Mx}}
+								<a>
+									<i onclick="showModelInfo(this);"  style="cursor:pointer;" class="fa fa-info-circle"></i>
+								</a>
+								{{end}}
+
+								<a href="{{$.Link}}/admin/domain/check/{{.Id}}">
+									<i class="fa fa-pencil-square-o"></i>
+								</a>
+								<a href="{{$.Link}}/admin/domain/delete/{{.Id}}">
+									<i class="fa fa-times"></i>
+								</a>
 							</td>
 						</tr>
 						{{end}}
@@ -60,4 +65,32 @@
 		</div>
 	</div>
 </div>
+
+{{/* 模态 */}}
+<div class="ui modal">
+  <i class="close icon"></i>
+  <div class="header">
+    Modal Title
+  </div>
+  <div class="image content">
+    <div class="image">
+      An image can appear on left or an icon
+    </div>
+    <div class="description">
+      A description can appear on the right
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui button">Cancel</div>
+    <div class="ui button">OK</div>
+  </div>
+</div>
+
+<script>
+function showModelInfo(){
+	$('.ui.modal').modal();
+	console.log("ddd");
+}
+
+</script>
 {{template "base/footer" .}}
