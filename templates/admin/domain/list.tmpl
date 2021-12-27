@@ -69,27 +69,52 @@
 {{/* 模态 */}}
 <div id="domain_help" class="ui modal">
   <i class="close icon"></i>
-  <div class="header center">Modal Title</div>
+  <div class="header center domain_set">Modal Title</div>
   <div class="content">
     <div class="ui unstackable attached table segment">
 		<table class="ui unstackable very basic striped table">
 			<tbody>
-				<tr><td>MX</td><td><i class="fa fa{{if .A}}-check{{end}}-circle-o"></i></td></tr>
-				<tr><td>A</td><td><i class="fa fa{{if .A}}-check{{end}}-circle-o"></i></td></tr>
+				<tr>
+					<td>MX</td>
+					<td>MX</td>
+					<td class="domain_set"></td>
+					<td>S</td>
+				</tr>
+				<tr>
+					<td>A</td>
+					<td>A</td>
+					<td class="domain_set"></td>
+					<td><i class="fa fa{{if .A}}-check{{end}}-circle-o"></i></td>
+				</tr>
+				<tr>
+					<td>SPF</td>
+					<td>TXT</td>
+					<td class="domain_set"></td>
+					<td>v=spf1 a mx ~all</td>
+				</tr>
+				<tr>
+					<td>DKIM</td>
+					<td>TXT</td>
+					<td>default._domainkey</td>
+					<td style="line-height:50px;">v=DKIM1;k=rsa;p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCtBHPB1mr2Wp6JePkOxuTV3BNk/HwtKwk616CrxrzYI+YsUYzUsCCGx2UjOs9dpxBvlifGMLx+VkTwIu0ZBiIQJ7vWhX8zvnFnXonDLypXL2B6N9Muz/XCKwdFFc/NJMmOFY1iel9wFznKmuMnnW74B6KEKwtSkGUsXjJgIS//7wIDAQAB</td>
+				</tr>
+
+				<tr>
+					<td>DMARC</td>
+					<td>TXT</td>
+					<td>_dmarc</td>
+					<td>v=DMARC1;p=quarantine;rua=mailto:admin@cachecha.com</td>
+				</tr>
 			</tbody>
 		</table>
 	</div>
-  </div>
-  <div class="actions center">
-    <div class="ui button">Cancel</div>
-    <div class="ui button">OK</div>
   </div>
 </div>
 
 <script>
 function showModelInfo(obj){
 	var domain = $(obj).attr("domain");
-	$('#domain_help .header').text(domain);
+	$('#domain_help .domain_set').text(domain);
 
 	$('#domain_help').modal('show');
 }
