@@ -15,37 +15,42 @@
 					<table class="ui unstackable very basic striped table">
 						<thead>
 							<tr>
-								<th>{{.i18n.Tr "admin.domain.name"}}</th>
-								<th>{{.i18n.Tr "admin.domain.mx"}}</th>
-								<th>{{.i18n.Tr "admin.domain.a"}}</th>
-								<th>{{.i18n.Tr "admin.domain.spf"}}</th>
-								<th>{{.i18n.Tr "admin.domain.dkim"}}</th>
-								<th>{{.i18n.Tr "admin.domain.dmarc"}}</th>
-								<th>{{.i18n.Tr "admin.domain.is_default"}}</th>
-								<th>{{.i18n.Tr "admin.domain.op"}}</th>
+							<th>{{.i18n.Tr "admin.domain.name"}}</th>
+							<th>{{.i18n.Tr "admin.domain.mx"}}</th>
+							<th>{{.i18n.Tr "admin.domain.a"}}</th>
+							<th>{{.i18n.Tr "admin.domain.spf"}}</th>
+							<th>{{.i18n.Tr "admin.domain.dkim"}}</th>
+							<th>{{.i18n.Tr "admin.domain.dmarc"}}</th>
+							<th>{{.i18n.Tr "admin.domain.is_default"}}</th>
+							<th>{{.i18n.Tr "admin.domain.op"}}</th>
 							</tr>
 						</thead>
 						<tbody>
-							{{range .Domain}}
-								<tr>
-									<td><a href="#">{{.Domain}}</a></td>
-									<td><i class="fa fa{{if .Mx}}-check{{end}}-circle-o"></i></td>
-									<td><i class="fa fa{{if .A}}-check{{end}}-circle-o"></i></td>
-									<td><i class="fa fa{{if .Spf}}-check{{end}}-circle-o"></i></td>
-									<td><i class="fa fa{{if .Dkim}}-check{{end}}-circle-o"></i></td>
-									<td><i class="fa fa{{if .Dmarc}}-check{{end}}-circle-o"></i></td>
-									<td>
-										<a href="{{$.Link}}/admin/domain/default/{{.Id}}">
-											<i class="fa fa{{if .IsDefault}}-check{{end}}-square-o"></i>
-										</a>
-									</td>
-									<td>
-										<a href="{{$.Link}}/admin/domain/check/{{.Id}}"><i class="fa fa-pencil-square-o"></i></a>
-
-										<a href="{{$.Link}}/admin/domain/delete/{{.Id}}"><i class="fa fa-times"></i></a>
-									</td>
-								</tr>
-							{{end}}
+						{{range .Domain}}
+						<tr>
+							<td><a href="#">{{.Domain}}</a></td>
+							<td>
+								<i class="fa fa{{if .Mx}}-check{{end}}-circle-o"></i>
+								{{if not .Mx}}
+									<i class="fa fa-info-circle"></i>
+									<div class="ui icon button" data-content="The default theme's basic popup removes the pointing arrow." data-variation="basic">
+									  <i class="add icon"></i>
+									</div>
+								{{end}}
+							</td>
+							<td><i class="fa fa{{if .A}}-check{{end}}-circle-o"></i></td>
+							<td><i class="fa fa{{if .Spf}}-check{{end}}-circle-o"></i></td>
+							<td><i class="fa fa{{if .Dkim}}-check{{end}}-circle-o"></i></td>
+							<td><i class="fa fa{{if .Dmarc}}-check{{end}}-circle-o"></i></td>
+							<td>
+								<a href="{{$.Link}}/admin/domain/default/{{.Id}}"><i class="fa fa{{if .IsDefault}}-check{{end}}-square-o"></i></a>
+							</td>
+							<td>
+								<a href="{{$.Link}}/admin/domain/check/{{.Id}}"><i class="fa fa-pencil-square-o"></i></a>
+								<a href="{{$.Link}}/admin/domain/delete/{{.Id}}"><i class="fa fa-times"></i></a>
+							</td>
+						</tr>
+						{{end}}
 						</tbody>
 					</table>
 				</div>
