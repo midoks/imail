@@ -6,6 +6,8 @@ TAGRT_DIR=/usr/local/imail_dev
 mkdir -p $TAGRT_DIR
 cd $TAGRT_DIR
 
+export BUILD_TIME=$(date -u '+%Y-%m-%d %I:%M:%S %Z')
+
 
 if [ ! -d $TAGRT_DIR/imail ]; then
 	git clone https://github.com/midoks/imail
@@ -20,7 +22,7 @@ go mod vendor
 
 
 rm -rf imail
-go build ./
+go build  -ldflags "-X \"github.com/midoks/imail/internal/conf.BuildTime=${BUILD_TIME}\" -X \"github.com/midoks/imail/internal/conf.BuildCommit=${GIT_COMMIT}\"" ./
 
 
 cd $TAGRT_DIR/imail/scripts

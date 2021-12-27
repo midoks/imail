@@ -13,7 +13,7 @@ import (
 )
 
 const Version = "0.0.9"
-const AppName = "Imail"
+const AppName = "imail"
 
 func init() {
 	conf.App.Version = Version
