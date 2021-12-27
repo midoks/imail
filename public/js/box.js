@@ -78,3 +78,27 @@ function mailMove(dir){
 		});
 	});
 }
+
+
+function mailRead(val){
+	var ids = getSelectVal();
+	if (ids.length==0){
+		toast("no selected options");
+		return;
+	}
+
+	if (val>0) {
+		$.post("/api/mail/read",{'ids':ids}, function(data){
+			toast(data['msg'],function(){
+				location.reload();
+			});
+		});
+	} else {
+		$.post("/api/mail/unread",{'ids':ids}, function(data){
+			toast(data['msg'],function(){
+				location.reload();
+			});
+		});
+	}
+
+}

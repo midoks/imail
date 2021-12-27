@@ -201,20 +201,32 @@ func Content(c *context.Context) {
  * API
  **/
 func ApiRead(c *context.Context, f form.MailIDs) {
-	id := c.ParamsInt64(":id")
-	if db.MailSeenById(id) {
-		c.JSON(1, "ok")
+	ids := f.Ids
+	idsSlice, err := tools.ToSlice(ids)
+	if err != nil {
+		c.Fail(-1, c.Tr("common.fail"))
+		return
+	}
+
+	if db.MailSeenByIds(idsSlice) {
+		c.OK(c.Tr("common.success"))
 	} else {
-		c.JSON(-1, "fail")
+		c.Fail(-1, c.Tr("common.fail"))
 	}
 }
 
 func ApiUnread(c *context.Context, f form.MailIDs) {
-	id := c.ParamsInt64(":id")
-	if db.MailUnSeenById(id) {
-		c.JSON(1, "ok")
+	ids := f.Ids
+	idsSlice, err := tools.ToSlice(ids)
+	if err != nil {
+		c.Fail(-1, c.Tr("common.fail"))
+		return
+	}
+
+	if db.MailUnSeenByIds(idsSlice) {
+		c.OK(c.Tr("common.success"))
 	} else {
-		c.JSON(-1, "fail")
+		c.Fail(-1, c.Tr("common.fail"))
 	}
 }
 

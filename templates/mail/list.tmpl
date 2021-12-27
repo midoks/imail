@@ -27,8 +27,8 @@
 					  	{{$.i18n.Tr "mail.menu.sign"}}
 					    <i class="dropdown icon"></i>
 					    <div class="menu">
-					      <div class="item">{{$.i18n.Tr "mail.menu.sign_read"}}</div>
-					      <div class="item">{{$.i18n.Tr "mail.menu.sign_unread"}}</div>
+					      <div class="item" onclick="mailRead(1);">{{$.i18n.Tr "mail.menu.sign_read"}}</div>
+					      <div class="item" onclick="mailRead(0);">{{$.i18n.Tr "mail.menu.sign_unread"}}</div>
 					      <div class="item">{{$.i18n.Tr "mail.menu.sign_star_red"}}</div>
 					    </div>
 					  </div>

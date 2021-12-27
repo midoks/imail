@@ -286,8 +286,24 @@ func MailSeenById(id int64) bool {
 	return true
 }
 
+func MailSeenByIds(ids []int64) bool {
+	err := db.Model(&Mail{}).Where("id IN  ?", ids).Update("is_read", 1).Error
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 func MailUnSeenById(id int64) bool {
 	db.Model(&Mail{}).Where("id = ?", id).Update("is_read", 0)
+	return true
+}
+
+func MailUnSeenByIds(ids []int64) bool {
+	err := db.Model(&Mail{}).Where("id IN  ?", ids).Update("is_read", 0).Error
+	if err != nil {
+		return false
+	}
 	return true
 }
 
