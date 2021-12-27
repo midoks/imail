@@ -44,6 +44,15 @@ const (
 	MailSearchOptionsTypeUnread
 )
 
+type DIRType int32
+
+const (
+	DIR_DELETED DIRType = 0
+	DIR_JUNK    DIRType = 1
+	DIR_READ    DIRType = 2
+	DIR_FLAGS   DIRType = 3
+)
+
 func MailTableName() string {
 	return "im_mail"
 }
@@ -282,8 +291,8 @@ func MailHardDeleteById(id int64) bool {
 }
 
 func MailSeenById(id int64) bool {
-	db.Model(&Mail{}).Where("id = ?", id).Update("is_read", 1)
-	return true
+	ids := []int64{id}
+	return MailSeenByIds(ids)
 }
 
 func MailSeenByIds(ids []int64) bool {
@@ -295,7 +304,10 @@ func MailSeenByIds(ids []int64) bool {
 }
 
 func MailUnSeenById(id int64) bool {
-	db.Model(&Mail{}).Where("id = ?", id).Update("is_read", 0)
+	err := db.Model(&Mail{}).Where("id = ?", id).Update("is_read", 0).Error
+	if err != nil {
+		return false
+	}
 	return true
 }
 

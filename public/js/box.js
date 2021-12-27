@@ -100,5 +100,18 @@ function mailRead(val){
 			});
 		});
 	}
+}
 
+function mailDeleted(val){
+	var ids = getSelectVal();
+	if (ids.length==0){
+		toast("no selected options");
+		return;
+	}
+
+	$.post("/api/mail/deleted",{'ids':ids}, function(data){
+		toast(data['msg'],function(){
+			location.reload();
+		});
+	});
 }

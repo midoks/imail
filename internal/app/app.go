@@ -195,6 +195,7 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 				m.Post("/star", bindIgnErr(form.MailIDs{}), mail.ApiStar)
 				m.Post("/unstar", bindIgnErr(form.MailIDs{}), mail.ApiUnStar)
 				m.Post("/move", bindIgnErr(form.MailIDs{}), mail.ApiMove)
+				m.Post("/deleted", bindIgnErr(form.MailIDs{}), mail.ApiDeleted)
 			})
 
 		}, reqAdmin)

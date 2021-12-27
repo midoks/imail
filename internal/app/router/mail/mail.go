@@ -197,9 +197,24 @@ func Content(c *context.Context) {
 	c.Success(MAIL_CONENT)
 }
 
-/**
- * API
- **/
+/********************************
+ * API for web frontend call
+ ********************************/
+func ApiDeleted(c *context.Context, f form.MailIDs) {
+	ids := f.Ids
+	idsSlice, err := tools.ToSlice(ids)
+	if err != nil {
+		c.Fail(-1, c.Tr("common.fail"))
+		return
+	}
+
+	if db.MailSoftDeleteByIds(idsSlice) {
+		c.OK(c.Tr("common.success"))
+	} else {
+		c.Fail(-1, c.Tr("common.fail"))
+	}
+}
+
 func ApiRead(c *context.Context, f form.MailIDs) {
 	ids := f.Ids
 	idsSlice, err := tools.ToSlice(ids)
