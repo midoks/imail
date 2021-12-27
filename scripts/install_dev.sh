@@ -6,6 +6,7 @@ TAGRT_DIR=/usr/local/imail_dev
 mkdir -p $TAGRT_DIR
 cd $TAGRT_DIR
 
+export GIT_COMMIT=$(git rev-parse HEAD)
 export BUILD_TIME=$(date -u '+%Y-%m-%d %I:%M:%S %Z')
 
 
