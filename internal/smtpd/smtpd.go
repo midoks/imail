@@ -203,15 +203,15 @@ func (smtp *SmtpdServer) getState() int {
 }
 
 func (smtp *SmtpdServer) D(args ...interface{}) {
-	if conf.Smtp.Debug {
+	// if conf.Smtp.Debug {
 
-		if smtp.LinkSSL {
-			log.Debug("[SSL] start")
-		}
-
-		// fmt.Println(args...)
-		log.Debug(args...)
+	if smtp.LinkSSL {
+		log.Debug("[SSL] start")
 	}
+
+	// fmt.Println(args...)
+	log.Debug(args...)
+	// }
 }
 
 func (smtp *SmtpdServer) w(msg string) error {
