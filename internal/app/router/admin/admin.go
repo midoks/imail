@@ -108,8 +108,6 @@ func Dashboard(c *context.Context) {
 	c.PageIs("Admin")
 	c.PageIs("AdminDashboard")
 
-	fmt.Println(conf.BuildTime, conf.BuildCommit)
-
 	c.Data["GoVersion"] = runtime.Version()
 	c.Data["BuildTime"] = conf.BuildTime
 	c.Data["BuildCommit"] = conf.BuildCommit
@@ -120,41 +118,6 @@ func Dashboard(c *context.Context) {
 	updateSystemStatus()
 	c.Data["SysStatus"] = sysStatus
 	c.Success(tmplDashboard)
-}
-
-func Operation(c *context.Context) {
-	// var err error
-	// var success string
-	// switch AdminOperation(c.QueryInt("op")) {
-	// case CleanInactivateUser:
-	// 	success = c.Tr("admin.dashboard.delete_inactivate_accounts_success")
-	// 	err = db.DeleteInactivateUsers()
-	// case CleanRepoArchives:
-	// 	success = c.Tr("admin.dashboard.delete_repo_archives_success")
-	// 	err = db.DeleteRepositoryArchives()
-	// case CleanMissingRepos:
-	// 	success = c.Tr("admin.dashboard.delete_missing_repos_success")
-	// 	err = db.DeleteMissingRepositories()
-	// case GitGCRepos:
-	// 	success = c.Tr("admin.dashboard.git_gc_repos_success")
-	// 	err = db.GitGcRepos()
-	// case SyncSSHAuthorizedKey:
-	// 	success = c.Tr("admin.dashboard.resync_all_sshkeys_success")
-	// 	err = db.RewriteAuthorizedKeys()
-	// case SyncRepositoryHooks:
-	// 	success = c.Tr("admin.dashboard.resync_all_hooks_success")
-	// 	err = db.SyncRepositoryHooks()
-	// case ReinitMissingRepository:
-	// 	success = c.Tr("admin.dashboard.reinit_missing_repos_success")
-	// 	err = db.ReinitMissingRepositories()
-	// }
-
-	// if err != nil {
-	// 	c.Flash.Error(err.Error())
-	// } else {
-	// 	c.Flash.Success(success)
-	// }
-	c.RedirectSubpath("/admin")
 }
 
 func Monitor(c *context.Context) {

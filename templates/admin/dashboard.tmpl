@@ -21,11 +21,8 @@
 						<dd>
 							{{if .BuildCommit}}
 								<a target="_blank" href="https://github.com/midoks/imail/commit/{{.BuildCommit}}">{{.BuildCommit}} <i class="fa fa-external-link" aria-hidden="true"></i></a>
-							{{else}}
-								N/A
-							{{end}}
+							{{else}}N/A{{end}}
 						</dd>
-						
 					</dl>
 				</div>
 
@@ -33,37 +30,7 @@
 					{{.i18n.Tr "admin.dashboard.statistic"}}
 				</h4>
 				<div class="ui attached segment">
-					<p>
-						{{.i18n.Tr "admin.dashboard.statistic_info" .Stats.Counter.User | Str2HTML}}
-					</p>
-				</div>
-
-				<h4 class="ui top attached header">
-					{{.i18n.Tr "admin.dashboard.operations"}}
-				</h4>
-				<div class="ui unstackable attached table segment">
-					<form action="{{AppSubURL}}/admin" method="post">
-						<table class="ui unstackable very basic table">
-							<tbody>
-								<tr>
-									<td>
-										{{.CSRFTokenHTML}}
-										<div class="ui fluid selection dropdown">
-											<input type="hidden" name="op">
-											<i class="dropdown icon"></i>
-											<div class="default text">{{.i18n.Tr "admin.dashboard.select_operation_to_run"}}</div>
-											<div class="menu">
-												<div class="item" data-value="1">
-													{{.i18n.Tr "admin.dashboard.delete_inactivate_accounts"}}
-												</div>
-											</div>
-										</div>
-									</td>
-									<td><button class="ui button" type="submit">{{.i18n.Tr "admin.dashboard.operation_run"}}</button></td>
-								</tr>
-							</tbody>
-						</table>
-					</form>
+					<p>{{.i18n.Tr "admin.dashboard.statistic_info" .Stats.Counter.User .Stats.Counter.VaildUser  | Str2HTML}}</p>
 				</div>
 
 				<h4 class="ui top attached header">
@@ -88,7 +55,9 @@
 						<dd>{{.SysStatus.MemMallocs}}</dd>
 						<dt>{{.i18n.Tr "admin.dashboard.memory_free_times"}}</dt>
 						<dd>{{.SysStatus.MemFrees}}</dd>
+						
 						<div class="ui divider"></div>
+
 						<dt>{{.i18n.Tr "admin.dashboard.current_heap_usage"}}</dt>
 						<dd>{{.SysStatus.HeapAlloc}}</dd>
 						<dt>{{.i18n.Tr "admin.dashboard.heap_memory_obtained"}}</dt>

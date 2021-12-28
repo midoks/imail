@@ -132,6 +132,12 @@ func UsersCount() int64 {
 	return count
 }
 
+func UsersVaildCount() int64 {
+	var count int64
+	db.Model(&User{}).Where("is_active = ?", 1).Count(&count)
+	return count
+}
+
 func LoginWithCode(name string, code string) (bool, int64) {
 	list := strings.SplitN(name, "@", 2)
 

@@ -23,11 +23,12 @@ type Mail struct {
 	Size              int    `gorm:"size:50;comment:邮件内容大小"`
 	Status            int    `gorm:"comment:0:准备发送;1:发送成功;2:发送失败;3:已接收"`
 
-	IsRead   int `gorm:"default:0;comment:是否已读"`
-	IsDelete int `gorm:"default:0;comment:是否删除"`
-	IsFlags  int `gorm:"default:0;comment:是否星标"`
-	IsJunk   int `gorm:"default:0;comment:是否无用"`
-	IsCheck  int `gorm:"default:0;comment:是否通过检查"`
+	IsRead   bool `gorm:"default:0;comment:是否已读"`
+	IsDelete bool `gorm:"default:0;comment:是否删除"`
+	IsFlags  bool `gorm:"default:0;comment:是否星标"`
+	IsJunk   bool `gorm:"default:0;comment:是否无用"`
+	IsDraft  bool `gorm:"default:0;comment:是否草稿"`
+	IsCheck  bool `gorm:"default:0;comment:是否通过检查"`
 
 	Created     time.Time `gorm:"autoCreateTime;comment:创建时间"`
 	CreatedUnix int64     `gorm:"autoCreateTime;comment:创建时间"`

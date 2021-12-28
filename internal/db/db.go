@@ -135,7 +135,8 @@ func Init() error {
 
 type Statistic struct {
     Counter struct {
-        User int64
+        User      int64
+        VaildUser int64
     }
 }
 
@@ -145,9 +146,12 @@ func Ping() error {
 }
 
 func GetStatistic() (stats Statistic) {
-    stats.Counter.User = 0
 
-    fmt.Println(stats)
+    //user count
+    stats.Counter.User = UsersCount()
+
+    //vaild user count
+    stats.Counter.VaildUser = UsersVaildCount()
     return stats
 }
 

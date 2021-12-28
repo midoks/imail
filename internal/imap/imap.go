@@ -224,13 +224,13 @@ func (this *ImapServer) parseArgsConent(format string, data db.Mail) (string, er
 
 		if strings.EqualFold(inputN[i], "flags") {
 			flags := "("
-			if data.IsRead > 0 {
+			if data.IsRead {
 				flags += "\\Seen"
 			} else {
 				flags += "\\UNSEEN"
 			}
 
-			if data.IsFlags > 0 {
+			if data.IsFlags {
 				flags += "\\Flagged"
 			}
 
