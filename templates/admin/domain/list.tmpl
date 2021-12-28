@@ -41,7 +41,8 @@
 								<a href="{{$.Link}}/admin/domain/default/{{.Id}}"><i class="fa fa{{if .IsDefault}}-check{{end}}-square-o"></i></a>
 							</td>
 							<td>
-								{{if not .Mx}}
+								{{if and .Mx .Spf .Dkim .Dmarc}}
+								{{else}}
 								<a>
 									<i domain="{{.Domain}}" onclick="showModelInfo(this);"  style="cursor:pointer;" class="fa fa-info-circle"></i>
 								</a>
