@@ -10,6 +10,7 @@ import (
 	"github.com/midoks/imail/internal/app/form"
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
+	"github.com/midoks/imail/internal/tools"
 	"github.com/midoks/imail/internal/tools/dkim"
 )
 
@@ -27,6 +28,9 @@ func Domain(c *context.Context) {
 
 	c.Data["Total"] = db.DomainCount()
 	c.Data["Domain"] = d
+
+	localIp, _ := tools.GetPublicIP()
+	c.Data["LocalIp"] = localIp
 	c.Success(DOMAIN)
 }
 

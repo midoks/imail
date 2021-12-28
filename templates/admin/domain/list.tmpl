@@ -11,6 +11,8 @@
 						<a class="ui black tiny button" href="{{AppSubURL}}/admin/domain/new">{{.i18n.Tr "admin.domain.add_domain"}}</a>
 					</div>
 				</h4>
+
+				<div style="display:none;" id="local_ip">{{ .LocalIp }}</div>
 				<div class="ui unstackable attached table segment">
 					<table class="ui unstackable very basic striped table">
 						<thead>
@@ -78,14 +80,14 @@
 				<tr>
 					<td>MX</td>
 					<td>MX</td>
-					<td class="domain_set">exp.com</td>
-					<td>S</td>
+					<td span class="domain_set">mail.>exp.com</td>
+					<td>mail.<span class="domain_set">exp.com</span></td>
 				</tr>
 				<tr>
 					<td>A</td>
 					<td>A</td>
 					<td class="domain_set">exp.com</td>
-					<td><i class="fa fa{{if .A}}-check{{end}}-circle-o"></i></td>
+					<td class="domain_ip">127.0.0.1</td>
 				</tr>
 				<tr>
 					<td>SPF</td>
@@ -117,7 +119,9 @@
 <script>
 function showModelInfo(obj){
 	var domain = $(obj).attr("domain");
+	var domain_ip = $('#local_ip').text();
 	$('#domain_help .domain_set').text(domain);
+	$('#domain_help .domain_ip').text(domain_ip);
 
 	$('#domain_help').modal('show');
 }

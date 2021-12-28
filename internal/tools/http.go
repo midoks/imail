@@ -8,11 +8,12 @@ import (
 func GetPublicIP() (ip string, err error) {
 	// - http://myexternalip.com/raw
 	// - http://ip.dhcp.cn/?ip
-	resp, err := http.Get("https://www.bt.cn/Api/getIpAddress")
+	// - https://www.bt.cn/Api/getIpAddress
+	resp, err := http.Get("http://myexternalip.com/raw")
 	content, err := ioutil.ReadAll(resp.Body)
 
 	if err == nil {
 		return string(content), nil
 	}
-	return "", err
+	return "127.0.0.1", err
 }
