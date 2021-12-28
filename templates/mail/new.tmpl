@@ -1,38 +1,52 @@
 {{template "base/header" .}}
 <div class="admin user">
 	<div class="ui container">
-		{{/*<div class="ui grid">*/}}
-			{{template "base/alert" .}}
-			{{/*<div class="twelve wide column content">*/}}
-				
-				<form class="ui form" action="{{AppSubURL}}/mail/new" method="post">
-				
-					<div class="inline field" >
-					  <div class="ui label">收件人</div>
-					  <input type="email" name="to_mail" placeholder="xxx@xxx.xx" value="{{.to_mail}}">
-					</div>
+		<div class="ui grid">
+			{{if gt .Bid 0}}
+				{{template "mail/navbar_bid" .}}
+			{{else}}
+				{{template "mail/navbar" .}}
+			{{end}}
+
+			<div class="twelve wide column content">
+				{{template "base/alert" .}}
+
+				<div class="ui unstackable attached table segment">
+					<table class="ui unstackable very basic striped table">
+						<tbody>
+						<tr><td colspan="5">
+							<form class="ui form" action="{{AppSubURL}}/mail/new" method="post">
+			
+								<div class="inline field" >
+								  <div class="ui label">收件人</div>
+								  <input type="email" name="to_mail" placeholder="xxx@xxx.xx" value="{{.to_mail}}">
+								</div>
 
 
-					<div class="inline field">
-					  <div class="ui label">主&nbsp;&nbsp;&nbsp;题</div>
-					  <input type="text" name="subject" value="{{.subject}}">
-					</div>
+								<div class="inline field">
+								  <div class="ui label">主&nbsp;&nbsp;&nbsp;题</div>
+								  <input type="text" name="subject" value="{{.subject}}">
+								</div>
 
-					</hr>
-					<div id="content"></div>
-					<textarea class="hide" name="content" id="area_content">{{.content}}</textarea>
+								</hr>
+								<div id="content"></div>
+								<textarea class="hide" name="content" id="area_content">{{.content}}</textarea>
 
-					<div class="ui divider"></div>
+								<div class="ui divider"></div>
 
-					<div class="inline field">
-						<button class="ui primary button">{{.i18n.Tr "mail.send.send_now"}}</button>
-						<button class="ui primary button">{{.i18n.Tr "mail.send.cancel_send"}}</button>
-					</div>
-					
-				</form>
+								<div class="inline field">
+									<button class="ui primary button">{{.i18n.Tr "mail.send.send_now"}}</button>
+									<button class="ui primary button">{{.i18n.Tr "mail.send.cancel_send"}}</button>
+								</div>
+								
+							</form>
+						</td></tr>
+						</tbody>
+					</table>
+				</div>
 
-			{{/*</div>*/}}
-		{{/*</div>*/}}
+			</div>
+		</div>
 	</div>
 </div>
 
@@ -46,9 +60,9 @@ editor.config.onchange = function (html) {
 
 editor.config.zIndex = 500;
 editor.config.uploadImgShowBase64 = true;
-editor.config.showFullScreen = true;
-editor.config.showMenuTooltips = true;
-editor.config.height = 400;
+editor.config.showFullScreen = false;
+editor.config.showMenuTooltips = false;
+editor.config.height = 300;
 editor.create();
 
 
