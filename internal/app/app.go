@@ -178,6 +178,7 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 				m.Combo("/delete/:id").Get(admin.DeleteDomain)
 				m.Combo("/check/:id").Get(admin.CheckDomain)
 				m.Combo("/default/:id").Get(admin.SetDefaultDomain)
+				m.Combo("/info/:domain").Get(admin.InfoDomain)
 			})
 			m.Group("/users", func() {
 				m.Get("", admin.Users)

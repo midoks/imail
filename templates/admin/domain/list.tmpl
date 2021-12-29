@@ -81,7 +81,7 @@
 					<td>MX</td>
 					<td>MX</td>
 					<td span class="domain_set">mail.>exp.com</td>
-					<td>mail.<span class="domain_set">exp.com</span></td>
+					<td>mx.<span class="domain_set">exp.com</span></td>
 				</tr>
 				<tr>
 					<td>A</td>
@@ -99,7 +99,7 @@
 					<td>DKIM</td>
 					<td>TXT</td>
 					<td>default._domainkey</td>
-					<td style="white-space:nowrap;overflow:hidden;text-overflow: ellipsis;">
+					<td class="dkim" style="white-space:nowrap;overflow:hidden;text-overflow: ellipsis;">
 						<p>v=DKIM1;k=rsa;p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCtBHPB1mr2Wp6JePkOxuTV3BNk/HwtKwk616CrxrzYI+YsUYzUsCCGx2UjOs9dpxBvlifGMLx+VkTwIu0ZBiIQJ7vWhX8zvnFnXonDLypXL2B6N9Muz/XCKwdFFc/NJMmOFY1iel9wFznKmuMnnW74B6KEKwtSkGUsXjJgIS//7wIDAQAB</p>
 					</td>
 				</tr>
@@ -119,9 +119,16 @@
 <script>
 function showModelInfo(obj){
 	var domain = $(obj).attr("domain");
-	var domain_ip = $('#local_ip').text();
 	$('#domain_help .domain_set').text(domain);
-	$('#domain_help .domain_ip').text(domain_ip);
+	$.get("/admin/domain/info/"+domain, function(data){
+		if (data['code']>0){
+			toast(data['msg']);
+		} else {
+			$('#domain_help .domain_ip').text(data['data']['ip']);
+			$('#domain_help .dkim').text(data['data']['dkim']);
+		}
+	});
+	
 
 	$('#domain_help').modal('show');
 }

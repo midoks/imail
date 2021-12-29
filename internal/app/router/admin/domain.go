@@ -29,8 +29,6 @@ func Domain(c *context.Context) {
 	c.Data["Total"] = db.DomainCount()
 	c.Data["Domain"] = d
 
-	localIp, _ := tools.GetPublicIP()
-	c.Data["LocalIp"] = localIp
 	c.Success(DOMAIN)
 }
 
@@ -84,6 +82,28 @@ func DeleteDomain(c *context.Context) {
 		c.Flash.Success(c.Tr("admin.domain.deletion_success"))
 	}
 	c.Redirect(conf.Web.Subpath + "/admin/domain")
+}
+
+func InfoDomain(c *context.Context) {
+	domain := c.Params(":domain")
+
+	dataDir := conf.Web.Subpath + conf.Web.AppDataPath
+	content, err := dkim.MakeDkimConfFile(dataDir, domain)
+
+	if err != nil {
+		c.Fail(-1, c.Tr("common.fail"))
+		return
+	}
+
+	var d = make(map[string]string)
+
+	localIp, _ := tools.GetPublicIP()
+	d["ip"] = localIp
+	d["dkim"] = content
+
+	c.OKDATA("ok", d)
+
+	// fmt.Println(domain, content, err)
 }
 
 func CheckDomain(c *context.Context) {

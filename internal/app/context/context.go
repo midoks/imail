@@ -123,6 +123,10 @@ func (c *Context) OK(msg string) {
 	c.JSONSuccess(JsonMsg{Code: 0, Msg: msg})
 }
 
+func (c *Context) OKDATA(msg string, data interface{}) {
+	c.JSONSuccess(JsonMsg{Code: 0, Msg: msg, Data: data})
+}
+
 //JSON Fail Message
 func (c *Context) Fail(code int64, msg string) {
 	c.JSONSuccess(JsonMsg{Code: code, Msg: msg})
