@@ -88,7 +88,7 @@ func InfoDomain(c *context.Context) {
 	domain := c.Params(":domain")
 
 	dataDir := conf.Web.Subpath + conf.Web.AppDataPath
-	content, err := dkim.MakeDkimConfFile(dataDir, domain)
+	content, err := dkim.GetDomainDkimVal(dataDir, domain)
 
 	if err != nil {
 		c.Fail(-1, c.Tr("common.fail"))
@@ -100,10 +100,7 @@ func InfoDomain(c *context.Context) {
 	localIp, _ := tools.GetPublicIP()
 	d["ip"] = localIp
 	d["dkim"] = content
-
 	c.OKDATA("ok", d)
-
-	// fmt.Println(domain, content, err)
 }
 
 func CheckDomain(c *context.Context) {
