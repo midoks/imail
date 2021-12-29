@@ -83,9 +83,9 @@
 						</a>
 
 						{{if .IsLogged }}
-							<a class="item{{if .PageIsDashboard}} active{{end}}" href="{{AppSubURL}}/">{{.i18n.Tr "dashboard"}}</a>
+							<a class="item{{if .PageIsDashboard}} active{{end}}" href="{{AppSubURL}}/user/settings">{{.i18n.Tr "dashboard"}}</a>
 						{{else}}
-							<a class="item{{if .PageIsHome}} active{{end}}" href="{{AppSubURL}}/">{{.i18n.Tr "home"}}</a>
+							<a class="item{{if .PageIsHome}} active{{end}}" href="{{AppSubURL}}/admin">{{.i18n.Tr "home"}}</a>
 						{{end}}
 
 
