@@ -117,20 +117,6 @@ func Init() error {
     db.AutoMigrate(&Class{})
     db.AutoMigrate(&Queue{})
 
-    //创建默认账户
-    // var userAdmin User
-    // admin := db.First(&userAdmin, "name = ?", "admin")
-    // if admin.Error != nil {
-    //     db.Create(&User{Name: "admin", Password: "21232f297a57a5a743894a0e4a801fc3", Code: "admin", Token: "21232f297a57a5a743894a0e4a801fc3"})
-    // }
-
-    // //退信账户
-    // var userPostmaster User
-    // postmaster := db.First(&userPostmaster, "name = ?", "postmaster")
-    // if postmaster.Error != nil {
-    //     db.Create(&User{Name: "postmaster", Password: "21232f297a57a5a743894a0e4a801fc3", Code: "postmaster", Token: "21232f297a57a5a743894a0e4a801fc2"})
-    // }
-
     return nil
 }
 
