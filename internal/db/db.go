@@ -112,6 +112,7 @@ func Init() error {
     db.AutoMigrate(&User{})
     db.AutoMigrate(&Domain{})
     db.AutoMigrate(&Mail{})
+    db.AutoMigrate(&MailContent{})
     db.AutoMigrate(&Box{})
     db.AutoMigrate(&Class{})
     db.AutoMigrate(&Queue{})
