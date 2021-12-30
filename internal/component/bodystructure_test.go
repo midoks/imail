@@ -135,7 +135,6 @@ func TestFetchBodyStructure(t *testing.T) {
 
 	// tff, err := net.LookupTXT(fmt.Sprintf("default._domainkey.%s", "qq.com"))
 	// fmt.Println(tff, err)
-	// fmt.Println(testMailString)
 
 	path, _ := os.Getwd()
 	path = filepath.Dir(path)
@@ -150,9 +149,8 @@ func TestFetchBodyStructure(t *testing.T) {
 	}
 
 	// fmt.Println(header.Get("Message-Id"))
-	_, err = FetchBodyStructure(header, bufferedBody, true)
-	// fmt.Println(testMailString)
-	// fmt.Println(bs.Parts)
+	bs, err := FetchBodyStructure(header, bufferedBody, true)
+	fmt.Println(bs)
 	if err != nil {
 		t.Fatal("Expected no error while fetching body structure, got:", err)
 	}

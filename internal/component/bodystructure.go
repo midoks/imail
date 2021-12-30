@@ -7,7 +7,7 @@ import (
 	"io"
 	"mime"
 	// "net/textproto"
-	// "io/ioutil"
+	"io/ioutil"
 	"reflect"
 	"strings"
 )
@@ -31,7 +31,7 @@ type BodyStructure struct {
 	// The Content-Encoding header.
 	Encoding string
 	// The Content-Length header.
-	Size uint32
+	Size int
 
 	// Type-specific fields
 
@@ -282,9 +282,6 @@ func FetchBodyStructure(header Header, body io.Reader, extended bool) (*BodyStru
 	bs.Id = header.Get("Content-Id")
 	bs.Description = header.Get("Content-Description")
 	bs.Encoding = header.Get("Content-Transfer-Encoding")
-	// TODO: bs.Size
-	// fmt.Println(ioutil.ReadAll(body))
-	// bs.Size = len(string(body.buf))
 
 	// multipartReader(header, body)
 	if mr := multipartReader(header, body); mr != nil {
@@ -305,10 +302,16 @@ func FetchBodyStructure(header Header, body io.Reader, extended bool) (*BodyStru
 		}
 		bs.Parts = parts
 	}
-	fmt.Println(bs.Parts)
 
-	// // TODO: bs.Envelope, bs.BodyStructure
-	// // TODO: bs.Lines
+	// DO: bs.Size
+	bodyStr, err := ioutil.ReadAll(body)
+	if err != nil {
+		return bs, err
+	}
+	bs.Size = len(string(bodyStr))
+
+	// TODO: bs.Envelope, bs.BodyStructure
+	// TODO: bs.Lines
 
 	if extended {
 		bs.Extended = true
