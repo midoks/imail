@@ -3,7 +3,7 @@ package component
 import (
 	"bufio"
 	// "bytes"
-	// "fmt"
+	"fmt"
 	"reflect"
 	"strings"
 	"testing"
@@ -125,7 +125,11 @@ var testBodyStructure = &BodyStructure{
 	Extended: true,
 }
 
+// go test -v ./internal/component
 func TestFetchBodyStructure(t *testing.T) {
+
+	fmt.Println(testMailString)
+
 	bufferedBody := bufio.NewReader(strings.NewReader(testMailString))
 
 	header, err := ReadHeader(bufferedBody)
