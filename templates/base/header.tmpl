@@ -26,13 +26,12 @@
 	<link rel="stylesheet" href="{{AppSubURL}}/css/imail.min.css?v={{BuildCommit}}">
 
 	{{ if .PageIsWriteMail}}
-	<script src="{{AppSubURL}}/js/wangEditor.min.js?v={{BuildCommit}}"></script>
+	<script src="{{AppSubURL}}/ckeditor5-classic/translations/zh-cn.js?v={{BuildCommit}}"></script>
+	<script src="{{AppSubURL}}/ckeditor5-classic/ckeditor.js?v={{BuildCommit}}"></script>
 	<style>
-	.w-e-toolbar {
-		display: flex;
-		padding: 0 0px;
-	  	flex-wrap: nowrap;
-		/* 单个菜单 */
+	.ck-editor__editable_inline {
+	　　	height: 280px !important;
+		min-height: 280px;
 	}
 	</style>
 	{{end}}

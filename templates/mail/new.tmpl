@@ -30,7 +30,6 @@
 
 								</hr>
 								<div id="content"></div>
-								<textarea class="hide" name="content" id="area_content">{{.content}}</textarea>
 
 								<div class="ui divider"></div>
 
@@ -51,27 +50,17 @@
 </div>
 
 <script>
-const E = window.wangEditor;
-const editor = new E('#content');
-const $area_content = $('#area_content');
-editor.config.onchange = function (html) {
-    $area_content.val(html);
-}
-
-editor.config.zIndex = 500;
-editor.config.uploadImgShowBase64 = true;
-editor.config.showFullScreen = false;
-editor.config.showMenuTooltips = false;
-editor.config.height = 300;
-editor.create();
+ClassicEditor.create( document.querySelector( '#content' ), {
+	// toolbar: [ 'heading', '|', 'bold', 'italic', 'link' ]
+	language: 'zh-cn',
+	height:'350'
+}).then( editor => {
+	window.editor = editor;
+}).catch( err => {
+	console.error( err.stack );
+});
 
 
-{{if .content}}
-editor.txt.html('{{.content}}');
-$area_content.val('{{.content}}');
-{{else}}
-$area_content.val(editor.txt.html());
-{{end}}
 </script>
 
 {{template "base/footer" .}}
