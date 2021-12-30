@@ -7,6 +7,7 @@ import (
 	"io"
 	"mime"
 	// "net/textproto"
+	// "io/ioutil"
 	"reflect"
 	"strings"
 )
@@ -282,6 +283,7 @@ func FetchBodyStructure(header Header, body io.Reader, extended bool) (*BodyStru
 	bs.Description = header.Get("Content-Description")
 	bs.Encoding = header.Get("Content-Transfer-Encoding")
 	// TODO: bs.Size
+	// fmt.Println(ioutil.ReadAll(body))
 	// bs.Size = len(string(body.buf))
 
 	// multipartReader(header, body)
@@ -303,6 +305,7 @@ func FetchBodyStructure(header Header, body io.Reader, extended bool) (*BodyStru
 		}
 		bs.Parts = parts
 	}
+	fmt.Println(bs.Parts)
 
 	// // TODO: bs.Envelope, bs.BodyStructure
 	// // TODO: bs.Lines
