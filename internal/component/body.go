@@ -4,7 +4,6 @@ import (
 	// "bufio"
 	// "bytes"
 	"errors"
-	// "fmt"
 	"io"
 	"mime"
 	"strings"
@@ -63,6 +62,7 @@ type FetchItem string
 
 func multipartReader(header Header, body io.Reader) *MultipartReader {
 	contentType := header.Get("Content-Type")
+	// contentTransferEncoding := header.Get("Content-Transfer-Encoding")
 
 	if !strings.HasPrefix(contentType, "multipart/") {
 		return nil
@@ -73,10 +73,6 @@ func multipartReader(header Header, body io.Reader) *MultipartReader {
 		return nil
 	}
 
-	// fmt.Println("multipartReader:", contentType)
-	// fmt.Println("multipartReader-params:", params)
-
-	s := NewMultipartReader(body, params["boundary"])
-	// fmt.Println("NewMultipartReader:", s)
-	return s
+	mpr := NewMultipartReader(body, params["boundary"])
+	return mpr
 }

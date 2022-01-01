@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	// "reflect"
+	// "encoding/json"
 	"strings"
 	"testing"
 	"time"
@@ -140,7 +141,7 @@ func TestFetchBodyStructure(t *testing.T) {
 	path = filepath.Dir(path)
 	path = filepath.Dir(path)
 
-	testData, _ := tools.ReadFile(fmt.Sprintf("%s/testdata/test.eml", path))
+	testData, _ := tools.ReadFile(fmt.Sprintf("%s/testdata/attachment.eml", path))
 
 	bufferedBody := bufio.NewReader(strings.NewReader(testData))
 	header, err := ReadHeader(bufferedBody)
@@ -148,9 +149,12 @@ func TestFetchBodyStructure(t *testing.T) {
 		t.Fatal("Expected no error while reading mail, got:", err)
 	}
 
-	// fmt.Println(header.Get("Message-Id"))
+	fmt.Println(header)
 	bs, err := FetchBodyStructure(header, bufferedBody, true)
 	fmt.Println(bs)
+
+	// rs, err := json.Marshal(bs)
+	// fmt.Println(rs)
 	if err != nil {
 		t.Fatal("Expected no error while fetching body structure, got:", err)
 	}

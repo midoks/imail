@@ -1,6 +1,12 @@
 package mail
 
 import (
+	"bufio"
+	"github.com/midoks/imail/internal/component"
+	"os"
+	// "path/filepath"
+	// "github.com/midoks/imail/internal/conf"
+
 	"fmt"
 	"strconv"
 	"strings"
@@ -195,6 +201,24 @@ func Content(c *context.Context) {
 	}
 
 	c.Success(MAIL_CONENT)
+}
+
+func ContentDemo(c *context.Context) {
+
+	appDir, _ := os.Getwd()
+	testData, _ := tools.ReadFile(fmt.Sprintf("%s/testdata/attachment.eml", appDir))
+
+	fmt.Println(appDir, testData)
+
+	bufferedBody := bufio.NewReader(strings.NewReader(testData))
+	header, err := component.ReadHeader(bufferedBody)
+	if err != nil {
+		c.Fail(-1, err.Error())
+		return
+	}
+
+	bs, err := component.FetchBodyStructure(header, bufferedBody, true)
+	c.OKDATA("ok", bs)
 }
 
 /********************************
