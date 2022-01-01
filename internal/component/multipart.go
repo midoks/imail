@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	// "io/ioutil"
-	// "strings"
 )
 
 // This constant needs to be at least 76 for this package to work correctly.
@@ -83,8 +82,15 @@ func (r *MultipartReader) NextPart() (*Part, error) {
 		return nil, fmt.Errorf("multipart: boundary is empty")
 	}
 	expectNewPart := false
+
+	// line, err := r.bufReader.ReadSlice('\n')
+	// fmt.Println("pp:", string(line), err)
+	// cc, _ := ioutil.ReadAll(r.bufReader)
+	// fmt.Println("cc:ccc", string(cc))
 	for {
 		line, err := r.bufReader.ReadSlice('\n')
+
+		fmt.Println("part--mm:", string(line), err)
 
 		if err == io.EOF && r.isFinalBoundary(line) {
 			// If the buffer ends in "--boundary--" without the
@@ -117,6 +123,7 @@ func (r *MultipartReader) NextPart() (*Part, error) {
 			return nil, fmt.Errorf("multipart: expecting a new Part; got line %q", string(line))
 		}
 
+		fmt.Println("cc:", string(line), err, string(r.nlDashBoundary))
 		if r.partsRead == 0 {
 			// skip line
 			continue

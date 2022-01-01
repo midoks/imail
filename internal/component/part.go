@@ -20,6 +20,7 @@ type Part struct {
 
 	disposition       string
 	dispositionParams map[string]string
+	Content           string
 
 	// r is either a reader directly reading from mr
 	r io.Reader

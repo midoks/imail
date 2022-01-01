@@ -2,7 +2,7 @@ package mail
 
 import (
 	"bufio"
-	"github.com/midoks/imail/internal/component"
+	// "github.com/midoks/imail/internal/component"
 	"os"
 	// "path/filepath"
 	// "github.com/midoks/imail/internal/conf"
@@ -17,6 +17,7 @@ import (
 	"github.com/midoks/imail/internal/tools"
 	tmail "github.com/midoks/imail/internal/tools/mail"
 	"github.com/midoks/imail/internal/tools/paginater"
+	"github.com/midoks/imail/internal/tools/parsemail"
 )
 
 const (
@@ -211,14 +212,14 @@ func ContentDemo(c *context.Context) {
 	fmt.Println(appDir, testData)
 
 	bufferedBody := bufio.NewReader(strings.NewReader(testData))
-	header, err := component.ReadHeader(bufferedBody)
+	// header, err := component.ReadHeader(bufferedBody)
+	email, err := parsemail.Parse(bufferedBody)
 	if err != nil {
 		c.Fail(-1, err.Error())
 		return
 	}
 
-	bs, err := component.FetchBodyStructure(header, bufferedBody, true)
-	c.OKDATA("ok", bs)
+	c.OKDATA("ok", email)
 }
 
 /********************************
