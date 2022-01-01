@@ -17,7 +17,7 @@ import (
 	"github.com/midoks/imail/internal/tools"
 	tmail "github.com/midoks/imail/internal/tools/mail"
 	"github.com/midoks/imail/internal/tools/paginater"
-	"github.com/midoks/imail/internal/tools/parsemail"
+	"github.com/midoks/mcopa"
 )
 
 const (
@@ -207,13 +207,12 @@ func Content(c *context.Context) {
 func ContentDemo(c *context.Context) {
 
 	appDir, _ := os.Getwd()
-	testData, _ := tools.ReadFile(fmt.Sprintf("%s/testdata/attachment.eml", appDir))
+	testData, _ := tools.ReadFile(fmt.Sprintf("%s/testdata/git.eml", appDir))
 
 	fmt.Println(appDir, testData)
 
 	bufferedBody := bufio.NewReader(strings.NewReader(testData))
-	// header, err := component.ReadHeader(bufferedBody)
-	email, err := parsemail.Parse(bufferedBody)
+	email, err := mcopa.Parse(bufferedBody)
 	if err != nil {
 		c.Fail(-1, err.Error())
 		return
@@ -222,9 +221,9 @@ func ContentDemo(c *context.Context) {
 	c.OKDATA("ok", email)
 }
 
-/********************************
+/****************************************************
  * API for web frontend call
- ********************************/
+ ***************************************************/
 func ApiDeleted(c *context.Context, f form.MailIDs) {
 	ids := f.Ids
 	idsSlice, err := tools.ToSlice(ids)

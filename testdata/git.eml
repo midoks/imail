@@ -1,0 +1,196 @@
+Received: from smtp.github.com (out-17.smtp.github.com [192.30.252.200])
+	by newxmmxsza119.qq.com (NewMX) with SMTP id C7019693
+	for <renlairenwang@foxmail.com>; Sun, 02 Jan 2022 01:49:48 +0800
+X-QQ-mid: xmmxsza119t1641059388tpzaasi2z
+X-QQ-XMAILINFO: MgRpQMLhR5LwXe54O7CTRaYRu4e/sA4yA2QeOEpfHMxXAH77VSzMHYRhtkH90V
+	 Q4lXvPiS1qVxmcWMky0ahpl/cu6QdF1YKXotpoJTca1NhINw6QW9ExHlX/5IeGCHCVah9FQq0Ycx
+	 alaCyMuDOdoZ35q0ir1ydvq+8XxBn5bBJk2FxamJ8NgxkvkQpctzzqaAe4ZZd6EOdAmIibMRXJNL
+	 K0AbT6yTeWH1HHMINusOlrUE2J0MMKOzPtJyR3dJuZ8GLQMzFO7CX5kcNaouhjru4U+zaud6+W1W
+	 WPy6CuKjWz0w1zeR2av168bOh3VeF7trRT+/bbVOOdIVl4hN9eglJCcig3y5lUc52dhlD24vKSTl
+	 I+A5NnAll/Q6bBNDznR++MP+j++vqVdAQs9Rd7127lf9yTEqNDGoLHdiYdSpob8yHdctoPz64BCr
+	 0u7LR0KLkKQBpd2DkmBIL2ogZqbSFhQmhHlrZPMcDX6Sz+WZ6tjuF+CYtUoFvmA9FaSYY7vZaxn+
+	 hAg922Rc1cnVuBpdvwp+sSSoOf1ApJIaCCeNenVaUSDR/6gBxbncb5cToCQT9fyneBw80CQXiW1i
+	 wTUJNmAku11Vr0dMK9CHvlNB5bwy+y7dkRiGbUkt/jmnrP3kL/p/IIHpCF5o35g7D4iGR0JHvEd8
+	 +yiaA2o/44luxzXPAkocrMmNW2OUBh6J2UJZe6UrWBoWC9hORWGAWJFwE+EJvOKonG1h5eXJVzqB
+	 YyWUKappW54+cOUicBiVav6WxHX+9WaBJnbU9JITdGS+K/7l48b/egZzuuhE2bZNucVsxiJn4ZOx
+	 OtFsBAFcKVi5Wd9Wi5XAkzSSAmwQXwMOwEq6VvQKXLk7MHWsdu9dYvkweSMpmRnh32gnhMk2flQ4
+	 IlTCbZkgEyd+uc/YwmSVnBUKJCZFzq4lmeLJAyvMSewKqpXqm+FQsHMd88vId8a5evNynS3J9kE8
+	 4oKYTXQWiuRseyLKLYO1lVAX2QUq7G5nHcVj3LxH8Ib2GGAu6W3+c2l5A0VPueeD8KTQecvS/m9+
+	 rTrGzHPA==
+Sender: noreply@github.com
+Received: from github-lowworker-292e294.va3-iad.github.net (github-lowworker-292e294.va3-iad.github.net [10.48.102.70])
+	by smtp.github.com (Postfix) with ESMTP id AD6585C0674
+	for <renlairenwang@foxmail.com>; Sat,  1 Jan 2022 09:49:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=github.com;
+	s=pf2014; t=1641059387;
+	bh=yXXZBAyhepCMAi9+P6n2QRf2zgaCwl2phbLBEtQD6/s=;
+	h=Date:From:Reply-To:To:Cc:Subject:List-ID:List-Archive:List-Post:
+	 List-Unsubscribe:From;
+	b=QKTtI8aDMaT6PiQyUuTmMQFqKy9NtgMRBQcZmGHwFmq1pvpFw1UJ1RzB57JsMYkho
+	 s0YHnPeh62L/+P1dfEqoXgFjkOdRMeEtSV1oWH5DQAVshrvvaDCIJhp38vf/n5pm6V
+	 tnZzLQfnWahkk9OmPDWrbIEQT1QJLhyi32VESxL0=
+Date: Sat, 01 Jan 2022 09:49:47 -0800
+From: sebma <notifications@github.com>
+Reply-To: mpv-player/mpv <reply+AA7Z6ONMEOZK3VS2BGHPWR573R2TXEVBNHHECFDXVI@reply.github.com>
+To: mpv-player/mpv <mpv@noreply.github.com>
+Cc: Subscribed <subscribed@noreply.github.com>
+Message-ID: <mpv-player/mpv/issues/9663@github.com>
+Subject: [mpv-player/mpv] How to play a stream from ok.ru/video :
+ --cache-secs=600 does not seem to help (Issue #9663)
+Mime-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="--==_mimepart_61d0943b9f6fa_4384c7886135f6";
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Precedence: list
+X-GitHub-Sender: sebma
+X-GitHub-Recipient: midoks
+X-GitHub-Reason: subscribed
+List-ID: mpv-player/mpv <mpv.mpv-player.github.com>
+List-Archive: https://github.com/mpv-player/mpv
+List-Post: <mailto:reply+AA7Z6ONMEOZK3VS2BGHPWR573R2TXEVBNHHECFDXVI@reply.github.com>
+List-Unsubscribe: <mailto:unsub+AA7Z6ONMEOZK3VS2BGHPWR573R2TXEVBNHHECFDXVI@reply.github.com>,
+ <https://github.com/notifications/unsubscribe/AA7Z6OPUU7LTZ4XDM526YB3UT45DXANCNFSM5LCWKKAA>
+X-Auto-Response-Suppress: All
+X-GitHub-Recipient-Address: renlairenwang@foxmail.com
+
+
+----==_mimepart_61d0943b9f6fa_4384c7886135f6
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Hi,
+I'm trying to play a stream from ok.ru/video and mpv has buffer underruns much too often : 
+```bash
+$ mpv --no-config --user-agent="$userAgent" --no-ytdl --cache --cache-secs=600 $(yt-dlp --ignore-config -gf mpd-2 https://ok.ru/video/1896758512300)
+ (+) Video --vid=1 (*) (h264 622x360 24.300fps)
+ (+) Audio --aid=1 (*) (aac 2ch 44100Hz)
+VO: [gpu] 622x360 yuv420p
+AO: [pulse] 44100Hz stereo 2ch float
+AV: 00:00:09 / 00:59:10 (0%) A-V:  0.000 Cache: 0.8s/75KB
+Audio device underrun detected.
+AV: 00:00:09 / 00:59:10 (0%) A-V:  0.000 Cache: 0.8s/76KB
+Audio device underrun detected.
+AV: 00:00:12 / 00:59:10 (0%) A-V:  0.000 Cache: 0.8s/56KB
+Audio device underrun detected.
+AV: 00:00:18 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/85KB
+Audio device underrun detected.
+AV: 00:00:18 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/86KB
+Audio device underrun detected.
+AV: 00:00:18 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/73KB
+Audio device underrun detected.
+AV: 00:00:19 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/75KB
+Audio device underrun detected.
+AV: 00:00:21 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/75KB
+Audio device underrun detected.
+AV: 00:00:24 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/72KB
+Audio device underrun detected.
+AV: 00:00:27 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/51KB
+Audio device underrun detected.
+AV: 00:00:30 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/79KB
+Audio device underrun detected.
+AV: 00:00:30 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/87KB
+Audio device underrun detected.
+AV: 00:00:33 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/51KB
+Audio device underrun detected.
+AV: 00:00:52 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/67KB
+Audio device underrun detected.
+AV: 00:00:52 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/77KB
+Audio device underrun detected.
+(Buffering) AV: 00:00:52 / 00:59:10 (1%) A-V:  0.000 Cache: 0.9s/90KB
+[ffmpeg] https: Will reconnect at 4162979 in 0 second(s), error=Input/output error.
+[ffmpeg/demuxer] mov,mp4,m4a,3gp,3g2,mj2: stream 1, offset 0x3fb21e: partial file
+[lavf] error reading packet: Invalid data found when processing input.
+
+Exiting... (Quit)
+$
+```
+It seems as if the `--cache-secs=600` argument has no effect because without it the result is the same.
+
+### Log file
+
+W.I.P....
+
+
+-- 
+Reply to this email directly or view it on GitHub:
+https://github.com/mpv-player/mpv/issues/9663
+You are receiving this because you are subscribed to this thread.
+
+Message ID: <mpv-player/mpv/issues/9663@github.com>
+----==_mimepart_61d0943b9f6fa_4384c7886135f6
+Content-Type: text/html;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<p></p>
+<p dir="auto">Hi,<br>
+I'm trying to play a stream from ok.ru/video and mpv has buffer underruns much too often :</p>
+<div class="highlight highlight-source-shell"><pre>$ mpv --no-config --user-agent=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$userAgent</span><span class="pl-pds">"</span></span> --no-ytdl --cache --cache-secs=600 <span class="pl-s"><span class="pl-pds">$(</span>yt-dlp --ignore-config -gf mpd-2 https://ok.ru/video/1896758512300<span class="pl-pds">)</span></span>
+ (+) Video --vid=1 (<span class="pl-k">*</span>) (h264 622x360 24.300fps)
+ (+) Audio --aid=1 (<span class="pl-k">*</span>) (aac 2ch 44100Hz)
+VO: [gpu] 622x360 yuv420p
+AO: [pulse] 44100Hz stereo 2ch float
+AV: 00:00:09 / 00:59:10 (0%) A-V:  0.000 Cache: 0.8s/75KB
+Audio device underrun detected.
+AV: 00:00:09 / 00:59:10 (0%) A-V:  0.000 Cache: 0.8s/76KB
+Audio device underrun detected.
+AV: 00:00:12 / 00:59:10 (0%) A-V:  0.000 Cache: 0.8s/56KB
+Audio device underrun detected.
+AV: 00:00:18 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/85KB
+Audio device underrun detected.
+AV: 00:00:18 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/86KB
+Audio device underrun detected.
+AV: 00:00:18 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/73KB
+Audio device underrun detected.
+AV: 00:00:19 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/75KB
+Audio device underrun detected.
+AV: 00:00:21 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/75KB
+Audio device underrun detected.
+AV: 00:00:24 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/72KB
+Audio device underrun detected.
+AV: 00:00:27 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/51KB
+Audio device underrun detected.
+AV: 00:00:30 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/79KB
+Audio device underrun detected.
+AV: 00:00:30 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/87KB
+Audio device underrun detected.
+AV: 00:00:33 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/51KB
+Audio device underrun detected.
+AV: 00:00:52 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/67KB
+Audio device underrun detected.
+AV: 00:00:52 / 00:59:10 (1%) A-V:  0.000 Cache: 0.8s/77KB
+Audio device underrun detected.
+(Buffering) AV: 00:00:52 / 00:59:10 (1%) A-V:  0.000 Cache: 0.9s/90KB
+[ffmpeg] https: Will reconnect at 4162979 <span class="pl-k">in</span> 0 second(s), error=Input/output error.
+[ffmpeg/demuxer] mov,mp4,m4a,3gp,3g2,mj2: stream 1, offset 0x3fb21e: partial file
+[lavf] error reading packet: Invalid data found when processing input.
+
+Exiting... (Quit)
+$</pre></div>
+<p dir="auto">It seems as if the <code>--cache-secs=600</code> argument has no effect because without it the result is the same.</p>
+<h3 dir="auto">Log file</h3>
+<p dir="auto">W.I.P....</p>
+
+<p style="font-size:small;-webkit-text-size-adjust:none;color:#666;">&mdash;<br />Reply to this email directly, <a href="https://github.com/mpv-player/mpv/issues/9663">view it on GitHub</a>, or <a href="https://github.com/notifications/unsubscribe-auth/AA7Z6OIVX65GD6W2RYAC5WDUT45DXANCNFSM5LCWKKAA">unsubscribe</a>.<br />Triage notifications on the go with GitHub Mobile for <a href="https://apps.apple.com/app/apple-store/id1477376905?ct=notification-email&amp;mt=8&amp;pt=524675">iOS</a> or <a href="https://play.google.com/store/apps/details?id=com.github.android&amp;referrer=utm_campaign%3Dnotification-email%26utm_medium%3Demail%26utm_source%3Dgithub">Android</a>.
+<br />You are receiving this because you are subscribed to this thread.<img src="https://github.com/notifications/beacon/AA7Z6OLMMH6JLL5UA42S7VTUT45DXA5CNFSM5LCWKKAKYY3PNVWWK3TUL52HS4DFUVEXG43VMWVGG33NNVSW45C7NFSM4QIUO6VA.gif" height="1" width="1" alt="" /><span style="color: transparent; font-size: 0; display: none; visibility: hidden; overflow: hidden; opacity: 0; width: 0; height: 0; max-width: 0; max-height: 0; mso-hide: all">Message ID: <span>&lt;mpv-player/mpv/issues/9663</span><span>@</span><span>github</span><span>.</span><span>com&gt;</span></span></p>
+<script type="application/ld+json">[
+{
+"@context": "http://schema.org",
+"@type": "EmailMessage",
+"potentialAction": {
+"@type": "ViewAction",
+"target": "https://github.com/mpv-player/mpv/issues/9663",
+"url": "https://github.com/mpv-player/mpv/issues/9663",
+"name": "View Issue"
+},
+"description": "View this Issue on GitHub",
+"publisher": {
+"@type": "Organization",
+"name": "GitHub",
+"url": "https://github.com"
+}
+}
+]</script>
+----==_mimepart_61d0943b9f6fa_4384c7886135f6--
