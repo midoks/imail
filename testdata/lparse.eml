@@ -1,0 +1,145 @@
+Received: from wrqvpskx.outbound-mail.sendgrid.net (unknown [149.72.54.26])
+	by mx29 (Coremail) with SMTP id T8CowABHUNd7T8dhEi4pAw--.2375S3;
+	Sun, 26 Dec 2021 01:06:08 +0800 (CST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sendgrid.net;
+	h=subject:from:mime-version:content-type:to;
+	s=smtpapi; bh=teMXHwBl6nUdYazCEt8tYOKz1rRVfWe3osiny+ch+/0=;
+	b=AkH1bFvmq5JQjHwamf5q6ulFjHs/7O+NaClkHGJOjSkr2cJTp8KVj/TAu4HInW95SY9j
+	akWjbdKbK6u7z4ZTkHMmVW/NZb8Ep8sy4xemuU/nK0v/Z27HTiodPGDzGWgv+XHx5cJPXH
+	fxvw8ekWqVUcRpwfIJz9mQooxZY4tyf1E=
+Received: by filterdrecv-7bc86b958d-9xw7z with SMTP id filterdrecv-7bc86b958d-9xw7z-1-61C74F7B-2A
+        2021-12-25 17:06:03.248552816 +0000 UTC m=+9917148.116332007
+Received: from kp3.kennedyprojects.com (unknown)
+	by ismtpd0177p1iad2.sendgrid.net (SG) with ESMTP id uBvcNDJRQCWRRIa_OBM02A
+	for <midoks@163.com>; Sat, 25 Dec 2021 17:06:03.230 +0000 (UTC)
+Received: by kp3.kennedyprojects.com (Postfix, from userid 33)
+	id 17F1D17A36D; Sat, 25 Dec 2021 12:06:03 -0500 (EST)
+Message-ID: <00638d85ff2934d8a564284f28a0fb70@linux.org>
+Date: Sat, 25 Dec 2021 17:06:03 +0000 (UTC)
+Subject: Linux.org - Account confirmation required
+From: "Linux.org" <info@linux.org>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="_=_swift_1640451963_932a79c5f46b65f266bb92ef69d421ae_=_"
+X-To-Validate: 6b634707+midoks@163.com
+Auto-Submitted: auto-generated
+X-SG-EID: 
+ =?us-ascii?Q?ewld9OGe4KVBjC42vQbkSWplYZ8GIQnzCcti4SDb1sjRLempwL9v3tO6yBhweN?=
+ =?us-ascii?Q?+zb4i7DXfF0rO0oHf+Xo1iv0mNzcowC3EY2IqZk?=
+ =?us-ascii?Q?fvUMUPl9p8b+sM05yFEMBTBxByfzLVd8cCaT4M+?=
+ =?us-ascii?Q?pB7mzG1lsMwfa5C5mQHLYxdw2WulYUjSkKmS4fc?=
+ =?us-ascii?Q?0O+dpjMRFi6hgCpVx7Kk9TKVk6kTQbqGham5+YI?=
+ =?us-ascii?Q?+W2yxSyexSOGB=2F+Wg=3D?=
+To: midoks <midoks@163.com>
+X-Entity-ID: OO4f4YhaUQxTEhKy73trGw==
+X-CM-TRANSID:T8CowABHUNd7T8dhEi4pAw--.2375S3
+Authentication-Results: mx29; spf=pass smtp.mail=bounces+12094408-e053
+	-midoks=163.com@sendgrid.net; dkim=pass header.i=@sendgrid.net
+X-Coremail-Antispam: 1Uf129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73
+	VFW2AGmfu7bjvjm3AaLaJ3UbIYCTnIWIevJa73UjIFyTuYvjxU-AR6UUUUU
+Sender: bounces+12094408-e053-midoks=163.com@sendgrid.net
+
+
+--_=_swift_1640451963_932a79c5f46b65f266bb92ef69d421ae_=_
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+
+midoks, in order to complete your registration or reactivate your account a=
+t Linux.org (https://www.linux.org/), you need to confirm your email addres=
+s by clicking the button below.
+
+Confirm your email (https://www.linux.org/account-confirmation/midoks.13240=
+9/email?c=3D83WNoRrqDru7pMFi)
+
+-----------------------------
+
+Visit Linux.org: https://www.linux.org/
+
+--_=_swift_1640451963_932a79c5f46b65f266bb92ef69d421ae_=_
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html>
+<html lang=3D"en-US" dir=3D"LTR">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8">
+<base href=3D"https://www.linux.org/">
+<meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D1"=
+>
+<meta http-equiv=3D"X-UA-Compatible" content=3D"IE=3Dedge">
+<meta name=3D"format-detection" content=3D"telephone=3Dno">
+<title>Linux.org - Account confirmation required</title>
+</head>
+<body dir=3D"LTR" leftmargin=3D"0" topmargin=3D"0" marginwidth=3D"0" margin=
+height=3D"0" style=3D"margin: 0; padding: 0; word-wrap: break-word; -ms-tex=
+t-size-adjust: 100%; -webkit-text-size-adjust: 100%; background-color: #ece=
+cec; font-size: 15px; font-family: 'Segoe UI','Helvetica Neue',Helvetica,Ro=
+boto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans',sans-serif; line-heig=
+ht: 1.4; color: #141414;">
+
+<table id=3D"bodyTable" border=3D"0" width=3D"100%" height=3D"100%" cellpad=
+ding=3D"0" cellspacing=3D"0" style=3D"border-spacing: 0; mso-table-lspace: =
+0pt; mso-table-rspace: 0pt; border-collapse: collapse; margin: 0; padding: =
+0; background-color: #ececec; height: 100%; width: 100%;"><tr>
+<td align=3D"center" valign=3D"top" id=3D"bodyTableContainer" style=3D"bord=
+er-collapse: collapse; background-color: #ececec;">
+		<table border=3D"0" width=3D"600" cellpadding=3D"0" cellspacing=3D"0" cla=
+ss=3D"container" dir=3D"LTR" style=3D"border-spacing: 0; mso-table-lspace: =
+0pt; mso-table-rspace: 0pt; border-collapse: collapse; width: 100%; max-wid=
+th: 600px; table-layout: fixed;">
+<tr>
+<td class=3D"header" align=3D"center" valign=3D"top" style=3D"border-collap=
+se: collapse; color: #47a7eb; padding: 6px 10px; border-top-left-radius: 4p=
+x; border-top-right-radius: 4px; font-family: 'Segoe UI','Helvetica Neue',H=
+elvetica,Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans',sans-serif=
+; font-size: 24px; line-height: 1.4;">
+				<a href=3D"https://www.linux.org/" style=3D"text-decoration: none; colo=
+r: #47a7eb;">Linux.org</a>
+			</td>
+		</tr>
+<tr>
+<td class=3D"content" align=3D"left" valign=3D"top" style=3D"border-collaps=
+e: collapse; background-color: #fefefe; border-radius: 2px; color: #141414;=
+ padding: 10px; font-size: 15px; font-family: 'Segoe UI','Helvetica Neue',H=
+elvetica,Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans',sans-serif=
+; line-height: 1.4;">
+
+<p style=3D"margin-top: 0;">midoks, in order to complete your registration =
+or reactivate your account at <a href=3D"https://www.linux.org/" style=3D"c=
+olor: #2577b1; text-decoration: none;">Linux.org</a>, you need to confirm y=
+our email address by clicking the button below.</p>
+
+<p style=3D"margin-bottom: 0;"><a href=3D"https://www.linux.org/account-con=
+firmation/midoks.132409/email?c=3D83WNoRrqDru7pMFi" class=3D"button" style=
+=3D"display: inline-block; padding: 5px 10px; background-color: #2577b1; bo=
+rder: none; border-radius: 4px; font-size: 13px; color: #edf6fd; text-decor=
+ation: none; white-space: nowrap;">Confirm your email</a></p>
+
+			</td>
+		</tr>
+<tr>
+<td class=3D"footer" align=3D"center" valign=3D"top" style=3D"border-collap=
+se: collapse; padding: 6px 10px; text-align: center; color: #8c8c8c; font-s=
+ize: 13px; font-family: 'Segoe UI','Helvetica Neue',Helvetica,Roboto,Oxygen=
+,Ubuntu,Cantarell,'Fira Sans','Droid Sans',sans-serif; line-height: 1.4;">
+				<div><a href=3D"https://www.linux.org/" style=3D"color: #8c8c8c; text-d=
+ecoration: underline;">Visit Linux.org</a></div>
+
+			=09
+			</td>
+		</tr>
+</table>
+</td>
+</tr></table>
+<img src=3D"https://u12094408.ct.sendgrid.net/wf/open?upn=3Dla4O542zs6yc7Og=
+OIz2kdilzEre7aX9F4BJDEUcG7q8-2F67NkEZQHnbEJ38UC0fNuoTOFoZGT-2BvnvSMKFucEfqa=
+3FJ2kAinUQRr1JJPQv-2BKsh2BFpJXk4Z3BK0E7eNYpNhykux0Fb5HKrRF3zTqBwuJKrhCwc8jr=
+grgW2mmU-2FY5eyY9XjHM2QZSI2U4g5eY-2Fsg1qg15G8s-2FOIfHakF2sVHw-3D-3D" alt=3D=
+"" width=3D"1" height=3D"1" border=3D"0" style=3D"height:1px !important;wid=
+th:1px !important;border-width:0 !important;margin-top:0 !important;margin-=
+bottom:0 !important;margin-right:0 !important;margin-left:0 !important;padd=
+ing-top:0 !important;padding-bottom:0 !important;padding-right:0 !important=
+;padding-left:0 !important;"/></body>
+</html>
+
+--_=_swift_1640451963_932a79c5f46b65f266bb92ef69d421ae_=_--

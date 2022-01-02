@@ -208,7 +208,7 @@ func Content(c *context.Context) {
 
 	//debug start
 	// appDir, _ := os.Getwd()
-	// testData, _ := tools.ReadFile(fmt.Sprintf("%s/testdata/git.eml", appDir))
+	// testData, _ := tools.ReadFile(fmt.Sprintf("%s/testdata/lparse.eml", appDir))
 
 	// bufferedBody := bufio.NewReader(strings.NewReader(testData))
 	// email, _ = mcopa.Parse(bufferedBody)
@@ -243,7 +243,7 @@ func ContentHtml(c *context.Context) {
 
 	//debug start
 	// appDir, _ := os.Getwd()
-	// testData, _ := tools.ReadFile(fmt.Sprintf("%s/testdata/git.eml", appDir))
+	// testData, _ := tools.ReadFile(fmt.Sprintf("%s/testdata/lparse.eml", appDir))
 
 	// bufferedBody := bufio.NewReader(strings.NewReader(testData))
 	// email, _ = mcopa.Parse(bufferedBody)
