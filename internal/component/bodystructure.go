@@ -304,11 +304,11 @@ func FetchBodyStructure(header Header, body io.Reader, extended bool) (*BodyStru
 	}
 
 	// DO: bs.Size
-	bodyStr, err := ioutil.ReadAll(body)
-	if err != nil {
-		return bs, err
-	}
-	bs.Size = len(string(bodyStr))
+	// bodyStr, err := ioutil.ReadAll(body)
+	// if err != nil {
+	// 	return bs, err
+	// }
+	// bs.Size = len(string(bodyStr))
 
 	// TODO: bs.Envelope, bs.BodyStructure
 	// TODO: bs.Lines
