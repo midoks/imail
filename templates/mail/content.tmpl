@@ -56,12 +56,36 @@
 
 
 				{{if .Mail}}
-				<div class="ui unstackable attached table segment">
-					<div class="ui text container">
-						<div class="column">
-					  		{{.Mail.Content}}
-					  	</div>
-					</div>
+				<div class="ui segment">
+					<h2 class="ui dividing header">{{.ParseMail.Subject}}</h2>
+
+				    <table class="ui celled striped table">
+					  <tbody>
+					    <tr>
+					      <td class="two wide column">发件人</td>
+					      <td>{{.ParseMail.From}}</td>
+					    </tr>
+					    <tr>
+					      <td>收件人</td>
+					      <td>{{.ParseMail.To}}</td>
+					    </tr>
+					    <tr>
+					      <td>时 间</td>
+					      <td>{{.ParseMail.Date}}</td>
+					    </tr>
+
+					    <tr>
+					      	<td colspan="2">
+					      	{{if eq .ParseMail.HTMLBody "" }}
+								{{.ParseMail.TextBody}}
+							{{else}}
+								{{.ParseMail.HTMLBody}}
+							{{end}}
+						   	</td>
+					    </tr>
+					  </tbody>
+					</table>
+				
 				</div>
 				{{end}}
 

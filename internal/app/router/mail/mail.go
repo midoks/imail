@@ -2,10 +2,7 @@ package mail
 
 import (
 	"bufio"
-	// "github.com/midoks/imail/internal/component"
-	"os"
-	// "path/filepath"
-	// "github.com/midoks/imail/internal/conf"
+	// "os"
 
 	"fmt"
 	"strconv"
@@ -201,17 +198,30 @@ func Content(c *context.Context) {
 		c.Data["Mail"] = r
 	}
 
+	content := bufio.NewReader(strings.NewReader(r.Content))
+	email, err := mcopa.Parse(content)
+	if err != nil {
+		c.Fail(-1, err.Error())
+		return
+	}
+
+	c.Data["ParseMail"] = email
+
 	c.Success(MAIL_CONENT)
 }
 
 func ContentDemo(c *context.Context) {
 
-	appDir, _ := os.Getwd()
-	testData, _ := tools.ReadFile(fmt.Sprintf("%s/testdata/git.eml", appDir))
+	// appDir, _ := os.Getwd()
+	// testData, _ := tools.ReadFile(fmt.Sprintf("%s/testdata/git.eml", appDir))
+	// strings.NewReader(testData)
 
-	fmt.Println(appDir, testData)
+	// fmt.Println(appDir, testData)
 
-	bufferedBody := bufio.NewReader(strings.NewReader(testData))
+	id := c.ParamsInt64(":id")
+	r, err := db.MailById(id)
+
+	bufferedBody := bufio.NewReader(strings.NewReader(r.Content))
 	email, err := mcopa.Parse(bufferedBody)
 	if err != nil {
 		c.Fail(-1, err.Error())
