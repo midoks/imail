@@ -164,10 +164,12 @@ func mergeFields(fields []interface{}) string {
 			result += fmt.Sprintf("\"%s\" ", fields[i])
 		case uint32:
 			result += fmt.Sprintf("%d ", fields[i])
+		case int:
+			result += fmt.Sprintf("%d ", fields[i])
 		case interface{}:
 			result += fmt.Sprintf("%s ", mergeFields(fields[i].([]interface{})))
 		default:
-			fmt.Println("sss::", reflect.TypeOf(fields[i]))
+			fmt.Println("type::", reflect.TypeOf(fields[i]))
 		}
 	}
 	result = fmt.Sprintf("%s)", result)
