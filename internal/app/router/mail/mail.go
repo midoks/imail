@@ -18,9 +18,10 @@ import (
 )
 
 const (
-	MAIL        = "mail/list"
-	MAIL_NEW    = "mail/new"
-	MAIL_CONENT = "mail/content"
+	MAIL             = "mail/list"
+	MAIL_NEW         = "mail/new"
+	MAIL_CONENT      = "mail/content"
+	MAIL_CONENT_HTML = "mail/content_html"
 )
 
 type MailSearchOptions struct {
@@ -205,9 +206,52 @@ func Content(c *context.Context) {
 		return
 	}
 
+	//debug start
+	// appDir, _ := os.Getwd()
+	// testData, _ := tools.ReadFile(fmt.Sprintf("%s/testdata/git.eml", appDir))
+
+	// bufferedBody := bufio.NewReader(strings.NewReader(testData))
+	// email, _ = mcopa.Parse(bufferedBody)
+	//debug end
+
 	c.Data["ParseMail"] = email
 
 	c.Success(MAIL_CONENT)
+}
+
+func ContentHtml(c *context.Context) {
+	c.Data["Title"] = c.Tr("mail.write_letter")
+	c.Data["PageIsMailContent"] = true
+
+	id := c.ParamsInt64(":id")
+	c.Data["id"] = id
+
+	bid := c.ParamsInt64(":bid")
+	c.Data["Bid"] = bid
+
+	r, err := db.MailById(id)
+	if err == nil {
+		c.Data["Mail"] = r
+	}
+
+	content := bufio.NewReader(strings.NewReader(r.Content))
+	email, err := mcopa.Parse(content)
+	if err != nil {
+		c.Fail(-1, err.Error())
+		return
+	}
+
+	//debug start
+	// appDir, _ := os.Getwd()
+	// testData, _ := tools.ReadFile(fmt.Sprintf("%s/testdata/git.eml", appDir))
+
+	// bufferedBody := bufio.NewReader(strings.NewReader(testData))
+	// email, _ = mcopa.Parse(bufferedBody)
+	//debug end
+
+	c.Data["ParseMail"] = email
+
+	c.Success(MAIL_CONENT_HTML)
 }
 
 func ContentDemo(c *context.Context) {

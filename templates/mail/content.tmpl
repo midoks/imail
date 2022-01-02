@@ -75,13 +75,17 @@
 					    </tr>
 
 					    <tr>
-					      	<td colspan="2">
-					      	{{if eq .ParseMail.HTMLBody "" }}
-								{{.ParseMail.TextBody}}
-							{{else}}
-								{{.ParseMail.HTMLBody | Str2HTML}}
-							{{end}}
-						   	</td>
+					      
+				      	{{if eq .ParseMail.HTMLBody "" }}
+				      		<td colspan="2">
+							{{.ParseMail.TextBody}}
+							</td>
+						{{else}}
+							<td colspan="2" style="background:write;">
+							<iframe src="/mail/content/{{.id}}/html" style="height: 300px; width: 100%;" frameborder="0"></iframe>
+							</td>
+						{{end}}
+						   	
 					    </tr>
 					  </tbody>
 					</table>

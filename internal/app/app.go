@@ -143,6 +143,7 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 			m.Combo("/deleted").Get(mail.Deleted)
 			m.Combo("/junk").Get(mail.Junk)
 			m.Combo("/content/:id").Get(mail.Content)
+			m.Combo("/content/:id/html").Get(mail.ContentHtml)
 			m.Combo("/demo/:id").Get(mail.ContentDemo)
 
 		}, reqSignIn, func(c *context.Context) {
