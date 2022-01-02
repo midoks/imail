@@ -79,7 +79,7 @@
 					      	{{if eq .ParseMail.HTMLBody "" }}
 								{{.ParseMail.TextBody}}
 							{{else}}
-								{{.ParseMail.HTMLBody}}
+								{{.ParseMail.HTMLBody | Str2HTML}}
 							{{end}}
 						   	</td>
 					    </tr>
