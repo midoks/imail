@@ -10,7 +10,7 @@ import (
 // Many tests schedule a job for every second, and then wait at most a second
 // for it to run.  This amount is just slightly larger than 1 second to
 // compensate for a few milliseconds of runtime.
-const OneSecond = 1*time.Second + 10*time.Millisecond
+const OneSecond = 1*time.Second + 30*time.Millisecond
 
 func TestFuncPanicRecovery(t *testing.T) {
 	cron := New()
