@@ -17,6 +17,7 @@ type Install struct {
 	Domain            string `binding:"Required"`
 	HttpPort          string `binding:"Required"`
 	LogRootPath       string `binding:"Required"`
+	MailSaveMode      string `binding:"Required"`
 	EnableConsoleMode bool
 
 	OfflineMode           bool

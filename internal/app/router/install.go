@@ -223,10 +223,9 @@ func InstallPost(c *context.Context, f form.Install) {
 		return
 	}
 
-	// Check logic loophole between disable self-registration and no admin account.
-	if f.DisableRegistration && len(f.AdminName) == 0 {
-		c.FormErr("Services", "Admin")
-		c.RenderWithErr(c.Tr("install.no_admin_and_disable_registration"), INSTALL, f)
+	if len(f.AdminName) == 0 {
+		c.FormErr("Admin", "AdminName")
+		c.RenderWithErr(c.Tr("install.admin_setting_desc"), INSTALL, f)
 		return
 	}
 
@@ -266,7 +265,7 @@ func InstallPost(c *context.Context, f form.Install) {
 
 	cfg.Section("web").Key("domain").SetValue(f.Domain)
 	cfg.Section("web").Key("http_port").SetValue(f.HttpPort)
-	cfg.Section("web").Key("mail_save_mode").SetValue(f.Web.MailSaveMode)
+	cfg.Section("web").Key("mail_save_mode").SetValue(f.MailSaveMode)
 
 	cfg.Section("session").Key("provider").SetValue("file")
 

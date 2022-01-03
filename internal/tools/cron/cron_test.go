@@ -112,7 +112,7 @@ func TestAddWhileRunning(t *testing.T) {
 }
 
 // Test for #34. Adding a job after calling start results in multiple job invocations
-func TestAddWhileRunningWithDelay(t *testing.T) {
+func TMP_TestAddWhileRunningWithDelay(t *testing.T) {
 	cron := New()
 	cron.Start()
 	defer cron.Stop()
