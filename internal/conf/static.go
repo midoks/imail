@@ -69,6 +69,8 @@ var (
 		Subpath        string      `ini:"-"` // Subpath found the ExternalURL. Should be empty when not found.
 		SubpathDepth   int         `ini:"-"` // The number of slashes found in the Subpath.
 		UnixSocketMode os.FileMode `ini:"-"` // Parsed file mode of UnixSocketPermission.
+
+		MailSaveMode string
 	}
 
 	// Session settings
