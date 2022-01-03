@@ -7,7 +7,7 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 # brew install mingw-w64
 # sudo port install mingw-w64
 
-VERSION=0.0.6
+VERSION=0.0.9
 curPath=`pwd`
 rootPath=$(dirname "$curPath")
 
@@ -42,9 +42,9 @@ build_app(){
 	echo "export CGO_ENABLED=1 GOOS=$1 GOARCH=$2"
 	echo "cd $rootPath && go build imail.go"
 
-	export CGO_ENABLED=1 GOOS=$1 GOARCH=$2
 	# export CGO_ENABLED=1 GOOS=linux GOARCH=amd64
-	export CGO_LDFLAGS="-static"
+	# export CGO_ENABLED=1 GOOS=$1 GOARCH=$2
+	# export CGO_LDFLAGS="-static"
 
 	cd $rootPath && go generate internal/assets/conf/conf.go
 	cd $rootPath && go generate internal/assets/templates/templates.go
@@ -94,8 +94,10 @@ build_app(){
 	fi
 
 	if [ $1 == "darwin" ]; then
-		echo "cd $rootPath && go build -v  -ldflags '${LDFLAGS}'"
+		echo "cd $rootPath && go build -v -ldflags '${LDFLAGS}'"
 		cd $rootPath && go build -v -ldflags "${LDFLAGS}"
+		
+		cp $rootPath/imail $rootPath/tmp/build
 	fi
 	
 
@@ -118,6 +120,7 @@ build_app(){
 	cd $rootPath/tmp/build && tar -zcvf ${PACK_NAME}_${VERSION}_$1_$2.tar.gz ./ && mv ${PACK_NAME}_${VERSION}_$1_$2.tar.gz $rootPath/tmp/package
 	# bz
 	#cd $rootPath/tmp/build && tar -jcvf ${PACK_NAME}_${VERSION}_$1_$2.tar.bz2 ./ && mv ${PACK_NAME}_${VERSION}_$1_$2.tar.bz2 $rootPath/tmp/package
+
 }
 
 golist=`go tool dist list`
