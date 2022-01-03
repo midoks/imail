@@ -15,10 +15,6 @@ imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件
 [![main](/screenshot/main.png)](/screenshot/main.png)
 
 
-## 开发工具
-
-- [zzz](https://github.com/midoks/zzz)
-
 ## 快速入口
 
 - [文档主页](https://github.com/midoks/imail/wiki)
