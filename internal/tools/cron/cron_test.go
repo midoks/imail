@@ -173,7 +173,7 @@ func TestMultipleEntries(t *testing.T) {
 	defer cron.Stop()
 
 	select {
-	case <-time.After(OneSecond * 20):
+	case <-time.After(OneSecond * 3):
 		t.Error("expected job run in proper order")
 	case <-wait(wg):
 	}
