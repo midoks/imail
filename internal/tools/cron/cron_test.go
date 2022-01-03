@@ -311,7 +311,7 @@ func TestBlockingRun(t *testing.T) {
 	defer cron.Stop()
 
 	select {
-	case <-time.After(OneSecond):
+	case <-time.After(OneSecond * 2):
 		t.Error("expected job fires")
 	case <-unblockChan:
 		t.Error("expected that Run() blocks")
