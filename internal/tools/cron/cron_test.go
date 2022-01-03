@@ -162,13 +162,13 @@ func TestMultipleEntries(t *testing.T) {
 	cron := New()
 	cron.AddFunc("", "0 0 0 1 1 ?", func() {})
 	cron.AddFunc("", "* * * * * ?", func() {
-		fmt.Println("---")
+		fmt.Println("1,---")
 		fmt.Println(time.Now())
 		wg.Done()
 	})
 	cron.AddFunc("", "0 0 0 31 12 ?", func() {})
 	cron.AddFunc("", "* * * * * ?", func() {
-		fmt.Println("---")
+		fmt.Println("2,---")
 		fmt.Println(time.Now())
 		wg.Done()
 	})
