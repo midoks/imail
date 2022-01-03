@@ -162,14 +162,10 @@ func TestMultipleEntries(t *testing.T) {
 	cron := New()
 	cron.AddFunc("", "0 0 0 1 1 ?", func() {})
 	cron.AddFunc("", "* * * * * ?", func() {
-		fmt.Println("1,---")
-		fmt.Println(time.Now())
 		wg.Done()
 	})
 	cron.AddFunc("", "0 0 0 31 12 ?", func() {})
 	cron.AddFunc("", "* * * * * ?", func() {
-		fmt.Println("2,---")
-		fmt.Println(time.Now())
 		wg.Done()
 	})
 
@@ -180,7 +176,6 @@ func TestMultipleEntries(t *testing.T) {
 	case <-time.After(OneSecond * 20):
 		t.Error("expected job run in proper order")
 	case <-wait(wg):
-		fmt.Println("ok")
 	}
 }
 
@@ -198,7 +193,7 @@ func TestRunningJobTwice(t *testing.T) {
 	defer cron.Stop()
 
 	select {
-	case <-time.After(2 * OneSecond):
+	case <-time.After(3 * OneSecond):
 		t.Error("expected job fires 2 times")
 	case <-wait(wg):
 	}
