@@ -105,7 +105,7 @@ func TestAddWhileRunning(t *testing.T) {
 	cron.AddFunc("", "* * * * * ?", func() { wg.Done() })
 
 	select {
-	case <-time.After(OneSecond * 2):
+	case <-time.After(OneSecond):
 		t.Fatal("expected job runs")
 	case <-wait(wg):
 	}
@@ -120,7 +120,7 @@ func TestAddWhileRunningWithDelay(t *testing.T) {
 	var calls = 0
 	cron.AddFunc("", "* * * * * *", func() { calls += 1 })
 
-	<-time.After(OneSecond * 1.3)
+	<-time.After(OneSecond * 1)
 	if calls != 1 {
 		t.Errorf("called %d times, expected 1\n", calls)
 	}
