@@ -173,14 +173,12 @@ func NewPost(c *context.Context, f form.SendMail) {
 	}
 
 	mail_from := fmt.Sprintf("%s@%s", c.User.Name, from)
-	tc, err := tmail.GetMailReturnToSender(mail_from, f.ToMail, f.Subject, f.Content)
-
+	tc, err := tmail.GetMailSend(mail_from, f.ToMail, f.Subject, f.Content)
 	_, err = db.MailPushSend(c.User.Id, mail_from, f.ToMail, tc)
 	if err != nil {
 		c.RenderWithErr(err.Error(), MAIL_NEW, &f)
 		return
 	}
-	c.Flash.Success("OK")
 	c.Success(MAIL_NEW)
 }
 

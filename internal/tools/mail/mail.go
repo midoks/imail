@@ -78,6 +78,28 @@ func GetMailFromInContent(content string) string {
 	return val
 }
 
+func GetMailSend(from string, to string, subject string, msg string) (string, error) {
+	data, err := ioutil.ReadFile(conf.WorkDir() + "/conf/tpl/send.tpl")
+	if err != nil {
+		return "", err
+	}
+
+	sendTime := time.Now().Format("Mon, 02 Jan 2006 15:04:05 -0700 (MST)")
+	sendVersion := fmt.Sprintf("imail/%s", conf.App.Version)
+	boundaryRand := tools.RandString(20)
+
+	content := strings.Replace(string(data), "{MAIL_FROM}", from, -1)
+	content = strings.Replace(content, "{RCPT_TO}", to, -1)
+	content = strings.Replace(content, "{SUBJECT}", subject, -1)
+	content = strings.Replace(content, "{TIME}", sendTime, -1)
+	content = strings.Replace(content, "{VERSION}", sendVersion, -1)
+	content = strings.Replace(content, "{CONTENT}", tools.Base64encode(msg), -1)
+	content = strings.Replace(content, "{BOUNDARY_LINE}", boundaryRand, -1)
+
+	return content, nil
+}
+
+// 邮件退信模板
 func GetMailReturnToSender(to string, err_to_mail string, err_content string, msg string) (string, error) {
 	sendSubject := GetMailSubject(err_content)
 
@@ -88,17 +110,17 @@ func GetMailReturnToSender(to string, err_to_mail string, err_content string, ms
 	sendVersion := fmt.Sprintf("imail/%s", conf.App.Version)
 	boundaryRand := tools.RandString(20)
 
-	data, err := ioutil.ReadFile(conf.WorkDir() + "conf/tpl/return_to_sender.tpl")
+	data, err := ioutil.ReadFile(conf.WorkDir() + "/conf/tpl/return_to_sender.tpl")
 	if err != nil {
 		return "", err
 	}
 
-	dataHtml, err := ioutil.ReadFile(conf.WorkDir() + "conf/tpl/return_to_sender_html.tpl")
+	dataHtml, err := ioutil.ReadFile(conf.WorkDir() + "/conf/tpl/return_to_sender_html.tpl")
 	if err != nil {
 		return "", err
 	}
 
-	contentHtml := strings.Replace(string(dataHtml), "{TILTE}", "邮箱退信", -1)
+	contentHtml := strings.Replace(string(dataHtml), "{TILTE}", "sc", -1)
 	contentHtml = strings.Replace(contentHtml, "{ERR_MSG}", msg, -1)
 	contentHtml = strings.Replace(contentHtml, "{SEND_SUBJECT}", sendSubject, -1)
 	contentHtml = strings.Replace(contentHtml, "{ERR_TO_MAIL}", err_to_mail, -1)
