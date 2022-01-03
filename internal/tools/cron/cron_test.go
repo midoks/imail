@@ -161,17 +161,26 @@ func TestMultipleEntries(t *testing.T) {
 
 	cron := New()
 	cron.AddFunc("", "0 0 0 1 1 ?", func() {})
-	cron.AddFunc("", "* * * * * ?", func() { wg.Done() })
+	cron.AddFunc("", "* * * * * ?", func() {
+		fmt.Println("---")
+		fmt.Println(time.Now())
+		wg.Done()
+	})
 	cron.AddFunc("", "0 0 0 31 12 ?", func() {})
-	cron.AddFunc("", "* * * * * ?", func() { wg.Done() })
+	cron.AddFunc("", "* * * * * ?", func() {
+		fmt.Println("---")
+		fmt.Println(time.Now())
+		wg.Done()
+	})
 
 	cron.Start()
 	defer cron.Stop()
 
 	select {
-	case <-time.After(OneSecond):
+	case <-time.After(OneSecond * 20):
 		t.Error("expected job run in proper order")
 	case <-wait(wg):
+		fmt.Println("ok")
 	}
 }
 
