@@ -120,7 +120,7 @@ func TestAddWhileRunningWithDelay(t *testing.T) {
 	var calls = 0
 	cron.AddFunc("", "* * * * * *", func() { calls += 1 })
 
-	<-time.After(OneSecond * 2)
+	<-time.After(OneSecond)
 	if calls != 1 {
 		t.Errorf("called %d times, expected 1\n", calls)
 	}
