@@ -236,7 +236,7 @@ func TestLocalTimezone(t *testing.T) {
 	defer cron.Stop()
 
 	select {
-	case <-time.After(OneSecond * 3):
+	case <-time.After(OneSecond * 2):
 		t.Error("expected job fires 2 times")
 	case <-wait(wg):
 	}

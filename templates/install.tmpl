@@ -96,12 +96,26 @@
 						<input id="http_port" name="http_port" value="{{.http_port}}" required>
 						<span class="help">{{.i18n.Tr "install.http_port_helper"}}</span>
 					</div>
-				
+					
+					<div class="inline required field">
+						<label for="mail_save_option">{{.i18n.Tr "install.mail_save_mode"}}</label>
+						<div class="ui selection database type dropdown">
+							<input type="hidden" id="mail_save_option" name="mail_save_option" value="hard_disk">
+							<div class="text">{{.i18n.Tr "install.mail_save_mode_hard_disk"}}</div>
+							<i class="dropdown icon"></i>
+							<div class="menu">
+								<div class="item" data-value="hard_disk">{{.i18n.Tr "install.mail_save_mode_hard_disk"}}</div>
+								<div class="item" data-value="db">{{.i18n.Tr "install.mail_save_mode_db"}}</div>
+							</div>
+						</div>
+					</div>
+
 					<div class="inline required field">
 						<label for="log_root_path">{{.i18n.Tr "install.log_root_path"}}</label>
 						<input id="log_root_path" name="log_root_path" value="{{.log_root_path}}" placeholder="log" required>
 						<span class="help">{{.i18n.Tr "install.log_root_path_helper"}}</span>
 					</div>
+
 					<div class="inline field checkbox">
 						<div class="ui checkbox">
 							<label class="poping up" data-content="{{.i18n.Tr "install.enable_console_mode_popup"}}"><strong>{{.i18n.Tr "install.enable_console_mode"}}</strong></label>
