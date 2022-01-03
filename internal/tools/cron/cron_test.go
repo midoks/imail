@@ -144,7 +144,7 @@ func TestSnapshotEntries(t *testing.T) {
 
 	// Even though Entries was called, the cron should fire at the 2 second mark.
 	select {
-	case <-time.After(OneSecond):
+	case <-time.After(OneSecond * 2):
 		t.Error("expected job runs at 2 second mark")
 	case <-wait(wg):
 	}
@@ -236,7 +236,7 @@ func TestLocalTimezone(t *testing.T) {
 	defer cron.Stop()
 
 	select {
-	case <-time.After(OneSecond * 2):
+	case <-time.After(OneSecond * 3):
 		t.Error("expected job fires 2 times")
 	case <-wait(wg):
 	}
