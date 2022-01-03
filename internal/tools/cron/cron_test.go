@@ -10,7 +10,7 @@ import (
 // Many tests schedule a job for every second, and then wait at most a second
 // for it to run.  This amount is just slightly larger than 1 second to
 // compensate for a few milliseconds of runtime.
-const OneSecond = 1*time.Second + 500*time.Millisecond
+const OneSecond = 1*time.Second + 10*time.Millisecond
 
 func TestFuncPanicRecovery(t *testing.T) {
 	cron := New()
@@ -112,7 +112,7 @@ func TestAddWhileRunning(t *testing.T) {
 }
 
 // Test for #34. Adding a job after calling start results in multiple job invocations
-func TestAddWhileRunningWithDelay(t *testing.T) {
+func TMP_BK_TestAddWhileRunningWithDelay(t *testing.T) {
 	cron := New()
 	cron.Start()
 	defer cron.Stop()
