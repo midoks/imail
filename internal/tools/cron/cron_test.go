@@ -105,7 +105,7 @@ func TestAddWhileRunning(t *testing.T) {
 	cron.AddFunc("", "* * * * * ?", func() { wg.Done() })
 
 	select {
-	case <-time.After(OneSecond):
+	case <-time.After(OneSecond * 2):
 		t.Fatal("expected job runs")
 	case <-wait(wg):
 	}
