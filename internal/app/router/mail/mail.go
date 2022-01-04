@@ -244,14 +244,12 @@ func ContentHtml(c *context.Context) {
 		return
 	}
 
-	fmt.Println(contentData)
-
-	// content := bufio.NewReader(strings.NewReader(contentData))
-	// email, err := mcopa.Parse(content)
-	// if err != nil {
-	// 	c.Fail(-1, err.Error())
-	// 	return
-	// }
+	content := bufio.NewReader(strings.NewReader(contentData))
+	email, err := mcopa.Parse(content)
+	if err != nil {
+		c.Fail(-1, err.Error())
+		return
+	}
 
 	//debug start
 	// appDir, _ := os.Getwd()
@@ -261,7 +259,7 @@ func ContentHtml(c *context.Context) {
 	// email, _ = mcopa.Parse(bufferedBody)
 	//debug end
 
-	// c.Data["ParseMail"] = email
+	c.Data["ParseMail"] = email
 
 	c.Success(MAIL_CONENT_HTML)
 }
