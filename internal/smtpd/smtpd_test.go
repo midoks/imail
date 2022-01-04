@@ -260,7 +260,7 @@ func ReceivedMail() error {
 
 	content := fmt.Sprintf("From: =?UTF-8?B?6Zi/6YeM5LqR?= <%s>\r\nSubject: Hello imail[%s]\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, now, tEmail)
 
-	err := Delivery("127.0.0.1:25", fEmail, tEmail, []byte(content))
+	err := Delivery("127.0.0.1:1025", fEmail, tEmail, []byte(content))
 
 	return err
 }
