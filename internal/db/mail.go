@@ -394,7 +394,7 @@ func MailPush(uid int64, mtype int, mail_from string, mail_to string, content st
 		tx.Rollback()
 	}
 
-	err := MailContentWrite(m.Id, content)
+	err := MailContentWrite(m.Uid, m.Id, content)
 	if err != nil {
 		tx.Rollback()
 	}

@@ -1,7 +1,10 @@
 package db
 
 import (
-	_ "fmt"
+	// "fmt"
+	"strings"
+
+	"github.com/midoks/imail/internal/conf"
 )
 
 type MailContent struct {
@@ -19,6 +22,15 @@ func (*MailContent) TableName() string {
 }
 
 func MailContentRead(mid int64) (string, error) {
+	mode := conf.Web.MailSaveMode
+	if strings.EqualFold(mode, "hard_disk") {
+		return MailContentReadHardDisk(mid)
+	} else {
+		return MailContentReadDb(mid)
+	}
+}
+
+func MailContentReadDb(mid int64) (string, error) {
 	var r MailContent
 	err := db.Model(&MailContent{}).Where("mid = ?", mid).First(&r).Error
 	if err != nil {
@@ -27,7 +39,31 @@ func MailContentRead(mid int64) (string, error) {
 	return r.Content, nil
 }
 
-func MailContentWrite(mid int64, content string) error {
+func MailContentReadHardDisk(mid int64) (string, error) {
+	var r MailContent
+	err := db.Model(&MailContent{}).Where("mid = ?", mid).First(&r).Error
+	if err != nil {
+		return "", err
+	}
+	return r.Content, nil
+}
+
+func MailContentWrite(uid int64, mid int64, content string) error {
+	mode := conf.Web.MailSaveMode
+	if strings.EqualFold(mode, "hard_disk") {
+		return MailContentWriteHardDisk(uid, mid, content)
+	} else {
+		return MailContentWriteDb(mid, content)
+	}
+}
+
+func MailContentWriteDb(mid int64, content string) error {
+	user := MailContent{Mid: mid, Content: content}
+	result := db.Create(&user)
+	return result.Error
+}
+
+func MailContentWriteHardDisk(uid int64, mid int64, content string) error {
 	user := MailContent{Mid: mid, Content: content}
 	result := db.Create(&user)
 	return result.Error
