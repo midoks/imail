@@ -71,7 +71,7 @@
 							<td><i style="cursor:pointer;" data-id="{{.Id}}" onclick="setMailStar(this);" class="star {{if not .IsFlags}}outline{{end}} icon"></i></td>
 							<td><a href="{{AppSubURL}}/mail/content/{{.Id}}">{{.MailFromInContent}}</a></td>
 							<td>{{.Subject}}</td>
-							<td>{{DateFmtMail .Created }}</td>
+							<td>{{DateFmtMail .Created $.i18n.Lang}}</td>
 						</tr>
 						{{end}}
 						{{else}}

@@ -47,5 +47,5 @@ func main() {
 		log.Infof("Failed to start application: %v", err)
 	}
 
-	//cmd.ServiceDebug()
+	cmd.ServiceDebug()
 }

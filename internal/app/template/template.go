@@ -17,6 +17,7 @@ import (
 	"github.com/editorconfig/editorconfig-core-go/v2"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/midoks/imail/internal/conf"
+	"github.com/unknwon/i18n"
 )
 
 var (
@@ -127,7 +128,7 @@ func EscapePound(str string) string {
 	return strings.NewReplacer("%", "%25", "#", "%23", " ", "%20", "?", "%3F").Replace(str)
 }
 
-func DateFmtMail(t time.Time) string {
+func DateFmtMail(t time.Time, lang string) string {
 	n := time.Now()
 
 	in := t.Format("2006-01-02")
@@ -139,7 +140,7 @@ func DateFmtMail(t time.Time) string {
 	in2, _ := time.Parse("2006-01-02 15:04:05", in+" 00:00:00")
 	now2, _ := time.Parse("2006-01-02 15:04:05", now+" 00:00:00")
 	if in2.Unix()+86400 == now2.Unix() {
-		return "昨天"
+		return i18n.Tr(lang, "common.yesterday")
 	} else {
 		return t.Format("2006-01-02")
 	}
