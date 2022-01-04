@@ -197,7 +197,13 @@ func Content(c *context.Context) {
 		c.Data["Mail"] = r
 	}
 
-	content := bufio.NewReader(strings.NewReader(r.Content))
+	contentData, err := db.MailContentRead(id)
+	if err != nil {
+		c.Fail(-1, err.Error())
+		return
+	}
+
+	content := bufio.NewReader(strings.NewReader(contentData))
 	email, err := mcopa.Parse(content)
 	if err != nil {
 		c.Fail(-1, err.Error())
@@ -232,12 +238,20 @@ func ContentHtml(c *context.Context) {
 		c.Data["Mail"] = r
 	}
 
-	content := bufio.NewReader(strings.NewReader(r.Content))
-	email, err := mcopa.Parse(content)
+	contentData, err := db.MailContentRead(id)
 	if err != nil {
 		c.Fail(-1, err.Error())
 		return
 	}
+
+	fmt.Println(contentData)
+
+	// content := bufio.NewReader(strings.NewReader(contentData))
+	// email, err := mcopa.Parse(content)
+	// if err != nil {
+	// 	c.Fail(-1, err.Error())
+	// 	return
+	// }
 
 	//debug start
 	// appDir, _ := os.Getwd()
@@ -247,7 +261,7 @@ func ContentHtml(c *context.Context) {
 	// email, _ = mcopa.Parse(bufferedBody)
 	//debug end
 
-	c.Data["ParseMail"] = email
+	// c.Data["ParseMail"] = email
 
 	c.Success(MAIL_CONENT_HTML)
 }
@@ -261,9 +275,14 @@ func ContentDemo(c *context.Context) {
 	// fmt.Println(appDir, testData)
 
 	id := c.ParamsInt64(":id")
-	r, err := db.MailById(id)
 
-	bufferedBody := bufio.NewReader(strings.NewReader(r.Content))
+	contentData, err := db.MailContentRead(id)
+	if err != nil {
+		c.Fail(-1, err.Error())
+		return
+	}
+
+	bufferedBody := bufio.NewReader(strings.NewReader(contentData))
 	email, err := mcopa.Parse(bufferedBody)
 	if err != nil {
 		c.Fail(-1, err.Error())

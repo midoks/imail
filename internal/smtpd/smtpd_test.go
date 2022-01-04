@@ -260,7 +260,7 @@ func ReceivedMail() error {
 
 	content := fmt.Sprintf("From: =?UTF-8?B?6Zi/6YeM5LqR?= <%s>\r\nSubject: Hello imail[%s]\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, now, tEmail)
 
-	err := Delivery("127.0.0.1:1025", fEmail, tEmail, []byte(content))
+	err := Delivery("127.0.0.1:25", fEmail, tEmail, []byte(content))
 
 	return err
 }
@@ -280,7 +280,7 @@ Hi! yes is test. imail ok?`
 
 // go test -v -run TestReceivedMail
 // go test -v ./internal/smtpd -run TestReceivedMail
-func GTestReceivedMail(t *testing.T) {
+func TestReceivedMail(t *testing.T) {
 	err := ReceivedMail()
 	if err != nil {
 		t.Error("TestReceivedMail fail:" + err.Error())

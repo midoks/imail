@@ -21,10 +21,15 @@ func TaskQueueeSendMail() {
 		result = db.MailSendListForStatus(0, 1)
 		for _, val := range result {
 			db.MailSetStatusById(val.Id, 2)
-			err := smtpd.Delivery("", val.MailFrom, val.MailTo, []byte(val.Content))
+
+			content, err := db.MailContentRead(result[0].Id)
+			if err != nil {
+				continue
+			}
+			err = smtpd.Delivery("", val.MailFrom, val.MailTo, []byte(content))
 
 			if err != nil {
-				content, _ := mail.GetMailReturnToSender(val.MailFrom, val.MailTo, val.Content, err.Error())
+				content, _ := mail.GetMailReturnToSender(val.MailFrom, val.MailTo, content, err.Error())
 				db.MailPush(val.Uid, 1, postmaster, val.MailFrom, content, 1)
 			}
 			db.MailSetStatusById(val.Id, 1)
@@ -37,7 +42,11 @@ func TaskRspamdCheck() {
 	result := db.MailListForRspamd(1)
 	if conf.Rspamd.Enable {
 		for _, val := range result {
-			_, err, score := mail.RspamdCheck(val.Content)
+			content, err := db.MailContentRead(val.Id)
+			if err != nil {
+				continue
+			}
+			_, err, score := mail.RspamdCheck(content)
 			// fmt.Println("RspamdCheck:", val.Id, err)
 			if err == nil {
 				db.MailSetIsCheckById(val.Id, 1)

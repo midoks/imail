@@ -13,13 +13,12 @@ import (
 
 type Mail struct {
 	Id                int64  `gorm:"primaryKey"`
-	Uid               int64  `gorm:"comment:用户ID"`
-	Type              int    `gorm:"comment:0:发送;1:接到"`
-	MailFrom          string `gorm:"size:50;comment:邮件来源"`
-	MailFromInContent string `gorm:"text;comment:邮件来源"`
+	Uid               int64  `gorm:"comment:UserID"`
+	Type              int    `gorm:"comment:0:Send;1:Received"`
+	MailFrom          string `gorm:"size:50;comment:Mail From"`
+	MailFromInContent string `gorm:"text;comment:Mail From Name In Content"`
 	MailTo            string `gorm:"size:50;comment:接收邮件"`
 	Subject           string `gorm:"size:250;comment:标题"`
-	Content           string `gorm:"comment:邮件内容"`
 	Size              int    `gorm:"size:50;comment:邮件内容大小"`
 	Status            int    `gorm:"comment:0:准备发送;1:发送成功;2:发送失败;3:已接收"`
 
@@ -28,7 +27,8 @@ type Mail struct {
 	IsFlags  bool `gorm:"default:0;comment:是否星标"`
 	IsJunk   bool `gorm:"default:0;comment:是否无用"`
 	IsDraft  bool `gorm:"default:0;comment:是否草稿"`
-	IsCheck  bool `gorm:"default:0;comment:是否通过检查"`
+
+	IsCheck bool `gorm:"default:0;comment:是否通过检查"`
 
 	Created     time.Time `gorm:"autoCreateTime;comment:创建时间"`
 	CreatedUnix int64     `gorm:"autoCreateTime;comment:创建时间"`
@@ -237,14 +237,19 @@ func MailDeletedListAllForImap(uid int64) ([]Mail, error) {
 
 func MailPosContentForPop(uid int64, pos int64) (string, int, error) {
 	var result []Mail
-	sql := fmt.Sprintf("SELECT uid,content,size FROM `%s` WHERE uid=? and type=1 order by id limit %d,%d", MailTableName(), pos-1, 1)
+	sql := fmt.Sprintf("SELECT id, uid, size FROM `%s` WHERE uid=? and type=1 order by id limit %d,%d", MailTableName(), pos-1, 1)
 	ret := db.Raw(sql, uid).Scan(&result)
 
 	if ret.Error != nil {
 		return "", 0, ret.Error
 	}
 
-	return result[0].Content, result[0].Size, nil
+	content, err := MailContentRead(result[0].Id)
+	if err != nil {
+		return "", 0, err
+	}
+
+	return content, result[0].Size, nil
 }
 
 func MailDeleteById(id int64, status int64) bool {
@@ -376,7 +381,6 @@ func MailPush(uid int64, mtype int, mail_from string, mail_to string, content st
 		MailFrom:          mail_from,
 		MailFromInContent: mail_from_in_content,
 		MailTo:            mail_to,
-		Content:           content,
 		Subject:           subject,
 		Size:              len(content),
 		Status:            status,
@@ -387,6 +391,11 @@ func MailPush(uid int64, mtype int, mail_from string, mail_to string, content st
 	result := db.Create(&m)
 
 	if result.Error != nil {
+		tx.Rollback()
+	}
+
+	err := MailContentWrite(m.Id, content)
+	if err != nil {
 		tx.Rollback()
 	}
 
