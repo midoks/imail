@@ -280,7 +280,7 @@ Hi! yes is test. imail ok?`
 
 // go test -v -run TestReceivedMail
 // go test -v ./internal/smtpd -run TestReceivedMail
-func TestReceivedMail(t *testing.T) {
+func DTestReceivedMail(t *testing.T) {
 	err := ReceivedMail()
 	if err != nil {
 		t.Error("TestReceivedMail fail:" + err.Error())
