@@ -4,9 +4,9 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"net/smtp"
 	"os"
 	"path/filepath"
-	// "strings"
 	"testing"
 	"time"
 
@@ -15,6 +15,7 @@ import (
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/log"
+	"github.com/midoks/imail/internal/tools"
 )
 
 var localhostCert = []byte(`-----BEGIN CERTIFICATE-----
@@ -110,10 +111,19 @@ func init() {
 
 	os.Setenv("IMAIL_WORK_DIR", appDir)
 	os.Chdir(appDir)
-	err = conf.Init(appDir + "/conf/app.conf")
-	if err != nil {
-		fmt.Println("test init config fail:", err.Error())
-		return
+
+	if tools.IsExist(appDir + "/custom/conf/app.conf") {
+		err = conf.Init(appDir + "/custom/conf/app.conf")
+		if err != nil {
+			fmt.Println("test init config fail:", err.Error())
+			return
+		}
+	} else {
+		err = conf.Init("")
+		if err != nil {
+			fmt.Println("test init config fail:", err.Error())
+			return
+		}
 	}
 
 }
@@ -121,8 +131,10 @@ func init() {
 func initDbSqlite() {
 	conf.Log.RootPath = conf.WorkDir() + "/logs"
 	os.MkdirAll(conf.Log.RootPath, os.ModePerm)
-
+	conf.Database.Type = "sqlite3"
 	conf.Database.Path = "data/imail.db3"
+
+	conf.Smtp.Debug = false
 
 	logger := log.Init()
 	logger.SetFormatter(&logrus.TextFormatter{})
@@ -166,22 +178,6 @@ func TestDnsQuery(t *testing.T) {
 		t.Log("dns.Query ok:" + d)
 	} else {
 		t.Error("dns.Query fail:" + err.Error())
-	}
-}
-
-// go test -run TestMailDelivery
-//MailDelivery
-func D_TestMailDelivery(t *testing.T) {
-	toEmail := "627293072@qq.com"
-	fromEmail := "admin@cachecha.com"
-
-	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fromEmail, toEmail)
-	fmt.Println(content)
-	err := Delivery("", fromEmail, toEmail, []byte(content))
-	if err != nil {
-		t.Error("TestMailDelivery fail:" + err.Error())
-	} else {
-		t.Log("TestMailDelivery ok")
 	}
 }
 
@@ -247,17 +243,9 @@ func SendMailTest(addr string, a Auth, from string, to []string, msg []byte) err
 	return c.Quit()
 }
 
-// go test -run TestSendMail
-func D_TestSendMail(t *testing.T) {
-
-	// cert, err := tls.X509KeyPair(localhostCert, localhostKey)
-	// if err != nil {
-	// 	t.Fatalf("Cert load failed: %v", err)
-	// }
-
-	// server.TLSConfig = &tls.Config{
-	// 	Certificates: []tls.Certificate{cert},
-	// }
+// go test -v ./internal/smtpd -run TestSendMailLocal
+func TestSendMailLocal(t *testing.T) {
+	initDbSqlite()
 
 	now := time.Now().Format("2006-01-02 15:04:05")
 
@@ -266,8 +254,31 @@ func D_TestSendMail(t *testing.T) {
 
 	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail[%s]\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, now, tEmail)
 	auth := PlainAuth("", fEmail, "admin", "127.0.0.1")
-	err := SendMailTest("127.0.0.1:25", auth, fEmail, []string{tEmail}, []byte(content))
-	fmt.Println("err:", err)
+	err := SendMailTest("127.0.0.1:1025", auth, fEmail, []string{tEmail}, []byte(content))
+	if err != nil {
+		t.Error("TestSendMailLocal fail:" + err.Error())
+	} else {
+		t.Log("TestSendMailLocal ok")
+	}
+}
+
+// go test -v ./internal/smtpd -run TestSendMail
+func SSL_TestSendMail(t *testing.T) {
+	initDbSqlite()
+
+	now := time.Now().Format("2006-01-02 15:04:05")
+
+	tEmail := "midoks@163.com"
+	fEmail := "admin@cachecha.com"
+
+	content := fmt.Sprintf("From: <%s>\r\nSubject: Hello imail[%s]\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, now, tEmail)
+	auth := smtp.PlainAuth("", fEmail, "admin", "127.0.0.1")
+	err := smtp.SendMail("127.0.0.1:1025", auth, fEmail, []string{tEmail}, []byte(content))
+	if err != nil {
+		t.Error("TestSendMail fail:" + err.Error())
+	} else {
+		t.Log("TestSendMail ok")
+	}
 }
 
 func ReceivedMail() error {
@@ -283,7 +294,6 @@ func ReceivedMail() error {
 	return err
 }
 
-// go test -v -run TestReceivedMail
 // go test -v ./internal/smtpd -run TestReceivedMail
 func TestReceivedMail(t *testing.T) {
 	initDbSqlite()
@@ -308,9 +318,7 @@ Hi! yes is test. imail ok?`
 	return fid, err
 }
 
-// go test -run TestMailDbPush
 // go test -v ./internal/smtpd -run TestMailDbPush
-// go test -v  ./internal/smtpd -bench BenchmarkMailDbPush
 func TestMailDbPush(t *testing.T) {
 	initDbSqlite()
 	conf.Web.MailSaveMode = "db"

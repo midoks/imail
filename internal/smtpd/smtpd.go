@@ -209,7 +209,7 @@ func (smtp *SmtpdServer) D(args ...interface{}) {
 			log.Debug("[SSL] start")
 		}
 
-		// fmt.Println(args...)
+		fmt.Println(args...)
 		log.Debug(args...)
 	}
 }
@@ -339,28 +339,35 @@ func (smtp *SmtpdServer) cmdAuthLoginPwd(input string) bool {
 	return false
 }
 
-func (smtp *SmtpdServer) cmdAuthPlainLogin(input string) bool {
+func (smtp *SmtpdServer) cmdAuthPlainLogin(input string) (bool, bool) {
 	if strings.HasPrefix(input, stateList[CMD_AUTH_PLAIN]) {
 		inputN := strings.SplitN(input, " ", 3)
 		if len(inputN) == 3 {
 			data := smtp.base64Decode(inputN[2])
 
+			smtp.D("smtpd[tmp]:", data)
+
 			list := strings.SplitN(data, "\x00", 3)
+
+			smtp.D("smtpd[tmp]:", list)
 			userList := strings.Split(list[1], "@")
 
 			smtp.loginUser = userList[0]
 			smtp.loginPwd = list[2]
 
 			b := smtp.checkUserLogin()
+
+			smtp.D("smtpd[tmp]:", b)
 			smtp.D("smtpd:", b, smtp.loginUser, smtp.loginPwd)
 			if b {
 				smtp.write(MSG_AUTH_OK)
-				return true
+				return true, true
 			}
 			smtp.write(MSG_AUTH_FAIL)
+			return true, false
 		}
 	}
-	return false
+	return false, false
 }
 
 func (smtp *SmtpdServer) isAllowDomain(domain string) bool {
@@ -440,10 +447,12 @@ func (smtp *SmtpdServer) cmdModeInMailFrom(input string) bool {
 }
 
 func (smtp *SmtpdServer) cmdStartTtls(input string) bool {
-	// if smtp.tls {
-	// 	smtp.write(MSG_STARTTLS)
-	// 	return true
-	// }
+	if smtp.tls {
+		smtp.write(MSG_STARTTLS)
+		return true
+	}
+
+	smtp.initTLSConfig()
 
 	if smtp.TLSConfig == nil {
 		smtp.w("502 Error: TLS not supported")
@@ -467,7 +476,6 @@ func (smtp *SmtpdServer) cmdStartTtls(input string) bool {
 
 	smtp.stateTLS = &state
 	smtp.tls = true
-
 	return true
 }
 
@@ -701,13 +709,13 @@ func (smtp *SmtpdServer) handle() {
 
 		if smtp.enableStartTtls { //CMD_STARTTLS
 			if input == stateList[CMD_STARTTLS] {
-				if smtp.cmdStartTtls(input) {
-					// smtp.write(MSG_STARTTLS)
+				if !smtp.cmdStartTtls(input) {
+					break
 				}
 			}
 		}
 
-		fmt.Println("smtp.runModeIn:", smtp.runModeIn)
+		smtp.D("smtp.runModeIn:", smtp.runModeIn)
 
 		if smtp.runModeIn {
 			//收取外邮模式
@@ -729,8 +737,12 @@ func (smtp *SmtpdServer) handle() {
 
 		} else {
 			//登录模式
-			if smtp.cmdAuthPlainLogin(input) {
+			isAuthPlain, isAuthPlainOK := smtp.cmdAuthPlainLogin(input)
+
+			if isAuthPlain && isAuthPlainOK {
 				smtp.setState(CMD_AUTH_LOGIN_PWD)
+			} else if isAuthPlain && !isAuthPlainOK { //AUTH PLAIN FAIL
+				break
 			} else if smtp.cmdAuthLogin(input) {
 				smtp.setState(CMD_AUTH_LOGIN)
 			}

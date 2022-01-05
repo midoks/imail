@@ -308,7 +308,6 @@ func (c *Client) Auth(a Auth) error {
 	}
 	encoding := base64.StdEncoding
 	mech, resp, err := a.Start(&ServerInfo{c.serverName, c.tls, c.auth})
-	fmt.Println("auth", mech, resp, err)
 	if err != nil {
 		c.Quit()
 		return err

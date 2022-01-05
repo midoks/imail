@@ -143,17 +143,18 @@ func UsersVaildCount() int64 {
 }
 
 func LoginWithCode(name string, code string) (bool, int64) {
+
 	list := strings.SplitN(name, "@", 2)
 
-	var user User
-	err := db.First(&user, "name = ?", list[0]).Error
+	var u User
 
+	err := db.First(&u, "name = ?", list[0]).Error
 	if err != nil {
 		return false, 0
 	}
 
-	if user.Code == code {
-		return true, user.Id
+	if u.Code == code {
+		return true, u.Id
 	}
 
 	return false, 0
