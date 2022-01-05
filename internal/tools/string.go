@@ -233,7 +233,7 @@ func PathExists(path string) (bool, error) {
 }
 
 func WriteFile(file string, content string) error {
-	return ioutil.WriteFile(file, []byte(content), 0666)
+	return ioutil.WriteFile(file, []byte(content), os.ModePerm)
 }
 
 func ReadFile(file string) (string, error) {

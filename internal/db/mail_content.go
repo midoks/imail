@@ -1,15 +1,19 @@
 package db
 
 import (
-	// "fmt"
+	"fmt"
+	"os"
+	"path"
+	"strconv"
 	"strings"
 
 	"github.com/midoks/imail/internal/conf"
+	"github.com/midoks/imail/internal/tools"
 )
 
 type MailContent struct {
 	Id      int64  `gorm:"primaryKey"`
-	Mid     int64  `gorm:"index:uniqueIndex;comment:MID"`
+	Mid     int64  `gorm:"uniqueIndex;comment:MID"`
 	Content string `gorm:"comment:Content"`
 }
 
@@ -21,10 +25,10 @@ func (*MailContent) TableName() string {
 	return MailContentTableName()
 }
 
-func MailContentRead(mid int64) (string, error) {
+func MailContentRead(uid, mid int64) (string, error) {
 	mode := conf.Web.MailSaveMode
 	if strings.EqualFold(mode, "hard_disk") {
-		return MailContentReadHardDisk(mid)
+		return MailContentReadHardDisk(uid, mid)
 	} else {
 		return MailContentReadDb(mid)
 	}
@@ -39,13 +43,15 @@ func MailContentReadDb(mid int64) (string, error) {
 	return r.Content, nil
 }
 
-func MailContentReadHardDisk(mid int64) (string, error) {
-	var r MailContent
-	err := db.Model(&MailContent{}).Where("mid = ?", mid).First(&r).Error
-	if err != nil {
-		return "", err
+func MailContentReadHardDisk(uid int64, mid int64) (string, error) {
+	dataPath := path.Join(conf.Web.AppDataPath, "mail", "user"+strconv.FormatInt(uid, 10), string(strconv.FormatInt(mid, 10)[0]))
+
+	if !tools.IsExist(dataPath) {
+		os.MkdirAll(dataPath, os.ModePerm)
 	}
-	return r.Content, nil
+
+	emailFile := fmt.Sprintf("%s/%d.eml", dataPath, mid)
+	return tools.ReadFile(emailFile)
 }
 
 func MailContentWrite(uid int64, mid int64, content string) error {
@@ -64,7 +70,14 @@ func MailContentWriteDb(mid int64, content string) error {
 }
 
 func MailContentWriteHardDisk(uid int64, mid int64, content string) error {
-	user := MailContent{Mid: mid, Content: content}
-	result := db.Create(&user)
-	return result.Error
+
+	dataPath := path.Join(conf.Web.AppDataPath, "mail", "user"+strconv.FormatInt(uid, 10), string(strconv.FormatInt(mid, 10)[0]))
+
+	if !tools.IsExist(dataPath) {
+		os.MkdirAll(dataPath, os.ModePerm)
+	}
+
+	emailFile := fmt.Sprintf("%s/%d.eml", dataPath, mid)
+	return tools.WriteFile(emailFile, content)
+
 }

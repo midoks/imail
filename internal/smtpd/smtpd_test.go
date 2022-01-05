@@ -112,12 +112,15 @@ func init() {
 	os.Chdir(appDir)
 	err = conf.Init(appDir + "/conf/app.conf")
 	if err != nil {
-		fmt.Println("TestReceivedMail config fail:", err.Error())
+		fmt.Println("test init config fail:", err.Error())
+		return
 	}
 
-	conf.Log.RootPath = "/tmp"
-	conf.Database.Path = "/tmp/imail.db3"
-	conf.Web.Domain = "cachecha.com"
+}
+
+func initDbSqlite() {
+	conf.Log.RootPath = conf.WorkDir() + "/logs"
+	conf.Database.Path = "data/imail.db3"
 
 	logger := log.Init()
 	logger.SetFormatter(&logrus.TextFormatter{})
@@ -126,13 +129,27 @@ func init() {
 	db.Init()
 
 	// create default user
-
 	db.CreateUser(&db.User{
 		Name:     "admin",
-		Password: "21232f297a57a5a743894a0e4a801fc3",
+		Password: "admin",
 		Salt:     "123123",
 		Code:     "admin",
 	})
+
+	d := &db.Domain{
+		Domain:    "cachecha.com",
+		Mx:        true,
+		A:         true,
+		Spf:       true,
+		Dkim:      true,
+		Dmarc:     true,
+		IsDefault: true,
+	}
+
+	err := db.DomainCreate(d)
+	if err != nil {
+		return
+	}
 
 	go Start(1025)
 	time.Sleep(1 * time.Second)
@@ -252,17 +269,28 @@ func D_TestSendMail(t *testing.T) {
 }
 
 func ReceivedMail() error {
-
 	now := time.Now().Format("2006-01-02 15:04:05")
+	fromEmail := "midoks@163.com"
+	toEmail := "admin@cachecha.com"
 
-	fEmail := "midoks@163.com"
-	tEmail := "admin@cachecha.com"
+	send := "From: =?UTF-8?B?6Zi/6YeM5LqR?= <%s>\r\nSubject: Hello imail[%s]\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?"
+	content := fmt.Sprintf(send, fromEmail, now, toEmail)
 
-	content := fmt.Sprintf("From: =?UTF-8?B?6Zi/6YeM5LqR?= <%s>\r\nSubject: Hello imail[%s]\r\nTo: <%s>\r\n\r\nHi! yes is test. imail ok?", fEmail, now, tEmail)
-
-	err := Delivery("127.0.0.1:1025", fEmail, tEmail, []byte(content))
+	err := Delivery("127.0.0.1:1025", fromEmail, toEmail, []byte(content))
 
 	return err
+}
+
+// go test -v -run TestReceivedMail
+// go test -v ./internal/smtpd -run TestReceivedMail
+func TestReceivedMail(t *testing.T) {
+	initDbSqlite()
+	err := ReceivedMail()
+	if err != nil {
+		t.Error("TestReceivedMail fail:" + err.Error())
+	} else {
+		t.Log("TestReceivedMail ok")
+	}
 }
 
 func MailDbPush() (int64, error) {
@@ -278,21 +306,24 @@ Hi! yes is test. imail ok?`
 	return fid, err
 }
 
-// go test -v -run TestReceivedMail
-// go test -v ./internal/smtpd -run TestReceivedMail
-func DTestReceivedMail(t *testing.T) {
-	err := ReceivedMail()
-	if err != nil {
-		t.Error("TestReceivedMail fail:" + err.Error())
-	} else {
-		t.Log("TestReceivedMail ok")
-	}
-}
-
 // go test -run TestMailDbPush
 // go test -v ./internal/smtpd -run TestMailDbPush
 // go test -v  ./internal/smtpd -bench BenchmarkMailDbPush
 func TestMailDbPush(t *testing.T) {
+	initDbSqlite()
+	conf.Web.MailSaveMode = "db"
+	_, err := MailDbPush()
+	if err != nil {
+		t.Error("TestMailDbPush fail:" + err.Error())
+	} else {
+		t.Log("TestMailDbPush ok")
+	}
+}
+
+// go test -v ./internal/smtpd -run TestMailDbPushHardDisk
+func TestMailDbPushHardDisk(t *testing.T) {
+	initDbSqlite()
+	conf.Web.MailSaveMode = "hard_disk"
 	_, err := MailDbPush()
 	if err != nil {
 		t.Error("TestMailDbPush fail:" + err.Error())

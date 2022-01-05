@@ -10,8 +10,8 @@ import (
 
 type User struct {
 	Id       int64  `gorm:"primaryKey"`
-	Name     string `gorm:"unique;size:50;comment:登录账户"`
-	Nick     string `gorm:"unique;size:50;comment:昵称"`
+	Name     string `gorm:"index:uniqueIndex;unique;size:50;comment:登录账户"`
+	Nick     string `gorm:"index:uniqueIndex;unique;size:50;comment:昵称"`
 	Password string `gorm:"size:32;comment:用户密码"`
 	Salt     string `gorm:"type:varchar(10)"`
 	Code     string `gorm:"size:50;comment:编码"`
@@ -74,7 +74,11 @@ func (User) RelAvatarLink() string {
 // CreateUser creates record of a new user.
 func CreateUser(u *User) (err error) {
 	data := db.First(u, "name = ?", u.Name)
-	u.Salt = tools.RandString(10)
+
+	if strings.EqualFold(u.Salt, "") {
+		u.Salt = tools.RandString(10)
+	}
+
 	u.Nick = u.Name
 	u.Password = tools.Md5(tools.Md5(u.Password) + u.Salt)
 	if data.Error != nil {

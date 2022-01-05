@@ -32,9 +32,9 @@ func getEngine() (*sql.DB, error) {
         dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=True", dbUser, dbPwd, dbHost, dbName, dbCharset)
         db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
     case "sqlite3":
-        dbPath := conf.Database.Path
-        os.MkdirAll(conf.WorkDir()+"/data", os.ModePerm)
-        fmt.Println("sqlite3 Path:", dbPath)
+        dbPath := conf.Web.AppDataPath + "/" + conf.Database.Path
+        fmt.Println("dbPath", dbPath)
+        // os.MkdirAll(conf.Web.AppDataPath, os.ModePerm)
         db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{SkipDefaultTransaction: true})
         //&gorm.Config{SkipDefaultTransaction: true,}
 
@@ -79,14 +79,12 @@ func Init() error {
         dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=True", dbUser, dbPwd, dbHost, dbName, dbCharset)
         db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
     case "sqlite3":
-        dbPath := conf.Database.Path
-        os.MkdirAll(conf.WorkDir()+"/data", os.ModePerm)
-        fmt.Println("sqlite3 Path:", dbPath)
-        db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{SkipDefaultTransaction: true})
+        os.MkdirAll(conf.Web.AppDataPath, os.ModePerm)
+        db, err = gorm.Open(sqlite.Open(conf.Database.Path), &gorm.Config{SkipDefaultTransaction: true})
         //&gorm.Config{SkipDefaultTransaction: true,}
 
         // synchronous close
-        db.Exec("PRAGMA synchronous = OFF;")
+        // db.Exec("PRAGMA synchronous = OFF;")
     default:
         log.Errorf("database type not found")
         return errors.New("database type not found")
@@ -97,17 +95,18 @@ func Init() error {
     }
 
     sqlDB, err := db.DB()
+
+    if err != nil {
+        log.Errorf("[DB]:%s", err)
+        return err
+    }
+
     // SetMaxIdleConns sets the maximum number of connections in the free connection pool
     sqlDB.SetMaxIdleConns(conf.Database.MaxIdleConns)
     // SetMaxOpenConns sets the maximum number of open database connections.
     sqlDB.SetMaxOpenConns(conf.Database.MaxOpenConns)
     // SetConnMaxLifetime Sets the maximum time that the connection can be reused.
     sqlDB.SetConnMaxLifetime(time.Hour)
-
-    if err != nil {
-        log.Errorf("[DB]:%s", err)
-        return err
-    }
 
     db.AutoMigrate(&User{})
     db.AutoMigrate(&Domain{})

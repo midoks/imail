@@ -22,7 +22,7 @@ func TaskQueueeSendMail() {
 		for _, val := range result {
 			db.MailSetStatusById(val.Id, 2)
 
-			content, err := db.MailContentRead(result[0].Id)
+			content, err := db.MailContentRead(result[0].Uid, result[0].Id)
 			if err != nil {
 				continue
 			}
@@ -42,7 +42,7 @@ func TaskRspamdCheck() {
 	result := db.MailListForRspamd(1)
 	if conf.Rspamd.Enable {
 		for _, val := range result {
-			content, err := db.MailContentRead(val.Id)
+			content, err := db.MailContentRead(val.Uid, val.Id)
 			if err != nil {
 				continue
 			}

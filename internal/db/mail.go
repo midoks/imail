@@ -244,7 +244,7 @@ func MailPosContentForPop(uid int64, pos int64) (string, int, error) {
 		return "", 0, ret.Error
 	}
 
-	content, err := MailContentRead(result[0].Id)
+	content, err := MailContentRead(result[0].Uid, result[0].Id)
 	if err != nil {
 		return "", 0, err
 	}

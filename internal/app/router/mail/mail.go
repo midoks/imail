@@ -197,7 +197,7 @@ func Content(c *context.Context) {
 		c.Data["Mail"] = r
 	}
 
-	contentData, err := db.MailContentRead(id)
+	contentData, err := db.MailContentRead(r.Uid, id)
 	if err != nil {
 		c.Fail(-1, err.Error())
 		return
@@ -238,7 +238,7 @@ func ContentHtml(c *context.Context) {
 		c.Data["Mail"] = r
 	}
 
-	contentData, err := db.MailContentRead(id)
+	contentData, err := db.MailContentRead(r.Uid, id)
 	if err != nil {
 		c.Fail(-1, err.Error())
 		return
@@ -274,7 +274,7 @@ func ContentDemo(c *context.Context) {
 
 	id := c.ParamsInt64(":id")
 
-	contentData, err := db.MailContentRead(id)
+	contentData, err := db.MailContentRead(1, id)
 	if err != nil {
 		c.Fail(-1, err.Error())
 		return

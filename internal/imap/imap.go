@@ -197,7 +197,7 @@ func (this *ImapServer) stateCompare(input int, cmd int) bool {
 
 func (this *ImapServer) parseArgsConent(format string, data db.Mail) (string, error) {
 	// fmt.Println("parseArgsConent:", format, data)
-	content, err := db.MailContentRead(data.Id)
+	content, err := db.MailContentRead(data.Uid, data.Id)
 	if err != nil {
 		return "", err
 	}
