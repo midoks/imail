@@ -120,6 +120,8 @@ func init() {
 
 func initDbSqlite() {
 	conf.Log.RootPath = conf.WorkDir() + "/logs"
+	os.MkdirAll(conf.Log.RootPath, os.ModePerm)
+
 	conf.Database.Path = "data/imail.db3"
 
 	logger := log.Init()

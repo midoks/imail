@@ -2,18 +2,10 @@ package component
 
 import (
 	"bufio"
-	// "net"
-	// "bytes"
-	"fmt"
-	"os"
-	"path/filepath"
-	// "reflect"
-	// "encoding/json"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/midoks/imail/internal/tools"
 )
 
 var testDate, _ = time.Parse(time.RFC1123Z, "Sat, 18 Jun 2016 12:00:00 +0900")
@@ -134,32 +126,18 @@ var testBodyStructure = &BodyStructure{
 // go test -v ./internal/component
 func TestFetchBodyStructure(t *testing.T) {
 
-	// tff, err := net.LookupTXT(fmt.Sprintf("default._domainkey.%s", "qq.com"))
-	// fmt.Println(tff, err)
-
-	path, _ := os.Getwd()
-	path = filepath.Dir(path)
-	path = filepath.Dir(path)
-
-	testData, _ := tools.ReadFile(fmt.Sprintf("%s/testdata/attachment.eml", path))
-
-	bufferedBody := bufio.NewReader(strings.NewReader(testData))
+	bufferedBody := bufio.NewReader(strings.NewReader(testMailString))
 	header, err := ReadHeader(bufferedBody)
 	if err != nil {
 		t.Fatal("Expected no error while reading mail, got:", err)
 	}
 
-	fmt.Println(header)
 	bs, err := FetchBodyStructure(header, bufferedBody, true)
-	fmt.Println(bs)
-
-	// rs, err := json.Marshal(bs)
-	// fmt.Println(rs)
 	if err != nil {
 		t.Fatal("Expected no error while fetching body structure, got:", err)
 	}
 
-	// if !reflect.DeepEqual(testBodyStructure, bs) {
-	// 	t.Errorf("Expected body structure \n%+v\n but got \n%+v", testBodyStructure, bs)
-	// }
+	if !reflect.DeepEqual(testBodyStructure, bs) {
+		t.Errorf("Expected body structure \n%+v\n but got \n%+v", testBodyStructure, bs)
+	}
 }

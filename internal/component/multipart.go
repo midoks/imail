@@ -90,8 +90,6 @@ func (r *MultipartReader) NextPart() (*Part, error) {
 	for {
 		line, err := r.bufReader.ReadSlice('\n')
 
-		fmt.Println("part--mm:", string(line), err)
-
 		if err == io.EOF && r.isFinalBoundary(line) {
 			// If the buffer ends in "--boundary--" without the
 			// trailing "\r\n", ReadSlice will return an error
@@ -123,7 +121,6 @@ func (r *MultipartReader) NextPart() (*Part, error) {
 			return nil, fmt.Errorf("multipart: expecting a new Part; got line %q", string(line))
 		}
 
-		fmt.Println("cc:", string(line), err, string(r.nlDashBoundary))
 		if r.partsRead == 0 {
 			// skip line
 			continue
