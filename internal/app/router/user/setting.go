@@ -24,6 +24,7 @@ const (
 	SETTINGS_PASSWORD     = "user/settings/password"
 	SETTINGS_EMAILS       = "user/settings/email"
 	SETTINGS_DELETE       = "user/settings/delete"
+	SETTINGS_CLIENT       = "user/settings/client"
 )
 
 func Settings(c *context.Context) {
@@ -116,4 +117,10 @@ func SettingsPasswordPost(c *context.Context, f form.ChangePassword) {
 	}
 
 	c.RedirectSubpath("/user/settings/password")
+}
+
+func SettingsClient(c *context.Context) {
+	c.Title("settings.client")
+	c.PageIs("SettingsClient")
+	c.Success(SETTINGS_CLIENT)
 }

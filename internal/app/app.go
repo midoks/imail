@@ -128,6 +128,8 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 
 			m.Get("/password", user.SettingsPassword)
 			m.Post("/password", bindIgnErr(form.ChangePassword{}), user.SettingsPasswordPost)
+
+			m.Get("/client", user.SettingsClient)
 		}, reqSignIn, func(c *context.Context) {
 			c.Data["PageIsUserSettings"] = true
 		})
