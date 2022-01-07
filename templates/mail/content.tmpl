@@ -47,10 +47,14 @@
 				<input type="hidden" name="mail_select" value="{{.Mail.Id}}" checked="checked">
 
 				<div class="ui segment">
-					<h2 class="ui dividing header" style="font-size:15px;line-height:30px;">{{.ParseMail.Subject}}</h2>
 
 				    <table class="ui celled striped table">
 					  <tbody>
+					  	<tr>
+					      <td class="two wide column">主 题</td>
+					      <td>{{.ParseMail.Subject}}</td>
+					    </tr>
+
 					    <tr>
 					      <td class="two wide column">发件人</td>
 					      <td>{{.ParseMail.From}}</td>
