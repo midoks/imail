@@ -9,55 +9,45 @@
 				<div class="ui attached segment">
 
 					<div class="ui small basic icon buttons">
-					  <button class="ui button"><i class="fa fa-trash-o fa-fw"></i></button>
+					  <button class="ui button" onclick="mailDeleted();">
+					  	<i class="fa fa-trash-o fa-fw"></i>
+					  </button>
 					</div>
 
-					<!--
-
-
+					
 					<div class="ui small compact menu">
+					  
 					  <div class="ui small dropdown item">
-					    Dropdown
+					  	{{$.i18n.Tr "mail.menu.sign"}}
 					    <i class="dropdown icon"></i>
 					    <div class="menu">
-					      <div class="item">Choice 1</div>
-					      <div class="item">Choice 2</div>
-					      <div class="item">Choice 3</div>
+					      <div class="item" onclick="mailRead(1);">{{$.i18n.Tr "mail.menu.sign_read"}}</div>
+					      <div class="item" onclick="mailRead(0);">{{$.i18n.Tr "mail.menu.sign_unread"}}</div>
+					      <div class="item">{{$.i18n.Tr "mail.menu.sign_star_red"}}</div>
 					    </div>
 					  </div>
 
 					  <div class="ui small dropdown item">
-					    Dropdown
+					    {{$.i18n.Tr "mail.menu.move"}}
 					    <i class="dropdown icon"></i>
 					    <div class="menu">
-					      <div class="item">Choice 1</div>
-					      <div class="item">Choice 2</div>
-					      <div class="item">Choice 3</div>
-					    </div>
-					  </div>
-
-
-					  <div class="ui small dropdown item">
-					    Dropdown
-					    <i class="dropdown icon"></i>
-					    <div class="menu">
-					      <div class="item">Choice 1</div>
-					      <div class="item">Choice 2</div>
-					      <div class="item">Choice 3</div>
+					    	<div class="item" onclick="mailMove('deleted');">{{$.i18n.Tr "mail.menu.move_deleted"}}</div>
+					     	<div class="item" onclick="mailMove('junk');">{{$.i18n.Tr "mail.menu.move_junk"}}</div>
 					    </div>
 					  </div>
 
 					</div>
-
-					-->
 
 				</div>
 
 
 
 				{{if .Mail}}
+
+				<input type="hidden" name="mail_select" value="{{.Mail.Id}}" checked="checked">
+
 				<div class="ui segment">
-					<h2 class="ui dividing header" style="font-size:15px;">{{.ParseMail.Subject}}</h2>
+					<h2 class="ui dividing header" style="font-size:15px;line-height:30px;">{{.ParseMail.Subject}}</h2>
 
 				    <table class="ui celled striped table">
 					  <tbody>
