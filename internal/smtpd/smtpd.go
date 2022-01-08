@@ -202,15 +202,9 @@ func (smtp *SmtpdServer) getState() int {
 	return smtp.state
 }
 
-func (smtp *SmtpdServer) D(args ...interface{}) {
+func (smtp *SmtpdServer) D(format string, args ...interface{}) {
 	if conf.Smtp.Debug {
-
-		if smtp.LinkSSL {
-			log.Debug("[SSL] start")
-		}
-
-		fmt.Println(args...)
-		log.Debug(args...)
+		log.Debugf(format, args...)
 	}
 }
 
@@ -234,7 +228,7 @@ func (smtp *SmtpdServer) getString(state int) (string, error) {
 	}
 	input, err := smtp.reader.ReadString('\n')
 	inputTrim := strings.TrimSpace(input)
-	smtp.D("smtpd[r][", smtp.peer.Addr, "]:", inputTrim, ":", err)
+	smtp.D("smtpd[r][%s]:%s;err:%s", smtp.peer.Addr, inputTrim, err)
 	return inputTrim, err
 
 }
@@ -263,7 +257,7 @@ func (smtp *SmtpdServer) cmdHelo(input string) bool {
 		if smtp.cmdCompare(inputN[0], CMD_HELO) {
 			smtp.peer.HeloName = inputN[1]
 
-			smtp.D("smtpd[helo]:", inputN[1])
+			smtp.D("smtpd[helo]:%s", inputN[1])
 			smtp.write(MSG_OK)
 			return true
 		}
@@ -320,7 +314,7 @@ func (smtp *SmtpdServer) cmdAuthLoginUser(input string) bool {
 	user := smtp.base64Decode(input)
 	smtp.loginUser = user
 
-	smtp.D("smtpd:", smtp.loginUser)
+	smtp.D("smtpd:%s", smtp.loginUser)
 	smtp.write(MSG_AUTH_LOGIN_PWD)
 	return true
 }
@@ -330,7 +324,6 @@ func (smtp *SmtpdServer) cmdAuthLoginPwd(input string) bool {
 	pwd := smtp.base64Decode(input)
 	smtp.loginPwd = pwd
 
-	smtp.D("smtpd:", smtp.loginPwd)
 	if smtp.checkUserLogin() {
 		smtp.write(MSG_AUTH_OK)
 		return true
@@ -345,20 +338,14 @@ func (smtp *SmtpdServer) cmdAuthPlainLogin(input string) (bool, bool) {
 		if len(inputN) == 3 {
 			data := smtp.base64Decode(inputN[2])
 
-			smtp.D("smtpd[tmp]:", data)
-
 			list := strings.SplitN(data, "\x00", 3)
 
-			smtp.D("smtpd[tmp]:", list)
 			userList := strings.Split(list[1], "@")
 
 			smtp.loginUser = userList[0]
 			smtp.loginPwd = list[2]
 
 			b := smtp.checkUserLogin()
-
-			smtp.D("smtpd[tmp]:", b)
-			smtp.D("smtpd:", b, smtp.loginUser, smtp.loginPwd)
 			if b {
 				smtp.write(MSG_AUTH_OK)
 				return true, true
@@ -481,7 +468,7 @@ func (smtp *SmtpdServer) cmdStartTtls(input string) bool {
 
 func (smtp *SmtpdServer) cmdRcptTo(input string) bool {
 	inputN := strings.SplitN(input, ":", 2)
-	smtp.D("smtpd[cmd][rcpt to]", inputN[1])
+
 	if len(inputN) == 2 {
 		if smtp.cmdCompare(inputN[0], CMD_RCPT_TO) {
 			inputN[1] = strings.TrimSpace(inputN[1])
@@ -502,7 +489,6 @@ func (smtp *SmtpdServer) cmdRcptTo(input string) bool {
 			if smtp.runModeIn { //外部邮件,邮件地址检查
 				info := strings.Split(rcptTo, "@")
 
-				fmt.Println("info", info)
 				if !smtp.isAllowDomain(info[1]) {
 					smtp.write(MSG_BAD_OPEN_RELAY)
 					return false
@@ -666,7 +652,7 @@ func (smtp *SmtpdServer) handle() {
 		input, err := smtp.getString(state)
 
 		if err != nil {
-			fmt.Println("handle:", err)
+			smtp.D("smtp: %s", err)
 			smtp.write(MSG_COMMAND_TM_CTC)
 			smtp.close()
 			break
@@ -675,8 +661,6 @@ func (smtp *SmtpdServer) handle() {
 		if smtp.cmdQuit(input) {
 			break
 		}
-
-		smtp.D("smtpd[cmd]:", state, stateList[state], "input:[", input, "]")
 
 		//CMD_READY
 		if smtp.stateCompare(state, CMD_READY) {
@@ -714,8 +698,6 @@ func (smtp *SmtpdServer) handle() {
 				}
 			}
 		}
-
-		smtp.D("smtp.runModeIn:", smtp.runModeIn)
 
 		if smtp.runModeIn {
 			//收取外邮模式
@@ -838,7 +820,7 @@ func (smtp *SmtpdServer) StartPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
-		smtp.D("StartPort:", err)
+		smtp.D("StartPort:%s", err)
 		return
 	}
 	defer ln.Close()
@@ -858,7 +840,7 @@ func (smtp *SmtpdServer) StartSSLPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := tls.Listen("tcp", addr, smtp.TLSConfig)
 	if err != nil {
-		smtp.D("[smtp]StartSSLPort:", err)
+		smtp.D("[smtp]StartSSLPort:%s", err)
 		return
 	}
 	defer ln.Close()

@@ -100,7 +100,7 @@ func NewUserPost(c *context.Context, f form.AdminCreateUser) {
 		c.Error(err, "create user")
 		return
 	}
-	log.Trace("Account created by admin ", c.User.Name, u.Name)
+	log.Debugf("Account created by admin %s %s", c.User.Name, u.Name)
 
 	c.Flash.Success(c.Tr("admin.users.new_success", u.Name))
 	c.Redirect(conf.Web.Subpath + "/admin/users")

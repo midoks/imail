@@ -123,10 +123,9 @@ func (this *ImapServer) getState() int {
 	return this.state
 }
 
-func (this *ImapServer) D(args ...interface{}) {
+func (this *ImapServer) D(format string, args ...interface{}) {
 	if conf.Imap.Debug {
-		// fmt.Println(args...)
-		log.Debug(args...)
+		log.Debugf(format, args...)
 	}
 }
 
@@ -158,7 +157,6 @@ func (this *ImapServer) getString(state int) (string, error) {
 
 	input, err := this.reader.ReadString('\n')
 	inputTrim := strings.TrimSpace(input)
-	this.D("imap[r]:", inputTrim, ":", err)
 	return inputTrim, err
 
 }
@@ -168,7 +166,6 @@ func (this *ImapServer) getString0() (string, error) {
 
 	n, err := this.conn.Read(buffer)
 	if err != nil {
-		log.Fatal(this.conn.RemoteAddr().String(), " connection error: ", err)
 		return "", err
 	}
 
@@ -632,7 +629,7 @@ func (this *ImapServer) StartPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	this.nl, err = net.Listen("tcp", addr)
 	if err != nil {
-		this.D("[imap]StartSSLPort:", err)
+		this.D("[imap]StartSSLPort:%s", err)
 		return
 	}
 
@@ -641,7 +638,7 @@ func (this *ImapServer) StartPort(port int) {
 	for {
 		this.nlConn, err = this.nl.Accept()
 		if err != nil {
-			this.D("imap[StartPort][conn]", err)
+			this.D("imap[StartPort][conn]:%s", err)
 			return
 		} else {
 			this.start(this.nlConn)
@@ -656,14 +653,14 @@ func (this *ImapServer) StartSSLPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	this.nlSSL, err = tls.Listen("tcp", addr, this.TLSConfig)
 	if err != nil {
-		this.D("imap[StartSSLPort]", err)
+		this.D("imap[StartSSLPort]:%s", err)
 		return
 	}
 	defer this.nlSSL.Close()
 
 	this.nlConnSSL, err = this.nlSSL.Accept()
 	if err != nil {
-		this.D("imap[StartSSLPort][conn]", err)
+		this.D("imap[StartSSLPort][conn]:%s", err)
 		return
 	}
 	this.start(this.nlConnSSL)

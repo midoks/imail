@@ -12,45 +12,72 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/log"
+	"github.com/midoks/imail/internal/tools"
 )
 
-// go test -v ./internal/imap
+// go test -v ./internal/go test -v ./internal/imap
 func init() {
+
 	cDir, err := os.Getwd()
 	appDir := filepath.Dir(filepath.Dir(cDir))
 
 	os.Setenv("IMAIL_WORK_DIR", appDir)
 	os.Chdir(appDir)
-	err = conf.Init(appDir + "/conf/app.conf")
-	if err != nil {
-		fmt.Println("TestReceivedMail config fail:", err.Error())
+
+	if tools.IsExist(appDir + "/custom/conf/app.conf") {
+		err = conf.Init(appDir + "/custom/conf/app.conf")
+		if err != nil {
+			fmt.Println("test init config fail:", err.Error())
+			return
+		}
+	} else {
+		err = conf.Init("")
+		if err != nil {
+			fmt.Println("test init config fail:", err.Error())
+			return
+		}
 	}
 
-	conf.Log.RootPath = "/tmp"
-	conf.Database.Path = "/tmp/imail.db3"
-	conf.Web.Domain = "cachecha.com"
+}
 
-	logger := log.Init()
-	logger.SetFormatter(&logrus.TextFormatter{})
-	logger.SetLevel(logrus.DebugLevel)
+func initDbSqlite() {
+	conf.Log.RootPath = conf.WorkDir() + "/logs"
+	os.MkdirAll(conf.Log.RootPath, os.ModePerm)
+	conf.Database.Type = "sqlite3"
+	conf.Database.Path = "data/imail.db3"
 
+	conf.Smtp.Debug = false
+
+	log.Init()
 	db.Init()
 
-	//create default user
+	// create default user
 	db.CreateUser(&db.User{
 		Name:     "admin",
-		Password: "21232f297a57a5a743894a0e4a801fc3",
+		Password: "admin",
 		Salt:     "123123",
 		Code:     "admin",
 	})
 
-	go Start(10143)
+	d := &db.Domain{
+		Domain:    "cachecha.com",
+		Mx:        true,
+		A:         true,
+		Spf:       true,
+		Dkim:      true,
+		Dmarc:     true,
+		IsDefault: true,
+	}
 
+	err := db.DomainCreate(d)
+	if err != nil {
+		return
+	}
+
+	go Start(10143)
 	time.Sleep(1 * time.Second)
 }
 
@@ -158,6 +185,8 @@ func imapCmd(domain string, port string, name string, password string) (bool, er
 
 // go test -run TestRunImap
 func TestRunImap(t *testing.T) {
+	initDbSqlite()
+
 	host := "127.0.0.1"
 	port := "10143"
 	name := "admin"

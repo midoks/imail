@@ -2,101 +2,63 @@ package log
 
 import (
 	"fmt"
-	"os"
-	"path"
-	"time"
+	"strings"
 
-	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/midoks/imail/internal/conf"
-	"github.com/rifflock/lfshook"
-	"github.com/sirupsen/logrus"
+	go_logger "github.com/phachon/go-logger"
 )
 
 var (
 	logFileName = "system.log"
-	logger      *logrus.Logger
+	logger      *go_logger.Logger
 )
 
-func Init() *logrus.Logger {
-	fileName := path.Join(conf.Log.RootPath, logFileName)
-	src, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
-	if err != nil {
-		fmt.Println("log error", err)
+func Init() *go_logger.Logger {
+
+	logger = go_logger.NewLogger()
+
+	jsonFormat := false
+	if strings.EqualFold(conf.Log.Format, "json") {
+		jsonFormat = true
 	}
 
-	logger = logrus.New()
-	logger.Out = src
-
-	// setting rotatelogs
-	logWriter, err := rotatelogs.New(
-		// Split file name
-		fileName+".%Y%m%d.log",
-		// Generate a soft chain and point to the latest log file
-		rotatelogs.WithLinkName(fileName),
-		// Set maximum save time (7 days)
-		rotatelogs.WithMaxAge(7*24*time.Hour),
-		// Set log cutting interval (1 day)
-		rotatelogs.WithRotationTime(1*time.Minute),
-		// Set log Cut polling when the file is "5m" full
-		// rotatelogs.WithRotationSize(5*1024*1024),
-	)
-
-	writeMap := lfshook.WriterMap{
-		logrus.TraceLevel: logWriter,
-		logrus.InfoLevel:  logWriter,
-		logrus.FatalLevel: logWriter,
-		logrus.DebugLevel: logWriter,
-		logrus.WarnLevel:  logWriter,
-		logrus.ErrorLevel: logWriter,
-		logrus.PanicLevel: logWriter,
+	logPath := fmt.Sprintf("%s", conf.Log.RootPath)
+	fileConfig := &go_logger.FileConfig{
+		Filename: fmt.Sprintf("%s/%s", logPath, logFileName),
+		LevelFileName: map[int]string{
+			logger.LoggerLevel("error"): fmt.Sprintf("%s/%s", logPath, "error.log"),
+			logger.LoggerLevel("info"):  fmt.Sprintf("%s/%s", logPath, "info.log"),
+			logger.LoggerLevel("debug"): fmt.Sprintf("%s/%s", logPath, "debug.log"),
+		},
+		MaxSize:    1024 * 1024,
+		MaxLine:    100000,
+		DateSlice:  "d",
+		JsonFormat: jsonFormat,
+		Format:     "",
 	}
+	logger.Attach("file", go_logger.LOGGER_LEVEL_DEBUG, fileConfig)
 
-	logger.AddHook(lfshook.NewHook(writeMap, &logrus.TextFormatter{
-		// TimestampFormat: "2006-01-02 15:04:05 +0800",
-	}))
-
-	// log debug
-	// logger.WithFields().Info()
-	// logger.WithFields(logrus.Fields{
-	// 	"animal": "walrus",
-	// }).Info("A walrus appears")
 	return logger
 }
 
-func GetLogger() *logrus.Logger {
+func GetLogger() *go_logger.Logger {
 	return logger
 }
 
-func Trace(args ...interface{}) {
-	logger.Trace(args...)
+func Debug(args string) {
+	logger.Debug(args)
 }
 
-func Debug(args ...interface{}) {
-	logger.Debug(args...)
+func Info(args string) {
+	logger.Info(args)
 }
 
-func Info(args ...interface{}) {
-	logger.Info(args...)
+func Warn(args string) {
+	logger.Warning(args)
 }
 
-func Warn(args ...interface{}) {
-	logger.Warn(args...)
-}
-
-func Error(args ...interface{}) {
-	logger.Error(args...)
-}
-
-func Fatal(args ...interface{}) {
-	logger.Fatal(args...)
-}
-
-func Panic(args ...interface{}) {
-	logger.Panic(args...)
-}
-
-func Tracef(format string, args ...interface{}) {
-	logger.Tracef(format, args...)
+func Error(args string) {
+	logger.Error(args)
 }
 
 func Debugf(format string, args ...interface{}) {
@@ -108,17 +70,9 @@ func Infof(format string, args ...interface{}) {
 }
 
 func Warnf(format string, args ...interface{}) {
-	logger.Warnf(format, args...)
+	logger.Warningf(format, args...)
 }
 
 func Errorf(format string, args ...interface{}) {
 	logger.Errorf(format, args...)
-}
-
-func Fatalf(format string, args ...interface{}) {
-	logger.Fatalf(format, args...)
-}
-
-func Panicf(format string, args ...interface{}) {
-	logger.Panicf(format, args...)
 }

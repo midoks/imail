@@ -10,8 +10,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/log"
@@ -125,7 +123,6 @@ func init() {
 			return
 		}
 	}
-
 }
 
 func initDbSqlite() {
@@ -136,10 +133,7 @@ func initDbSqlite() {
 
 	conf.Smtp.Debug = false
 
-	logger := log.Init()
-	logger.SetFormatter(&logrus.TextFormatter{})
-	logger.SetLevel(logrus.DebugLevel)
-
+	log.Init()
 	db.Init()
 
 	// create default user

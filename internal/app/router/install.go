@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/ini.v1"
 	"gopkg.in/macaron.v1"
 
@@ -70,22 +69,19 @@ func GlobalInit(customConf string) error {
 		return errors.Wrap(err, "init configuration")
 	}
 
-	logger := log.Init()
+	log.Init()
 
-	format := conf.Log.Format
-	if strings.EqualFold(format, "json") {
-		logger.SetFormatter(&logrus.JSONFormatter{})
-	} else if strings.EqualFold(format, "text") {
-		logger.SetFormatter(&logrus.TextFormatter{})
-	} else {
-		logger.SetFormatter(&logrus.TextFormatter{})
-	}
+	// format := conf.Log.Format
+	// if strings.EqualFold(format, "json") {
+	// 	logger.SetFormatter(&logrus.JSONFormatter{})
+	// } else if strings.EqualFold(format, "text") {
+	// 	logger.SetFormatter(&logrus.TextFormatter{})
+	// } else {
+	// 	logger.SetFormatter(&logrus.TextFormatter{})
+	// }
 
 	if strings.EqualFold(conf.App.RunMode, "dev") {
-		logger.SetLevel(logrus.DebugLevel)
 		go debug.Pprof()
-	} else {
-		logger.SetLevel(logrus.InfoLevel)
 	}
 
 	if conf.Security.InstallLock {

@@ -11,10 +11,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/midoks/imail/internal/conf"
+	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/log"
+	"github.com/midoks/imail/internal/tools"
 )
 
 // go test -v ./internal/pop3
@@ -25,32 +25,58 @@ func init() {
 
 	os.Setenv("IMAIL_WORK_DIR", appDir)
 	os.Chdir(appDir)
-	err = conf.Init(appDir + "/custom/conf/app.conf")
+
+	if tools.IsExist(appDir + "/custom/conf/app.conf") {
+		err = conf.Init(appDir + "/custom/conf/app.conf")
+		if err != nil {
+			fmt.Println("test init config fail:", err.Error())
+			return
+		}
+	} else {
+		err = conf.Init("")
+		if err != nil {
+			fmt.Println("test init config fail:", err.Error())
+			return
+		}
+	}
+
+}
+
+func initDbSqlite() {
+	conf.Log.RootPath = conf.WorkDir() + "/logs"
+	os.MkdirAll(conf.Log.RootPath, os.ModePerm)
+	conf.Database.Type = "sqlite3"
+	conf.Database.Path = "data/imail.db3"
+
+	conf.Smtp.Debug = false
+
+	log.Init()
+	db.Init()
+
+	// create default user
+	db.CreateUser(&db.User{
+		Name:     "admin",
+		Password: "admin",
+		Salt:     "123123",
+		Code:     "admin",
+	})
+
+	d := &db.Domain{
+		Domain:    "cachecha.com",
+		Mx:        true,
+		A:         true,
+		Spf:       true,
+		Dkim:      true,
+		Dmarc:     true,
+		IsDefault: true,
+	}
+
+	err := db.DomainCreate(d)
 	if err != nil {
-		fmt.Println("TestReceivedMail config fail:", err.Error())
-	}
-
-	conf.Web.Domain = "cachecha.com"
-
-	logger := log.Init()
-
-	format := conf.Log.Format
-	if strings.EqualFold(format, "json") {
-		logger.SetFormatter(&logrus.JSONFormatter{})
-	} else if strings.EqualFold(format, "text") {
-		logger.SetFormatter(&logrus.TextFormatter{})
-	} else {
-		logger.SetFormatter(&logrus.TextFormatter{})
-	}
-
-	if strings.EqualFold(conf.App.RunMode, "dev") {
-		logger.SetLevel(logrus.DebugLevel)
-	} else {
-		logger.SetLevel(logrus.InfoLevel)
+		return
 	}
 
 	go Start(10110)
-
 	time.Sleep(1 * time.Second)
 }
 
@@ -152,17 +178,14 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 	return true, nil
 }
 
-// go test -v pop3_test.go -test.run TestRunPop3
-func D_TestRunPop3(t *testing.T) {
-	// PopCmd("pop3.163.com", "110", "midoks", "mm123123")
-}
-
 // go test -v pop3_test.go -test.run TestRunLocalPop3
 func TestRunLocalPop3(t *testing.T) {
-	// _, err := PopCmd("127.0.0.1", "10110", "admin", "admin")
-	// if err != nil {
-	// 	t.Error("TestRunLocalPop3 fail:" + err.Error())
-	// } else {
-	// 	t.Log("TestRunLocalPop3 ok")
-	// }
+	initDbSqlite()
+
+	_, err := PopCmd("127.0.0.1", "10110", "admin", "admin")
+	if err != nil {
+		t.Error("TestRunLocalPop3 fail:" + err.Error())
+	} else {
+		t.Log("TestRunLocalPop3 ok")
+	}
 }

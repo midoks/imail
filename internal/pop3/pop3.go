@@ -96,15 +96,14 @@ func (this *Pop3Server) getState() int {
 	return this.state
 }
 
-func (this *Pop3Server) D(args ...interface{}) {
+func (this *Pop3Server) D(format string, args ...interface{}) {
 	if this.LinkSSL {
 		log.Debugf("[SSL]:%s", args...)
 		return
 	}
 
 	if conf.Pop3.Debug {
-		// fmt.Println(args...)
-		log.Debug(args...)
+		log.Debugf(format, args...)
 	}
 }
 
@@ -149,7 +148,6 @@ func (this *Pop3Server) getString() (string, error) {
 	}
 
 	inputTrim := strings.TrimSpace(input)
-	this.D("pop3[r]:", inputTrim, ":", err)
 	return inputTrim, err
 
 }
@@ -337,7 +335,7 @@ func (this *Pop3Server) cmdNoop(input string) bool {
 func (this *Pop3Server) cmdAuthPlain(input string) bool {
 
 	if this.cmdCompare(input, CMD_AUTH_PLAIN) {
-		this.D("pop3[cmdAuthPlain]:", input)
+		this.D("pop3[cmdAuthPlain]:%s", input)
 		this.w(MSG_AUTH_PLAIN)
 		return true
 	}
@@ -348,7 +346,7 @@ func (this *Pop3Server) cmdParseAuthPlain(input string) bool {
 
 	data, err := tools.Base64decode(input)
 	if err == nil {
-		this.D("pop3[AuthPlain][Iuput]:", data)
+		this.D("pop3[AuthPlain][Iuput]:%s", data)
 
 		list := strings.SplitN(data, "\x00", 3)
 
@@ -356,7 +354,7 @@ func (this *Pop3Server) cmdParseAuthPlain(input string) bool {
 		this.recordCmdPass = list[2]
 
 		b := this.checkUserLogin()
-		this.D("pop3[AuthPlain]:", b, this.recordCmdUser, this.recordCmdPass)
+		this.D("pop3[AuthPlain]:%t %s %s", b, this.recordCmdUser, this.recordCmdPass)
 		if b {
 			this.ok("Authentication successful")
 			return true
@@ -392,7 +390,7 @@ func (this *Pop3Server) handle() {
 			break
 		}
 
-		this.D("pop3[cmd]:", state, input)
+		this.D("pop3[cmd]: %d %s", state, input)
 		if this.cmdQuit(input) {
 			break
 		}
@@ -454,7 +452,7 @@ func (this *Pop3Server) StartPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
-		this.D("pop[start]:", err)
+		this.D("pop[start]:%s", err)
 		return
 	}
 	defer ln.Close()
@@ -474,7 +472,7 @@ func (this *Pop3Server) StartSSLPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := tls.Listen("tcp", addr, this.TLSConfig)
 	if err != nil {
-		this.D("pop[start][ssl]:", err)
+		this.D("pop[start][ssl]:%s", err)
 		return
 	}
 	defer ln.Close()
