@@ -2,11 +2,13 @@ package mail
 
 import (
 	"bufio"
-	// "os"
-
 	"fmt"
+	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
+
+	// "gopkg.in/macaron.v1"
 
 	"github.com/midoks/imail/internal/app/context"
 	"github.com/midoks/imail/internal/app/form"
@@ -254,6 +256,8 @@ func ContentAttach(c *context.Context) {
 	id := c.ParamsInt64(":id")
 	c.Data["id"] = id
 
+	aid := c.ParamsInt(":aid")
+
 	bid := c.ParamsInt64(":bid")
 	c.Data["Bid"] = bid
 
@@ -276,7 +280,14 @@ func ContentAttach(c *context.Context) {
 	}
 	c.Data["ParseMail"] = email
 
-	c.Success(MAIL_CONENT_HTML)
+	attachFile, err := ioutil.ReadAll(email.Attachments[aid].Data)
+	pathName := "/tmp/" + email.Attachments[aid].Filename
+	tools.WriteFile(pathName, string(attachFile))
+
+	c.ServeFile(pathName, email.Attachments[aid].Filename)
+	os.RemoveAll(pathName)
+
+	// return macaron.ReturnStruct{Code: http.StatusOK, Data: string(attachFile)}
 }
 
 func ContentDemo(c *context.Context) {
