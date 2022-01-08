@@ -16,7 +16,6 @@
 
 					
 					<div class="ui small compact menu">
-					  
 					  <div class="ui small dropdown item">
 					  	{{$.i18n.Tr "mail.menu.sign"}}
 					    <i class="dropdown icon"></i>
@@ -35,9 +34,7 @@
 					     	<div class="item" onclick="mailMove('junk');">{{$.i18n.Tr "mail.menu.move_junk"}}</div>
 					    </div>
 					  </div>
-
 					</div>
-
 				</div>
 
 
@@ -51,20 +48,20 @@
 				    <table class="ui celled striped table">
 					  <tbody>
 					  	<tr>
-					      <td class="two wide column">主 题</td>
+					      <td class="two wide column">{{$.i18n.Tr "mail.content.subject"}}</td>
 					      <td>{{.ParseMail.Subject}}</td>
 					    </tr>
 
 					    <tr>
-					      <td class="two wide column">发件人</td>
+					      <td class="two wide column">{{$.i18n.Tr "mail.content.from"}}</td>
 					      <td>{{.ParseMail.From}}</td>
 					    </tr>
 					    <tr>
-					      <td>收件人</td>
+					      <td>{{$.i18n.Tr "mail.content.to"}}</td>
 					      <td>{{.ParseMail.To}}</td>
 					    </tr>
 					    <tr>
-					      <td>时 间</td>
+					      <td>{{$.i18n.Tr "mail.content.date"}}</td>
 					      <td>{{.ParseMail.Date}}</td>
 					    </tr>
 
@@ -77,6 +74,23 @@
 							{{end}}
 						   	</td>
 					    </tr>
+
+					    {{if .ParseMail.Attachments}}
+					    <tr>
+					     	<td>{{$.i18n.Tr "mail.content.attach"}}</td>
+					      	<td>
+					      		<p>
+					      		{{range .ParseMail.Attachments}}
+									<button class="ui file button">
+									  <i class="file icon"></i>
+									  {{.Filename}}
+									</button>
+								{{end}}
+								</p>
+					      	</td>
+					    </tr>
+					    {{end}}
+
 					  </tbody>
 					</table>
 				

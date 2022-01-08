@@ -251,15 +251,9 @@ func ContentHtml(c *context.Context) {
 		return
 	}
 
-	//debug start
-	// appDir, _ := os.Getwd()
-	// testData, _ := tools.ReadFile(fmt.Sprintf("%s/testdata/lparse.eml", appDir))
-
-	// bufferedBody := bufio.NewReader(strings.NewReader(testData))
-	// email, _ = mcopa.Parse(bufferedBody)
-	//debug end
-
 	c.Data["ParseMail"] = email
+
+	fmt.Println(email)
 
 	c.Success(MAIL_CONENT_HTML)
 }
