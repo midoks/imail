@@ -54,11 +54,11 @@
 
 					    <tr>
 					      <td class="two wide column">{{$.i18n.Tr "mail.content.from"}}</td>
-					      <td>{{.ParseMail.From}}</td>
+					      <td>{{range .ParseMail.From}}{{.Address}}{{end}}</td>
 					    </tr>
 					    <tr>
 					      <td>{{$.i18n.Tr "mail.content.to"}}</td>
-					      <td>{{.ParseMail.To}}</td>
+					      <td>{{range .ParseMail.To}}{{.Address}}{{end}}</td>
 					    </tr>
 					    <tr>
 					      <td>{{$.i18n.Tr "mail.content.date"}}</td>
