@@ -253,8 +253,6 @@ func ContentHtml(c *context.Context) {
 
 	c.Data["ParseMail"] = email
 
-	fmt.Println(email)
-
 	c.Success(MAIL_CONENT_HTML)
 }
 

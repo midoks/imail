@@ -70,7 +70,8 @@
 					      	{{if eq .ParseMail.HTMLBody "" }}
 								{{.ParseMail.TextBody}}
 							{{else}}
-								<iframe src="/mail/content/{{.id}}/html" style="height: 300px; width: 100%;" frameborder="0"></iframe>
+								{{/*<iframe src="/mail/content/{{.id}}/html" style="height: auto; width: 100%;" frameborder="0"></iframe>*/}}
+								{{.ParseMail.HTMLBody | Safe}}
 							{{end}}
 						   	</td>
 					    </tr>
