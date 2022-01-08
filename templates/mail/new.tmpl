@@ -18,13 +18,13 @@
 							<form class="ui form" action="{{AppSubURL}}/mail/new" method="post">
 			
 								<div class="inline field" >
-								  <div class="ui label">收件人</div>
+								  <div class="ui label">{{$.i18n.Tr "mail.content.to"}}</div>
 								  <input type="email" name="to_mail" placeholder="" value="{{.to_mail}}">
 								</div>
 
 
 								<div class="inline field">
-								  <div class="ui label">主&nbsp;&nbsp;&nbsp;题</div>
+								  <div class="ui label">{{$.i18n.Tr "mail.content.subject" | Safe}}</div>
 								  <input type="text" name="subject" value="{{.subject}}">
 								</div>
 

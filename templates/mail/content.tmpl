@@ -48,7 +48,7 @@
 				    <table class="ui celled striped table">
 					  <tbody>
 					  	<tr>
-					      <td class="two wide column">{{$.i18n.Tr "mail.content.subject"}}</td>
+					      <td class="two wide column">{{$.i18n.Tr "mail.content.subject" | Safe }}</td>
 					      <td>{{.ParseMail.Subject}}</td>
 					    </tr>
 
@@ -61,7 +61,7 @@
 					      <td>{{range .ParseMail.To}}{{.Address}}{{end}}</td>
 					    </tr>
 					    <tr>
-					      <td>{{$.i18n.Tr "mail.content.date"}}</td>
+					      <td>{{$.i18n.Tr "mail.content.date" | Safe }}</td>
 					      <td>{{.ParseMail.Date}}</td>
 					    </tr>
 
