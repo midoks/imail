@@ -131,7 +131,7 @@ func (this *ImapServer) D(format string, args ...interface{}) {
 
 func (this *ImapServer) w(msg string) error {
 	log := fmt.Sprintf("imap[w]:%s", msg)
-	this.D(log)
+	this.D(strings.TrimSpace(log))
 
 	_, err := this.writer.Write([]byte(msg))
 	this.writer.Flush()
@@ -157,6 +157,8 @@ func (this *ImapServer) getString(state int) (string, error) {
 
 	input, err := this.reader.ReadString('\n')
 	inputTrim := strings.TrimSpace(input)
+
+	this.D("imap[input]:%s", inputTrim)
 	return inputTrim, err
 
 }
