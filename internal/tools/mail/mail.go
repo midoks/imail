@@ -100,11 +100,8 @@ func GetMailSend(from string, to string, subject string, msg string) (string, er
 }
 
 // 邮件退信模板
-func GetMailReturnToSender(to string, err_to_mail string, err_content string, msg string) (string, error) {
+func GetMailReturnToSender(mailFrom, rcptTo string, err_to_mail string, err_content string, msg string) (string, error) {
 	sendSubject := GetMailSubject(err_content)
-
-	domain := conf.Web.Domain
-	postmaster := fmt.Sprintf("postmaster@%s", domain)
 
 	sendTime := time.Now().Format("Mon, 02 Jan 2006 15:04:05 -0700 (MST)")
 	sendVersion := fmt.Sprintf("imail/%s", conf.App.Version)
@@ -125,8 +122,8 @@ func GetMailReturnToSender(to string, err_to_mail string, err_content string, ms
 	contentHtml = strings.Replace(contentHtml, "{SEND_SUBJECT}", sendSubject, -1)
 	contentHtml = strings.Replace(contentHtml, "{ERR_TO_MAIL}", err_to_mail, -1)
 
-	content := strings.Replace(string(data), "{MAIL_FROM}", postmaster, -1)
-	content = strings.Replace(content, "{RCPT_TO}", to, -1)
+	content := strings.Replace(string(data), "{MAIL_FROM}", mailFrom, -1)
+	content = strings.Replace(content, "{RCPT_TO}", rcptTo, -1)
 	content = strings.Replace(content, "{SUBJECT}", "系统退信", -1)
 	content = strings.Replace(content, "{TIME}", sendTime, -1)
 	content = strings.Replace(content, "{VERSION}", sendVersion, -1)
