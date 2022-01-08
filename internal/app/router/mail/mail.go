@@ -210,14 +210,6 @@ func Content(c *context.Context) {
 		return
 	}
 
-	//debug start
-	// appDir, _ := os.Getwd()
-	// testData, _ := tools.ReadFile(fmt.Sprintf("%s/testdata/lparse.eml", appDir))
-
-	// bufferedBody := bufio.NewReader(strings.NewReader(testData))
-	// email, _ = mcopa.Parse(bufferedBody)
-	//debug end
-
 	c.Data["ParseMail"] = email
 
 	c.Success(MAIL_CONENT)
@@ -250,7 +242,38 @@ func ContentHtml(c *context.Context) {
 		c.Fail(-1, err.Error())
 		return
 	}
+	c.Data["ParseMail"] = email
 
+	c.Success(MAIL_CONENT_HTML)
+}
+
+func ContentAttach(c *context.Context) {
+	c.Data["Title"] = c.Tr("mail.write_letter")
+	c.Data["PageIsMailContent"] = true
+
+	id := c.ParamsInt64(":id")
+	c.Data["id"] = id
+
+	bid := c.ParamsInt64(":bid")
+	c.Data["Bid"] = bid
+
+	r, err := db.MailById(id)
+	if err == nil {
+		c.Data["Mail"] = r
+	}
+
+	contentData, err := db.MailContentRead(r.Uid, id)
+	if err != nil {
+		c.Fail(-1, err.Error())
+		return
+	}
+
+	content := bufio.NewReader(strings.NewReader(contentData))
+	email, err := mcopa.Parse(content)
+	if err != nil {
+		c.Fail(-1, err.Error())
+		return
+	}
 	c.Data["ParseMail"] = email
 
 	c.Success(MAIL_CONENT_HTML)
@@ -258,14 +281,7 @@ func ContentHtml(c *context.Context) {
 
 func ContentDemo(c *context.Context) {
 
-	// appDir, _ := os.Getwd()
-	// testData, _ := tools.ReadFile(fmt.Sprintf("%s/testdata/git.eml", appDir))
-	// strings.NewReader(testData)
-
-	// fmt.Println(appDir, testData)
-
 	id := c.ParamsInt64(":id")
-
 	contentData, err := db.MailContentRead(1, id)
 	if err != nil {
 		c.Fail(-1, err.Error())
