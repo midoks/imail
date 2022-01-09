@@ -59,6 +59,10 @@ func SettingsPost(c *context.Context, f form.UpdateProfile) {
 func SettingsAuthPassword(c *context.Context) {
 	c.Title("settings.auth_password")
 	c.PageIs("SettingsAuthPassword")
+
+	token := c.Query("token")
+	c.Data["AuthPassword"] = token
+
 	c.Success(SETTINGS_AUTHPASSWORD)
 }
 
@@ -82,6 +86,7 @@ func SettingsAuthPasswordPost(c *context.Context, f form.Empty) {
 
 	c.Data["AuthPassword"] = token
 	c.Flash.Success(c.Tr("settings.auth_password_success"))
+	c.RedirectSubpath("/user/settings/authpassword?token=" + token)
 	c.Success(SETTINGS_AUTHPASSWORD)
 }
 

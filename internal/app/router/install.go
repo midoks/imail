@@ -300,15 +300,10 @@ func InstallPost(c *context.Context, f form.Install) {
 			IsActive: true,
 		}
 		if err := db.CreateUser(u); err != nil {
-			fmt.Println("db error:", err)
-			// if !db.IsErrUserAlreadyExist(err) {
-			// 	conf.Security.InstallLock = false
+
 			c.FormErr("AdminName", "AdminEmail")
 			c.RenderWithErr(c.Tr("install.invalid_admin_setting", err), INSTALL, &f)
-			// 	return
-			// }
-			// log.Info("Admin account already exist")
-			// u, _ = db.UserGetByName(u.Name)
+
 		}
 
 		// Auto-login for admin
