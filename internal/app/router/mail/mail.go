@@ -327,6 +327,24 @@ func ApiDeleted(c *context.Context, f form.MailIDs) {
 	}
 }
 
+//TODO:硬删除
+func ApiHardDeleted(c *context.Context, f form.MailIDs) {
+	// ids := f.Ids
+	// idsSlice, err := tools.ToSlice(ids)
+	// if err != nil {
+	// 	c.Fail(-1, c.Tr("common.fail"))
+	// 	return
+	// }
+
+	// if db.MailHardDeleteByIds(idsSlice) {
+	// 	c.OK(c.Tr("common.success"))
+	// } else {
+	// 	c.Fail(-1, c.Tr("common.fail"))
+	// }
+
+	c.Fail(-1, c.Tr("common.fail"))
+}
+
 func ApiRead(c *context.Context, f form.MailIDs) {
 	ids := f.Ids
 	idsSlice, err := tools.ToSlice(ids)
