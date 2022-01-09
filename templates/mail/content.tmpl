@@ -71,7 +71,13 @@
 								{{.ParseMail.TextBody}}
 							{{else}}
 								{{/*<iframe src="/mail/content/{{.id}}/html" style="height: auto; width: 100%;" frameborder="0"></iframe>*/}}
+								<div id="content">
 								{{.ParseMail.HTMLBody | Safe}}
+
+								<style id="ntes_link_color" type="text/css">
+								#content a,td a{color:#064977;text-decoration: none}
+								</style>
+								</div>
 							{{end}}
 						   	</td>
 					    </tr>

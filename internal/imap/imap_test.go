@@ -184,6 +184,7 @@ func imapCmd(domain string, port string, name string, password string) (bool, er
 // }
 
 // go test -run TestRunImap
+// go test -v ./internal/imap -bench TestRunImap
 func TestRunImap(t *testing.T) {
 	initDbSqlite()
 

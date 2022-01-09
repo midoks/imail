@@ -440,7 +440,6 @@ func (this *ImapServer) cmdUid(input string) bool {
 					end, _ := strconv.ParseInt(se[1], 10, 64)
 					mailList, _ := db.BoxListByImap(this.userID, this.selectBox, start, end)
 					for i, m := range mailList {
-
 						c, _ := this.parseArgsConent(inputN[4], m)
 						this.writeArgs("* %d FETCH %s", i+1, c)
 					}

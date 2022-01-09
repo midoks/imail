@@ -91,9 +91,9 @@ func BoxListByImap(uid int64, className string, start int64, end int64) ([]Mail,
 
 	sql := ""
 	if end > 0 {
-		sql = fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and id>='%d' and id<='%d'", "im_mail", start, end)
+		sql = fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and id>='%d' and id<='%d'", MailTableName(), start, end)
 	} else {
-		sql = fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and id>='%d'", "im_mail", start)
+		sql = fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and id>='%d'", MailTableName(), start)
 	}
 
 	if strings.EqualFold(className, "Sent Messages") {
@@ -125,7 +125,10 @@ func BoxListByImap(uid int64, className string, start int64, end int64) ([]Mail,
 
 func BoxListByMid(uid int64, className string, mid int64) ([]Mail, error) {
 	var result []Mail
-	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and  id='%d' limit 500", "im_mail", mid)
+	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and id='%d' limit 500", MailTableName(), mid)
+
 	db.Raw(sql, uid).Find(&result)
+
+	// fmt.Println("BoxListByMid:", sql, className)
 	return result, err
 }
