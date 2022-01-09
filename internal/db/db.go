@@ -31,11 +31,12 @@ func getEngine() (*sql.DB, error) {
 
         dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=True", dbUser, dbPwd, dbHost, dbName, dbCharset)
         db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
     case "sqlite3":
         dbPath := conf.Web.AppDataPath + "/" + conf.Database.Path
         fmt.Println("dbPath", dbPath)
         // os.MkdirAll(conf.Web.AppDataPath, os.ModePerm)
-        db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{SkipDefaultTransaction: true})
+        db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{SkipDefaultTransaction: true, PrepareStmt: true})
         //&gorm.Config{SkipDefaultTransaction: true,}
 
         // synchronous close

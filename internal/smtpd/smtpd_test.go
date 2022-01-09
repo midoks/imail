@@ -163,6 +163,47 @@ func initDbSqlite() {
 	time.Sleep(1 * time.Second)
 }
 
+func initDbMysql() {
+	conf.Log.RootPath = conf.WorkDir() + "/logs"
+	os.MkdirAll(conf.Log.RootPath, os.ModePerm)
+	conf.Database.Type = "mysql"
+	conf.Database.User = "root"
+	conf.Database.Password = "root"
+	conf.Database.Host = "127.0.0.1:3356"
+	conf.Database.Name = "imail"
+
+	conf.Smtp.Debug = false
+
+	log.Init()
+	db.Init()
+
+	// create default user
+	db.CreateUser(&db.User{
+		Name:     "admin",
+		Password: "admin",
+		Salt:     "123123",
+		Code:     "admin",
+	})
+
+	d := &db.Domain{
+		Domain:    "cachecha.com",
+		Mx:        true,
+		A:         true,
+		Spf:       true,
+		Dkim:      true,
+		Dmarc:     true,
+		IsDefault: true,
+	}
+
+	err := db.DomainCreate(d)
+	if err != nil {
+		return
+	}
+
+	go Start(1025)
+	time.Sleep(1 * time.Second)
+}
+
 // go test -run TestDnsQuery
 //DnsQuery Test
 func TestDnsQuery(t *testing.T) {
@@ -316,6 +357,18 @@ Hi! yes is test. imail ok?`
 func TestMailDbPush(t *testing.T) {
 	initDbSqlite()
 	conf.Web.MailSaveMode = "db"
+	_, err := MailDbPush()
+	if err != nil {
+		t.Error("TestMailDbPush fail:" + err.Error())
+	} else {
+		t.Log("TestMailDbPush ok")
+	}
+}
+
+// go test -v ./internal/smtpd -run TestMailDbPushMySQL
+func TestMailDbPushMySQL(t *testing.T) {
+	initDbMysql()
+	conf.Web.MailSaveMode = "hard_disk"
 	_, err := MailDbPush()
 	if err != nil {
 		t.Error("TestMailDbPush fail:" + err.Error())

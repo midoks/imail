@@ -6,27 +6,27 @@ import (
 	"strings"
 	"time"
 
-	"gorm.io/gorm"
-
 	"github.com/midoks/imail/internal/tools/mail"
+	"gorm.io/gorm"
 )
 
 type Mail struct {
 	Id                int64  `gorm:"primaryKey"`
-	Uid               int64  `gorm:"comment:UserID"`
-	Type              int    `gorm:"comment:0:Send;1:Received"`
+	Uid               int64  `gorm:"index;comment:UserID"`
+	Type              int    `gorm:"index;comment:0:Send;1:Received"`
 	MailFrom          string `gorm:"size:50;comment:Mail From"`
 	MailFromInContent string `gorm:"text;comment:Mail From Name In Content"`
 	MailTo            string `gorm:"size:50;comment:接收邮件"`
-	Subject           string `gorm:"size:250;comment:标题"`
-	Size              int    `gorm:"size:50;comment:邮件内容大小"`
-	Status            int    `gorm:"comment:0:准备发送;1:发送成功;2:发送失败;3:已接收"`
+	Subject           string `gorm:"size:191;comment:标题"`
+	SubjectIndex      string `gorm:"index;size:191;comment:Index Subject"`
+	Size              int    `gorm:"size:10;comment:邮件内容大小"`
+	Status            int    `gorm:"size:2;comment:'0:准备发送;1:发送成功;2:发送失败;3:已接收'"`
 
-	IsRead   bool `gorm:"default:0;comment:是否已读"`
-	IsDelete bool `gorm:"default:0;comment:是否删除"`
-	IsFlags  bool `gorm:"default:0;comment:是否星标"`
-	IsJunk   bool `gorm:"default:0;comment:是否无用"`
-	IsDraft  bool `gorm:"default:0;comment:是否草稿"`
+	IsRead   bool `gorm:"index;default:0;comment:是否已读"`
+	IsDelete bool `gorm:"index;default:0;comment:是否删除"`
+	IsFlags  bool `gorm:"index;default:0;comment:是否星标"`
+	IsJunk   bool `gorm:"index;default:0;comment:是否无用"`
+	IsDraft  bool `gorm:"index;default:0;comment:是否草稿"`
 
 	IsCheck bool `gorm:"default:0;comment:是否通过检查"`
 
@@ -98,12 +98,15 @@ func MailSearchByNameCond(opts *MailSearchOptions, dbm *gorm.DB) *gorm.DB {
 	if opts.Type == MailSearchOptionsTypeSend {
 		dbm = dbm.Where("type = ?", 0).
 			Where("is_junk = ?", 0).
+			Where("is_delete = ?", 0).
 			Where("is_flags = ?", 0)
 	}
 
 	if opts.Type == MailSearchOptionsTypeInbox {
 		dbm = dbm.Where("type = ?", 1).
-			Where("is_junk = ?", 0)
+			Where("is_junk = ?", 0).
+			Where("is_delete = ?", 0).
+			Where("is_flags = ?", 0)
 	}
 
 	if opts.Type == MailSearchOptionsTypeDeleted {
@@ -135,10 +138,10 @@ func MailSearchByName(opts *MailSearchOptions) (user []*Mail, _ int64, _ error) 
 		opts.Page = 1
 	}
 
-	searchQuery := "%" + opts.Keyword + "%"
+	searchQuery := "idx_%" + opts.Keyword + "%"
 	email := make([]*Mail, 0, opts.PageSize)
 
-	dbm := db.Model(&Mail{}).Where("LOWER(subject) LIKE ?", searchQuery)
+	dbm := db.Model(&Mail{}).Where("LOWER(subject_index) LIKE ?", searchQuery)
 	dbm = MailSearchByNameCond(opts, dbm)
 	err := dbm.Where("uid=?", opts.Uid).Find(&email)
 	return email, MailCountWithOpts(opts), err.Error
@@ -334,7 +337,6 @@ func MailSetFlagsById(id int64, status int64) bool {
 }
 
 func MailSetJunkById(id int64, status int64) bool {
-	// fmt.Println("MailSetJunkById", id, status)
 	db.Model(&Mail{}).Where("id = ?", id).Update("is_junk", status)
 	return true
 }
@@ -373,6 +375,7 @@ func MailPush(uid int64, mtype int, mail_from string, mail_to string, content st
 	tx := db.Begin()
 
 	subject := mail.GetMailSubject(content)
+	subjectIndex := fmt.Sprintf("idx_%s", subject)
 	mail_from_in_content := mail.GetMailFromInContent(content)
 
 	m := Mail{
@@ -382,6 +385,7 @@ func MailPush(uid int64, mtype int, mail_from string, mail_to string, content st
 		MailFromInContent: mail_from_in_content,
 		MailTo:            mail_to,
 		Subject:           subject,
+		SubjectIndex:      subjectIndex,
 		Size:              len(content),
 		Status:            status,
 	}
