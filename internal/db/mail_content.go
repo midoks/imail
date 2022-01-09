@@ -81,3 +81,30 @@ func MailContentWriteHardDisk(uid int64, mid int64, content string) error {
 	return tools.WriteFile(emailFile, content)
 
 }
+
+func MailContentDelete(uid int64, mid int64) bool {
+	mode := conf.Web.MailSaveMode
+	if strings.EqualFold(mode, "hard_disk") {
+		return MailContentDeleteHardDisk(uid, mid)
+	} else {
+		return MailContentDeleteDb(mid)
+	}
+}
+
+func MailContentDeleteDb(mid int64) bool {
+	err := db.Where("mid = ? and is_delete=1", mid).Delete(&Mail{}).Error
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+func MailContentDeleteHardDisk(uid int64, mid int64) bool {
+	dataPath := path.Join(conf.Web.AppDataPath, "mail", "user"+strconv.FormatInt(uid, 10), string(strconv.FormatInt(mid, 10)[0]))
+	emailFile := fmt.Sprintf("%s/%d.eml", dataPath, mid)
+	if tools.IsExist(emailFile) {
+		os.RemoveAll(emailFile)
+		return true
+	}
+	return false
+}

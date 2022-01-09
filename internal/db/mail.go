@@ -258,11 +258,11 @@ func MailPosContentForPop(uid int64, pos int64) (string, int, error) {
 func MailDeleteById(id int64, status int64) bool {
 
 	var result []Mail
-	sql := fmt.Sprintf("SELECT id FROM `%s` WHERE is_delete=1 and id='%d' order by id limit 1", MailTableName(), id)
+	sql := fmt.Sprintf("SELECT id,uid FROM `%s` WHERE is_delete=1 and id='%d' order by id limit 1", MailTableName(), id)
 	ret := db.Raw(sql).Scan(&result)
 	if ret.Error == nil {
 		if len(result) > 0 && status == 1 {
-			MailHardDeleteById(id)
+			MailHardDeleteById(result[0].Uid, id)
 			return true
 		}
 	}
@@ -291,12 +291,14 @@ func MailSoftDeleteByIds(ids []int64) bool {
 	return true
 }
 
-func MailHardDeleteById(id int64) bool {
-	err := db.Where("id = ? and is_delete=1", id).Delete(&Mail{}).Error
-	if err != nil {
-		return false
-	}
+//TODO:批量硬删除邮件数据
+func MailHardDeleteByIds(ids []int64) bool {
+	// return MailContentDelete(uid, mid)
 	return true
+}
+
+func MailHardDeleteById(uid, mid int64) bool {
+	return MailContentDelete(uid, mid)
 }
 
 func MailSeenById(id int64) bool {
