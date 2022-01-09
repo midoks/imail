@@ -365,8 +365,8 @@ func TestMailDbPush(t *testing.T) {
 	}
 }
 
-// go test -v ./internal/smtpd -run TestMailDbPushMySQL
-func TestMailDbPushMySQL(t *testing.T) {
+// go test -v ./internal/smtpd -run HandlerTestMailDbPushMySQL
+func HandlerTestMailDbPushMySQL(t *testing.T) {
 	initDbMysql()
 	conf.Web.MailSaveMode = "hard_disk"
 	_, err := MailDbPush()
