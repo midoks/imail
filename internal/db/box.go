@@ -89,7 +89,7 @@ func BoxUserMessageCountByClassName(uid int64, className string) (int64, int64) 
 func BoxListByImap(uid int64, className string, start int64, end int64) ([]Mail, error) {
 	var result []Mail
 
-	var sql string
+	sql := ""
 	if end > 0 {
 		sql = fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and id>='%d' and id<='%d'", "im_mail", start, end)
 	} else {

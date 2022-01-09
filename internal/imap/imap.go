@@ -2,15 +2,16 @@ package imap
 
 import (
 	"bufio"
-	"bytes"
 	"crypto/tls"
 	"fmt"
 	"io"
 	"net"
-	"net/textproto"
 	"strconv"
 	"strings"
 	"time"
+
+	// "bytes"
+	// "net/textproto"
 
 	"github.com/midoks/imail/internal/component"
 	"github.com/midoks/imail/internal/conf"
@@ -413,12 +414,11 @@ func (this *ImapServer) cmdAppend(input string) bool {
 	if len(inputN) == 5 {
 		if this.cmdCompare(inputN[1], CMD_APPEND) {
 			this.w("+ Ready for literal data")
-
-			data := &bytes.Buffer{}
-			reader := textproto.NewReader(this.reader).DotReader()
-			_, err := io.CopyN(data, reader, int64(10240000))
-			content := string(data.Bytes())
-			fmt.Println(content, err)
+			// data := &bytes.Buffer{}
+			// reader := textproto.NewReader(this.reader).DotReader()
+			// _, err := io.CopyN(data, reader, int64(10240000))
+			// content := string(data.Bytes())
+			// fmt.Println(content, err)
 			this.writeArgs("%s OK %s completed", inputN[0], inputN[1])
 			return true
 		}
