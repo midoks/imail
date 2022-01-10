@@ -16,25 +16,35 @@
 
 					
 					<div class="ui small compact menu">
-					  <div class="ui small dropdown item">
-					  	{{$.i18n.Tr "mail.menu.sign"}}
-					    <i class="dropdown icon"></i>
-					    <div class="menu">
-					      <div class="item" onclick="mailRead(1);">{{$.i18n.Tr "mail.menu.sign_read"}}</div>
-					      <div class="item" onclick="mailRead(0);">{{$.i18n.Tr "mail.menu.sign_unread"}}</div>
-					      <div class="item">{{$.i18n.Tr "mail.menu.sign_star_red"}}</div>
-					    </div>
-					  </div>
+					  	<div class="ui small dropdown item">
+						  	{{$.i18n.Tr "mail.menu.sign"}}
+						    <i class="dropdown icon"></i>
+						    <div class="menu">
+						      <div class="item" onclick="mailRead(1);">{{$.i18n.Tr "mail.menu.sign_read"}}</div>
+						      <div class="item" onclick="mailRead(0);">{{$.i18n.Tr "mail.menu.sign_unread"}}</div>
+						      <div class="item">{{$.i18n.Tr "mail.menu.sign_star_red"}}</div>
+						    </div>
+					  	</div>
 
-					  <div class="ui small dropdown item">
-					    {{$.i18n.Tr "mail.menu.move"}}
-					    <i class="dropdown icon"></i>
-					    <div class="menu">
-					    	<div class="item" onclick="mailMove('deleted');">{{$.i18n.Tr "mail.menu.move_deleted"}}</div>
-					     	<div class="item" onclick="mailMove('junk');">{{$.i18n.Tr "mail.menu.move_junk"}}</div>
-					    </div>
-					  </div>
+					  	<div class="ui small dropdown item">
+						    {{$.i18n.Tr "mail.menu.move"}}
+						    <i class="dropdown icon"></i>
+						    <div class="menu">
+						    	<div class="item" onclick="mailMove('deleted');">{{$.i18n.Tr "mail.menu.move_deleted"}}</div>
+						     	<div class="item" onclick="mailMove('junk');">{{$.i18n.Tr "mail.menu.move_junk"}}</div>
+						    </div>
+					  	</div>
+
+
+					  	<div class="ui small dropdown item">
+						    {{$.i18n.Tr "mail.menu.more"}}
+						    <i class="dropdown icon"></i>
+						    <div class="menu">
+						    	<div class="item" onclick="mailExport();">{{$.i18n.Tr "mail.menu.export"}}</div>
+						    </div>
+						</div>
 					</div>
+					
 				</div>
 
 

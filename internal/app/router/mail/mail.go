@@ -249,6 +249,23 @@ func ContentHtml(c *context.Context) {
 	c.Success(MAIL_CONENT_HTML)
 }
 
+func ContentDownload(c *context.Context) {
+	c.Data["Title"] = c.Tr("mail.write_letter")
+	c.Data["PageIsMailContent"] = true
+
+	id := c.ParamsInt64(":id")
+	c.Data["id"] = id
+
+	r, err := db.MailById(id)
+
+	if err != nil {
+		return
+	}
+	emailFilePath := db.MailContentFilename(r.Uid, id)
+	tmpEmailName := fmt.Sprintf("imail_%d.eml", id)
+	c.ServeFile(emailFilePath, tmpEmailName)
+}
+
 func ContentAttach(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.write_letter")
 	c.Data["PageIsMailContent"] = true

@@ -115,3 +115,13 @@ function mailDeleted(val){
 		});
 	});
 }
+
+function mailExport(){
+	var ids = getSelectVal();
+	if (ids.length==0){
+		toast("no selected options");
+		return;
+	}
+	var url = '/mail/content/'+ids+'/download';
+	window.open(url);
+}
