@@ -103,7 +103,7 @@ func MailContentDelete(uid int64, mid int64) bool {
 }
 
 func MailContentDeleteDb(mid int64) bool {
-	err := db.Where("mid = ? and is_delete=1", mid).Delete(&Mail{}).Error
+	err := db.Where("mid = ?", mid).Delete(&MailContent{}).Error
 	if err != nil {
 		return false
 	}

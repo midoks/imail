@@ -293,11 +293,26 @@ func MailSoftDeleteByIds(ids []int64) bool {
 
 //TODO:批量硬删除邮件数据
 func MailHardDeleteByIds(ids []int64) bool {
-	// return MailContentDelete(uid, mid)
+	for _, id := range ids {
+
+		mList, err := MailById(id)
+		if err != nil {
+			return false
+		}
+
+		if mList.IsDelete {
+			return MailHardDeleteById(mList.Uid, id)
+		}
+
+	}
 	return true
 }
 
 func MailHardDeleteById(uid, mid int64) bool {
+	err := db.Where("id = ?", mid).Delete(&Mail{}).Error
+	if err != nil {
+		return false
+	}
 	return MailContentDelete(uid, mid)
 }
 

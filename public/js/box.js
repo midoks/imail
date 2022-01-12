@@ -116,6 +116,21 @@ function mailDeleted(val){
 	});
 }
 
+function mailHardDeleted(val){
+	var ids = getSelectVal();
+	if (ids.length==0){
+		toast("no selected options");
+		return;
+	}
+
+	$.post("/api/mail/hard_deleted",{'ids':ids}, function(data){
+		toast(data['msg'],function(){
+			location.reload();
+		});
+	});
+}
+
+
 function mailExport(){
 	var ids = getSelectVal();
 	if (ids.length==0){

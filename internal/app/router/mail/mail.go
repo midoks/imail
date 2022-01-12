@@ -109,6 +109,7 @@ func Sent(c *context.Context) {
 func Deleted(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.deleted")
 	c.Data["PageIsMail"] = true
+	c.Data["PageIsMailDeleted"] = true
 
 	bid := c.ParamsInt64(":bid")
 
@@ -346,20 +347,18 @@ func ApiDeleted(c *context.Context, f form.MailIDs) {
 
 //TODO:硬删除
 func ApiHardDeleted(c *context.Context, f form.MailIDs) {
-	// ids := f.Ids
-	// idsSlice, err := tools.ToSlice(ids)
-	// if err != nil {
-	// 	c.Fail(-1, c.Tr("common.fail"))
-	// 	return
-	// }
+	ids := f.Ids
+	idsSlice, err := tools.ToSlice(ids)
+	if err != nil {
+		c.Fail(-1, c.Tr("common.fail"))
+		return
+	}
 
-	// if db.MailHardDeleteByIds(idsSlice) {
-	// 	c.OK(c.Tr("common.success"))
-	// } else {
-	// 	c.Fail(-1, c.Tr("common.fail"))
-	// }
-
-	c.Fail(-1, c.Tr("common.fail"))
+	if db.MailHardDeleteByIds(idsSlice) {
+		c.OK(c.Tr("common.success"))
+	} else {
+		c.Fail(-1, c.Tr("common.fail"))
+	}
 }
 
 func ApiRead(c *context.Context, f form.MailIDs) {
