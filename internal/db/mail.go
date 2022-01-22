@@ -16,10 +16,10 @@ type Mail struct {
 	Type              int    `gorm:"index;comment:0:Send;1:Received"`
 	MailFrom          string `gorm:"size:50;comment:Mail From"`
 	MailFromInContent string `gorm:"text;comment:Mail From Name In Content"`
-	MailTo            string `gorm:"size:50;comment:接收邮件"`
-	Subject           string `gorm:"size:191;comment:标题"`
+	MailTo            string `gorm:"size:50;comment:Receive mail"`
+	Subject           string `gorm:"size:191;comment:Subject"`
 	SubjectIndex      string `gorm:"index;size:191;comment:Index Subject"`
-	Size              int    `gorm:"size:10;comment:邮件内容大小"`
+	Size              int    `gorm:"size:10;comment:Message content size"`
 	Status            int    `gorm:"size:2;comment:'0:准备发送;1:发送成功;2:发送失败;3:已接收'"`
 
 	IsRead   bool `gorm:"index;default:0;comment:是否已读"`
