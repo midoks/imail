@@ -16,7 +16,7 @@ import (
 )
 
 func makeRsa() ([]byte, []byte, error) {
-	privatekey, err := rsa.GenerateKey(rand.Reader, 1024)
+	privatekey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err == nil {
 		var publickey *rsa.PublicKey
 		publickey = &privatekey.PublicKey
