@@ -42,6 +42,11 @@ curl -fsSL  https://raw.githubusercontent.com/midoks/imail/master/scripts/instal
 curl -fsSL  https://raw.githubusercontent.com/midoks/imail/master/scripts/install_dev.sh | sh
 ```
 
+## Contributors
+
+[![](https://contrib.rocks/image?repo=midoks/imail)](https://github.com/midoks/imail/graphs/contributors)
+
+
 ## 授权许可
 
 本项目采用 MIT 开源授权许可证，完整的授权说明已放置在 [LICENSE](https://github.com/midoks/imail/blob/main/LICENSE) 文件中。
