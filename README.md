@@ -42,7 +42,7 @@ curl -fsSL  https://raw.githubusercontent.com/midoks/imail/master/scripts/instal
 curl -fsSL  https://raw.githubusercontent.com/midoks/imail/master/scripts/install_dev.sh | sh
 ```
 
-## Contributors
+## 贡献者
 
 [![](https://contrib.rocks/image?repo=midoks/imail)](https://github.com/midoks/imail/graphs/contributors)
 
