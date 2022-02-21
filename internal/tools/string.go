@@ -339,6 +339,22 @@ func GetRealMail(src string) string {
 	return src[1 : len(src)-1]
 }
 
+func ToEditorLang(lang string) string {
+
+	tupleLang := map[string]string{
+		"zh-CN": "zh-cn",
+		"en-US": "en-gb",
+	}
+
+	for l := range tupleLang {
+		if strings.EqualFold(l, lang) {
+			return tupleLang[l]
+		}
+	}
+
+	return "zh-cn"
+}
+
 // ToSnakeCase can convert all upper case characters in a string to
 // underscore format.
 //

@@ -156,8 +156,11 @@ func Mail(c *context.Context) {
 func New(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.write_letter")
 	c.Data["PageIsWriteMail"] = true
+
 	bid := c.ParamsInt64(":bid")
+
 	c.Data["Bid"] = bid
+	c.Data["EditorLang"] = tools.ToEditorLang(c.Data["NowLang"].(string))
 
 	c.Success(MAIL_NEW)
 }

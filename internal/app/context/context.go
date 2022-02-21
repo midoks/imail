@@ -181,6 +181,7 @@ func Contexter() macaron.Handler {
 			Session: sess,
 		}
 
+		c.Data["NowLang"] = l.Lang
 		c.Data["PageStartTime"] = time.Now()
 
 		if len(conf.Web.AccessControlAllowOrigin) > 0 {

@@ -52,7 +52,7 @@
 <script>
 ClassicEditor.create( document.querySelector( '#content' ), {
 	// toolbar: [ 'heading', '|', 'bold', 'italic', 'link' ]
-	language: 'zh-cn',
+	language: '{{.EditorLang}}',
 }).then( editor => {
 	window.editor = editor;
 }).catch( err => {
