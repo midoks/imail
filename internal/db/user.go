@@ -37,10 +37,7 @@ func (u *User) GetNick() string {
 func (u *User) ValidPassword(oldPwd string) bool {
 	inputPwd := tools.Md5(tools.Md5(oldPwd) + u.Salt)
 
-	if strings.EqualFold(u.Password, inputPwd) {
-		return true
-	}
-	return false
+	return strings.EqualFold(u.Password, inputPwd)
 }
 
 // RelAvatarLink returns relative avatar link to the site domain,
