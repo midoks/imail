@@ -106,6 +106,22 @@ func Sent(c *context.Context) {
 	})
 }
 
+func Draft(c *context.Context) {
+	c.Data["Title"] = c.Tr("mail.draft")
+	c.Data["PageIsMail"] = true
+	c.Data["PageIsMailDraft"] = true
+
+	bid := c.ParamsInt64(":bid")
+
+	RenderMailSearch(c, &MailSearchOptions{
+		PageSize: 10,
+		OrderBy:  "id ASC",
+		TplName:  MAIL,
+		Type:     db.MailSearchOptionsTypeDraft,
+		Bid:      bid,
+	})
+}
+
 func Deleted(c *context.Context) {
 	c.Data["Title"] = c.Tr("mail.deleted")
 	c.Data["PageIsMail"] = true

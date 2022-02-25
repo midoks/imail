@@ -39,6 +39,7 @@ type Mail struct {
 const (
 	MailSearchOptionsTypeSend = iota
 	MailSearchOptionsTypeInbox
+	MailSearchOptionsTypeDraft
 	MailSearchOptionsTypeDeleted
 	MailSearchOptionsTypeFlags
 	MailSearchOptionsTypeJunk
@@ -107,6 +108,10 @@ func MailSearchByNameCond(opts *MailSearchOptions, dbm *gorm.DB) *gorm.DB {
 			Where("is_junk = ?", 0).
 			Where("is_delete = ?", 0).
 			Where("is_flags = ?", 0)
+	}
+
+	if opts.Type == MailSearchOptionsTypeDraft {
+		dbm = dbm.Where("is_draft = ?", 1)
 	}
 
 	if opts.Type == MailSearchOptionsTypeDeleted {

@@ -143,6 +143,7 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 			m.Combo("/flags").Get(mail.Flags)
 			m.Combo("/sent").Get(mail.Sent)
 			m.Combo("/deleted").Get(mail.Deleted)
+			m.Combo("/draft").Get(mail.Draft)
 			m.Combo("/junk").Get(mail.Junk)
 			m.Combo("/content/:id").Get(mail.Content)
 			m.Combo("/content/:id/html").Get(mail.ContentHtml)
@@ -162,6 +163,7 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 			m.Combo("/sent").Get(mail.Sent)
 			m.Combo("/deleted").Get(mail.Deleted)
 			m.Combo("/junk").Get(mail.Junk)
+			m.Combo("/draft").Get(mail.Draft)
 			m.Combo("/content/:id").Get(mail.Content)
 
 		}, reqSignIn, func(c *context.Context) {
