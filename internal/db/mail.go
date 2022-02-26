@@ -416,6 +416,7 @@ func MailUpdate(id int64, uid int64, mtype int, mail_from string, mail_to string
 	}
 
 	m.UpdatedUnix = time.Now().Unix()
+	m.CreatedUnix = time.Now().Unix()
 
 	result := db.Save(&m)
 

@@ -90,7 +90,8 @@ func FuncMap() []template.FuncMap {
 				return t.Format("Jan 02, 2006")
 			},
 
-			"DateFmtMail": DateFmtMail,
+			"DateFmtMail":      DateFmtMail,
+			"DateInt64FmtMail": DateInt64FmtMail,
 
 			"FilenameIsImage": func(filename string) bool {
 				mimeType := mime.TypeByExtension(filepath.Ext(filename))
@@ -143,5 +144,23 @@ func DateFmtMail(t time.Time, lang string) string {
 		return i18n.Tr(lang, "common.yesterday")
 	} else {
 		return t.Format("2006-01-02")
+	}
+}
+
+func DateInt64FmtMail(t int64, lang string) string {
+	n := time.Now()
+
+	in := time.Unix(t, 0).Format("2006-01-02")
+	now := n.Format("2006-01-02")
+
+	if in == now {
+		return time.Unix(t, 0).Format("15:04")
+	}
+	in2, _ := time.Parse("2006-01-02 15:04:05", in+" 00:00:00")
+	now2, _ := time.Parse("2006-01-02 15:04:05", now+" 00:00:00")
+	if in2.Unix()+86400 == now2.Unix() {
+		return i18n.Tr(lang, "common.yesterday")
+	} else {
+		return time.Unix(t, 0).Format("2006-01-02")
 	}
 }
