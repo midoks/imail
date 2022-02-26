@@ -10,7 +10,7 @@ text-align:left">很抱歉您发送的邮件被退回，以下是该邮件的相
 <table style="width:90%; border-collapse:collapse; margin:0 0 15px" cellpadding="0" cellspacing="0" border="0">
 	<tr>
 		<td style="width:120px; font-family:verdana; font-size:14px; font-weight:bold; text-align:center; background:#E0ECF9; border:1px solid #C1D9F3">被退回邮件</td>
-		<td style="border:1px solid #C1D9F3; font-family:verdana; padding:5px 15px; line-height:20px; font-size:14px;">主 题：{SEND_SUBJECT} <br/>时 间：2021-09-08 15:12:45 </td>
+		<td style="border:1px solid #C1D9F3; font-family:verdana; padding:5px 15px; line-height:20px; font-size:14px;">主 题：{SEND_SUBJECT} <br/>时 间：{TIME} </td>
 	</tr>
 </table>
 

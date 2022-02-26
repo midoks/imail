@@ -121,6 +121,7 @@ func GetMailReturnToSender(mailFrom, rcptTo string, err_to_mail string, err_cont
 	contentHtml = strings.Replace(contentHtml, "{ERR_MSG}", msg, -1)
 	contentHtml = strings.Replace(contentHtml, "{SEND_SUBJECT}", sendSubject, -1)
 	contentHtml = strings.Replace(contentHtml, "{ERR_TO_MAIL}", err_to_mail, -1)
+	contentHtml = strings.Replace(contentHtml, "{TIME}", sendTime, -1)
 
 	content := strings.Replace(string(data), "{MAIL_FROM}", mailFrom, -1)
 	content = strings.Replace(content, "{RCPT_TO}", rcptTo, -1)
