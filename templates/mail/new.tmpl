@@ -16,21 +16,25 @@
 						<tbody>
 						<tr><td colspan="5">
 							<form class="ui form" action="{{AppSubURL}}/mail/new" method="post">
-			
+								
+								<input type="hidden" name="id" value="{{.id}}">
+
 								<div class="inline field" >
 								  <div class="ui label">{{$.i18n.Tr "mail.content.to"}}</div>
-								  <input type="email" name="to_mail" placeholder="" value="{{.to_mail}}">
+								  <input type="email" name="to_mail" placeholder="" value="{{.Mail.MailTo}}">
 								</div>
 
 
 								<div class="inline field">
 								  <div class="ui label">{{$.i18n.Tr "mail.content.subject" | Safe}}</div>
-								  <input type="text" name="subject" value="{{.subject}}">
+								  <input type="text" name="subject" value="{{.Mail.Subject}}">
 								</div>
 
 								</hr>
 								<textarea name="content" id="content"></textarea>
 
+								<div class="ui divider"></div>
+								<div><span id="notice"></span></div>
 								<div class="ui divider"></div>
 
 								<div class="inline field">
@@ -50,17 +54,55 @@
 </div>
 
 <script>
+var editor = null;
 ClassicEditor.create( document.querySelector( '#content' ), {
 	// toolbar: [ 'heading', '|', 'bold', 'italic', 'link' ]
 	language: '{{.EditorLang}}',
 }).then( editor => {
 	window.editor = editor;
+	window.editor.setData("{{.MailContent}}");
 }).catch( err => {
 	console.error( err.stack );
 });
 
 
+function getRealTime(str){
+    if(str < 10){
+        return '0'+str;
+    }
+    return str;
+}
 
+function saveDraft(){
+	console.log("saveDraft");
+	var to = $("input[name='to_mail']").val();
+	var id = $("input[name='id']").val();
+	var subject = $("input[name='subject']").val();
+	var content = editor.getData();
+
+	if (to == "" || subject == "" || content == ""){
+		return;
+	}
+
+	$.post("/api/mail/save_draft",{id:id,to_mail:to,subject:subject,content:content},function(data){
+		$("input[name='id']").val(data['data'].id);
+
+		if (data['code']==0){
+			var now = new Date();
+            var Y = now.getFullYear();
+            var m = getRealTime(now.getMonth()+1);
+            var d = getRealTime(now.getDate());
+            var H = getRealTime(now.getHours());
+            var i = getRealTime(now.getMinutes());
+            var s = getRealTime(now.getSeconds());
+            var now_time = Y +'-'+ m +'-'+ d +' '+ H +':'+ i +':'+ s;
+			$('#notice').text("{{.i18n.Tr "mail.draft_to"}} " + now_time + " ...");
+		}
+	});
+}
+
+//save to draft
+setInterval(saveDraft, 5000);
 
 </script>
 

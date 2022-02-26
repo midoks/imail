@@ -586,13 +586,13 @@ func (smtp *SmtpdServer) cmdDataAccept() bool {
 	if smtp.runModeIn {
 		// smtp.D("smtpd[data][peer]:", smtp.peer)
 		revContent := string(smtp.addEnvelopeDataAcceptLine(data.Bytes()))
-		fid, err := db.MailPush(smtp.userID, 1, smtp.recordCmdMailFrom, smtp.recordcmdRcptTo, revContent, 3)
+		fid, err := db.MailPush(smtp.userID, 1, smtp.recordCmdMailFrom, smtp.recordcmdRcptTo, revContent, 3, false)
 		if err != nil {
 			return false
 		}
 		mail.ExecPython(conf.Hook.SendScript, fid)
 	} else {
-		fid, err := db.MailPush(smtp.userID, 0, smtp.recordCmdMailFrom, smtp.recordcmdRcptTo, content, 0)
+		fid, err := db.MailPush(smtp.userID, 0, smtp.recordCmdMailFrom, smtp.recordcmdRcptTo, content, 0, false)
 		if err != nil {
 			return false
 		}

@@ -139,6 +139,7 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 		m.Group("/mail", func() {
 			m.Get("", mail.Mail)
 			m.Combo("/new").Get(mail.New).Post(bindIgnErr(form.SendMail{}), mail.NewPost)
+			m.Combo("/new/:id").Get(mail.New).Post(bindIgnErr(form.SendMail{}), mail.NewPost)
 
 			m.Combo("/flags").Get(mail.Flags)
 			m.Combo("/sent").Get(mail.Sent)
@@ -199,6 +200,8 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 
 		m.Group("/api", func() {
 			m.Group("/mail", func() {
+				m.Post("/save_draft", bindIgnErr(form.SendMail{}), mail.NewPostDraft)
+
 				m.Post("/read", bindIgnErr(form.MailIDs{}), mail.ApiRead)
 				m.Post("/unread", bindIgnErr(form.MailIDs{}), mail.ApiUnread)
 

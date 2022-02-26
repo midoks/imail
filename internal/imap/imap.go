@@ -10,9 +10,6 @@ import (
 	"strings"
 	"time"
 
-	// "bytes"
-	// "net/textproto"
-
 	"github.com/midoks/imail/internal/component"
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"

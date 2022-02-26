@@ -100,7 +100,8 @@ func MailSearchByNameCond(opts *MailSearchOptions, dbm *gorm.DB) *gorm.DB {
 		dbm = dbm.Where("type = ?", 0).
 			Where("is_junk = ?", 0).
 			Where("is_delete = ?", 0).
-			Where("is_flags = ?", 0)
+			Where("is_flags = ?", 0).
+			Where("is_draft = ?", 0)
 	}
 
 	if opts.Type == MailSearchOptionsTypeInbox {
@@ -115,15 +116,15 @@ func MailSearchByNameCond(opts *MailSearchOptions, dbm *gorm.DB) *gorm.DB {
 	}
 
 	if opts.Type == MailSearchOptionsTypeDeleted {
-		dbm = dbm.Where("is_delete = ?", 1)
+		dbm = dbm.Where("is_delete = ?", 1).Where("is_draft = ?", 0)
 	}
 
 	if opts.Type == MailSearchOptionsTypeJunk {
-		dbm = dbm.Where("is_junk = ?", 1)
+		dbm = dbm.Where("is_junk = ?", 1).Where("is_draft = ?", 0)
 	}
 
 	if opts.Type == MailSearchOptionsTypeFlags {
-		dbm = dbm.Where("is_flags = ?", 1)
+		dbm = dbm.Where("is_flags = ?", 1).Where("is_draft = ?", 0)
 	}
 
 	return dbm
@@ -196,7 +197,7 @@ func MailListForImap(uid int64) []Mail {
 
 func MailSendListForStatus(status int64, limit int64) []Mail {
 	var result []Mail
-	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE status=%d and type=0 order by created_unix limit %d", MailTableName(), status, limit)
+	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE status=%d and type=0 and is_draft=0 order by created_unix limit %d", MailTableName(), status, limit)
 	db.Raw(sql).Find(&result)
 	return result
 }
@@ -381,15 +382,58 @@ func MailSetStatusById(id int64, status int64) bool {
 	return true
 }
 
-func MailPushSend(uid int64, mail_from string, mail_to string, content string) (int64, error) {
-	return MailPush(uid, 0, mail_from, mail_to, content, 0)
+func MailPushSend(uid int64, mail_from string, mail_to string, content string, is_draft bool) (int64, error) {
+	return MailPush(uid, 0, mail_from, mail_to, content, 0, is_draft)
 }
 
 func MailPushReceive(uid int64, mail_from string, mail_to string, content string) (int64, error) {
-	return MailPush(uid, 1, mail_from, mail_to, content, 3)
+	return MailPush(uid, 1, mail_from, mail_to, content, 3, false)
 }
 
-func MailPush(uid int64, mtype int, mail_from string, mail_to string, content string, status int) (int64, error) {
+func MailUpdate(id int64, uid int64, mtype int, mail_from string, mail_to string, content string, status int, is_draft bool) (int64, error) {
+	if id == 0 {
+		return 0, errors.New("id is error!")
+	}
+
+	tx := db.Begin()
+
+	subject := mail.GetMailSubject(content)
+	subjectIndex := fmt.Sprintf("idx_%s", subject)
+	mail_from_in_content := mail.GetMailFromInContent(content)
+
+	m := Mail{
+		Id:                id,
+		Uid:               uid,
+		Type:              mtype,
+		MailFrom:          mail_from,
+		MailFromInContent: mail_from_in_content,
+		MailTo:            mail_to,
+		Subject:           subject,
+		SubjectIndex:      subjectIndex,
+		Size:              len(content),
+		Status:            status,
+		IsDraft:           is_draft,
+	}
+
+	m.UpdatedUnix = time.Now().Unix()
+
+	result := db.Save(&m)
+
+	if result.Error != nil {
+		tx.Rollback()
+	}
+
+	err := MailContentWrite(uid, m.Id, content)
+	if err != nil {
+		tx.Rollback()
+	}
+
+	tx.Commit()
+
+	return m.Id, result.Error
+}
+
+func MailPush(uid int64, mtype int, mail_from string, mail_to string, content string, status int, is_draft bool) (int64, error) {
 	if uid == 0 {
 		return 0, errors.New("user id is error!")
 	}
@@ -410,6 +454,7 @@ func MailPush(uid int64, mtype int, mail_from string, mail_to string, content st
 		SubjectIndex:      subjectIndex,
 		Size:              len(content),
 		Status:            status,
+		IsDraft:           is_draft,
 	}
 
 	m.UpdatedUnix = time.Now().Unix()

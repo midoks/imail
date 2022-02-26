@@ -35,7 +35,7 @@ func TaskQueueeSendMail() {
 
 			if err != nil {
 				content, _ := mail.GetMailReturnToSender(postmaster, val.MailFrom, val.MailTo, content, err.Error())
-				db.MailPush(val.Uid, 1, postmaster, val.MailFrom, content, 1)
+				db.MailPush(val.Uid, 1, postmaster, val.MailFrom, content, 1, false)
 			}
 			db.MailSetStatusById(val.Id, 1)
 		}

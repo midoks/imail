@@ -174,8 +174,24 @@ func New(c *context.Context) {
 	c.Data["PageIsWriteMail"] = true
 
 	bid := c.ParamsInt64(":bid")
+	id := c.ParamsInt64(":id")
+
+	mail, _ := db.MailById(id)
+	content, _ := db.MailContentRead(mail.Uid, mail.Id)
+	email, _ := mcopa.Parse(bufio.NewReader(strings.NewReader(content)))
+
+	if strings.EqualFold(email.TextBody, "") {
+		content = email.HTMLBody
+	} else {
+		content = email.TextBody
+	}
 
 	c.Data["Bid"] = bid
+	c.Data["id"] = id
+
+	c.Data["Mail"] = mail
+	c.Data["MailContent"] = content
+
 	c.Data["EditorLang"] = tools.ToEditorLang(c.Data["NowLang"].(string))
 
 	c.Success(MAIL_NEW)
@@ -196,12 +212,53 @@ func NewPost(c *context.Context, f form.SendMail) {
 
 	mail_from := fmt.Sprintf("%s@%s", c.User.Name, from)
 	tc, err := tmail.GetMailSend(mail_from, f.ToMail, f.Subject, f.Content)
-	_, err = db.MailPushSend(c.User.Id, mail_from, f.ToMail, tc)
+
+	if f.Id != 0 {
+		_, err = db.MailUpdate(f.Id, c.User.Id, 0, mail_from, f.ToMail, tc, 0, false)
+	} else {
+		_, err = db.MailPushSend(c.User.Id, mail_from, f.ToMail, tc, false)
+	}
+
 	if err != nil {
 		c.RenderWithErr(err.Error(), MAIL_NEW, &f)
 		return
 	}
-	c.Success(MAIL_NEW)
+
+	c.RedirectSubpath("/mail/sent")
+}
+
+func NewPostDraft(c *context.Context, f form.SendMail) {
+	c.Data["Title"] = c.Tr("mail.write_letter")
+	c.Data["PageIsWriteMail"] = true
+
+	bid := c.ParamsInt64(":bid")
+	c.Data["Bid"] = bid
+
+	from, err := db.DomainGetMainForDomain()
+	if err != nil {
+		c.Fail(-1, c.Tr("common.fail"))
+		return
+	}
+
+	mail_from := fmt.Sprintf("%s@%s", c.User.Name, from)
+	tc, err := tmail.GetMailSend(mail_from, f.ToMail, f.Subject, f.Content)
+
+	var mid int64
+	if f.Id != 0 {
+		mid, err = db.MailUpdate(f.Id, c.User.Id, 0, mail_from, f.ToMail, tc, 0, true)
+	} else {
+		mid, err = db.MailPushSend(c.User.Id, mail_from, f.ToMail, tc, true)
+	}
+
+	if err == nil {
+		r := make(map[string]int64)
+		r["id"] = mid
+
+		c.OKDATA(c.Tr("common.success"), r)
+		return
+	}
+
+	c.Fail(-1, c.Tr("common.fail"))
 }
 
 func Content(c *context.Context) {
