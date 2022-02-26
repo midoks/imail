@@ -95,6 +95,7 @@ type UserSearchOptions struct {
 	OrderBy  string
 	Page     int
 	PageSize int
+	TplName  string
 }
 
 func UserSearchByName(opts *UserSearchOptions) (user []*User, _ int64, _ error) {

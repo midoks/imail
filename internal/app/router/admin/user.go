@@ -17,14 +17,7 @@ const (
 	USER_EDIT = "admin/user/edit"
 )
 
-type UserSearchOptions struct {
-	Type     int
-	PageSize int
-	OrderBy  string
-	TplName  string
-}
-
-func RenderUserSearch(c *context.Context, opts *UserSearchOptions) {
+func RenderUserSearch(c *context.Context, opts *db.UserSearchOptions) {
 	page := c.QueryInt("page")
 	if page <= 1 {
 		page = 1
@@ -65,7 +58,7 @@ func Users(c *context.Context) {
 	c.Data["PageIsAdmin"] = true
 	c.Data["PageIsAdminUsers"] = true
 
-	RenderUserSearch(c, &UserSearchOptions{
+	RenderUserSearch(c, &db.UserSearchOptions{
 		PageSize: 20,
 		OrderBy:  "id ASC",
 		TplName:  USERS,

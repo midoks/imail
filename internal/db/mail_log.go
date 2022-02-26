@@ -1,0 +1,68 @@
+package db
+
+import (
+	"strings"
+	"time"
+)
+
+type MailLog struct {
+	Id          int64     `gorm:"primaryKey"`
+	Type        string    `gorm:"unique;comment:type"`
+	Content     string    `gorm:"comment:content"`
+	Created     time.Time `gorm:"autoCreateTime;comment:创建时间"`
+	CreatedUnix int64     `gorm:"autoCreateTime;comment:创建时间"`
+	Updated     time.Time `gorm:"autoCreateTime;comment:更新时间"`
+	UpdatedUnix int64     `gorm:"autoCreateTime;comment:更新时间"`
+}
+
+type LogSearchOptions struct {
+	Keyword  string
+	OrderBy  string
+	Page     int
+	PageSize int
+	TplName  string
+}
+
+func MailLogTableName() string {
+	return "im_log"
+}
+
+func (*MailLog) TableName() string {
+	return MailLogTableName()
+}
+
+func LogList(page, pageSize int) ([]*MailLog, error) {
+	log := make([]*MailLog, 0, pageSize)
+	err := db.Limit(pageSize).Offset((page - 1) * pageSize).Order("id desc").Find(&log)
+	return log, err.Error
+}
+
+func LogCount() int64 {
+	var count int64
+	db.Model(&MailLog{}).Count(&count)
+	return count
+}
+
+func LogSearchByName(opts *LogSearchOptions) (user []*MailLog, _ int64, _ error) {
+	if len(opts.Keyword) == 0 {
+		return user, 0, nil
+	}
+
+	opts.Keyword = strings.ToLower(opts.Keyword)
+
+	if opts.PageSize <= 0 || opts.PageSize > 20 {
+		opts.PageSize = 10
+	}
+	if opts.Page <= 0 {
+		opts.Page = 1
+	}
+
+	searchQuery := "%" + opts.Keyword + "%"
+	log := make([]*MailLog, 0, opts.PageSize)
+
+	err := db.Model(&MailLog{}).
+		Where("LOWER(content) LIKE ?", searchQuery).
+		Or("LOWER(type) LIKE ?", searchQuery).
+		Find(&log)
+	return log, LogCount(), err.Error
+}

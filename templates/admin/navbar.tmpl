@@ -14,6 +14,11 @@
 		<a class="{{if .PageIsAdminConfig}}active{{end}} item" href="{{AppSubURL}}/admin/config">
 			{{.i18n.Tr "admin.config"}}
 		</a>
+
+		<a class="{{if .PageIsAdminConfig}}active{{end}} item" href="{{AppSubURL}}/admin/log">
+			{{.i18n.Tr "admin.log"}}
+		</a>
+
 		<a class="{{if .PageIsAdminMonitor}}active{{end}} item" href="{{AppSubURL}}/admin/monitor">
 			{{.i18n.Tr "admin.monitor"}}
 		</a>
