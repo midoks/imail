@@ -6,13 +6,11 @@ import (
 )
 
 type MailLog struct {
-	Id          int64     `gorm:"primaryKey"`
-	Type        string    `gorm:"unique;comment:type"`
-	Content     string    `gorm:"comment:content"`
-	Created     time.Time `gorm:"autoCreateTime;comment:创建时间"`
-	CreatedUnix int64     `gorm:"autoCreateTime;comment:创建时间"`
-	Updated     time.Time `gorm:"autoCreateTime;comment:更新时间"`
-	UpdatedUnix int64     `gorm:"autoCreateTime;comment:更新时间"`
+	Id          int64  `gorm:"primaryKey"`
+	Type        string `gorm:"unique;comment:type"`
+	Content     string `gorm:"comment:content"`
+	CreatedUnix int64  `gorm:"autoCreateTime;comment:创建时间"`
+	UpdatedUnix int64  `gorm:"autoCreateTime;comment:更新时间"`
 }
 
 type LogSearchOptions struct {
@@ -65,4 +63,20 @@ func LogSearchByName(opts *LogSearchOptions) (user []*MailLog, _ int64, _ error)
 		Or("LOWER(type) LIKE ?", searchQuery).
 		Find(&log)
 	return log, LogCount(), err.Error
+}
+
+func LogAdd(ty, content string) error {
+
+	m := MailLog{}
+	m.Type = ty
+	m.Content = content
+	m.UpdatedUnix = time.Now().Unix()
+	m.CreatedUnix = time.Now().Unix()
+	result := db.Save(&m)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }
