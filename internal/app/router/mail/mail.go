@@ -8,8 +8,6 @@ import (
 	"strconv"
 	"strings"
 
-	// "gopkg.in/macaron.v1"
-
 	"github.com/midoks/imail/internal/app/context"
 	"github.com/midoks/imail/internal/app/form"
 	"github.com/midoks/imail/internal/db"
@@ -136,6 +134,18 @@ func Deleted(c *context.Context) {
 		Type:     db.MailSearchOptionsTypeDeleted,
 		Bid:      bid,
 	})
+}
+
+func HardDeleteDraftMail(c *context.Context) {
+	id := c.ParamsInt64(":id")
+
+	mail, _ := db.MailById(id)
+	if !db.MailHardDeleteById(mail.Uid, mail.Id) {
+		c.Flash.Success(c.Tr("mail.draft.deletion_fail"))
+	} else {
+		c.Flash.Success(c.Tr("mail.draft.deletion_success"))
+	}
+	c.Redirect("/mail/draft")
 }
 
 func Junk(c *context.Context) {

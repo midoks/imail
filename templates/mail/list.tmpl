@@ -79,7 +79,10 @@
 							<td>{{DateInt64FmtMail .CreatedUnix $.i18n.Lang}}</td>
 
 							{{if .IsDraft}}
-								<td><a href="{{$.Link}}/mail/new/{{.Id}}"><i class="fa fa-pencil-square-o"></i></a></td>
+								<td><a href="{{$.Link}}/mail/new/{{.Id}}"><i class="fa fa-pencil-square-o"></i></a>
+
+								<a href="{{$.Link}}/mail/draft/delete/{{.Id}}"><i class="fa fa-times"></i></a>
+								</td>
 							{{end}}
 						</tr>
 						{{end}}

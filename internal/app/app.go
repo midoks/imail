@@ -145,6 +145,7 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 			m.Combo("/sent").Get(mail.Sent)
 			m.Combo("/deleted").Get(mail.Deleted)
 			m.Combo("/draft").Get(mail.Draft)
+			m.Combo("/draft/delete/:id").Get(mail.HardDeleteDraftMail)
 			m.Combo("/junk").Get(mail.Junk)
 			m.Combo("/content/:id").Get(mail.Content)
 			m.Combo("/content/:id/html").Get(mail.ContentHtml)
