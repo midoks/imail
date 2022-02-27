@@ -349,7 +349,7 @@ Subject: Hello imail[2021-09-28 13:30:26]
 To: <admin@cachecha.com>
 
 Hi! yes is test. imail ok?`
-	fid, err := db.MailPush(1, 1, "midoks@163.com", "admin@cachecha.com", revContent, 3)
+	fid, err := db.MailPush(1, 1, "midoks@163.com", "admin@cachecha.com", revContent, 3, false)
 	return fid, err
 }
 
