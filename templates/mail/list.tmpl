@@ -19,7 +19,12 @@
 					<div class="ui checkbox"><input type="checkbox" name="click_option" onchange="selectAll(this)"></div>
 					
 					<div class="ui small basic icon buttons">
-					  <button class="ui button" onclick="{{if .PageIsMailDeleted}}mailHardDeleted();{{else}}mailDeleted();{{end}}">{{$.i18n.Tr "mail.menu.delete"}}</button>
+					  <button class="ui button" onclick="
+					  {{if .PageIsMailDeleted}} mailHardDeleted();
+					  {{else if .PageIsMailDraft}} mailHardDeleted();
+					  {{else}}mailDeleted();
+					  {{end}}
+					  ">{{$.i18n.Tr "mail.menu.delete"}}</button>
 					</div>
 
 					<div class="ui small compact menu">
@@ -71,7 +76,7 @@
 						<tr>
 							<td><div class="ui checkbox"><input type="checkbox" name="mail_select" value="{{.Id}}"></div></td>
 
-							<td>{{.Id}}</td>
+							{{/* <td>{{.Id}}</td> */}}
 
 							<td><i style="cursor:pointer;" data-id="{{.Id}}" onclick="setMailStar(this);" class="star {{if not .IsFlags}}outline{{end}} icon"></i></td>
 							<td><a href="{{AppSubURL}}/mail/content/{{.Id}}">{{.MailFromInContent}}</a></td>
