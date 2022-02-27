@@ -314,7 +314,7 @@ func (smtp *SmtpdServer) cmdAuthLoginUser(input string) bool {
 	user := smtp.base64Decode(input)
 	smtp.loginUser = user
 
-	smtp.D("smtpd:%s", smtp.loginUser)
+	smtp.D("smtpd[user]:%s", smtp.loginUser)
 	smtp.write(MSG_AUTH_LOGIN_PWD)
 	return true
 }
@@ -329,6 +329,10 @@ func (smtp *SmtpdServer) cmdAuthLoginPwd(input string) bool {
 		return true
 	}
 	smtp.write(MSG_AUTH_FAIL)
+
+	//fail log to db
+	info := fmt.Sprintf("user[%s]:%.3s %s%s", smtp.loginUser, MSG_AUTH_FAIL, msgList[MSG_AUTH_FAIL], GO_EOL)
+	db.LogAdd("auth_plain_login", info)
 	return false
 }
 
@@ -351,8 +355,14 @@ func (smtp *SmtpdServer) cmdAuthPlainLogin(input string) (bool, bool) {
 				return true, true
 			}
 			smtp.write(MSG_AUTH_FAIL)
+
+			//fail log to db
+			info := fmt.Sprintf("user[%s]:%.3s %s%s", smtp.loginUser, MSG_AUTH_FAIL, msgList[MSG_AUTH_FAIL], GO_EOL)
+			db.LogAdd("auth_plain_login", info)
+
 			return true, false
 		}
+
 	}
 	return false, false
 }

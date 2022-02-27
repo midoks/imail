@@ -7,7 +7,7 @@ import (
 
 type MailLog struct {
 	Id          int64  `gorm:"primaryKey"`
-	Type        string `gorm:"unique;comment:type"`
+	Type        string `gorm:"index;comment:type"`
 	Content     string `gorm:"comment:content"`
 	CreatedUnix int64  `gorm:"autoCreateTime;comment:创建时间"`
 	UpdatedUnix int64  `gorm:"autoCreateTime;comment:更新时间"`
