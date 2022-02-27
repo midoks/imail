@@ -307,7 +307,9 @@ func MailHardDeleteByIds(ids []int64) bool {
 		}
 
 		if mList.IsDelete {
-			return MailHardDeleteById(mList.Uid, id)
+			if !MailHardDeleteById(mList.Uid, id) {
+				return false
+			}
 		}
 
 	}
