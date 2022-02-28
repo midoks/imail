@@ -48,5 +48,5 @@ func main() {
 	}
 
 	//publish to delete
-	cmd.ServiceDebug()
+	// cmd.ServiceDebug()
 }
