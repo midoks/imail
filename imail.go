@@ -12,7 +12,7 @@ import (
 	"github.com/midoks/imail/internal/tools/syscall"
 )
 
-const Version = "0.0.9"
+const Version = "0.0.12"
 const AppName = "imail"
 
 func init() {
