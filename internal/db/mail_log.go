@@ -80,3 +80,16 @@ func LogAdd(ty, content string) error {
 
 	return nil
 }
+
+func LogDeleteById(id int64) error {
+	var d MailLog
+	return db.Where("id = ?", id).Delete(&d).Error
+}
+
+func LogClear() error {
+	err := db.Exec("truncate table `im_log`")
+	if err.Error != nil {
+		return err.Error
+	}
+	return nil
+}

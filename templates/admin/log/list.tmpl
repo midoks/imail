@@ -24,7 +24,7 @@
 								<th>{{.i18n.Tr "admin.log.type"}}</th>
 								<th>{{.i18n.Tr "admin.log.content"}}</th>
 								<th>{{.i18n.Tr "admin.users.created"}}</th>
-								<th>{{.i18n.Tr "admin.users.edit"}}</th>
+								<th>{{.i18n.Tr "admin.domain.op"}}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -34,7 +34,7 @@
 									<td>{{.Type}}</td>
 									<td>{{.Content}}</td>
 									<td><span title="{{DateInt64FmtMail .CreatedUnix $.i18n.Lang}}">{{DateInt64FmtMail .CreatedUnix $.i18n.Lang}}</span></td>
-									<td><a href="{{$.Link}}/admin/users/{{.Id}}"><i class="fa fa-pencil-square-o"></i></a></td>
+									<td><a href="{{$.Link}}/admin/log/delete/{{.Id}}"><i class="fa fa-times"></i></a></td>
 								</tr>
 							{{end}}
 						</tbody>

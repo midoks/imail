@@ -5,9 +5,7 @@ import (
 
 	"github.com/midoks/imail/internal/app/context"
 	// "github.com/midoks/imail/internal/app/form"
-	// "github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
-	// "github.com/midoks/imail/internal/log"
 	"github.com/midoks/imail/internal/tools/paginater"
 )
 
@@ -62,4 +60,21 @@ func Log(c *context.Context) {
 		OrderBy:  "id ASC",
 		TplName:  MAIL_LOG_LIST,
 	})
+}
+
+func LogDelete(c *context.Context) {
+	id := c.ParamsInt64(":id")
+
+	if err := db.LogDeleteById(id); err != nil {
+		c.Fail(-1, c.Tr("common.fail"))
+	} else {
+		c.Flash.Success(c.Tr("common.success"))
+	}
+
+	c.Redirect("/admin/log")
+}
+
+func LogClear(c *context.Context) {
+	db.LogClear()
+	c.Redirect("/admin/log")
 }

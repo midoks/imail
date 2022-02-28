@@ -207,7 +207,6 @@ func MailListPosForPop(uid int64, pos int64) ([]Mail, error) {
 	sql := fmt.Sprintf("SELECT id,size FROM `%s` WHERE uid=? and type=1 order by id limit %d,%d", MailTableName(), pos-1, 1)
 	ret := db.Raw(sql, uid).Scan(&result)
 
-	// fmt.Println(sql, result)
 	if ret.Error != nil {
 		return nil, ret.Error
 	}

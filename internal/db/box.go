@@ -128,7 +128,5 @@ func BoxListByMid(uid int64, className string, mid int64) ([]Mail, error) {
 	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and id='%d' limit 500", MailTableName(), mid)
 
 	db.Raw(sql, uid).Find(&result)
-
-	// fmt.Println("BoxListByMid:", sql, className)
 	return result, err
 }

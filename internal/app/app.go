@@ -183,6 +183,12 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 			m.Get("/monitor", admin.Monitor)
 			m.Get("/log", admin.Log)
 
+			m.Group("/log", func() {
+				m.Get("", admin.Log)
+				m.Combo("/delete/:id").Get(admin.LogDelete)
+				m.Combo("/clear").Get(admin.LogClear)
+			})
+
 			m.Group("/domain", func() {
 				m.Get("", admin.Domain)
 				m.Combo("/new").Get(admin.NewDomain).Post(bindIgnErr(form.AdminCreateDomain{}), admin.NewDomainPost)
