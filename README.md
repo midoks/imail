@@ -9,6 +9,11 @@
 
 imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件服务。使用 Go 语言开发使得 imail 能够通过独立的二进制分发，并且支持 Go 语言支持的 所有平台，包括 Linux、macOS、Windows 以及 ARM 平台。
 
+- 支持多域名管理。
+- 邮件草稿功能支持。
+- 邮件搜索功能支持。
+- Rspamd邮件功能支持。
+- Hook脚本支持。
 
 ## 版本截图
 
@@ -17,25 +22,15 @@ imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件
 
 ## 版本详情
 
-- 0.0.9
+- 0.0.12
 
-测试版
-
-- [X] 邮件内容分离
-- [x] 日志功能更换
 - [X] 搜索功能优化
 - [X] 邮件草稿功能
+- [X] 后台管理日志
 
-## 快速安装
+## Wiki
 
-```
-curl -fsSL  https://raw.githubusercontent.com/midoks/imail/master/scripts/install.sh | sh
-```
-
-## 快速开发
-```
-curl -fsSL  https://raw.githubusercontent.com/midoks/imail/master/scripts/install_dev.sh | sh
-```
+- https://github.com/midoks/imail/wiki
 
 ## 贡献者
 
