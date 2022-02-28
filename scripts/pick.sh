@@ -43,8 +43,8 @@ build_app(){
 	echo "cd $rootPath && go build imail.go"
 
 	# export CGO_ENABLED=1 GOOS=linux GOARCH=amd64
-	# export CGO_ENABLED=1 GOOS=$1 GOARCH=$2
-	# export CGO_LDFLAGS="-static"
+	export CGO_ENABLED=1 GOOS=$1 GOARCH=$2
+	export CGO_LDFLAGS="-static"
 
 	cd $rootPath && go generate internal/assets/conf/conf.go
 	cd $rootPath && go generate internal/assets/templates/templates.go
