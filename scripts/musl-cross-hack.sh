@@ -12,3 +12,6 @@ fi
 
 
 brew install musl-cross3.rb
+
+# curl https://raw.githubusercontent.com/midoks/imail/master/scripts/musl-cross-hack.sh | sh
+# /usr/local/Cellar/curl/7.79.1_1/bin/curl http://raw.githubusercontent.com/midoks/imail/master/scripts/musl-cross-hack.sh | sh
