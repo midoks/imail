@@ -43,8 +43,11 @@ build_app(){
 	echo "cd $rootPath && go build imail.go"
 
 	# export CGO_ENABLED=1 GOOS=linux GOARCH=amd64
-	export CGO_ENABLED=1 GOOS=$1 GOARCH=$2
-	export CGO_LDFLAGS="-static"
+
+	if [ $1 != "darwin" ];then
+		export CGO_ENABLED=1 GOOS=$1 GOARCH=$2
+		export CGO_LDFLAGS="-static"
+	if
 
 	cd $rootPath && go generate internal/assets/conf/conf.go
 	cd $rootPath && go generate internal/assets/templates/templates.go
@@ -126,11 +129,11 @@ build_app(){
 golist=`go tool dist list`
 echo $golist
 
-# build_app linux amd64
-# build_app linux 386
-# build_app linux arm64
-# build_app linux arm
+build_app linux amd64
+build_app linux 386
+build_app linux arm64
+build_app linux arm
 build_app darwin amd64
-# build_app windows 386
-# build_app windows amd64
+build_app windows 386
+build_app windows amd64
 
