@@ -116,6 +116,7 @@ function mailDeleted(val){
 	});
 }
 
+//dd
 function mailHardDeleted(val){
 	var ids = getSelectVal();
 	if (ids.length==0){
