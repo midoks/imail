@@ -229,6 +229,7 @@ func SignUpPost(c *context.Context, cpt *captcha.Captcha, f form.Register) {
 	// 	}
 	// 	return
 	// }
+
 	log.Debugf("Account created: %s", u.Name)
 
 	// Auto-set admin for the only user.

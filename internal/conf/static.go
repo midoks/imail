@@ -73,6 +73,20 @@ var (
 		MailSaveMode string
 	}
 
+	// Authentication settings
+	Auth struct {
+		ActivateCodeLives         int
+		ResetPasswordCodeLives    int
+		RequireEmailConfirmation  bool
+		RequireSigninView         bool
+		DisableRegistration       bool
+		EnableRegistrationCaptcha bool
+
+		EnableReverseProxyAuthentication   bool
+		EnableReverseProxyAutoRegistration bool
+		ReverseProxyAuthenticationHeader   string
+	}
+
 	// Session settings
 	Session struct {
 		Provider       string

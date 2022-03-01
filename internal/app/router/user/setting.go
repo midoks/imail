@@ -1,20 +1,10 @@
 package user
 
 import (
-	// "bytes"
-	// "encoding/base64"
-	"fmt"
-	// "html/template"
-	// "image/png"
-	// "io/ioutil"
-	// "strings"
-
 	"github.com/midoks/imail/internal/app/context"
 	"github.com/midoks/imail/internal/app/form"
-	// "github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
 	"github.com/midoks/imail/internal/tools"
-	// "github.com/midoks/imail/internal/log"
 )
 
 const (
@@ -32,7 +22,6 @@ func Settings(c *context.Context) {
 	c.PageIs("SettingsProfile")
 	c.Success(SETTINGS_PROFILE)
 
-	fmt.Println(c.User.GetNick())
 }
 
 func SettingsPost(c *context.Context, f form.UpdateProfile) {

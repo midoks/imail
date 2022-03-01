@@ -121,6 +121,14 @@ func Init(customConf string) error {
 		return errors.Wrap(err, "mapping [session] section")
 	}
 
+	// ***********************************
+	// ----- Authentication settings -----
+	// ***********************************
+
+	if err = File.Section("auth").MapTo(&Auth); err != nil {
+		return errors.Wrap(err, "mapping [auth] section")
+	}
+
 	// ***************************
 	// ----- SMTP settings -----
 	// ***************************
