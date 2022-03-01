@@ -26,9 +26,23 @@ type User struct {
 	UpdatedUnix int64     `gorm:"autoCreateTime;comment:更新时间"`
 }
 
+// type ErrUserAlreadyExist struct {
+// 	args map[string]interface{}
+// }
+
 func (User) TableName() string {
 	return "im_users"
 }
+
+// func IsErrUserAlreadyExist(err error) bool {
+// 	_, ok := err.(ErrUserAlreadyExist)
+// 	return ok
+// }
+
+// func IsErrEmailAlreadyUsed(err error) bool {
+// 	_, ok := err.(ErrEmailAlreadyUsed)
+// 	return ok
+// }
 
 func (u *User) ValidPassword(oldPwd string) bool {
 	inputPwd := tools.Md5(tools.Md5(oldPwd) + u.Salt)
@@ -151,6 +165,11 @@ func UserCheckIsExist(name string) bool {
 		return true
 	}
 	return false
+}
+
+// UpdateUser updates user's information.
+func UpdateUser(u *User) error {
+	return db.Save(u).Error
 }
 
 func UserUpdateTokenGetByName(name string, token string) bool {

@@ -265,6 +265,8 @@ func InstallPost(c *context.Context, f form.Install) {
 
 	cfg.Section("session").Key("provider").SetValue("file")
 
+	cfg.Section("auth").Key("disable_registration").SetValue(true)
+
 	mode := "file"
 	if f.EnableConsoleMode {
 		mode = "console, file"

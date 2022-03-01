@@ -222,8 +222,8 @@ func Contexter() macaron.Handler {
 		// c.renderNoticeBanner()
 
 		// avoid iframe use by other.
-		// c.Header().Set("X-Content-Type-Options", "nosniff")
-		// c.Header().Set("X-Frame-Options", "DENY")
+		c.Header().Set("X-Content-Type-Options", "nosniff")
+		c.Header().Set("X-Frame-Options", "DENY")
 
 		ctx.Map(c)
 	}

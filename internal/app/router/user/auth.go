@@ -26,9 +26,6 @@ const (
 
 // AutoLogin reads cookie and try to auto-login.
 func AutoLogin(c *context.Context) (bool, error) {
-	// if !db.HasEngine {
-	// 	return false, nil
-	// }
 
 	uname := c.GetCookie(conf.Security.CookieUsername)
 	if len(uname) == 0 {
@@ -49,9 +46,6 @@ func AutoLogin(c *context.Context) (bool, error) {
 	if uid != nil {
 		u, err := db.UserGetById(uid.(int64))
 		if err != nil {
-			// if !db.IsErrUserNotExist(err) {
-			// 	return false, fmt.Errorf("get user by name: %v", err)
-			// }
 			return false, nil
 		}
 
@@ -170,37 +164,36 @@ func LoginTwoFactorRecoveryCodePost(c *context.Context) {
 func SignUp(c *context.Context) {
 	c.Title("sign_up")
 
-	// c.Data["EnableCaptcha"] = conf.Auth.EnableRegistrationCaptcha
+	c.Data["EnableCaptcha"] = conf.Auth.EnableRegistrationCaptcha
 
-	// if conf.Auth.DisableRegistration {
-	// 	c.Data["DisableRegistration"] = true
-	// 	c.Success(SIGNUP)
-	// 	return
-	// }
+	if conf.Auth.DisableRegistration {
+		c.Data["DisableRegistration"] = true
+		c.Success(SIGNUP)
+		return
+	}
 
 	c.Success(SIGNUP)
 }
 
 func SignUpPost(c *context.Context, cpt *captcha.Captcha, f form.Register) {
 	c.Title("sign_up")
+	c.Data["EnableCaptcha"] = conf.Auth.EnableRegistrationCaptcha
 
-	// c.Data["EnableCaptcha"] = conf.Auth.EnableRegistrationCaptcha
-
-	// if conf.Auth.DisableRegistration {
-	// 	c.Status(403)
-	// 	return
-	// }
+	if conf.Auth.DisableRegistration {
+		c.Status(403)
+		return
+	}
 
 	if c.HasError() {
 		c.Success(SIGNUP)
 		return
 	}
 
-	// if conf.Auth.EnableRegistrationCaptcha && !cpt.VerifyReq(c.Req) {
-	// 	c.FormErr("Captcha")
-	// 	c.RenderWithErr(c.Tr("form.captcha_incorrect"), SIGNUP, &f)
-	// 	return
-	// }
+	if conf.Auth.EnableRegistrationCaptcha && !cpt.VerifyReq(c.Req) {
+		c.FormErr("Captcha")
+		c.RenderWithErr(c.Tr("form.captcha_incorrect"), SIGNUP, &f)
+		return
+	}
 
 	if f.Password != f.Retype {
 		c.FormErr("Password")
@@ -211,39 +204,27 @@ func SignUpPost(c *context.Context, cpt *captcha.Captcha, f form.Register) {
 	u := &db.User{
 		Name:     f.UserName,
 		Password: f.Password,
-		IsActive: true,
+		IsActive: false,
 	}
-	// if err := db.CreateUser(u); err != nil {
-	// 	switch {
-	// 	case db.IsErrUserAlreadyExist(err):
-	// 		c.FormErr("UserName")
-	// 		c.RenderWithErr(c.Tr("form.username_been_taken"), SIGNUP, &f)
-	// 	case db.IsErrEmailAlreadyUsed(err):
-	// 		c.FormErr("Email")
-	// 		c.RenderWithErr(c.Tr("form.email_been_used"), SIGNUP, &f)
-	// 	case db.IsErrNameNotAllowed(err):
-	// 		c.FormErr("UserName")
-	// 		c.RenderWithErr(c.Tr("user.form.name_not_allowed", err.(db.ErrNameNotAllowed).Value()), SIGNUP, &f)
-	// 	default:
-	// 		c.Error(err, "create user")
-	// 	}
-	// 	return
-	// }
+	if err := db.CreateUser(u); err != nil {
+		c.Error(err, "create user")
+		return
+	}
 
 	log.Debugf("Account created: %s", u.Name)
 
 	// Auto-set admin for the only user.
-	// if db.CountUsers() == 1 {
-	// 	u.IsAdmin = true
-	// 	u.IsActive = true
-	// 	if err := db.UpdateUser(u); err != nil {
-	// 		c.Error(err, "update user")
-	// 		return
-	// 	}
-	// }
+	if db.UsersCount() == 1 {
+		u.IsAdmin = true
+		u.IsActive = true
+		if err := db.UpdateUser(u); err != nil {
+			c.Error(err, "update user")
+			return
+		}
+	}
 
 	// Send confirmation email.
-	// if conf.Auth.RequireEmailConfirmation && u.ID > 1 {
+	// if conf.Auth.RequireEmailConfirmation {
 	// 	email.SendActivateAccountMail(c.Context, db.NewMailerUser(u))
 	// 	c.Data["IsSendRegisterMail"] = true
 	// 	c.Data["Email"] = u.Email
