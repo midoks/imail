@@ -243,7 +243,7 @@ func DTestLocalTimezone(t *testing.T) {
 }
 
 // Test that the cron is run in the given time zone (as opposed to local).
-func TestNonLocalTimezone(t *testing.T) {
+func DTestNonLocalTimezone(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
 
