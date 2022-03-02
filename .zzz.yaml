@@ -22,3 +22,5 @@ action:
   - go generate internal/assets/conf/conf.go
   - go generate internal/assets/public/public.go
   - go generate internal/assets/templates/templates.go
+  after:
+  - ps -ef|grep 'imail service'| grep -v grep | awk '{print $2}' | xargs kill -9  && ./imail service &
