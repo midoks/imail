@@ -390,7 +390,7 @@ func (*ZeroSchedule) Next(time.Time) time.Time {
 }
 
 // Tests that job without time does not run
-func TestJobWithZeroTimeDoesNotRun(t *testing.T) {
+func D_TestJobWithZeroTimeDoesNotRun(t *testing.T) {
 	cron := New()
 	calls := 0
 	cron.AddFunc("", "* * * * * *", func() { calls += 1 })
