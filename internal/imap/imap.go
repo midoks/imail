@@ -102,6 +102,8 @@ type ImapServer struct {
 	// user id
 	userID int64
 
+	LinkSSL bool
+
 	TLSConfig *tls.Config // Enable STARTTLS support.
 
 	//Turn off function related
@@ -122,8 +124,17 @@ func (this *ImapServer) getState() int {
 }
 
 func (this *ImapServer) D(format string, args ...interface{}) {
+
+	info := fmt.Sprintf(format, args...)
+	info = strings.TrimSpace(info)
+
+	if this.LinkSSL {
+		log.Debugf("[SSL]:%s", info)
+		return
+	}
+
 	if conf.Imap.Debug {
-		log.Debugf(format, args...)
+		log.Debug(info)
 	}
 }
 
@@ -601,6 +612,7 @@ func (this *ImapServer) handle() {
 }
 
 func (this *ImapServer) initTLSConfig() {
+	this.LinkSSL = true
 	this.TLSConfig = tools.InitAutoMakeTLSConfig()
 }
 

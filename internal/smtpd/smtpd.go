@@ -203,8 +203,17 @@ func (smtp *SmtpdServer) getState() int {
 }
 
 func (smtp *SmtpdServer) D(format string, args ...interface{}) {
+
+	info := fmt.Sprintf(format, args...)
+	info = strings.TrimSpace(info)
+
+	if smtp.LinkSSL {
+		log.Debugf("[SSL]:%s", info)
+		return
+	}
+
 	if conf.Smtp.Debug {
-		log.Debugf(format, args...)
+		log.Debug(info)
 	}
 }
 

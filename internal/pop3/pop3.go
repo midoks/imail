@@ -97,13 +97,17 @@ func (this *Pop3Server) getState() int {
 }
 
 func (this *Pop3Server) D(format string, args ...interface{}) {
+
+	info := fmt.Sprintf(format, args...)
+	info = strings.TrimSpace(info)
+
 	if this.LinkSSL {
-		log.Debugf("[SSL]:%s", args...)
+		log.Debugf("[SSL]:%s", info)
 		return
 	}
 
 	if conf.Pop3.Debug {
-		log.Debugf(format, args...)
+		log.Debug(info)
 	}
 }
 
@@ -472,7 +476,7 @@ func (this *Pop3Server) StartSSLPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := tls.Listen("tcp", addr, this.TLSConfig)
 	if err != nil {
-		this.D("pop[start][ssl]:%s", err)
+		this.D("pop[start][ssl]:%T", err)
 		return
 	}
 	defer ln.Close()
