@@ -222,7 +222,7 @@ func TestRunningMultipleSchedules(t *testing.T) {
 }
 
 // Test that the cron is run in the local time zone (as opposed to UTC).
-func DTestLocalTimezone(t *testing.T) {
+func D_TestLocalTimezone(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
 
@@ -243,7 +243,7 @@ func DTestLocalTimezone(t *testing.T) {
 }
 
 // Test that the cron is run in the given time zone (as opposed to local).
-func DTestNonLocalTimezone(t *testing.T) {
+func D_TestNonLocalTimezone(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
 
