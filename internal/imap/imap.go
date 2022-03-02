@@ -165,11 +165,13 @@ func (this *ImapServer) error(code string) {
 func (this *ImapServer) getString(state int) (string, error) {
 
 	input, err := this.reader.ReadString('\n')
-	inputTrim := strings.TrimSpace(input)
+	if err != nil {
+		return "", err
+	}
 
+	inputTrim := strings.TrimSpace(input)
 	this.D("imap[input]:%s", inputTrim)
 	return inputTrim, err
-
 }
 
 func (this *ImapServer) getString0() (string, error) {
@@ -578,8 +580,7 @@ func (this *ImapServer) handle() {
 		input, err := this.getString(state)
 
 		if err != nil {
-			this.close()
-			break
+			continue
 		}
 
 		if this.cmdCapabitity(input) {
@@ -587,6 +588,11 @@ func (this *ImapServer) handle() {
 		} else if this.cmdNoop(input) {
 		} else if this.cmdAuth(input) {
 			this.setState(CMD_AUTH)
+		}
+
+		if this.cmdClose(input) {
+			this.close()
+			break
 		}
 
 		if this.stateCompare(state, CMD_AUTH) {
