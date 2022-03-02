@@ -11,9 +11,9 @@ import (
 
 type Box struct {
 	Id         int64 `gorm:"primaryKey"`
-	Uid        int64 `gorm:"comment:用户ID"`
-	Mid        int64 `gorm:"comment:邮件ID"`
-	Type       int   `gorm:"comment:类型|0:接收邮件;1:发送邮件"`
+	Uid        int64 `gorm:"comment:UID"`
+	Mid        int64 `gorm:"comment:MID"`
+	Type       int   `gorm:"comment:TYPE|0:接收邮件;1:发送邮件"`
 	Size       int   `gorm:"comment:邮件内容大小[byte]"`
 	UpdateTime int64 `gorm:"autoCreateTime;comment:更新时间"`
 	CreateTime int64 `gorm:"autoCreateTime;comment:创建时间"`
@@ -57,23 +57,23 @@ func BoxUserMessageCountByClassName(uid int64, className string) (int64, int64) 
 	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", MailTableName())
 
 	if strings.EqualFold(className, "Sent Messages") {
-		sql = fmt.Sprintf("%s and type='%d' and is_delete='0'", sql, 0)
+		sql = fmt.Sprintf("%s and type='%d' and is_delete='0' and is_draft='0' ", sql, 0)
 	}
 
 	if strings.EqualFold(className, "INBOX") {
-		sql = fmt.Sprintf("%s and type='%d' and is_delete='0' and is_junk='0' and is_flags='0'", sql, 1)
+		sql = fmt.Sprintf("%s and type='%d' and is_delete='0' and is_junk='0' and is_flags='0' and is_draft='0'", sql, 1)
 	}
 
 	if strings.EqualFold(className, "Deleted Messages") {
-		sql = fmt.Sprintf("%s and is_delete='1' ", sql)
+		sql = fmt.Sprintf("%s and is_delete='1' and is_draft='0'", sql)
 	}
 
 	if strings.EqualFold(className, "Drafts") {
-		return 0, 0
+		sql = fmt.Sprintf("%s and is_delete='0' and is_draft='1'", sql)
 	}
 
 	if strings.EqualFold(className, "Junk") {
-		sql = fmt.Sprintf("%s and is_junk='1'", sql)
+		sql = fmt.Sprintf("%s and is_junk='1' and is_draft='0'", sql)
 	}
 
 	// fmt.Println("BoxUserMessageCountByClassName:", sql, className)
@@ -109,7 +109,7 @@ func BoxListByImap(uid int64, className string, start int64, end int64) ([]Mail,
 	}
 
 	if strings.EqualFold(className, "Drafts") {
-		return result, nil
+		sql = fmt.Sprintf("%s and is_draft='1' ", sql)
 	}
 
 	if strings.EqualFold(className, "Junk") {

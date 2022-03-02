@@ -139,9 +139,15 @@ func (this *ImapServer) D(format string, args ...interface{}) {
 }
 
 func (this *ImapServer) w(msg string) error {
-	log := fmt.Sprintf("imap[w]:%s", msg)
-	this.D(strings.TrimSpace(log))
+	// log := fmt.Sprintf("imap[w]:%s", msg)
+	// this.D(strings.TrimSpace(log))
 
+	_, err := this.writer.Write([]byte(msg))
+	this.writer.Flush()
+	return err
+}
+
+func (this *ImapServer) ww(msg string) error {
 	_, err := this.writer.Write([]byte(msg))
 	this.writer.Flush()
 	return err
@@ -170,7 +176,7 @@ func (this *ImapServer) getString(state int) (string, error) {
 	}
 
 	inputTrim := strings.TrimSpace(input)
-	this.D("imap[input]:%s", inputTrim)
+	// this.D("imap[i]:%s", inputTrim)
 	return inputTrim, err
 }
 
@@ -580,7 +586,8 @@ func (this *ImapServer) handle() {
 		input, err := this.getString(state)
 
 		if err != nil {
-			continue
+			this.close()
+			break
 		}
 
 		if this.cmdCapabitity(input) {
@@ -645,7 +652,7 @@ func (this *ImapServer) StartPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	this.nl, err = net.Listen("tcp", addr)
 	if err != nil {
-		this.D("[imap]StartSSLPort:%s", err)
+		log.Infof("imap[conn][listen]: %v", err)
 		return
 	}
 
@@ -654,7 +661,7 @@ func (this *ImapServer) StartPort(port int) {
 	for {
 		this.nlConn, err = this.nl.Accept()
 		if err != nil {
-			this.D("imap[StartPort][conn]:%s", err)
+			log.Infof("imap[conn][accept]: %v", err)
 			return
 		} else {
 			this.start(this.nlConn)
@@ -669,17 +676,19 @@ func (this *ImapServer) StartSSLPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	this.nlSSL, err = tls.Listen("tcp", addr, this.TLSConfig)
 	if err != nil {
-		this.D("imap[StartSSLPort]:%s", err)
+		log.Infof("imap[ssl][conn][listen]: %v", err)
 		return
 	}
 	defer this.nlSSL.Close()
 
-	this.nlConnSSL, err = this.nlSSL.Accept()
-	if err != nil {
-		this.D("imap[StartSSLPort][conn]:%s", err)
-		return
+	for {
+		this.nlConnSSL, err = this.nlSSL.Accept()
+		if err != nil {
+			log.Infof("imap[ssl][conn][accept]: %v", err)
+			return
+		}
+		this.start(this.nlConnSSL)
 	}
-	this.start(this.nlConnSSL)
 
 }
 
@@ -710,13 +719,26 @@ func (this *ImapServer) Close() error {
 }
 
 var srv ImapServer
+var srvSSL ImapServer
 
 func init() {
 	srv = ImapServer{}
+	srvSSL = ImapServer{}
 }
 
 func Close() error {
-	return srv.Close()
+
+	err := srvSSL.Close()
+	if err != nil {
+		return err
+	}
+
+	err = srv.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func Start(port int) {
@@ -724,5 +746,5 @@ func Start(port int) {
 }
 
 func StartSSL(port int) {
-	srv.StartSSLPort(port)
+	srvSSL.StartSSLPort(port)
 }
