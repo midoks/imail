@@ -218,8 +218,7 @@ func (smtp *SmtpdServer) D(format string, args ...interface{}) {
 }
 
 func (smtp *SmtpdServer) w(msg string) error {
-	log := fmt.Sprintf("smtpd[w][%s]:%s", smtp.peer.Addr, msg)
-	smtp.D(log)
+	smtp.D("smtpd[w][%s]:%s", smtp.peer.Addr, msg)
 
 	_, err := smtp.writer.Write([]byte(msg))
 	smtp.writer.Flush()
@@ -236,8 +235,12 @@ func (smtp *SmtpdServer) getString(state int) (string, error) {
 		return "", nil
 	}
 	input, err := smtp.reader.ReadString('\n')
+	if err != nil {
+		return "", err
+	}
+
 	inputTrim := strings.TrimSpace(input)
-	smtp.D("smtpd[r][%s]:%s;err:%s", smtp.peer.Addr, inputTrim, err)
+	smtp.D("smtpd[r][%s]:%s", smtp.peer.Addr, inputTrim)
 	return inputTrim, err
 
 }
@@ -340,7 +343,7 @@ func (smtp *SmtpdServer) cmdAuthLoginPwd(input string) bool {
 	smtp.write(MSG_AUTH_FAIL)
 
 	//fail log to db
-	info := fmt.Sprintf("user[%s]:%.3s %s%s", smtp.loginUser, MSG_AUTH_FAIL, msgList[MSG_AUTH_FAIL], GO_EOL)
+	info := fmt.Sprintf("[smtp]user[%s]:%.3s %s%s", smtp.loginUser, MSG_AUTH_FAIL, msgList[MSG_AUTH_FAIL], GO_EOL)
 	db.LogAdd("auth_plain_login", info)
 	return false
 }
@@ -366,7 +369,7 @@ func (smtp *SmtpdServer) cmdAuthPlainLogin(input string) (bool, bool) {
 			smtp.write(MSG_AUTH_FAIL)
 
 			//fail log to db
-			info := fmt.Sprintf("user[%s]:%.3s %s%s", smtp.loginUser, MSG_AUTH_FAIL, msgList[MSG_AUTH_FAIL], GO_EOL)
+			info := fmt.Sprintf("[smtp]user[%s]:%.3s %s%s", smtp.loginUser, MSG_AUTH_FAIL, msgList[MSG_AUTH_FAIL], GO_EOL)
 			db.LogAdd("auth_plain_login", info)
 
 			return true, false
