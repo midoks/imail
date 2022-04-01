@@ -126,7 +126,7 @@ func GetStatistic() (stats Statistic) {
 }
 
 func TablePrefix(tn string) string {
-    return fmt.Sprintf("%s_%s", conf.Database.Prefix, tn)
+    return fmt.Sprintf("%s%s", conf.Database.Prefix, tn)
 }
 
 func CheckDb() bool {
