@@ -18,12 +18,8 @@ type Class struct {
 	CreateTime int64  `gorm:"autoCreateTime;comment:创建时间"`
 }
 
-func ClassTableName() string {
-	return "im_class"
-}
-
 func (Class) TableName() string {
-	return ClassTableName()
+	return TablePrefix("class")
 }
 
 // func (u *Class) Update(fields ...string) error {
@@ -49,7 +45,7 @@ func (Class) TableName() string {
 
 func ClassGetIdByName(uid int64, name string) (int64, error) {
 	var class Class
-	sql := fmt.Sprintf("SELECT id,name,flags FROM `%s` WHERE (`type`=0 or uid=?) and `name`=?", ClassTableName())
+	sql := fmt.Sprintf("SELECT id,name,flags FROM `%s` WHERE (`type`=0 or uid=?) and `name`=?", TablePrefix("class"))
 	result := db.Raw(sql, uid, name).Find(&class)
 
 	fmt.Println(result)

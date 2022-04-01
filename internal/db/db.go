@@ -2,22 +2,30 @@ package db
 
 import (
     "database/sql"
-    "errors"
     "fmt"
     "os"
+    "strings"
     "time"
 
-    "github.com/midoks/imail/internal/conf"
-    "github.com/midoks/imail/internal/log"
+    "github.com/pkg/errors"
     "gorm.io/driver/mysql"
     "gorm.io/driver/sqlite"
     "gorm.io/gorm"
+
+    "github.com/midoks/imail/internal/conf"
+    "github.com/midoks/imail/internal/log"
 )
 
 var (
     db  *gorm.DB
     err error
 )
+
+var Tables = []interface{}{
+    new(User), new(Domain), new(Mail),
+    new(MailLog), new(MailContent), new(Box),
+    new(Class), new(Queue),
+}
 
 func getEngine() (*sql.DB, error) {
     switch conf.Database.Type {
@@ -68,14 +76,26 @@ func Init() error {
         return err
     }
 
-    db.AutoMigrate(&User{})
-    db.AutoMigrate(&Domain{})
-    db.AutoMigrate(&Mail{})
-    db.AutoMigrate(&MailLog{})
-    db.AutoMigrate(&MailContent{})
-    db.AutoMigrate(&Box{})
-    db.AutoMigrate(&Class{})
-    db.AutoMigrate(&Queue{})
+    // db.AutoMigrate(&User{})
+    // db.AutoMigrate(&Domain{})
+    // db.AutoMigrate(&Mail{})
+    // db.AutoMigrate(&MailLog{})
+    // db.AutoMigrate(&MailContent{})
+    // db.AutoMigrate(&Box{})
+    // db.AutoMigrate(&Class{})
+    // db.AutoMigrate(&Queue{})
+
+    for _, table := range Tables {
+        if db.Migrator().HasTable(table) {
+            continue
+        }
+
+        name := strings.TrimPrefix(fmt.Sprintf("%T", table), "*db.")
+        err = db.Migrator().AutoMigrate(table)
+        if err != nil {
+            return errors.Wrapf(err, "auto migrate %q", name)
+        }
+    }
 
     return nil
 }
@@ -103,6 +123,10 @@ func GetStatistic() (stats Statistic) {
     //vaild user count
     stats.Counter.VaildUser = UsersVaildCount()
     return stats
+}
+
+func TablePrefix(tn string) string {
+    return fmt.Sprintf("%s_%s", conf.Database.Prefix, tn)
 }
 
 func CheckDb() bool {

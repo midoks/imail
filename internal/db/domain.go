@@ -20,12 +20,8 @@ type Domain struct {
 	UpdatedUnix int64     `gorm:"autoCreateTime;comment:更新时间"`
 }
 
-func DomainTableName() string {
-	return "im_domain"
-}
-
 func (*Domain) TableName() string {
-	return DomainTableName()
+	return TablePrefix("domain")
 }
 
 func DomainCreate(d *Domain) (err error) {

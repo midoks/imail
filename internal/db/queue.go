@@ -19,10 +19,6 @@ type Queue struct {
 	CreateTime int64  `gorm:"autoCreateTime;comment:创建时间"`
 }
 
-func QueueTableName() string {
-	return "im_queue"
-}
-
 func (Queue) TableName() string {
-	return QueueTableName()
+	return TablePrefix("queue")
 }

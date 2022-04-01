@@ -19,17 +19,14 @@ type Box struct {
 	CreateTime int64 `gorm:"autoCreateTime;comment:创建时间"`
 }
 
-func BoxTableName() string {
-	return "im_user_box"
-}
 func (Box) TableName() string {
-	return BoxTableName()
+	return TablePrefix("user_box")
 }
 
 func BoxUserList(uid int64) (int64, int64) {
 
 	var resultBox Box
-	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", BoxTableName())
+	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", TablePrefix("user_box"))
 	db.Raw(sql, uid).Find(&resultBox)
 
 	// fmt.Println(uid, num, resultBox)
@@ -39,7 +36,7 @@ func BoxUserList(uid int64) (int64, int64) {
 func BoxUserTotal(uid int64) (int64, int64) {
 
 	var resultBox Box
-	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", BoxTableName())
+	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", TablePrefix("user_box"))
 	db.Raw(sql, uid).Find(&resultBox)
 
 	// fmt.Println(num, resultBox)
@@ -54,7 +51,7 @@ func BoxUserMessageCountByClassName(uid int64, className string) (int64, int64) 
 	}
 	var result Result
 
-	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", MailTableName())
+	sql := fmt.Sprintf("SELECT count(uid) as count, sum(size) as size FROM `%s` WHERE uid=?", TablePrefix("mail"))
 
 	if strings.EqualFold(className, "Sent Messages") {
 		sql = fmt.Sprintf("%s and type='%d' and is_delete='0' and is_draft='0' ", sql, 0)
@@ -91,9 +88,9 @@ func BoxListByImap(uid int64, className string, start int64, end int64) ([]Mail,
 
 	sql := ""
 	if end > 0 {
-		sql = fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and id>='%d' and id<='%d'", MailTableName(), start, end)
+		sql = fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and id>='%d' and id<='%d'", TablePrefix("mail"), start, end)
 	} else {
-		sql = fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and id>='%d'", MailTableName(), start)
+		sql = fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and id>='%d'", TablePrefix("mail"), start)
 	}
 
 	if strings.EqualFold(className, "Sent Messages") {
@@ -125,7 +122,7 @@ func BoxListByImap(uid int64, className string, start int64, end int64) ([]Mail,
 
 func BoxListByMid(uid int64, className string, mid int64) ([]Mail, error) {
 	var result []Mail
-	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and id='%d' limit 500", MailTableName(), mid)
+	sql := fmt.Sprintf("SELECT * FROM `%s` WHERE uid=? and id='%d' limit 500", TablePrefix("mail"), mid)
 
 	db.Raw(sql, uid).Find(&result)
 	return result, err

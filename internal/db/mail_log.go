@@ -21,12 +21,8 @@ type LogSearchOptions struct {
 	TplName  string
 }
 
-func MailLogTableName() string {
-	return "im_log"
-}
-
 func (*MailLog) TableName() string {
-	return MailLogTableName()
+	return TablePrefix("log")
 }
 
 func LogList(page, pageSize int) ([]*MailLog, error) {

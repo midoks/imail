@@ -31,7 +31,7 @@ type User struct {
 // }
 
 func (User) TableName() string {
-	return "im_users"
+	return TablePrefix("users")
 }
 
 // func IsErrUserAlreadyExist(err error) bool {

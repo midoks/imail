@@ -17,12 +17,8 @@ type MailContent struct {
 	Content string `gorm:"comment:Content"`
 }
 
-func MailContentTableName() string {
-	return "im_mail_content"
-}
-
 func (*MailContent) TableName() string {
-	return MailContentTableName()
+	return TablePrefix("mail_content")
 }
 
 func MailContentDir(uid, mid int64) string {
