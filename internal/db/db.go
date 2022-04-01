@@ -34,15 +34,13 @@ func getEngine() (*sql.DB, error) {
 
     case "sqlite3":
         dbPath := conf.Web.AppDataPath + "/" + conf.Database.Path
-        fmt.Println("dbPath", dbPath)
-        // os.MkdirAll(conf.Web.AppDataPath, os.ModePerm)
+        os.MkdirAll(conf.Web.AppDataPath, os.ModePerm)
         db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{SkipDefaultTransaction: true, PrepareStmt: true})
         //&gorm.Config{SkipDefaultTransaction: true,}
 
         // synchronous close
         db.Exec("PRAGMA synchronous = OFF;")
     default:
-        log.Errorf("database type not found")
         return nil, errors.New("database type not found")
     }
 
@@ -57,57 +55,18 @@ func getEngine() (*sql.DB, error) {
         return nil, err
     }
 
-    // SetMaxIdleConns sets the maximum number of connections in the free connection pool
     sqlDB.SetMaxIdleConns(conf.Database.MaxIdleConns)
-    // SetMaxOpenConns sets the maximum number of open database connections.
     sqlDB.SetMaxOpenConns(conf.Database.MaxOpenConns)
-    // SetConnMaxLifetime Sets the maximum time that the connection can be reused.
     sqlDB.SetConnMaxLifetime(time.Hour)
 
     return sqlDB, nil
 }
 
 func Init() error {
-    switch conf.Database.Type {
-    case "mysql":
-        dbUser := conf.Database.User
-        dbPwd := conf.Database.Password
-        dbHost := conf.Database.Host
-
-        dbName := conf.Database.Name
-        dbCharset := conf.Database.Charset
-
-        dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=True", dbUser, dbPwd, dbHost, dbName, dbCharset)
-        db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-    case "sqlite3":
-        os.MkdirAll(conf.Web.AppDataPath, os.ModePerm)
-        db, err = gorm.Open(sqlite.Open(conf.Database.Path), &gorm.Config{SkipDefaultTransaction: true})
-        //&gorm.Config{SkipDefaultTransaction: true,}
-
-        // synchronous close
-        // db.Exec("PRAGMA synchronous = OFF;")
-    default:
-        log.Errorf("database type not found")
-        return errors.New("database type not found")
-    }
+    _, err := getEngine()
     if err != nil {
-        log.Errorf("init db err,link error:%s", err)
         return err
     }
-
-    sqlDB, err := db.DB()
-
-    if err != nil {
-        log.Errorf("[DB]:%s", err)
-        return err
-    }
-
-    // SetMaxIdleConns sets the maximum number of connections in the free connection pool
-    sqlDB.SetMaxIdleConns(conf.Database.MaxIdleConns)
-    // SetMaxOpenConns sets the maximum number of open database connections.
-    sqlDB.SetMaxOpenConns(conf.Database.MaxOpenConns)
-    // SetConnMaxLifetime Sets the maximum time that the connection can be reused.
-    sqlDB.SetConnMaxLifetime(time.Hour)
 
     db.AutoMigrate(&User{})
     db.AutoMigrate(&Domain{})
@@ -129,7 +88,10 @@ type Statistic struct {
 }
 
 func Ping() error {
-    sqlDB, _ := db.DB()
+    sqlDB, err := db.DB()
+    if err != nil {
+        return err
+    }
     return sqlDB.Ping()
 }
 
