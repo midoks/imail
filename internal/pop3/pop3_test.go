@@ -50,6 +50,7 @@ func initDbSqlite() {
 
 	conf.Smtp.Debug = false
 
+	fmt.Println(conf.Database.Path)
 	log.Init()
 	db.Init()
 
@@ -178,7 +179,7 @@ func PopCmd(domain string, port string, name string, password string) (bool, err
 	return true, nil
 }
 
-// go test -v pop3_test.go -test.run TestRunLocalPop3
+// go test -v ./internal/pop3 -test.run TestRunLocalPop3
 func TestRunLocalPop3(t *testing.T) {
 	initDbSqlite()
 

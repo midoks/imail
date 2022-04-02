@@ -4,6 +4,7 @@ import (
     "database/sql"
     "fmt"
     "os"
+    "path/filepath"
     "strings"
     "time"
 
@@ -41,8 +42,11 @@ func getEngine() (*sql.DB, error) {
         db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
     case "sqlite3":
-        dbPath := conf.Web.AppDataPath + "/" + conf.Database.Path
         os.MkdirAll(conf.Web.AppDataPath, os.ModePerm)
+        dbPath := conf.Database.Path
+        if strings.EqualFold(conf.Database.Path, "data/imail.db3") {
+            dbPath = filepath.Dir(conf.Web.AppDataPath) + "/" + conf.Database.Path
+        }
         db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{SkipDefaultTransaction: true, PrepareStmt: true})
         //&gorm.Config{SkipDefaultTransaction: true,}
 
