@@ -51,7 +51,7 @@ func traceStop(w http.ResponseWriter, r *http.Request) {
 func Pprof() {
 	go func() {
 		//Close GC
-		// debug.SetGCPercent(20)
+		debug.SetGCPercent(100)
 
 		http.HandleFunc("/nums", func(w http.ResponseWriter, r *http.Request) {
 			num := strconv.FormatInt(int64(runtime.NumGoroutine()), 10)
