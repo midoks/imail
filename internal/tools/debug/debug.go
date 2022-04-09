@@ -23,6 +23,8 @@ func traceStart(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
+	defer f.Close()
+
 	err = trace.Start(f)
 	if err != nil {
 		panic(err)
@@ -34,6 +36,7 @@ func traceStart(w http.ResponseWriter, r *http.Request) {
 //stop trace
 func traceStop(w http.ResponseWriter, r *http.Request) {
 	trace.Stop()
+
 	w.Write([]byte("TrancStop"))
 	fmt.Println("StopTrancs")
 }
@@ -48,10 +51,9 @@ func traceStop(w http.ResponseWriter, r *http.Request) {
 func Pprof() {
 	go func() {
 		//Close GC
+		// debug.SetGCPercent(20)
 
-		debug.SetGCPercent(-1)
-
-		http.HandleFunc("/go_nums", func(w http.ResponseWriter, r *http.Request) {
+		http.HandleFunc("/nums", func(w http.ResponseWriter, r *http.Request) {
 			num := strconv.FormatInt(int64(runtime.NumGoroutine()), 10)
 			w.Write([]byte(num))
 		})

@@ -140,9 +140,7 @@ func Config(c *context.Context) {
 	c.Data["Security"] = conf.Security
 	c.Data["Session"] = conf.Session
 	c.Data["Cache"] = conf.Cache
-	// c.Data["Picture"] = conf.Picture
 	c.Data["LogRootPath"] = conf.Log.RootPath
-	// c.Data["Loggers"] = loggers
 
 	c.Success(tmplConfig)
 }
