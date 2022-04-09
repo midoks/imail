@@ -46,7 +46,4 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		log.Infof("Failed to start application: %v", err)
 	}
-
-	//publish to delete
-	// cmd.ServiceDebug()
 }

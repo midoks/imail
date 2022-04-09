@@ -80,7 +80,7 @@ func GlobalInit(customConf string) error {
 	// 	logger.SetFormatter(&logrus.TextFormatter{})
 	// }
 
-	if strings.EqualFold(conf.App.RunMode, "dev") {
+	if !strings.EqualFold(conf.App.RunMode, "prod") {
 		go debug.Pprof()
 	}
 

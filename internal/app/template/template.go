@@ -30,11 +30,10 @@ func FuncMap() []template.FuncMap {
 	funcMapOnce.Do(func() {
 		funcMap = []template.FuncMap{map[string]interface{}{
 			"BuildCommit": func() string {
-
-				t := time.Now().Unix()
-				s := strconv.FormatInt(t, 10)
-				return s
-				// return conf.BuildCommit
+				if !strings.EqualFold(conf.BuildCommit, "") {
+					return conf.BuildCommit
+				}
+				return strconv.FormatInt(time.Now().Unix(), 10)
 			},
 
 			"Year": func() int {

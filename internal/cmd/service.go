@@ -28,11 +28,3 @@ func runAllService(c *cli.Context) error {
 	app.Start(conf.Web.HttpPort)
 	return nil
 }
-
-func ServiceDebug() {
-	err := router.GlobalInit("")
-	if err != nil {
-		log.Errorf("Failed to initialize application: %s", err)
-	}
-	app.Start(conf.Web.HttpPort)
-}

@@ -13,7 +13,7 @@ var (
 	logger      *go_logger.Logger
 )
 
-func Init() *go_logger.Logger {
+func Init() {
 
 	logger = go_logger.NewLogger()
 
@@ -36,8 +36,6 @@ func Init() *go_logger.Logger {
 		Format:     "",
 	}
 	logger.Attach("file", go_logger.LOGGER_LEVEL_DEBUG, fileConfig)
-
-	return logger
 }
 
 func GetLogger() *go_logger.Logger {
