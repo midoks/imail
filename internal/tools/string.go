@@ -55,9 +55,8 @@ func ToSlice(input string) ([]int64, error) {
 }
 
 func CheckStringIsExist(source string, check []string) bool {
-
 	for _, s := range check {
-		if strings.EqualFold(source, s) {
+		if source == s {
 			return true
 		}
 	}
