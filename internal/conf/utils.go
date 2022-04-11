@@ -1,9 +1,28 @@
 package conf
 
 import (
-	"github.com/midoks/imail/internal/tools"
+	"os"
+	"os/user"
 	"path/filepath"
 )
+
+// CurrentUsername returns the username of the current user.
+func CurrentUsername() string {
+	username := os.Getenv("USER")
+	if len(username) > 0 {
+		return username
+	}
+
+	username = os.Getenv("USERNAME")
+	if len(username) > 0 {
+		return username
+	}
+
+	if user, err := user.Current(); err == nil {
+		username = user.Username
+	}
+	return username
+}
 
 // ensureAbs prepends the WorkDir to the given path if it is not an absolute path.
 func ensureAbs(path string) string {
@@ -21,6 +40,6 @@ func CheckRunUser(runUser string) (string, bool) {
 		return "", true
 	}
 
-	currentUser := tools.CurrentUsername()
+	currentUser := CurrentUsername()
 	return currentUser, runUser == currentUser
 }
