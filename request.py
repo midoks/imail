@@ -5,7 +5,10 @@ import requests
 import time
 import os
 
-payload = {'token': os.environ['API_KEY']}
+# payload = {'token': os.environ['API_KEY']}
+
+payload = {'token': "35115958-c271-402b-b83f-8a58bf33f0a7"}
+
 
 print(payload)
 
