@@ -279,7 +279,7 @@ func SendMailTest(addr string, a Auth, from string, to []string, msg []byte) err
 }
 
 // go test -v ./internal/smtpd -run TestSendMailLocal
-func TestSendMailLocal(t *testing.T) {
+func T_TestSendMailLocal(t *testing.T) {
 	initDbSqlite()
 
 	now := time.Now().Format("2006-01-02 15:04:05")
