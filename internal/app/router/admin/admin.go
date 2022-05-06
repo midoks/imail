@@ -64,39 +64,50 @@ var sysStatus struct {
 	PauseNs      string // circular buffer of recent GC pause times, most recent at [(NumGC+255)%256]
 	NumGC        uint32
 }
+var m *runtime.MemStats
+
+func init() {
+	// go func() {
+	// 	updateSystemStatus()
+	// 	time.Sleep(time.Microsecond * 100)
+	// }()
+
+	m = new(runtime.MemStats)
+}
 
 func updateSystemStatus() {
+
+	runtime.ReadMemStats(m)
+
 	sysStatus.Uptime = tools.TimeSincePro(initTime)
 
-	m := new(runtime.MemStats)
-	runtime.ReadMemStats(m)
 	sysStatus.NumGoroutine = runtime.NumGoroutine()
 
-	sysStatus.MemAllocated = tools.FileSize(int64(m.Alloc))
-	sysStatus.MemTotal = tools.FileSize(int64(m.TotalAlloc))
-	sysStatus.MemSys = tools.FileSize(int64(m.Sys))
+	sysStatus.MemAllocated = tools.ToSize(int64(m.Alloc))
+	sysStatus.MemTotal = tools.ToSize(int64(m.TotalAlloc))
+	sysStatus.MemSys = tools.ToSize(int64(m.Sys))
 	sysStatus.Lookups = m.Lookups
 	sysStatus.MemMallocs = m.Mallocs
 	sysStatus.MemFrees = m.Frees
 
-	sysStatus.HeapAlloc = tools.FileSize(int64(m.HeapAlloc))
-	sysStatus.HeapSys = tools.FileSize(int64(m.HeapSys))
-	sysStatus.HeapIdle = tools.FileSize(int64(m.HeapIdle))
-	sysStatus.HeapInuse = tools.FileSize(int64(m.HeapInuse))
-	sysStatus.HeapReleased = tools.FileSize(int64(m.HeapReleased))
+	sysStatus.HeapAlloc = tools.ToSize(int64(m.HeapAlloc))
+	sysStatus.HeapSys = tools.ToSize(int64(m.HeapSys))
+	sysStatus.HeapIdle = tools.ToSize(int64(m.HeapIdle))
+	sysStatus.HeapInuse = tools.ToSize(int64(m.HeapInuse))
+	sysStatus.HeapReleased = tools.ToSize(int64(m.HeapReleased))
 	sysStatus.HeapObjects = m.HeapObjects
 
-	sysStatus.StackInuse = tools.FileSize(int64(m.StackInuse))
-	sysStatus.StackSys = tools.FileSize(int64(m.StackSys))
-	sysStatus.MSpanInuse = tools.FileSize(int64(m.MSpanInuse))
-	sysStatus.MSpanSys = tools.FileSize(int64(m.MSpanSys))
-	sysStatus.MCacheInuse = tools.FileSize(int64(m.MCacheInuse))
-	sysStatus.MCacheSys = tools.FileSize(int64(m.MCacheSys))
-	sysStatus.BuckHashSys = tools.FileSize(int64(m.BuckHashSys))
-	sysStatus.GCSys = tools.FileSize(int64(m.GCSys))
-	sysStatus.OtherSys = tools.FileSize(int64(m.OtherSys))
+	sysStatus.StackInuse = tools.ToSize(int64(m.StackInuse))
+	sysStatus.StackSys = tools.ToSize(int64(m.StackSys))
+	sysStatus.MSpanInuse = tools.ToSize(int64(m.MSpanInuse))
+	sysStatus.MSpanSys = tools.ToSize(int64(m.MSpanSys))
+	sysStatus.MCacheInuse = tools.ToSize(int64(m.MCacheInuse))
+	sysStatus.MCacheSys = tools.ToSize(int64(m.MCacheSys))
+	sysStatus.BuckHashSys = tools.ToSize(int64(m.BuckHashSys))
+	sysStatus.GCSys = tools.ToSize(int64(m.GCSys))
+	sysStatus.OtherSys = tools.ToSize(int64(m.OtherSys))
 
-	sysStatus.NextGC = tools.FileSize(int64(m.NextGC))
+	sysStatus.NextGC = tools.ToSize(int64(m.NextGC))
 	sysStatus.LastGC = fmt.Sprintf("%.1fs", float64(time.Now().UnixNano()-int64(m.LastGC))/1000/1000/1000)
 	sysStatus.PauseTotalNs = fmt.Sprintf("%.1fs", float64(m.PauseTotalNs)/1000/1000/1000)
 	sysStatus.PauseNs = fmt.Sprintf("%.3fs", float64(m.PauseNs[(m.NumGC+255)%256])/1000/1000/1000)

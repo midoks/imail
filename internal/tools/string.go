@@ -177,15 +177,19 @@ func FileSize(s int64) string {
 	return humanateBytes(uint64(s), 1024, sizes)
 }
 
+func ToSize(s int64) string {
+	return SizeFormat(float64(s))
+}
+
 func SizeFormat(size float64) string {
-	units := []string{"Byte", "KB", "MB", "GB", "TB"}
+	units := []string{"B", "KB", "MB", "GB", "TB", "PB", "EB"}
 	n := 0
 	for size > 1024 {
 		size /= 1024
 		n += 1
 	}
 
-	return fmt.Sprintf("%.2f %s", size, units[n])
+	return strconv.FormatFloat(size, 'f', 2, 32) + " " + units[n]
 }
 
 func RandString(len int) string {
