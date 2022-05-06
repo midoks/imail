@@ -9,7 +9,7 @@ payload = {'token': os.environ['API_KEY']}
 
 print(payload)
 
-link = 'https://codecov.io/api/gh/codecov/go-standard'
+link = 'https://codecov.io/api/gh/midokd/imail'
 
 print("Waiting 60 seconds for report to upload before pinging API...")
 
