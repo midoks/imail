@@ -85,7 +85,7 @@ func FuncMap() []template.FuncMap {
 				return t.Format(time.RFC1123Z)
 			},
 			"DateFmtShort": func(t time.Time) string {
-				fmt.Println(t)
+				// fmt.Println(t)
 				return t.Format("Jan 02, 2006")
 			},
 
