@@ -1,23 +1,48 @@
-name: coverage
-
-on: [push, pull_request]
-
+name: codecov
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 jobs:
-  build:
+  test-and-upstream:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - uses: actions/setup-go@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
         with:
-          go-version: '1.16'
-      - name: Run coverage
-        run: go test -race -coverprofile=coverage.txt -covermode=atomic
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+          python-version: '3.9'
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ${{ steps.coverage.outputs.report }}
-          yml: ./codecov.yml
-          fail_ci_if_error: true
+          java-version: '11'
+          distribution: 'adopt'
+      - name: Before Install
+        run: |
+          pip install requests
+      - name: Run Tests
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
+          EXPECTED_COVERAGE: ${{ secrets.EXPECTED_COVERAGE }}
+          GO111MODULE: 'auto'
+        run: |
+          go test -race -coverprofile=coverage.txt -covermode=atomic
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov -t ${CODECOV_TOKEN}
+          python request.py
+      - name: Upstream to Standards
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          COVERAGE_SOURCE_FILE: ${{ secrets.COVERAGE_SOURCE_FILE }}
+        if: ${{ github.event_name == 'push'}}
+        run: |
+          wget --header "Authorization: token ${GH_TOKEN}" \
+          --header "Accept: application/vnd.github.v3.raw" \
+          https://api.github.com/repos/codecov/standards/contents/upstream.sh
+          bash upstream.sh
