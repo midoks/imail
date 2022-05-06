@@ -47,7 +47,7 @@ build_app(){
 	if [ $1 != "darwin" ];then
 		export CGO_ENABLED=1 GOOS=$1 GOARCH=$2
 		export CGO_LDFLAGS="-static"
-	if
+	fi
 
 	cd $rootPath && go generate internal/assets/conf/conf.go
 	cd $rootPath && go generate internal/assets/templates/templates.go
