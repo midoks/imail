@@ -330,7 +330,7 @@ func ReceivedMail() error {
 }
 
 // go test -v ./internal/smtpd -run TestReceivedMail
-func TestReceivedMail(t *testing.T) {
+func T_TestReceivedMail(t *testing.T) {
 	initDbSqlite()
 	err := ReceivedMail()
 	if err != nil {
@@ -393,7 +393,7 @@ func TestMailDbPushHardDisk(t *testing.T) {
 // go test -bench=. -benchmem ./...
 // go test -bench=. -benchmem ./internal/smtpd
 // go test -bench BenchmarkReceivedMail -benchmem ./internal/smtpd
-func BenchmarkReceivedMail(b *testing.B) {
+func B_BenchmarkReceivedMail(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		err := ReceivedMail()
@@ -412,7 +412,7 @@ func BenchmarkReceivedMail(b *testing.B) {
 // go test -bench=. -run BenchmarkMailDbPush -benchmem ./internal/smtpd
 // go test -bench BenchmarkMailDbPush -benchmem ./internal/smtpd
 // go test -bench BenchmarkMailDbPush -benchtime 10s -benchmem ./internal/smtpd
-func BenchmarkMailDbPush(b *testing.B) {
+func B_BenchmarkMailDbPush(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_, err := MailDbPush()
