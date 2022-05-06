@@ -25,6 +25,9 @@ all_data = requests.get(link, params=payload).json()
 
 print(all_data)
 
+if not 'commits' in all_data:
+    exit(0)
+
 commit_data = all_data['commits'][0]
 coverage_percentage = commit_data['totals']['c']
 
