@@ -28,4 +28,5 @@ action:
   -  ./imail service &
   exit:
   - ps -ef|grep 'imail service'| grep -v grep
-  - ps -ef|grep 'imail service'| grep -v grep | awk '{print $2}' | xargs kill -9 
+  - ps -ef|grep 'imail service'| grep -v grep | awk '{print $2}' | xargs kill -9
+  - rm -rf ./imail
