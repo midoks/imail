@@ -7,6 +7,8 @@ import os
 
 payload = {'token': os.environ['API_KEY']}
 
+print(payload)
+
 link = 'https://codecov.io/api/gh/codecov/go-standard'
 
 print("Waiting 60 seconds for report to upload before pinging API...")
@@ -17,6 +19,9 @@ time.sleep(60)
 print("Pinging Codecov's API..")
 # Get latest coverage data
 all_data = requests.get(link, params=payload).json()
+
+print(all_data)
+
 commit_data = all_data['commits'][0]
 coverage_percentage = commit_data['totals']['c']
 
