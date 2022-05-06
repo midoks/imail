@@ -4,6 +4,7 @@
   <p align="center">imail 是一款极易搭建的自助邮件服务。</p>
 </p>
 
+
 ---
 ## 项目愿景
 
@@ -14,6 +15,10 @@ imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件
 - 邮件搜索功能支持。
 - Rspamd垃圾邮件过滤支持。
 - Hook脚本支持。
+
+[![Go](https://github.com/midoks/imail/actions/workflows/go.yml/badge.svg)](https://github.com/midoks/imail/actions/workflows/go.yml)
+
+[![CodeQL](https://github.com/midoks/imail/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/midoks/imail/actions/workflows/codeql-analysis.yml)
 
 ## 版本截图
 
