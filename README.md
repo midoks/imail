@@ -17,7 +17,6 @@ imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件
 - Hook脚本支持。
 
 [![Go](https://github.com/midoks/imail/actions/workflows/go.yml/badge.svg)](https://github.com/midoks/imail/actions/workflows/go.yml)
-
 [![CodeQL](https://github.com/midoks/imail/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/midoks/imail/actions/workflows/codeql-analysis.yml)
 
 ## 版本截图
