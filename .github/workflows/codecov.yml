@@ -31,7 +31,7 @@ jobs:
           EXPECTED_COVERAGE: ${{ secrets.EXPECTED_COVERAGE }}
           GO111MODULE: 'auto'
         run: |
-          go test -race -coverprofile=coverage.txt -covermode=atomic
+          go test -v ./... -race -coverprofile=coverage.txt -covermode=atomic
           curl -Os https://uploader.codecov.io/latest/linux/codecov
           chmod +x codecov
           ./codecov -t ${CODECOV_TOKEN}
