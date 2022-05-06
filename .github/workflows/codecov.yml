@@ -41,8 +41,8 @@ jobs:
           GH_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           COVERAGE_SOURCE_FILE: ${{ secrets.COVERAGE_SOURCE_FILE }}
         if: ${{ github.event_name == 'push'}}
+        # --header "Authorization: token ${CODECOV_TOKEN}" \
         run: |
-          wget --header "Authorization: token ${CODECOV_TOKEN}" \
-          --header "Accept: application/vnd.github.v3.raw" \
+          wget --header "Accept: application/vnd.github.v3.raw" \
           https://api.github.com/repos/codecov/standards/contents/upstream.sh
           bash upstream.sh
