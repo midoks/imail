@@ -28,15 +28,21 @@ import (
 
 func newMacaron() *macaron.Macaron {
 	m := macaron.New()
-	m.Use(macaron.Logger())
-	m.Use(gzip.Gziper())
-	m.Use(macaron.Logger())
+
+	if !conf.Web.DisableRouterLog {
+		m.Use(macaron.Logger())
+	}
+
 	m.Use(macaron.Recovery())
+
+	if conf.Web.EnableGzip {
+		m.Use(gzip.Gziper())
+	}
 
 	m.Use(macaron.Static(
 		filepath.Join(conf.CustomDir(), "public"),
 		macaron.StaticOptions{
-			SkipLogging: true,
+			SkipLogging: conf.Web.DisableRouterLog,
 		},
 	))
 
@@ -48,7 +54,7 @@ func newMacaron() *macaron.Macaron {
 		filepath.Join(conf.WorkDir(), "public"),
 		macaron.StaticOptions{
 			FileSystem:  publicFs,
-			SkipLogging: false,
+			SkipLogging: conf.Web.DisableRouterLog,
 		},
 	))
 

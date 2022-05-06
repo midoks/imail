@@ -25,8 +25,8 @@ func (*MailLog) TableName() string {
 	return TablePrefix("log")
 }
 
-func LogList(page, pageSize int) ([]*MailLog, error) {
-	log := make([]*MailLog, 0, pageSize)
+func LogList(page, pageSize int) ([]MailLog, error) {
+	log := make([]MailLog, 0, pageSize)
 	err := db.Limit(pageSize).Offset((page - 1) * pageSize).Order("id desc").Find(&log)
 	return log, err.Error
 }
@@ -37,7 +37,7 @@ func LogCount() int64 {
 	return count
 }
 
-func LogSearchByName(opts *LogSearchOptions) (user []*MailLog, _ int64, _ error) {
+func LogSearchByName(opts *LogSearchOptions) (user []MailLog, _ int64, _ error) {
 	if len(opts.Keyword) == 0 {
 		return user, 0, nil
 	}
@@ -52,7 +52,7 @@ func LogSearchByName(opts *LogSearchOptions) (user []*MailLog, _ int64, _ error)
 	}
 
 	searchQuery := "%" + opts.Keyword + "%"
-	log := make([]*MailLog, 0, opts.PageSize)
+	log := make([]MailLog, 0, opts.PageSize)
 
 	err := db.Model(&MailLog{}).
 		Where("LOWER(content) LIKE ?", searchQuery).

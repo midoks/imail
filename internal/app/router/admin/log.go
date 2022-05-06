@@ -20,7 +20,7 @@ func RenderLogSearch(c *context.Context, opts *db.LogSearchOptions) {
 	}
 
 	var (
-		log   []*db.MailLog
+		log   []db.MailLog
 		count int64
 		err   error
 	)

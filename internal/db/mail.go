@@ -73,8 +73,8 @@ func MailCountWithOpts(opts *MailSearchOptions) int64 {
 	return count
 }
 
-func MailList(page, pageSize int, opts *MailSearchOptions) ([]*Mail, error) {
-	mail := make([]*Mail, 0, pageSize)
+func MailList(page, pageSize int, opts *MailSearchOptions) ([]Mail, error) {
+	mail := make([]Mail, 0, pageSize)
 	dbm := db.Limit(pageSize).Offset((page - 1) * pageSize).Order("id desc")
 	dbm = MailSearchByNameCond(opts, dbm)
 
@@ -126,7 +126,7 @@ func MailSearchByNameCond(opts *MailSearchOptions, dbm *gorm.DB) *gorm.DB {
 	return dbm
 }
 
-func MailSearchByName(opts *MailSearchOptions) (user []*Mail, _ int64, _ error) {
+func MailSearchByName(opts *MailSearchOptions) (user []Mail, _ int64, _ error) {
 	if len(opts.Keyword) == 0 {
 		return user, 0, nil
 	}
@@ -141,7 +141,7 @@ func MailSearchByName(opts *MailSearchOptions) (user []*Mail, _ int64, _ error) 
 	}
 
 	searchQuery := "idx_%" + opts.Keyword + "%"
-	email := make([]*Mail, 0, opts.PageSize)
+	email := make([]Mail, 0, opts.PageSize)
 
 	dbm := db.Model(&Mail{}).Where("LOWER(subject_index) LIKE ?", searchQuery)
 	dbm = MailSearchByNameCond(opts, dbm)

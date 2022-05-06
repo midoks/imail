@@ -80,7 +80,7 @@ type UserSearchOptions struct {
 	TplName  string
 }
 
-func UserSearchByName(opts *UserSearchOptions) (user []*User, _ int64, _ error) {
+func UserSearchByName(opts *UserSearchOptions) (user []User, _ int64, _ error) {
 	if len(opts.Keyword) == 0 {
 		return user, 0, nil
 	}
@@ -95,7 +95,7 @@ func UserSearchByName(opts *UserSearchOptions) (user []*User, _ int64, _ error) 
 	}
 
 	searchQuery := "%" + opts.Keyword + "%"
-	users := make([]*User, 0, opts.PageSize)
+	users := make([]User, 0, opts.PageSize)
 
 	err := db.Model(&User{}).
 		Where("LOWER(name) LIKE ?", searchQuery).
@@ -104,8 +104,8 @@ func UserSearchByName(opts *UserSearchOptions) (user []*User, _ int64, _ error) 
 	return users, UsersCount(), err.Error
 }
 
-func UsersList(page, pageSize int) ([]*User, error) {
-	users := make([]*User, 0, pageSize)
+func UsersList(page, pageSize int) ([]User, error) {
+	users := make([]User, 0, pageSize)
 	err := db.Limit(pageSize).Offset((page - 1) * pageSize).Order("id desc").Find(&users)
 	return users, err.Error
 }

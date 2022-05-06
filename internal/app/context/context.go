@@ -19,7 +19,7 @@ import (
 	"github.com/midoks/imail/internal/app/template"
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
-	"github.com/midoks/imail/internal/log"
+	// "github.com/midoks/imail/internal/log"
 )
 
 // Context represents context of a request.
@@ -104,7 +104,7 @@ func (c *Context) HasValue(name string) bool {
 
 // HTML responses template with given status.
 func (c *Context) HTML(status int, name string) {
-	log.Infof("Template:%s", name)
+	// log.Infof("Template:%s", name)
 	c.Context.HTML(status, name)
 }
 

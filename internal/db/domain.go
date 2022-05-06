@@ -66,8 +66,8 @@ func DomainVaild(name string) bool {
 	return false
 }
 
-func DomainList(page, pageSize int) ([]*Domain, error) {
-	domain := make([]*Domain, 0, pageSize)
+func DomainList(page, pageSize int) ([]Domain, error) {
+	domain := make([]Domain, 0, pageSize)
 	dbm := db.Limit(pageSize).Offset((page - 1) * pageSize).Order("id desc")
 	err := dbm.Find(&domain)
 	return domain, err.Error
@@ -83,14 +83,14 @@ func DomainDeleteById(id int64) error {
 	return db.Where("id = ?", id).Delete(&d).Error
 }
 
-func DomainGetById(id int64) (*Domain, error) {
+func DomainGetById(id int64) (Domain, error) {
 	var d Domain
 	err := db.First(&d, "id = ?", id).Error
-	return &d, err
+	return d, err
 }
 
-func DomainUpdateById(id int64, d *Domain) error {
-	err := db.Where("id = ?", id).Save(&d).Error
+func DomainUpdateById(id int64, d Domain) error {
+	err := db.Where("id = ?", id).Save(d).Error
 	return err
 }
 

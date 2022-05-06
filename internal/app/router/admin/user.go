@@ -24,7 +24,7 @@ func RenderUserSearch(c *context.Context, opts *db.UserSearchOptions) {
 	}
 
 	var (
-		users []*db.User
+		users []db.User
 		count int64
 		err   error
 	)

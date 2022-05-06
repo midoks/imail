@@ -40,7 +40,7 @@ func RenderMailSearch(c *context.Context, opts *MailSearchOptions) {
 	}
 
 	var (
-		mail  []*db.Mail
+		mail  []db.Mail
 		count int64
 		err   error
 	)
