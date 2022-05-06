@@ -354,7 +354,7 @@ Hi! yes is test. imail ok?`
 }
 
 // go test -v ./internal/smtpd -run TestMailDbPush
-func TestMailDbPush(t *testing.T) {
+func T_TestMailDbPush(t *testing.T) {
 	initDbSqlite()
 	conf.Web.MailSaveMode = "db"
 	_, err := MailDbPush()
