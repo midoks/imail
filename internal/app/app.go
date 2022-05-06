@@ -21,7 +21,7 @@ import (
 	"github.com/midoks/imail/internal/app/router/mail"
 	"github.com/midoks/imail/internal/app/router/user"
 	"github.com/midoks/imail/internal/app/template"
-	"github.com/midoks/imail/internal/assets/public"
+	// "github.com/midoks/imail/internal/assets/public"
 	"github.com/midoks/imail/internal/assets/templates"
 	"github.com/midoks/imail/internal/conf"
 )
@@ -48,8 +48,10 @@ func newMacaron() *macaron.Macaron {
 
 	var publicFs http.FileSystem
 	if !conf.Web.LoadAssetsFromDisk {
-		publicFs = public.NewFileSystem()
+		// publicFs = public.NewFileSystem()
+		publicFs = http.FS(conf.App.PublicFs)
 	}
+
 	m.Use(macaron.Static(
 		filepath.Join(conf.WorkDir(), "public"),
 		macaron.StaticOptions{
@@ -66,6 +68,7 @@ func newMacaron() *macaron.Macaron {
 		IndentJSON:        macaron.Env != macaron.PROD,
 	}
 	if !conf.Web.LoadAssetsFromDisk {
+		// renderOpt.TemplateFileSystem = http.FS(conf.App.TemplateFs)
 		renderOpt.TemplateFileSystem = templates.NewTemplateFileSystem("", renderOpt.AppendDirectories[0])
 	}
 

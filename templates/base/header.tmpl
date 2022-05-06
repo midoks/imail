@@ -11,23 +11,23 @@
 	{{end}}
 
 	<meta name="referrer" content="no-referrer" />
-	<link rel="shortcut icon" href="/img/favicon.png" />
+	<link rel="shortcut icon" href="/public/img/favicon.png" />
 
-	<script src="{{AppSubURL}}/js/jquery-3.6.0.min.js?v={{BuildCommit}}"></script>
-	<script src="{{AppSubURL}}/js/libs/jquery.are-you-sure.js?v={{BuildCommit}}"></script>
-	<link rel="stylesheet" href="{{AppSubURL}}/js/toast/jquery.toast.min.css?v={{BuildCommit}}">
-	<script src="{{AppSubURL}}/js/toast/jquery.toast.min.js?v={{BuildCommit}}"></script>
+	<script src="{{AppSubURL}}/public/js/jquery-3.6.0.min.js?v={{BuildCommit}}"></script>
+	<script src="{{AppSubURL}}/public/js/libs/jquery.are-you-sure.js?v={{BuildCommit}}"></script>
+	<link rel="stylesheet" href="{{AppSubURL}}/public/js/toast/jquery.toast.min.css?v={{BuildCommit}}">
+	<script src="{{AppSubURL}}/public/js/toast/jquery.toast.min.js?v={{BuildCommit}}"></script>
 
 
-	<link rel="stylesheet" href="{{AppSubURL}}/css/semantic.min.css?v={{BuildCommit}}">
-	<link rel="stylesheet" href="{{AppSubURL}}/assets/font-awesome-4.7.0/css/font-awesome.min.css?v={{BuildCommit}}">
-	<link rel="stylesheet" href="{{AppSubURL}}/assets/octicons-4.3.0/octicons.min.css?v={{BuildCommit}}">
+	<link rel="stylesheet" href="{{AppSubURL}}/public/css/semantic.min.css?v={{BuildCommit}}">
+	<link rel="stylesheet" href="{{AppSubURL}}/public/assets/font-awesome-4.7.0/css/font-awesome.min.css?v={{BuildCommit}}">
+	<link rel="stylesheet" href="{{AppSubURL}}/public/assets/octicons-4.3.0/octicons.min.css?v={{BuildCommit}}">
 
-	<link rel="stylesheet" href="{{AppSubURL}}/css/imail.min.css?v={{BuildCommit}}">
+	<link rel="stylesheet" href="{{AppSubURL}}/public/css/imail.min.css?v={{BuildCommit}}">
 
 	{{ if .PageIsWriteMail}}
-	<script src="{{AppSubURL}}/ckeditor5-classic/translations/zh-cn.js?v={{BuildCommit}}"></script>
-	<script src="{{AppSubURL}}/ckeditor5-classic/ckeditor.js?v={{BuildCommit}}"></script>
+	<script src="{{AppSubURL}}/public/ckeditor5-classic/translations/zh-cn.js?v={{BuildCommit}}"></script>
+	<script src="{{AppSubURL}}/public/ckeditor5-classic/ckeditor.js?v={{BuildCommit}}"></script>
 	<style>
 	.ck-editor__editable_inline {
 	　　	height: 280px !important;
@@ -51,8 +51,8 @@
 	</noscript>
 
 	<!-- JavaScript -->
-	<script src="{{AppSubURL}}/js/semantic.min.js"></script>
-	<script src="{{AppSubURL}}/js/imail.js"></script>
+	<script src="{{AppSubURL}}/public/js/semantic.min.js"></script>
+	<script src="{{AppSubURL}}/public/js/imail.js"></script>
 
 	<style>
 	.ui.vertical.menu {
@@ -78,7 +78,7 @@
 				<div class="column">
 					<div class="ui top secondary menu">
 						<a class="item brand" href="{{AppSubURL}}/">
-							<img class="ui mini image" src="{{AppSubURL}}/img/favicon.png">
+							<img class="ui mini image" src="{{AppSubURL}}/public/img/favicon.png">
 						</a>
 
 						{{if .IsLogged }}
@@ -122,7 +122,7 @@
 
 								<div class="ui dropdown head link jump item poping up" tabindex="-1" data-content="{{.i18n.Tr "user_profile_and_more"}}" data-variation="tiny inverted">
 									<span class="text avatar">
-										<img class="ui small rounded image" src="{{AppSubURL}}/img/avatar.png">
+										<img class="ui small rounded image" src="{{AppSubURL}}/public/img/avatar.png">
 										<span class="sr-only">{{.i18n.Tr "user_profile_and_more"}}</span>
 										<i class="octicon octicon-triangle-down" tabindex="-1"></i>
 									</span>

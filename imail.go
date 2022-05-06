@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"os"
 
 	"github.com/urfave/cli"
@@ -15,9 +16,19 @@ import (
 const Version = "0.0.12"
 const AppName = "imail"
 
+//go:embed templates
+var viewsFs embed.FS
+
+//go:embed public/*
+var publicFs embed.FS
+
 func init() {
 	conf.App.Version = Version
 	conf.App.Name = AppName
+
+	conf.App.TemplateFs = viewsFs
+	conf.App.PublicFs = publicFs
+
 }
 
 func main() {

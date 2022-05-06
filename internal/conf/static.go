@@ -1,6 +1,7 @@
 package conf
 
 import (
+	"embed"
 	"net/url"
 	"os"
 )
@@ -25,6 +26,9 @@ var (
 		BrandName string
 		RunUser   string
 		RunMode   string
+
+		TemplateFs embed.FS
+		PublicFs   embed.FS
 	}
 
 	// log
