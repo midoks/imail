@@ -1,4 +1,4 @@
-name: Test and coverage
+name: coverage
 
 on: [push, pull_request]
 
@@ -15,4 +15,9 @@ jobs:
       - name: Run coverage
         run: go test -race -coverprofile=coverage.txt -covermode=atomic
       - name: Upload coverage to Codecov
-        run: bash <(curl -s https://codecov.io/bash)
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ${{ steps.coverage.outputs.report }}
+          yml: ./codecov.yml
+          fail_ci_if_error: true
