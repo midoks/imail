@@ -27,8 +27,7 @@ var (
 		RunUser   string
 		RunMode   string
 
-		TemplateFs embed.FS
-		PublicFs   embed.FS
+		PublicFs embed.FS
 	}
 
 	// log

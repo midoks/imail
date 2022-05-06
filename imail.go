@@ -26,7 +26,6 @@ func init() {
 	conf.App.Version = Version
 	conf.App.Name = AppName
 
-	conf.App.TemplateFs = viewsFs
 	conf.App.PublicFs = publicFs
 
 }
