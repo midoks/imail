@@ -22,7 +22,7 @@ func Init() {
 		jsonFormat = true
 	}
 
-	logPath := fmt.Sprintf("%s", conf.Log.RootPath)
+	logPath := conf.Log.RootPath
 	fileConfig := &go_logger.FileConfig{
 		Filename: fmt.Sprintf("%s/%s", logPath, logFileName),
 		LevelFileName: map[int]string{

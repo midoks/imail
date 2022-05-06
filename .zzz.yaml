@@ -3,6 +3,7 @@ frequency: 3
 dirfilter:
 - tmp
 - .git
+- .github
 - scripts
 - vendor
 - logs

@@ -1,10 +1,8 @@
 package app
 
 import (
-	"fmt"
 	"net/http"
 	"path/filepath"
-	"strconv"
 
 	"gopkg.in/macaron.v1"
 
@@ -243,13 +241,9 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 	return m
 }
 
-func Start(port string) {
+func Start(port int) {
 	m := newMacaron()
 	m = setRouter(m)
 
-	portInt, err := strconv.Atoi(port)
-	if err != nil {
-		fmt.Println("port need number!")
-	}
-	m.Run(portInt)
+	m.Run(port)
 }

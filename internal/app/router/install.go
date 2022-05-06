@@ -260,7 +260,7 @@ func InstallPost(c *context.Context, f form.Install) {
 	cfg.Section("database").Key("path").SetValue(conf.Database.Path)
 
 	cfg.Section("web").Key("domain").SetValue(f.Domain)
-	cfg.Section("web").Key("http_port").SetValue(f.HttpPort)
+	cfg.Section("web").Key("http_port").SetValue(fmt.Sprintf("%d", f.HttpPort))
 	cfg.Section("web").Key("mail_save_mode").SetValue(f.MailSaveMode)
 
 	cfg.Section("session").Key("provider").SetValue("file")

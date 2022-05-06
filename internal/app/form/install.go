@@ -15,7 +15,7 @@ type Install struct {
 	RepoRootPath      string `binding:"Required"`
 	RunUser           string `binding:"Required"`
 	Domain            string `binding:"Required"`
-	HttpPort          string `binding:"Required"`
+	HttpPort          int    `binding:"Required"`
 	LogRootPath       string `binding:"Required"`
 	MailSaveMode      string `binding:"Required"`
 	EnableConsoleMode bool

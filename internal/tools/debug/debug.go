@@ -6,7 +6,7 @@ import (
 	_ "net/http/pprof"
 	"os"
 	"runtime"
-	"runtime/debug"
+	// "runtime/debug"
 	"runtime/trace"
 	"strconv"
 )
@@ -47,12 +47,13 @@ func traceStop(w http.ResponseWriter, r *http.Request) {
 
 // code a 1:
 // http://localhost:6060/debug/pprof/profile?seconds=30
-// go tool pprof -http=:8080 http://localhost:6060/debug/pprof/profile?seconds=30
+// go tool pprof -http=:8080 http://127.0.0.1:6060/debug/pprof/profile?seconds=30
 // go tool pprof -http=:8080 --seconds 30 http://localhost:6061/debug/pprof/profile
+// go tool pprof -http=:11112 --seconds 30 http://127.0.0.1:6060/debug/pprof/profile
 func Pprof() {
 	go func() {
 		//Close GC
-		debug.SetGCPercent(100)
+		// debug.SetGCPercent(100)
 
 		http.HandleFunc("/nums", func(w http.ResponseWriter, r *http.Request) {
 			num := strconv.FormatInt(int64(runtime.NumGoroutine()), 10)
