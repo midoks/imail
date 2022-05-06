@@ -102,7 +102,7 @@ TXU5YrNA8ao1B6CFdyjmLzoY2C9d9SDQTXMX8f8f3GUo9gZ0IzSIFVGFpsKBU0QM
 hBgHM6A0WJC9MO3aAKRBcp48y6DXNA==
 -----END PRIVATE KEY-----`)
 
-func init() {
+func T_init() {
 
 	cDir, err := os.Getwd()
 	appDir := filepath.Dir(filepath.Dir(cDir))
