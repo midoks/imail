@@ -21,8 +21,3 @@ jobs:
           file: ${{ steps.coverage.outputs.report }}
           yml: ./codecov.yml
           fail_ci_if_error: true
-
-
-comment: 
-  layout: "reach,diff,flags,tree,betaprofiling"
-  show_critical_paths: true
