@@ -27,13 +27,13 @@ jobs:
           pip install requests
       - name: Run Tests
         env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           API_KEY: ${{ secrets.API_KEY }}
-          GH_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           EXPECTED_COVERAGE: ${{ secrets.EXPECTED_COVERAGE }}
           GO111MODULE: 'auto'
         run: |
-          echo ${GH_TOKEN}
           echo ${CODECOV_TOKEN}
+          echo ${GH_TOKEN}
           echo ${API_KEY}
           echo ${EXPECTED_COVERAGE}
           go test -v ./... -race -coverprofile=coverage.txt -covermode=atomic
