@@ -25,29 +25,13 @@ jobs:
       - name: Before Install
         run: |
           pip install requests
-      - name: Run Tests
+      - name: Run Tests And Upload
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-          API_KEY: ${{ secrets.API_KEY }}
-          EXPECTED_COVERAGE: ${{ secrets.EXPECTED_COVERAGE }}
           GO111MODULE: 'auto'
         run: |
           echo ${CODECOV_TOKEN}
-          echo ${GH_TOKEN}
-          echo ${API_KEY}
-          echo ${EXPECTED_COVERAGE}
           go test -v ./... -race -coverprofile=coverage.txt -covermode=atomic
           curl -Os https://uploader.codecov.io/latest/linux/codecov
           chmod +x codecov
           ./codecov -t ${CODECOV_TOKEN}
-          python request.py
-      - name: Upstream to Standards
-        env:
-          GH_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-          COVERAGE_SOURCE_FILE: ${{ secrets.COVERAGE_SOURCE_FILE }}
-        if: ${{ github.event_name == 'push'}}
-        # --header "Authorization: token ${CODECOV_TOKEN}" \
-        run: |
-          wget --header "Accept: application/vnd.github.v3.raw" \
-          https://api.github.com/repos/codecov/standards/contents/upstream.sh
-          bash upstream.sh
