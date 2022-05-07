@@ -31,6 +31,9 @@ jobs:
           EXPECTED_COVERAGE: ${{ secrets.EXPECTED_COVERAGE }}
           GO111MODULE: 'auto'
         run: |
+          echo ${CODECOV_TOKEN}
+          echo ${API_KEY}
+          echo ${EXPECTED_COVERAGE}
           go test -v ./... -race -coverprofile=coverage.txt -covermode=atomic
           curl -Os https://uploader.codecov.io/latest/linux/codecov
           chmod +x codecov

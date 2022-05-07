@@ -8,16 +8,16 @@ import os
 # payload = {'token': os.environ['API_KEY']}
 
 payload = {'token': "35115958-c271-402b-b83f-8a58bf33f0a7"}
-
+# payload = {}
 
 print(payload)
 
-link = 'https://codecov.io/api/gh/midokd/imail'
+link = 'https://codecov.io/api/gh/midok/imail'
 
 print("Waiting 60 seconds for report to upload before pinging API...")
 
 # Sleep 60 seconds
-time.sleep(60)
+# time.sleep(60)
 
 print("Pinging Codecov's API..")
 # Get latest coverage data
