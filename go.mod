@@ -22,7 +22,7 @@ require (
 	github.com/smartystreets/goconvey v1.7.2
 	github.com/stretchr/testify v1.7.0
 	github.com/unknwon/i18n v0.0.0-20210904045753-ff3a8617e361
-	github.com/urfave/cli v1.22.5
+	github.com/urfave/cli v1.22.9
 	golang.org/x/text v0.3.7
 	gopkg.in/ini.v1 v1.66.4
 	gopkg.in/macaron.v1 v1.4.0
