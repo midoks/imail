@@ -13,7 +13,7 @@ require (
 	github.com/go-macaron/i18n v0.6.0
 	github.com/go-macaron/session v1.0.2
 	github.com/go-resty/resty/v2 v2.7.0
-	github.com/jarcoal/httpmock v1.1.0
+	github.com/jarcoal/httpmock v1.2.0
 	github.com/json-iterator/go v1.1.12
 	github.com/microcosm-cc/bluemonday v1.0.18
 	github.com/midoks/mcopa v0.0.0-20220101182214-c193ea891591
