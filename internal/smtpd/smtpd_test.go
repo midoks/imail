@@ -378,7 +378,7 @@ func HandlerTestMailDbPushMySQL(t *testing.T) {
 }
 
 // go test -v ./internal/smtpd -run TestMailDbPushHardDisk
-func TestMailDbPushHardDisk(t *testing.T) {
+func T_TestMailDbPushHardDisk(t *testing.T) {
 	initDbSqlite()
 	conf.Web.MailSaveMode = "hard_disk"
 	_, err := MailDbPush()
