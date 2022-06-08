@@ -286,34 +286,37 @@ func InstallPost(c *context.Context, f form.Install) {
 		return
 	}
 
+	// Create admin account
+	if len(f.AdminName) < 1 {
+		c.FormErr("AdminName", "AdminEmail")
+		c.RenderWithErr(c.Tr("install.invalid_admin_setting", err), INSTALL, &f)
+		return
+	}
+
+	u := &db.User{
+		Name:     f.AdminName,
+		Password: f.AdminPassword,
+		IsAdmin:  true,
+		IsActive: true,
+	}
+
+	if err := db.CreateUser(u); err != nil {
+		c.FormErr("AdminName", "AdminEmail")
+		c.RenderWithErr(c.Tr("install.invalid_admin_setting", err), INSTALL, &f)
+		return
+	}
+
 	// NOTE: We reuse the current value because this handler does not have access to CLI flags.
-	err := GlobalInit(conf.CustomConf)
-	if err != nil {
+	if err := GlobalInit(conf.CustomConf); err != nil {
 		c.RenderWithErr(c.Tr("install.init_failed", err), INSTALL, &f)
 		return
 	}
 
-	// // Create admin account
-	if len(f.AdminName) > 0 {
-		u := &db.User{
-			Name:     f.AdminName,
-			Password: f.AdminPassword,
-			IsAdmin:  true,
-			IsActive: true,
-		}
-		if err := db.CreateUser(u); err != nil {
-
-			c.FormErr("AdminName", "AdminEmail")
-			c.RenderWithErr(c.Tr("install.invalid_admin_setting", err), INSTALL, &f)
-
-		}
-
-		// Auto-login for admin
-		_ = c.Session.Set("uid", u.Id)
-		_ = c.Session.Set("uname", u.Name)
-	}
-
 	log.Info("first-time run install finished!")
 	c.Flash.Success(c.Tr("install.install_success"))
+	// Auto-login for admin
+	_ = c.Session.Set("uid", u.Id)
+	_ = c.Session.Set("uname", u.Name)
+
 	c.Redirect("/user/login")
 }
