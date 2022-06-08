@@ -289,7 +289,6 @@ func InstallPost(c *context.Context, f form.Install) {
 	// Create admin account
 	if len(f.AdminName) < 1 {
 		c.FormErr("AdminName", "AdminEmail")
-		c.RenderWithErr(c.Tr("install.invalid_admin_setting", err), INSTALL, &f)
 		return
 	}
 
