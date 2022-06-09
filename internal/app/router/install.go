@@ -286,6 +286,12 @@ func InstallPost(c *context.Context, f form.Install) {
 		return
 	}
 
+	// NOTE: We reuse the current value because this handler does not have access to CLI flags.
+	if err := GlobalInit(conf.CustomConf); err != nil {
+		c.RenderWithErr(c.Tr("install.init_failed", err), INSTALL, &f)
+		return
+	}
+
 	// Create admin account
 	if len(f.AdminName) < 1 {
 		c.FormErr("AdminName", "AdminEmail")
@@ -302,12 +308,6 @@ func InstallPost(c *context.Context, f form.Install) {
 	if err := db.CreateUser(u); err != nil {
 		c.FormErr("AdminName", "AdminEmail")
 		c.RenderWithErr(c.Tr("install.invalid_admin_setting", err), INSTALL, &f)
-		return
-	}
-
-	// NOTE: We reuse the current value because this handler does not have access to CLI flags.
-	if err := GlobalInit(conf.CustomConf); err != nil {
-		c.RenderWithErr(c.Tr("install.init_failed", err), INSTALL, &f)
 		return
 	}
 
