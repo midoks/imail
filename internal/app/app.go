@@ -21,7 +21,6 @@ import (
 	"github.com/midoks/imail/internal/app/router/mail"
 	"github.com/midoks/imail/internal/app/router/user"
 	"github.com/midoks/imail/internal/app/template"
-	// "github.com/midoks/imail/internal/assets/public"
 	"github.com/midoks/imail/internal/assets/templates"
 	"github.com/midoks/imail/internal/conf"
 )
