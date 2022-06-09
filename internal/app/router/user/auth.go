@@ -1,7 +1,7 @@
 package user
 
 import (
-	// "fmt"
+	"fmt"
 	"net/url"
 	// "github.com/pkg/errors"
 
@@ -99,10 +99,11 @@ func LoginPost(c *context.Context, f form.SignIn) {
 	c.Title("sign_in")
 
 	loginBool, uid := db.LoginByUserPassword(f.UserName, f.Password)
+	fmt.Println("u1", f.UserName, f.Password, loginBool, uid)
 	if !loginBool {
 		c.FormErr("UserName", "Password")
 		c.RenderWithErr(c.Tr("form.username_password_incorrect"), LOGIN, &f)
-
+		return
 	}
 
 	if c.HasError() {
@@ -110,7 +111,13 @@ func LoginPost(c *context.Context, f form.SignIn) {
 		return
 	}
 
-	u, _ := db.UserGetByName(f.UserName)
+	u, err := db.UserGetByName(f.UserName)
+	if err != nil {
+		c.FormErr("UserName", "Password")
+		c.RenderWithErr(c.Tr("form.username_password_incorrect"), LOGIN, &f)
+		return
+	}
+
 	if f.Remember {
 		days := 86400 * conf.Security.LoginRememberDays
 		c.SetCookie(conf.Security.CookieUsername, u.Name, days, conf.Web.Subpath, "", conf.Security.CookieSecure, true)
