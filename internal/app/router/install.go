@@ -264,6 +264,7 @@ func InstallPost(c *context.Context, f form.Install) {
 	cfg.Section("web").Key("mail_save_mode").SetValue(f.MailSaveMode)
 
 	cfg.Section("session").Key("provider").SetValue("file")
+	cfg.Section("session").Key("cookie_secure").SetValue("false")
 
 	cfg.Section("auth").Key("disable_registration").SetValue("true")
 
