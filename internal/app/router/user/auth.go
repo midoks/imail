@@ -2,7 +2,6 @@ package user
 
 import (
 	"net/url"
-	// "github.com/pkg/errors"
 
 	"github.com/go-macaron/captcha"
 	"github.com/midoks/imail/internal/app/context"
