@@ -19,7 +19,7 @@ import (
 	"github.com/midoks/imail/internal/app/template"
 	"github.com/midoks/imail/internal/conf"
 	"github.com/midoks/imail/internal/db"
-	// "github.com/midoks/imail/internal/log"
+	"github.com/midoks/imail/internal/log"
 )
 
 // Context represents context of a request.
@@ -213,8 +213,8 @@ func Contexter() macaron.Handler {
 
 		c.Data["CSRFToken"] = x.GetToken()
 		c.Data["CSRFTokenHTML"] = template.Safe(`<input type="hidden" name="_csrf" value="` + x.GetToken() + `">`)
-		// log.Debugf("Session ID: %s", sess.ID())
-		// log.Debugf("CSRF Token: %s", c.Data["CSRFToken"])
+		log.Debugf("Session ID: %s", sess.ID())
+		log.Debugf("CSRF Token: %s", c.Data["CSRFToken"])
 
 		c.Data["ShowRegistrationButton"] = !conf.Auth.DisableRegistration
 		// c.Data["ShowFooterBranding"] = conf.Other.ShowFooterBranding
