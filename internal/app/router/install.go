@@ -32,23 +32,25 @@ func startService(name string) {
 
 	if strings.EqualFold(name, "smtpd") && conf.Smtp.Enable {
 		go smtpd.Start(conf.Smtp.Port)
+		log.Infof("listen %s success!", name)
 	} else if strings.EqualFold(name, "pop3") && conf.Pop3.Enable {
 		go pop3.Start(conf.Pop3.Port)
+		log.Infof("listen %s success!", name)
 	} else if strings.EqualFold(name, "imap") && conf.Imap.Enable {
 		go imap.Start(conf.Imap.Port)
+		log.Infof("listen %s success!", name)
 	}
-
-	log.Infof("listen %s success!", name)
 
 	if strings.EqualFold(name, "smtpd") && conf.Smtp.SslEnable {
 		go smtpd.StartSSL(conf.Smtp.SslPort)
+		log.Infof("listen %s ssl success!", name)
 	} else if strings.EqualFold(name, "pop3") && conf.Pop3.SslEnable {
 		go pop3.StartSSL(conf.Pop3.SslPort)
+		log.Infof("listen %s ssl success!", name)
 	} else if strings.EqualFold(name, "imap") && conf.Imap.SslEnable {
 		go imap.StartSSL(conf.Imap.SslPort)
+		log.Infof("listen %s ssl success!", name)
 	}
-
-	log.Infof("listen %s ssl success!", name)
 
 }
 
