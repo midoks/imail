@@ -9,6 +9,7 @@ cd $TAGRT_DIR
 export GIT_COMMIT=$(git rev-parse HEAD)
 export BUILD_TIME=$(date -u '+%Y-%m-%d %I:%M:%S %Z')
 
+go install github.com/midoks/zzz@latest
 
 if [ ! -d $TAGRT_DIR/imail ]; then
 	git clone https://github.com/midoks/imail

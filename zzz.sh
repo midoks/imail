@@ -1,6 +1,7 @@
 #!/bin/sh
 curPath=`pwd`
 
+go env -w GOSUMDB=off
 
 export GIT_COMMIT=$(git rev-parse HEAD)
 export BUILD_TIME=$(date -u '+%Y-%m-%d %I:%M:%S %Z')
