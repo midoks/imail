@@ -38,6 +38,8 @@ service imail restart
 cd $TAGRT_DIR/imail && ./imail -v
 
 # Debug Now
+export PATH=$PATH:/root/go/bin
+
 service imail stop
-cd $TAGRT_DIR/imail && sh ./zzz.sh
+cd $TAGRT_DIR/imail && bash zzz.sh
 
