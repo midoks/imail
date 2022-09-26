@@ -14,7 +14,7 @@ func GetPublicIP() (ip string, err error) {
 	resp, err := http.Get("http://myexternalip.com/raw")
 	content, err := ioutil.ReadAll(resp.Body)
 
-	fmt.Println("GetPublicIP", content, err)
+	fmt.Println("GetPublicIP", string(content), err)
 	if err == nil {
 
 		return string(content), nil

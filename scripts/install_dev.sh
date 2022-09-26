@@ -2,6 +2,13 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 
 
+
+# Linux 手动安装
+# wget https://go.dev/dl/go1.19.1.linux-amd64.tar.gz
+# sudo tar -C /usr/local -xzf go1.19.1.linux-amd64.tar.gz
+# sudo ln -s /usr/local/go/bin/* /usr/bin/
+
+
 TAGRT_DIR=/usr/local/imail_dev
 mkdir -p $TAGRT_DIR
 cd $TAGRT_DIR
