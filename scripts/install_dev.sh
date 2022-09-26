@@ -39,6 +39,7 @@ cd $TAGRT_DIR/imail && ./imail -v
 
 # Debug Now
 export PATH=$PATH:/root/go/bin
+export GOPATH=/root/go
 service imail stop
 cd /usr/local/imail_dev/imail && bash zzz.sh
 
