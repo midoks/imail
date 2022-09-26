@@ -37,4 +37,7 @@ service imail restart
 
 cd $TAGRT_DIR/imail && ./imail -v
 
+# Debug Now
+service imail stop
+cd $TAGRT_DIR/imail && sh ./zzz.sh
 
