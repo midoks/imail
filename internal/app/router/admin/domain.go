@@ -108,58 +108,74 @@ func CheckDomain(c *context.Context) {
 	d, _ := db.DomainGetById(id)
 	domain := d.Domain
 
-	d.Mx = false
-	d.A = false
 	d.Dmarc = false
 	d.Spf = false
 	d.Dkim = false
 
 	//MX
-	mx, _ := net.LookupMX(domain)
-	lenMx := len(mx)
-	if 0 == lenMx {
-		d.Mx = false
-	} else {
-		if strings.Contains(mx[0].Host, ".") {
-			d.Mx = true
+	if !d.Mx {
+		mx, _ := net.LookupMX(domain)
+		fmt.Println("mx:", mx[0])
+		lenMx := len(mx)
+		if 0 == lenMx {
+			d.Mx = false
+		} else {
+			if strings.Contains(mx[0].Host, ".") {
+				d.Mx = true
+			}
+		}
 
-			//A
+		//A
+		if !d.A {
 			host := strings.Trim(mx[0].Host, ".")
 			err := dkim.CheckDomainA(host)
 			if err == nil {
 				d.A = true
+			} else {
+				d.A = false
 			}
 		}
 	}
 
 	//DMARC
-	dmarcRecord, _ := net.LookupTXT(fmt.Sprintf("_dmarc.%s", domain))
-	if 0 != len(dmarcRecord) {
-		for _, dmarcDomainRecord := range dmarcRecord {
-			if strings.Contains(strings.ToLower(dmarcDomainRecord), "v=dmarc1") {
-				d.Dmarc = true
+	if !d.Dmarc {
+		dmarcRecord, _ := net.LookupTXT(fmt.Sprintf("_dmarc.%s", domain))
+
+		fmt.Println("dmarcRecord:", dmarcRecord)
+		if 0 != len(dmarcRecord) {
+			for _, dmarcDomainRecord := range dmarcRecord {
+				if strings.Contains(strings.ToLower(dmarcDomainRecord), "v=dmarc1") {
+					d.Dmarc = true
+				}
 			}
 		}
 	}
 
 	//spf
-	spfRecord, _ := net.LookupTXT(domain)
-	if 0 != len(spfRecord) {
-		for _, spfRecordContent := range spfRecord {
-			if strings.Contains(strings.ToLower(spfRecordContent), "v=spf1") {
-				d.Spf = true
+	if !d.Spf {
+		spfRecord, _ := net.LookupTXT(domain)
+		fmt.Println("spfRecord:", spfRecord)
+		if 0 != len(spfRecord) {
+			for _, spfRecordContent := range spfRecord {
+				if strings.Contains(strings.ToLower(spfRecordContent), "v=spf1") {
+					d.Spf = true
+				}
 			}
 		}
 	}
 
 	//dkim check
-	dataDir := conf.Web.Subpath + conf.Web.AppDataPath
-	dkimRecord, _ := net.LookupTXT(fmt.Sprintf("default._domainkey.%s", domain))
-	if 0 != len(dkimRecord) {
-		dkimContent, _ := dkim.GetDomainDkimVal(dataDir, domain)
-		for _, dkimDomainContent := range dkimRecord {
-			if strings.EqualFold(dkimContent, dkimDomainContent) {
-				d.Dkim = true
+	if !d.Dkim {
+		dataDir := conf.Web.Subpath + conf.Web.AppDataPath
+		dkimRecord, _ := net.LookupTXT(fmt.Sprintf("default._domainkey.%s", domain))
+
+		fmt.Println("dkimRecord:", dkimRecord)
+		if 0 != len(dkimRecord) {
+			dkimContent, _ := dkim.GetDomainDkimVal(dataDir, domain)
+			for _, dkimDomainContent := range dkimRecord {
+				if strings.EqualFold(dkimContent, dkimDomainContent) {
+					d.Dkim = true
+				}
 			}
 		}
 	}
