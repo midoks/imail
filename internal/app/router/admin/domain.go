@@ -118,22 +118,33 @@ func CheckDomain(c *context.Context) {
 		} else {
 			if strings.Contains(mx[0].Host, ".") {
 				d.Mx = true
-			}
 
-			//A
-			if !d.A {
-				host := strings.Trim(mx[0].Host, ".")
-				fmt.Println("a:", host)
-				err := dkim.CheckDomainA(host)
-				fmt.Println("a err:", err)
-				if err == nil {
-					d.A = true
-				} else {
-					d.A = false
+				//A
+				if !d.A {
+					host := strings.Trim(mx[0].Host, ".")
+					err := dkim.CheckDomainA(host)
+					if err == nil {
+						d.A = true
+					} else {
+						d.A = false
+					}
 				}
 			}
 		}
+	}
 
+	//A
+	if !d.A {
+		mx, _ := net.LookupMX(domain)
+		host := strings.Trim(mx[0].Host, ".")
+		fmt.Println("a:", host)
+		err := dkim.CheckDomainA(host)
+		fmt.Println("a err:", err)
+		if err == nil {
+			d.A = true
+		} else {
+			d.A = false
+		}
 	}
 
 	//DMARC
