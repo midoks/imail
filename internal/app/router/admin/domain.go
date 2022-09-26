@@ -108,10 +108,6 @@ func CheckDomain(c *context.Context) {
 	d, _ := db.DomainGetById(id)
 	domain := d.Domain
 
-	d.Dmarc = false
-	d.Spf = false
-	d.Dkim = false
-
 	//MX
 	if !d.Mx {
 		mx, _ := net.LookupMX(domain)
@@ -123,18 +119,19 @@ func CheckDomain(c *context.Context) {
 			if strings.Contains(mx[0].Host, ".") {
 				d.Mx = true
 			}
-		}
 
-		//A
-		if !d.A {
-			host := strings.Trim(mx[0].Host, ".")
-			err := dkim.CheckDomainA(host)
-			if err == nil {
-				d.A = true
-			} else {
-				d.A = false
+			//A
+			if !d.A {
+				host := strings.Trim(mx[0].Host, ".")
+				err := dkim.CheckDomainA(host)
+				if err == nil {
+					d.A = true
+				} else {
+					d.A = false
+				}
 			}
 		}
+
 	}
 
 	//DMARC
