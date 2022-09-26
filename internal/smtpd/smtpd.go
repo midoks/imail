@@ -212,9 +212,9 @@ func (smtp *SmtpdServer) D(format string, args ...interface{}) {
 		return
 	}
 
-	if conf.Smtp.Debug {
-		log.Debug(info)
-	}
+	// if conf.Smtp.Debug {
+	log.Debug(info)
+	// }
 }
 
 func (smtp *SmtpdServer) w(msg string) error {
