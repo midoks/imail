@@ -2,6 +2,7 @@ package log
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/midoks/imail/internal/conf"
@@ -23,6 +24,10 @@ func Init() {
 	}
 
 	logPath := conf.Log.RootPath
+
+	// creare logs dir
+	os.MkdirAll(logPath, 0755)
+
 	fileConfig := &go_logger.FileConfig{
 		Filename: fmt.Sprintf("%s/%s", logPath, logFileName),
 		LevelFileName: map[int]string{
