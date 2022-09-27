@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# curl -fsSL  https://raw.githubusercontent.com/midoks/imail/master/scripts/install.sh | sh
+
 check_go_environment() {
 	if test ! -x "$(command -v go)"; then
 		printf "\e[1;31mmissing go running environment\e[0m\n"
