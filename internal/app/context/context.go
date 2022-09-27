@@ -213,8 +213,11 @@ func Contexter() macaron.Handler {
 
 		c.Data["CSRFToken"] = x.GetToken()
 		c.Data["CSRFTokenHTML"] = template.Safe(`<input type="hidden" name="_csrf" value="` + x.GetToken() + `">`)
-		log.Debugf("Session ID: %s", sess.ID())
-		log.Debugf("CSRF Token: %s", c.Data["CSRFToken"])
+
+		if !conf.IsProdMode() {
+			log.Debugf("Session ID: %s", sess.ID())
+			log.Debugf("CSRF Token: %s", c.Data["CSRFToken"])
+		}
 
 		c.Data["ShowRegistrationButton"] = !conf.Auth.DisableRegistration
 		// c.Data["ShowFooterBranding"] = conf.Other.ShowFooterBranding

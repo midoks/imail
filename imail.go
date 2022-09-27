@@ -49,6 +49,7 @@ func main() {
 	app.Usage = "A simple mail service"
 	app.Commands = []cli.Command{
 		cmd.Service,
+		cmd.Tools,
 		cmd.Dkim,
 		cmd.Check,
 	}

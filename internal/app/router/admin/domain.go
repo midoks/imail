@@ -111,7 +111,7 @@ func CheckDomain(c *context.Context) {
 	//MX
 	if !d.Mx {
 		mx, _ := net.LookupMX(domain)
-		fmt.Println("mx:", mx[0])
+		// fmt.Println("mx:", mx[0])
 		lenMx := len(mx)
 		if 0 == lenMx {
 			d.Mx = false
@@ -137,9 +137,9 @@ func CheckDomain(c *context.Context) {
 	if !d.A {
 		mx, _ := net.LookupMX(domain)
 		host := strings.Trim(mx[0].Host, ".")
-		fmt.Println("a:", host)
+		// fmt.Println("a:", host)
 		err := dkim.CheckDomainA(host)
-		fmt.Println("a err:", err)
+		// fmt.Println("a err:", err)
 		if err == nil {
 			d.A = true
 		} else {
@@ -150,8 +150,7 @@ func CheckDomain(c *context.Context) {
 	//DMARC
 	if !d.Dmarc {
 		dmarcRecord, _ := net.LookupTXT(fmt.Sprintf("_dmarc.%s", domain))
-
-		fmt.Println("dmarcRecord:", dmarcRecord)
+		// fmt.Println("dmarcRecord:", dmarcRecord)
 		if 0 != len(dmarcRecord) {
 			for _, dmarcDomainRecord := range dmarcRecord {
 				if strings.Contains(strings.ToLower(dmarcDomainRecord), "v=dmarc1") {
@@ -164,7 +163,7 @@ func CheckDomain(c *context.Context) {
 	//spf
 	if !d.Spf {
 		spfRecord, _ := net.LookupTXT(domain)
-		fmt.Println("spfRecord:", spfRecord)
+		// fmt.Println("spfRecord:", spfRecord)
 		if 0 != len(spfRecord) {
 			for _, spfRecordContent := range spfRecord {
 				if strings.Contains(strings.ToLower(spfRecordContent), "v=spf1") {
@@ -178,8 +177,7 @@ func CheckDomain(c *context.Context) {
 	if !d.Dkim {
 		dataDir := conf.Web.Subpath + conf.Web.AppDataPath
 		dkimRecord, _ := net.LookupTXT(fmt.Sprintf("default._domainkey.%s", domain))
-
-		fmt.Println("dkimRecord:", dkimRecord)
+		// fmt.Println("dkimRecord:", dkimRecord)
 		if 0 != len(dkimRecord) {
 			dkimContent, _ := dkim.GetDomainDkimVal(dataDir, domain)
 			for _, dkimDomainContent := range dkimRecord {
