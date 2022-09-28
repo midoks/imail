@@ -133,8 +133,8 @@ func DateFmtMail(t time.Time, lang string) string {
 	n := time.Now()
 	var cstSh, _ = time.LoadLocation(conf.Database.Timezone)
 
-	in := t.Format("2006-01-02")
-	now := n.Format("2006-01-02")
+	in := t.In(cstSh).Format("2006-01-02")
+	now := n.In(cstSh).Format("2006-01-02")
 
 	if in == now {
 		return t.In(cstSh).Format("15:04")
@@ -144,7 +144,7 @@ func DateFmtMail(t time.Time, lang string) string {
 	if in2.Unix()+86400 == now2.Unix() {
 		return i18n.Tr(lang, "common.yesterday")
 	} else {
-		return t.Format("2006-01-02")
+		return t.In(cstSh).Format("2006-01-02")
 	}
 }
 
