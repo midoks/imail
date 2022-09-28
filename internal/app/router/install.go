@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	"gopkg.in/ini.v1"
@@ -297,6 +298,8 @@ func InstallPost(c *context.Context, f form.Install) {
 		c.RenderWithErr(c.Tr("install.save_config_failed", err), INSTALL, &f)
 		return
 	}
+
+	time.Sleep(time.Duration(100) * time.UnixNano)
 
 	// NOTE: We reuse the current value because this handler does not have access to CLI flags.
 	if err := GlobalInit(conf.CustomConf); err != nil {
