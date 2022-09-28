@@ -193,6 +193,8 @@ func Contexter() macaron.Handler {
 
 		// Get user from session or header when possible
 		uid := c.Session.Get("uid")
+
+		fmt.Println("ready[uid]:", uid)
 		if uid != nil {
 			u, err := db.UserGetById(uid.(int64))
 			if err == nil {
