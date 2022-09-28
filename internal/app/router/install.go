@@ -299,7 +299,7 @@ func InstallPost(c *context.Context, f form.Install) {
 		return
 	}
 
-	time.Sleep(time.Duration(100) * time.UnixNano)
+	time.Sleep(time.Duration(100) * time.Millisecond)
 
 	// NOTE: We reuse the current value because this handler does not have access to CLI flags.
 	if err := GlobalInit(conf.CustomConf); err != nil {
