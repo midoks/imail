@@ -5,6 +5,8 @@ import (
 	"net/url"
 
 	"github.com/go-macaron/captcha"
+	// "github.com/go-macaron/session"
+
 	"github.com/midoks/imail/internal/app/context"
 	"github.com/midoks/imail/internal/app/form"
 	"github.com/midoks/imail/internal/conf"
@@ -124,6 +126,7 @@ func LoginPost(c *context.Context, f form.SignIn) {
 		c.SetSuperSecureCookie(u.Salt+u.Password, conf.Security.CookieRememberName, u.Name, days, conf.Web.Subpath, "", conf.Security.CookieSecure, true)
 	}
 
+	// session.Start(c)
 	r1 := c.Session.Set("uid", uid)
 	r2 := c.Session.Set("uname", f.UserName)
 
