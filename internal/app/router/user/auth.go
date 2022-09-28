@@ -134,12 +134,12 @@ func LoginPost(c *context.Context, f form.SignIn) {
 	redirectTo, _ := url.QueryUnescape(c.GetCookie("redirect_to"))
 	c.SetCookie("redirect_to", "", -1, conf.Web.Subpath)
 
-	fmt.Println("redirectTo:", redirectTo)
-	fmt.Println("tools.IsSameSiteURLPath(redirectTo):", tools.IsSameSiteURLPath(redirectTo))
-	if tools.IsSameSiteURLPath(redirectTo) {
-		c.Redirect(redirectTo)
-		return
-	}
+	// fmt.Println("redirectTo:", redirectTo)
+	// fmt.Println("tools.IsSameSiteURLPath(redirectTo):", tools.IsSameSiteURLPath(redirectTo))
+	// if tools.IsSameSiteURLPath(redirectTo) {
+	// 	c.Redirect(redirectTo)
+	// 	return
+	// }
 
 	c.RedirectSubpath("/")
 }
