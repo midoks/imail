@@ -12,7 +12,6 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/ini.v1"
 
-	// "github.com/midoks/imail/internal/log"
 	"github.com/midoks/imail/internal/assets/conf"
 	"github.com/midoks/imail/internal/tools"
 )
