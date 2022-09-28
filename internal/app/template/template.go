@@ -148,7 +148,8 @@ func DateFmtMail(t time.Time, lang string) string {
 }
 
 func DateFmtMailShort(t time.Time) string {
-	return t.Format("2006-01-02 15:04:05")
+	var cstSh, _ = time.LoadLocation("Asia/Shanghai")
+	return t.In(cstSh).Format("2006-01-02 15:04:05")
 }
 
 func DateInt64FmtMail(t int64, lang string) string {
