@@ -6,8 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/midoks/imail/internal/tools/mail"
 	"gorm.io/gorm"
+
+	"github.com/midoks/imail/internal/tools/mail"
 )
 
 type Mail struct {
@@ -31,9 +32,9 @@ type Mail struct {
 	IsCheck bool `gorm:"default:0;comment:是否通过检查"`
 
 	Created     time.Time `gorm:"autoCreateTime;comment:创建时间"`
-	CreatedUnix int64     `gorm:"autoCreateTime;comment:创建时间"`
+	CreatedUnix int64     `gorm:"autoCreateTime;comment:创建时间:UNIX"`
 	Updated     time.Time `gorm:"autoCreateTime;comment:更新时间"`
-	UpdatedUnix int64     `gorm:"autoCreateTime;comment:更新时间"`
+	UpdatedUnix int64     `gorm:"autoCreateTime;comment:更新时间:UNIX"`
 }
 
 const (
@@ -414,7 +415,6 @@ func MailUpdate(id int64, uid int64, mtype int, mail_from string, mail_to string
 
 	m.UpdatedUnix = time.Now().Unix()
 	m.CreatedUnix = time.Now().Unix()
-
 	result := db.Save(&m)
 
 	if result.Error != nil {
@@ -455,6 +455,8 @@ func MailPush(uid int64, mtype int, mail_from string, mail_to string, content st
 		IsDraft:           is_draft,
 	}
 
+	m.Updated = time.Now()
+	m.Created = time.Now()
 	m.UpdatedUnix = time.Now().Unix()
 	m.CreatedUnix = time.Now().Unix()
 	result := db.Create(&m)
