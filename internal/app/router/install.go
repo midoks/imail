@@ -73,15 +73,6 @@ func GlobalInit(customConf string) error {
 
 	log.Init()
 
-	// format := conf.Log.Format
-	// if strings.EqualFold(format, "json") {
-	// 	logger.SetFormatter(&logrus.JSONFormatter{})
-	// } else if strings.EqualFold(format, "text") {
-	// 	logger.SetFormatter(&logrus.TextFormatter{})
-	// } else {
-	// 	logger.SetFormatter(&logrus.TextFormatter{})
-	// }
-
 	if !strings.EqualFold(conf.App.RunMode, "prod") {
 		go debug.Pprof()
 	}
