@@ -72,7 +72,7 @@
 					    </tr>
 					    <tr>
 					      <td>{{$.i18n.Tr "mail.content.date" | Safe }}</td>
-					      <td>{{.ParseMail.Created}}</td>
+					      <td>{{.Mail.Created}}</td>
 					    </tr>
 
 					    <tr>
@@ -84,9 +84,7 @@
 								<div id="content">
 								{{.ParseMail.HTMLBody | Safe}}
 
-								<style id="ntes_link_color" type="text/css">
-								#content a,td a{color:#064977;text-decoration: none}
-								</style>
+								<style id="ntes_link_color" type="text/css">#content a,td a{color:#064977;text-decoration: none}</style>
 								</div>
 							{{end}}
 						   	</td>
