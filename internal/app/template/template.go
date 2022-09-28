@@ -90,6 +90,7 @@ func FuncMap() []template.FuncMap {
 			},
 
 			"DateFmtMail":      DateFmtMail,
+			"DateFmtMailShort": DateFmtMailShort,
 			"DateInt64FmtMail": DateInt64FmtMail,
 
 			"FilenameIsImage": func(filename string) bool {
@@ -144,6 +145,10 @@ func DateFmtMail(t time.Time, lang string) string {
 	} else {
 		return t.Format("2006-01-02")
 	}
+}
+
+func DateFmtMailShort(t time.Time) string {
+	return t.Format("2006-01-02 15:04:05 Mon")
 }
 
 func DateInt64FmtMail(t int64, lang string) string {
