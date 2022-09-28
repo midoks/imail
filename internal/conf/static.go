@@ -178,6 +178,7 @@ type DatabaseOpts struct {
 	Path         string
 	Prefix       string
 	Charset      string
+	Timezone     string
 	MaxOpenConns int
 	MaxIdleConns int
 }
