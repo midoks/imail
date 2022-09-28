@@ -98,6 +98,9 @@ func LoginPost(c *context.Context, f form.SignIn) {
 	c.Title("sign_in")
 
 	loginBool, uid := db.LoginByUserPassword(f.UserName, f.Password)
+
+	fmt.Println("login post:", loginBool, uid)
+
 	if !loginBool {
 		c.FormErr("UserName", "Password")
 		c.RenderWithErr(c.Tr("form.username_password_incorrect"), LOGIN, &f)
