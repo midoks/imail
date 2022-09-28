@@ -142,7 +142,6 @@ func LoginWithCode(name string, code string) (bool, int64) {
 }
 
 func LoginByUserPassword(name string, password string) (bool, int64) {
-	fmt.Println("name", name)
 	var u User
 	err := db.First(&u, "name = ?", name).Error
 
