@@ -53,8 +53,8 @@ func AutoLogin(c *context.Context) (bool, error) {
 		}
 
 		isSucceed = true
-		_ = c.Session.Set("uid", u.Id)
-		_ = c.Session.Set("uname", u.Name)
+		c.Session.Set("uid", u.Id)
+		c.Session.Set("uname", u.Name)
 		c.SetCookie(conf.Session.CSRFCookieName, "", -1, conf.Web.Subpath)
 		if conf.Security.EnableLoginStatusCookie {
 			c.SetCookie(conf.Security.LoginStatusCookieName, "true", 0, conf.Web.Subpath)
