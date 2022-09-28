@@ -195,6 +195,7 @@ func Contexter() macaron.Handler {
 		uid := c.Session.Get("uid")
 
 		fmt.Println("ready[uid]:", uid)
+		fmt.Println("ready[conf.Session]:", conf.Session)
 		if uid != nil {
 			u, err := db.UserGetById(uid.(int64))
 			if err == nil {
