@@ -7,7 +7,7 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 # brew install mingw-w64
 # sudo port install mingw-w64
 
-VERSION=0.0.14
+VERSION=0.0.15
 curPath=`pwd`
 rootPath=$(dirname "$curPath")
 
@@ -134,6 +134,6 @@ build_app linux 386
 build_app linux arm64
 build_app linux arm
 build_app darwin amd64
-build_app windows 386
-build_app windows amd64
+# build_app windows 386
+# build_app windows amd64
 
