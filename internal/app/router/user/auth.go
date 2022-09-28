@@ -1,7 +1,7 @@
 package user
 
 import (
-	"fmt"
+	// "fmt"
 	"net/url"
 
 	"github.com/go-macaron/captcha"
@@ -99,8 +99,7 @@ func LoginPost(c *context.Context, f form.SignIn) {
 
 	loginBool, uid := db.LoginByUserPassword(f.UserName, f.Password)
 
-	fmt.Println("login post:", loginBool, uid)
-
+	// fmt.Println("login post:", loginBool, uid)
 	if !loginBool {
 		c.FormErr("UserName", "Password")
 		c.RenderWithErr(c.Tr("form.username_password_incorrect"), LOGIN, &f)
@@ -129,20 +128,18 @@ func LoginPost(c *context.Context, f form.SignIn) {
 	c.Session.Set("uname", f.UserName)
 
 	// Clear whatever CSRF has right now, force to generate a new one
-	c.SetCookie(conf.Session.CSRFCookieName, "", -1, "")
+	c.SetCookie(conf.Session.CSRFCookieName, "", -1, conf.Web.Subpath)
 	if conf.Security.EnableLoginStatusCookie {
-		c.SetCookie(conf.Security.LoginStatusCookieName, "true", 0, "")
+		c.SetCookie(conf.Security.LoginStatusCookieName, "true", 0, conf.Web.Subpath)
 	}
 
 	redirectTo, _ := url.QueryUnescape(c.GetCookie("redirect_to"))
-	c.SetCookie("redirect_to", "", -1, "")
+	c.SetCookie("redirect_to", "", -1, conf.Web.Subpath)
 
-	fmt.Println("redirectTo:", redirectTo)
-	fmt.Println("tools.IsSameSiteURLPath(redirectTo):", tools.IsSameSiteURLPath(redirectTo))
-	// if tools.IsSameSiteURLPath(redirectTo) {
-	// 	c.Redirect(redirectTo)
-	// 	return
-	// }
+	if tools.IsSameSiteURLPath(redirectTo) {
+		c.Redirect(redirectTo)
+		return
+	}
 
 	c.RedirectSubpath("/")
 }
