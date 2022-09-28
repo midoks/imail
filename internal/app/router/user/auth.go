@@ -1,7 +1,7 @@
 package user
 
 import (
-	// "fmt"
+	"fmt"
 	"net/url"
 
 	"github.com/go-macaron/captcha"
@@ -99,7 +99,7 @@ func LoginPost(c *context.Context, f form.SignIn) {
 
 	loginBool, uid := db.LoginByUserPassword(f.UserName, f.Password)
 
-	// fmt.Println("login post:", loginBool, uid)
+	fmt.Println("login post:", loginBool, uid)
 	if !loginBool {
 		c.FormErr("UserName", "Password")
 		c.RenderWithErr(c.Tr("form.username_password_incorrect"), LOGIN, &f)
@@ -126,6 +126,8 @@ func LoginPost(c *context.Context, f form.SignIn) {
 
 	c.Session.Set("uid", uid)
 	c.Session.Set("uname", f.UserName)
+
+	fmt.Println("login:", uid, f.UserName)
 
 	// Clear whatever CSRF has right now, force to generate a new one
 	c.SetCookie(conf.Session.CSRFCookieName, "", -1, conf.Web.Subpath)
