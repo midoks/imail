@@ -1,7 +1,7 @@
 package user
 
 import (
-	"fmt"
+	// "fmt"
 	"net/url"
 
 	"github.com/go-macaron/captcha"
