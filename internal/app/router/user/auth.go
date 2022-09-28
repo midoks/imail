@@ -1,7 +1,7 @@
 package user
 
 import (
-	// "fmt"
+	"fmt"
 	"net/url"
 
 	"github.com/go-macaron/captcha"
@@ -126,16 +126,16 @@ func LoginPost(c *context.Context, f form.SignIn) {
 	c.Session.Set("uname", f.UserName)
 
 	// Clear whatever CSRF has right now, force to generate a new one
-	c.SetCookie(conf.Session.CSRFCookieName, "", -1, conf.Web.Subpath)
+	c.SetCookie(conf.Session.CSRFCookieName, "", -1, "")
 	if conf.Security.EnableLoginStatusCookie {
-		c.SetCookie(conf.Security.LoginStatusCookieName, "true", 0, conf.Web.Subpath)
+		c.SetCookie(conf.Security.LoginStatusCookieName, "true", 0, "")
 	}
 
-	// redirectTo, _ := url.QueryUnescape(c.GetCookie("redirect_to"))
-	// c.SetCookie("redirect_to", "", -1, conf.Web.Subpath)
+	redirectTo, _ := url.QueryUnescape(c.GetCookie("redirect_to"))
+	c.SetCookie("redirect_to", "", -1, "")
 
-	// fmt.Println("redirectTo:", redirectTo)
-	// fmt.Println("tools.IsSameSiteURLPath(redirectTo):", tools.IsSameSiteURLPath(redirectTo))
+	fmt.Println("redirectTo:", redirectTo)
+	fmt.Println("tools.IsSameSiteURLPath(redirectTo):", tools.IsSameSiteURLPath(redirectTo))
 	// if tools.IsSameSiteURLPath(redirectTo) {
 	// 	c.Redirect(redirectTo)
 	// 	return
