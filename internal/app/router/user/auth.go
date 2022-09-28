@@ -122,8 +122,8 @@ func LoginPost(c *context.Context, f form.SignIn) {
 		c.SetSuperSecureCookie(u.Salt+u.Password, conf.Security.CookieRememberName, u.Name, days, conf.Web.Subpath, "", conf.Security.CookieSecure, true)
 	}
 
-	_ = c.Session.Set("uid", uid)
-	_ = c.Session.Set("uname", f.UserName)
+	c.Session.Set("uid", uid)
+	c.Session.Set("uname", f.UserName)
 
 	// Clear whatever CSRF has right now, force to generate a new one
 	c.SetCookie(conf.Session.CSRFCookieName, "", -1, conf.Web.Subpath)

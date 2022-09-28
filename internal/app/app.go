@@ -244,7 +244,7 @@ func setRouter(m *macaron.Macaron) *macaron.Macaron {
 		CookiePath:     conf.Web.Subpath,
 		CookieHttpOnly: true,
 		SetCookie:      true,
-		Secure:         conf.Web.URL.Scheme == "https",
+		// Secure:         conf.Web.URL.Scheme == "https",
 	}), context.Contexter())
 	return m
 }
