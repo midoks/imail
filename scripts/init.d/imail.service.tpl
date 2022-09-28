@@ -7,6 +7,7 @@ After=syslog.target
 User=imail
 Group=imail
 Type=simple
+WorkingDirectory={APP_PATH}
 ExecStart=imail service
 ExecReload=/bin/kill -USR2 $MAINPID
 PermissionsStartOnly=true
