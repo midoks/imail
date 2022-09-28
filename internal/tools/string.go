@@ -193,6 +193,8 @@ func SizeFormat(size float64) string {
 }
 
 func RandString(len int) string {
+	rand.Seed(time.Now().UnixNano())
+
 	bytes := make([]byte, len)
 	for i := 0; i < len; i++ {
 		b := rand.Intn(26) + 65

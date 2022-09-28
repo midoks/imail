@@ -69,6 +69,7 @@ func CreateUser(u *User) (err error) {
 
 func UserUpdater(u *User) error {
 	r := db.Model(&User{}).Where("id = ?", u.Id).Save(u)
+	// fmt.Println("UserUpdater", r)
 	return r.Error
 }
 

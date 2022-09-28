@@ -105,6 +105,24 @@ func GlobalInit(customConf string) error {
 	return nil
 }
 
+func GlobalCmdInit(customConf string) error {
+
+	err := conf.Init(customConf)
+	if err != nil {
+		return errors.Wrap(err, "init configuration")
+	}
+
+	log.Init()
+	if !conf.Security.InstallLock {
+		return nil
+	}
+
+	db.Init()
+	task.Init()
+
+	return nil
+}
+
 func InstallInit(c *context.Context) {
 	if conf.Security.InstallLock {
 		c.NotFound()
