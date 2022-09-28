@@ -150,7 +150,6 @@ func LoginByUserPassword(name string, password string) (bool, int64) {
 	}
 
 	inputPwd := tools.Md5(tools.Md5(password) + u.Salt)
-
 	// fmt.Println(password, inputPwd, u.Password)
 	if inputPwd == u.Password {
 		return true, u.Id
