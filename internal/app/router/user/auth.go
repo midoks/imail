@@ -131,8 +131,8 @@ func LoginPost(c *context.Context, f form.SignIn) {
 		c.SetCookie(conf.Security.LoginStatusCookieName, "true", 0, conf.Web.Subpath)
 	}
 
-	redirectTo, _ := url.QueryUnescape(c.GetCookie("redirect_to"))
-	c.SetCookie("redirect_to", "", -1, conf.Web.Subpath)
+	// redirectTo, _ := url.QueryUnescape(c.GetCookie("redirect_to"))
+	// c.SetCookie("redirect_to", "", -1, conf.Web.Subpath)
 
 	// fmt.Println("redirectTo:", redirectTo)
 	// fmt.Println("tools.IsSameSiteURLPath(redirectTo):", tools.IsSameSiteURLPath(redirectTo))
