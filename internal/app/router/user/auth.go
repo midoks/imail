@@ -1,11 +1,10 @@
 package user
 
 import (
-	"fmt"
+	// "fmt"
 	"net/url"
 
 	"github.com/go-macaron/captcha"
-	// "github.com/go-macaron/session"
 
 	"github.com/midoks/imail/internal/app/context"
 	"github.com/midoks/imail/internal/app/form"
@@ -101,7 +100,6 @@ func LoginPost(c *context.Context, f form.SignIn) {
 
 	loginBool, uid := db.LoginByUserPassword(f.UserName, f.Password)
 
-	fmt.Println("login post:", loginBool, uid)
 	if !loginBool {
 		c.FormErr("UserName", "Password")
 		c.RenderWithErr(c.Tr("form.username_password_incorrect"), LOGIN, &f)
@@ -127,14 +125,8 @@ func LoginPost(c *context.Context, f form.SignIn) {
 	}
 
 	// session.Start(c)
-	r1 := c.Session.Set("uid", uid)
-	r2 := c.Session.Set("uname", f.UserName)
-
-	vv := c.Session.Get("uid")
-	vn := c.Session.Get("uname")
-
-	fmt.Println("get:", vv, vn)
-	fmt.Println("login:", uid, f.UserName, r1, r2)
+	c.Session.Set("uid", uid)
+	c.Session.Set("uname", f.UserName)
 
 	// Clear whatever CSRF has right now, force to generate a new one
 	c.SetCookie(conf.Session.CSRFCookieName, "", -1, conf.Web.Subpath)
