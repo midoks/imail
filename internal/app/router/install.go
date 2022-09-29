@@ -336,7 +336,7 @@ func InstallPost(c *context.Context, f form.Install) {
 	vv := c.Session.Get("uid")
 	vn := c.Session.Get("uname")
 
-	fmt.Println("get:", vv, vn)
+	fmt.Println("InstallPost get:", vv, vn)
 
 	c.Redirect("/user/login")
 }
