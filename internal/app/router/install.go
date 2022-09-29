@@ -333,5 +333,10 @@ func InstallPost(c *context.Context, f form.Install) {
 	log.Info("first-time run install finished!")
 	c.Flash.Success(c.Tr("install.install_success"))
 
+	vv := c.Session.Get("uid")
+	vn := c.Session.Get("uname")
+
+	fmt.Println("get:", vv, vn)
+
 	c.Redirect("/user/login")
 }
