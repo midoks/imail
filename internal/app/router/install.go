@@ -326,11 +326,12 @@ func InstallPost(c *context.Context, f form.Install) {
 		return
 	}
 
+	// Auto-login for admin
+	c.Session.Set("uid", u.Id)
+	c.Session.Set("uname", u.Name)
+
 	log.Info("first-time run install finished!")
 	c.Flash.Success(c.Tr("install.install_success"))
-	// Auto-login for admin
-	_ = c.Session.Set("uid", u.Id)
-	_ = c.Session.Set("uname", u.Name)
 
 	c.Redirect("/user/login")
 }
