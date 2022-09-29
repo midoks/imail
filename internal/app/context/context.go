@@ -181,6 +181,8 @@ func Contexter() macaron.Handler {
 			Session: sess,
 		}
 
+		ctx.Map(c)
+
 		c.Data["NowLang"] = l.Lang
 		c.Data["PageStartTime"] = time.Now()
 
@@ -230,6 +232,5 @@ func Contexter() macaron.Handler {
 		c.Header().Set("X-Content-Type-Options", "nosniff")
 		c.Header().Set("X-Frame-Options", "DENY")
 
-		ctx.Map(c)
 	}
 }
