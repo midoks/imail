@@ -41,6 +41,10 @@ sh make.sh
 
 systemctl daemon-reload
 
+
+rm -rf /usr/local/imail_dev/imail/custom
+rm -rf /usr/local/imail_dev/imail/data
+
 service imail restart
 
 cd $TAGRT_DIR/imail && ./imail -v
