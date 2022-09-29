@@ -130,8 +130,8 @@ func LoginPost(c *context.Context, f form.SignIn) {
 	r1 := c.Session.Set("uid", uid)
 	r2 := c.Session.Set("uname", f.UserName)
 
-	vv := c.Session.Get(uid)
-	vn := c.Session.Get(UserName)
+	vv := c.Session.Get("uid")
+	vn := c.Session.Get("uname")
 
 	fmt.Println("get:", vv, vn)
 	fmt.Println("login:", uid, f.UserName, r1, r2)
