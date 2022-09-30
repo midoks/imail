@@ -290,7 +290,6 @@ func (smtp *SmtpdServer) cmdEhlo(input string) bool {
 			if smtp.enableStartTtls {
 				smtp.w(fmt.Sprintf("250-STARTTLS%s", GO_EOL))
 			}
-
 			smtp.w(fmt.Sprintf("250-SIZE 73400320%s", GO_EOL))
 			smtp.w(fmt.Sprintf("250 8BITMIME%s", GO_EOL))
 			return true
@@ -327,7 +326,7 @@ func (smtp *SmtpdServer) cmdAuthLoginUser(input string) bool {
 	user := smtp.base64Decode(input)
 	smtp.loginUser = user
 
-	smtp.D("smtpd[user]:%s", smtp.loginUser)
+	smtp.D("[smtpd][user]:%s", smtp.loginUser)
 	smtp.write(MSG_AUTH_LOGIN_PWD)
 	return true
 }
@@ -344,7 +343,7 @@ func (smtp *SmtpdServer) cmdAuthLoginPwd(input string) bool {
 	smtp.write(MSG_AUTH_FAIL)
 
 	//fail log to db
-	info := fmt.Sprintf("[smtp]user[%s]:%.3s %s%s", smtp.loginUser, MSG_AUTH_FAIL, msgList[MSG_AUTH_FAIL], GO_EOL)
+	info := fmt.Sprintf("[smtpd]user[%s]:%.3s %s%s", smtp.loginUser, MSG_AUTH_FAIL, msgList[MSG_AUTH_FAIL], GO_EOL)
 	db.LogAdd("auth_plain_login", info)
 	return false
 }
