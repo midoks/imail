@@ -675,7 +675,7 @@ func (smtp *SmtpdServer) handle() {
 		input, err := smtp.getString(state)
 
 		if err != nil {
-			smtp.D("smtp: %s", err)
+			smtp.D("[smtpd][getString] error: %s", err)
 			smtp.write(MSG_COMMAND_TM_CTC)
 			smtp.close()
 			break
