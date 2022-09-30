@@ -241,7 +241,7 @@ func (smtp *SmtpdServer) getString(state int) (string, error) {
 	}
 
 	inputTrim := strings.TrimSpace(input)
-	smtp.D("smtpd[r][%s][%d]:%s", smtp.peer.Addr, inputTrim, smtp.Port)
+	smtp.D("smtpd[r][%s][%d]:%s", smtp.peer.Addr, smtp.Port, inputTrim)
 	return inputTrim, err
 
 }
