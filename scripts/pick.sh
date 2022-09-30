@@ -104,11 +104,13 @@ build_app(){
 	fi
 	
 
-	cp -r $rootPath/scripts $rootPath/tmp/build
-	cp -r $rootPath/LICENSE $rootPath/tmp/build
-	cp -r $rootPath/README.md $rootPath/tmp/build
+	cp -rf $rootPath/scripts $rootPath/tmp/build
+	cp -rf $rootPath/LICENSE $rootPath/tmp/build
+	cp -rf $rootPath/README.md $rootPath/tmp/build
+	cp -rf $rootPath/conf $rootPath/tmp/build
 
 	cd $rootPath/tmp/build && xattr -c * && rm -rf ./*/.DS_Store && rm -rf ./*/*/.DS_Store
+	cd $rootPath/tmp/build && rm -rf ./conf/app.conf && rm -rf ./conf/locale
 
 
 	if [ $1 == "windows" ];then
