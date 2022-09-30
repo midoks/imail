@@ -278,6 +278,10 @@ func InstallPost(c *context.Context, f form.Install) {
 	cfg.Section("session").Key("provider").SetValue("file")
 	cfg.Section("session").Key("cookie_secure").SetValue("false")
 
+	cfg.Section("ssl").Key("enable").SetValue("false")
+	cfg.Section("ssl").Key("cert_file").SetValue("custom/ssl/cert.pem")
+	cfg.Section("ssl").Key("key_file").SetValue("custom/ssl/key.pem")
+
 	cfg.Section("auth").Key("disable_registration").SetValue("true")
 
 	mode := "file"
