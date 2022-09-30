@@ -240,10 +240,15 @@ func WriteFile(file string, content string) error {
 	return ioutil.WriteFile(file, []byte(content), os.ModePerm)
 }
 
-func ReadFile(file string) (string, error) {
+func ReadFileByte(file string) ([]byte, error) {
 	f, err := os.OpenFile(file, os.O_RDONLY, 0600)
 	defer f.Close()
 	b, err := ioutil.ReadAll(f)
+	return b, err
+}
+
+func ReadFile(file string) (string, error) {
+	b, err := ReadFileByte(file)
 	return string(b), err
 }
 

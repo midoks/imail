@@ -156,6 +156,13 @@ func Init(customConf string) error {
 		return errors.Wrap(err, "mapping [rspamd] section")
 	}
 
+	// ***************************
+	// ----- Ssl settings -----
+	// ***************************
+	if err = File.Section("ssl").MapTo(&Ssl); err != nil {
+		return errors.Wrap(err, "mapping [ssl] section")
+	}
+
 	// *****************************
 	// ----- Security settings -----
 	// *****************************

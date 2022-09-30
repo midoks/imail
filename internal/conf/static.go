@@ -139,6 +139,14 @@ var (
 		RecjectConditionScore float64
 	}
 
+	//ssl
+	Ssl struct {
+		Enable   bool
+		Debug    bool
+		CertFile string
+		KeyFile  string
+	}
+
 	//Hook
 	Hook struct {
 		Enable        bool
