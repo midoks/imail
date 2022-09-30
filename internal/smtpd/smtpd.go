@@ -798,7 +798,7 @@ func (smtp *SmtpdServer) ready() {
 
 	smtp.startTime = time.Now()
 	smtp.isLogin = false
-	smtp.enableStartTtls = true
+	smtp.enableStartTtls = false
 
 	//mode
 	smtp.runModeIn = false
