@@ -13,7 +13,7 @@ import (
 	"github.com/midoks/imail/internal/tools/syscall"
 )
 
-const Version = "0.0.16"
+const Version = "0.0.17"
 const AppName = "imail"
 
 //go:embed templates
