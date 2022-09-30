@@ -801,6 +801,7 @@ func (smtp *SmtpdServer) ready() {
 	if smtp.LinkSSL && conf.Ssl.Enable {
 		smtp.initTLSConfig()
 		smtp.enableStartTtls = true
+		smtp.D("[smtpd][ready][ssl]:start")
 	}
 
 	smtp.startTime = time.Now()
