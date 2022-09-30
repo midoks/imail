@@ -801,7 +801,7 @@ func (smtp *SmtpdServer) ready() {
 	if smtp.LinkSSL && conf.Ssl.Enable {
 		smtp.initTLSConfig()
 		smtp.enableStartTtls = true
-		smtp.D("[smtpd][ready][ssl]:start")
+		smtp.D("[smtpd][ready][ssl]: start")
 	}
 
 	smtp.startTime = time.Now()
@@ -823,12 +823,14 @@ func (smtp *SmtpdServer) start(conn net.Conn) {
 	defer conn.Close()
 
 	if smtp.enableStartTtls {
+		smtp.D("[smtpd][ready][ssl] get stateTLS: start")
 		var tlsConn *tls.Conn
 		if tlsConn, smtp.tls = conn.(*tls.Conn); smtp.tls {
 			tlsConn.Handshake()
 			tlsState := tlsConn.ConnectionState()
 			smtp.stateTLS = &tlsState
 		}
+		smtp.D("[smtpd][ready][ssl] get stateTLS: end")
 	}
 
 	smtp.peer = Peer{
