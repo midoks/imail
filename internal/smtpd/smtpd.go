@@ -212,7 +212,6 @@ func (smtp *SmtpdServer) D(format string, args ...interface{}) {
 
 		if smtp.LinkSSL {
 			log.Debugf("[SSL]:%s", info)
-			return
 		}
 	}
 }
