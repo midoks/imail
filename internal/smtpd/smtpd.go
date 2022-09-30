@@ -213,7 +213,7 @@ func (smtp *SmtpdServer) D(format string, args ...interface{}) {
 		log.Debug(info)
 
 		if smtp.LinkSSL {
-			log.Debugf("[SSL]:%s", info)
+			log.Debugf("[SSL][%d]:%s", smtp.Port, info)
 		}
 	}
 }
