@@ -51,6 +51,7 @@ func main() {
 		cmd.Service,
 		cmd.Reset,
 		cmd.Dkim,
+		cmd.Cert,
 		cmd.Check,
 	}
 
