@@ -427,8 +427,16 @@ func (this *Pop3Server) handle() {
 	}
 }
 
+// func (this *Pop3Server) initTLSConfigBk() {
+// 	this.TLSConfig = tools.InitAutoMakeTLSConfig()
+// }
+
 func (this *Pop3Server) initTLSConfig() {
-	this.TLSConfig = tools.InitAutoMakeTLSConfig()
+	if conf.Ssl.Enable {
+		this.TLSConfig = tools.InitAutoMakeTLSConfigWithArgs(conf.Ssl.CertFile, conf.Ssl.KeyFile)
+	} else {
+		this.TLSConfig = tools.InitAutoMakeTLSConfig()
+	}
 }
 
 func (this *Pop3Server) ready() {
@@ -456,7 +464,7 @@ func (this *Pop3Server) StartPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
-		this.D("pop[start]:%s", err)
+		this.D("[pop][start]:%s", err)
 		return
 	}
 	defer ln.Close()
@@ -476,7 +484,7 @@ func (this *Pop3Server) StartSSLPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	ln, err := tls.Listen("tcp", addr, this.TLSConfig)
 	if err != nil {
-		this.D("pop[start][ssl]:%T", err)
+		this.D("[pop][start][ssl]:%T", err)
 		return
 	}
 	defer ln.Close()

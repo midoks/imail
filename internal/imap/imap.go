@@ -128,13 +128,12 @@ func (this *ImapServer) D(format string, args ...interface{}) {
 	info := fmt.Sprintf(format, args...)
 	info = strings.TrimSpace(info)
 
-	if this.LinkSSL {
-		log.Debugf("[SSL]:%s", info)
-		return
-	}
-
 	if conf.Imap.Debug {
 		log.Debug(info)
+
+		if this.LinkSSL {
+			log.Debugf("[SSL]:%s", info)
+		}
 	}
 }
 
@@ -676,7 +675,7 @@ func (this *ImapServer) StartSSLPort(port int) {
 	addr := fmt.Sprintf(":%d", port)
 	this.nlSSL, err = tls.Listen("tcp", addr, this.TLSConfig)
 	if err != nil {
-		log.Infof("imap[ssl][conn][listen]: %v", err)
+		this.D("[imap][ssl][conn][listen]: %v", err)
 		return
 	}
 	defer this.nlSSL.Close()
@@ -684,7 +683,7 @@ func (this *ImapServer) StartSSLPort(port int) {
 	for {
 		this.nlConnSSL, err = this.nlSSL.Accept()
 		if err != nil {
-			log.Infof("imap[ssl][conn][accept]: %v", err)
+			this.D("[imap][ssl][conn][accept]: %v", err)
 			return
 		}
 		this.start(this.nlConnSSL)
