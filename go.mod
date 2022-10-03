@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
-	github.com/editorconfig/editorconfig-core-go/v2 v2.4.5
+	github.com/editorconfig/editorconfig-core-go/v2 v2.5.1
 	github.com/go-macaron/binding v1.2.0
 	github.com/go-macaron/cache v0.0.0-20200329073519-53bb48172687
 	github.com/go-macaron/captcha v0.2.0
