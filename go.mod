@@ -26,7 +26,7 @@ require (
 	golang.org/x/text v0.3.8
 	gopkg.in/ini.v1 v1.67.0
 	gopkg.in/macaron.v1 v1.4.0
-	gorm.io/driver/mysql v1.4.2
+	gorm.io/driver/mysql v1.4.3
 	gorm.io/driver/sqlite v1.4.2
 	gorm.io/gorm v1.24.0
 )
