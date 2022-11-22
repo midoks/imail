@@ -59,11 +59,11 @@ export PATH=/usr/local/go:$PATH:/root/go/bin
 export GOPATH=/root/go
 
 if [ ! -f /root/go/bin/zzz ];then
-	go get github.com/midoks/zzz@latest
+	go install github.com/midoks/zzz@latest
 fi
 
 if [ ! -f /root/go/bin/go-bindata ];then
-	go get github.com/go-bindata/go-bindata/...
+	go install github.com/go-bindata/go-bindata/...
 fi
 
 
