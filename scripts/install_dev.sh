@@ -63,7 +63,7 @@ if [ ! -f /root/go/bin/zzz ];then
 fi
 
 if [ ! -f /root/go/bin/go-bindata ];then
-	go install github.com/go-bindata/go-bindata/...
+	go install github.com/go-bindata/go-bindatalatest
 fi
 
 
