@@ -136,12 +136,17 @@ func CheckDomain(c *context.Context) {
 	//A
 	if !d.A {
 		mx, _ := net.LookupMX(domain)
-		host := strings.Trim(mx[0].Host, ".")
-		// fmt.Println("a:", host)
-		err := dkim.CheckDomainA(host)
-		// fmt.Println("a err:", err)
-		if err == nil {
-			d.A = true
+
+		if len(mx) > 1 {
+			host := strings.Trim(mx[0].Host, ".")
+			// fmt.Println("a:", host)
+			err := dkim.CheckDomainA(host)
+			// fmt.Println("a err:", err)
+			if err == nil {
+				d.A = true
+			} else {
+				d.A = false
+			}
 		} else {
 			d.A = false
 		}
