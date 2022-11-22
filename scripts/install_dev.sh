@@ -52,6 +52,16 @@ cd $TAGRT_DIR/imail && ./imail -v
 # Debug Now
 export PATH=$PATH:/root/go/bin
 export GOPATH=/root/go
+
+if [ ! -f /root/go/bin/zzz ];then
+	go get github.com/midoks/zzz@latest
+fi
+
+if [ ! -f /root/go/bin/go-bindata ];then
+	go get github.com/go-bindata/go-bindata/...
+fi
+
+
 service imail stop
 cd /usr/local/imail_dev/imail && bash zzz.sh
 
