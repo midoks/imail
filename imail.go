@@ -17,10 +17,10 @@ const Version = "0.0.17"
 const AppName = "imail"
 
 //go:embed templates
-// var viewsFs embed.FS
+var viewsFs embed.FS
 
 //go:embed public/*
-// var publicFs embed.FS
+var publicFs embed.FS
 
 func init() {
 	conf.App.Version = Version
