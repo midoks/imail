@@ -15,7 +15,7 @@ require (
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/jarcoal/httpmock v1.2.0
 	github.com/json-iterator/go v1.1.12
-	github.com/microcosm-cc/bluemonday v1.0.21
+	github.com/microcosm-cc/bluemonday v1.0.23
 	github.com/midoks/mcopa v0.0.0-20220101182214-c193ea891591
 	github.com/phachon/go-logger v0.0.0-20191215032019-86e4227f71ea
 	github.com/pkg/errors v0.9.1
@@ -23,7 +23,7 @@ require (
 	github.com/stretchr/testify v1.8.1
 	github.com/unknwon/i18n v0.0.0-20210904045753-ff3a8617e361
 	github.com/urfave/cli v1.22.12
-	golang.org/x/text v0.5.0
+	golang.org/x/text v0.8.0
 	gopkg.in/ini.v1 v1.67.0
 	gopkg.in/macaron.v1 v1.4.0
 	gorm.io/driver/mysql v1.4.5
