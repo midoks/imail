@@ -47,8 +47,6 @@ func NewTemplateFileSystem(dir, customDir string) macaron.TemplateFileSystem {
 
 	var files []macaron.TemplateFile
 	names := AssetNames()
-
-	fmt.Println("imail",names)
 	for _, name := range names {
 		if !strings.HasPrefix(name, dir) {
 			continue
@@ -70,8 +68,6 @@ func NewTemplateFileSystem(dir, customDir string) macaron.TemplateFileSystem {
 		name = strings.TrimPrefix(name, dir)
 		ext := path.Ext(name)
 		name = strings.TrimSuffix(name, ext)
-
-		fmt.Println(name,data,ext)
 		files = append(files, macaron.NewTplFile(name, data, ext))
 	}
 	return &fileSystem{files: files}
