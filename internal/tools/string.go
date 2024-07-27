@@ -368,12 +368,13 @@ func ToEditorLang(lang string) string {
 // underscore format.
 //
 // Some samples.
-//     "FirstName"  => "first_name"
-//     "HTTPServer" => "http_server"
-//     "NoHTTPS"    => "no_https"
-//     "GO_PATH"    => "go_path"
-//     "GO PATH"    => "go_path"      // space is converted to underscore.
-//     "GO-PATH"    => "go_path"      // hyphen is converted to underscore.
+//
+//	"FirstName"  => "first_name"
+//	"HTTPServer" => "http_server"
+//	"NoHTTPS"    => "no_https"
+//	"GO_PATH"    => "go_path"
+//	"GO PATH"    => "go_path"      // space is converted to underscore.
+//	"GO-PATH"    => "go_path"      // hyphen is converted to underscore.
 //
 // From https://github.com/huandu/xstrings
 func ToSnakeCase(str string) string {
