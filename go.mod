@@ -25,6 +25,7 @@ require (
 	github.com/stretchr/testify v1.8.1
 	github.com/unknwon/i18n v0.0.0-20210904045753-ff3a8617e361
 	github.com/urfave/cli v1.22.12
+	golang.org/x/text v0.10.0
 	golang.org/x/text v0.8.0
 	gopkg.in/ini.v1 v1.67.0
 	gopkg.in/macaron.v1 v1.5.0
