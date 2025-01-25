@@ -273,7 +273,7 @@ func MailDeleteById(id int64, status int64) bool {
 	return true
 }
 
-//用过ID获取邮件的全部信息
+// 用过ID获取邮件的全部信息
 func MailById(id int64) (Mail, error) {
 	var m Mail
 	result := db.Model(&Mail{}).Where("id=?", id).Take(&m)
@@ -293,7 +293,7 @@ func MailSoftDeleteByIds(ids []int64) bool {
 	return true
 }
 
-//TODO:批量硬删除邮件数据
+// TODO:批量硬删除邮件数据
 func MailHardDeleteByIds(ids []int64) bool {
 	for _, id := range ids {
 

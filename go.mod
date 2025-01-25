@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
 	github.com/editorconfig/editorconfig-core-go/v2 v2.5.1
+	github.com/go-bindata/go-bindata v3.1.2+incompatible // indirect
 	github.com/go-macaron/binding v1.2.0
 	github.com/go-macaron/cache v0.0.0-20200329073519-53bb48172687
 	github.com/go-macaron/captcha v0.2.0
@@ -15,17 +16,21 @@ require (
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/jarcoal/httpmock v1.2.0
 	github.com/json-iterator/go v1.1.12
+	github.com/jteeuwen/go-bindata v3.0.7+incompatible // indirect
 	github.com/microcosm-cc/bluemonday v1.0.21
 	github.com/midoks/mcopa v0.0.0-20220101182214-c193ea891591
 	github.com/phachon/go-logger v0.0.0-20191215032019-86e4227f71ea
 	github.com/pkg/errors v0.9.1
 	github.com/smartystreets/goconvey v1.7.2
 	github.com/stretchr/testify v1.8.4
+	github.com/smartystreets/goconvey v1.8.0
+	github.com/stretchr/testify v1.8.1
 	github.com/unknwon/i18n v0.0.0-20210904045753-ff3a8617e361
 	github.com/urfave/cli v1.22.12
-	golang.org/x/text v0.5.0
+	golang.org/x/text v0.10.0
+	golang.org/x/text v0.8.0
 	gopkg.in/ini.v1 v1.67.0
-	gopkg.in/macaron.v1 v1.4.0
+	gopkg.in/macaron.v1 v1.5.0
 	gorm.io/driver/mysql v1.4.7
 	gorm.io/driver/sqlite v1.4.3
 	gorm.io/gorm v1.24.6

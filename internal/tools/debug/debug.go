@@ -16,7 +16,7 @@ func gc(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("StartGC"))
 }
 
-//start trace
+// start trace
 func traceStart(w http.ResponseWriter, r *http.Request) {
 	f, err := os.Create("trace.out")
 	if err != nil {
@@ -33,7 +33,7 @@ func traceStart(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("StartTrancs")
 }
 
-//stop trace
+// stop trace
 func traceStop(w http.ResponseWriter, r *http.Request) {
 	trace.Stop()
 

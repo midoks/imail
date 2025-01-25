@@ -116,7 +116,9 @@ func Test_IsAlreadyLearnedError(t *testing.T) {
 		transport.Reset()
 		transport.RegisterResponder(http.MethodPost, "/learnspam", func(req *http.Request) (*http.Response, error) {
 			_, _ = ioutil.ReadAll(req.Body)
-			return httpmock.NewJsonResponse(208, struct{ ErrorField string `json:"error"` }{ ErrorField: "<EmailId> has been already learned as spam, ignore it" })
+			return httpmock.NewJsonResponse(208, struct {
+				ErrorField string `json:"error"`
+			}{ErrorField: "<EmailId> has been already learned as spam, ignore it"})
 		})
 
 		resp, err := client.LearnSpam(context.Background(), e6)
@@ -129,7 +131,9 @@ func Test_IsAlreadyLearnedError(t *testing.T) {
 		transport.Reset()
 		transport.RegisterResponder(http.MethodPost, "/learnspam", func(req *http.Request) (*http.Response, error) {
 			_, _ = ioutil.ReadAll(req.Body)
-			return httpmock.NewJsonResponse(400, struct{ ErrorField string `json:"error"` }{ ErrorField: "error" })
+			return httpmock.NewJsonResponse(400, struct {
+				ErrorField string `json:"error"`
+			}{ErrorField: "error"})
 		})
 
 		resp, err := client.LearnSpam(context.Background(), e7)
