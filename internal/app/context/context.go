@@ -37,7 +37,7 @@ type Context struct {
 	IsTokenAuth bool
 }
 
-//json api common data
+// json api common data
 type JsonMsg struct {
 	Code int64       `json:"code"`
 	Msg  string      `json:"msg"`
@@ -118,7 +118,7 @@ func (c *Context) JSONSuccess(data interface{}) {
 	c.JSON(http.StatusOK, data)
 }
 
-//JSON Success Message
+// JSON Success Message
 func (c *Context) OK(msg string) {
 	c.JSONSuccess(JsonMsg{Code: 0, Msg: msg})
 }
@@ -127,7 +127,7 @@ func (c *Context) OKDATA(msg string, data interface{}) {
 	c.JSONSuccess(JsonMsg{Code: 0, Msg: msg, Data: data})
 }
 
-//JSON Fail Message
+// JSON Fail Message
 func (c *Context) Fail(code int64, msg string) {
 	c.JSONSuccess(JsonMsg{Code: code, Msg: msg})
 }

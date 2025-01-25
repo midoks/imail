@@ -431,7 +431,7 @@ func ApiDeleted(c *context.Context, f form.MailIDs) {
 	}
 }
 
-//TODO:硬删除
+// TODO:硬删除
 func ApiHardDeleted(c *context.Context, f form.MailIDs) {
 	ids := f.Ids
 	idsSlice, err := tools.ToSlice(ids)

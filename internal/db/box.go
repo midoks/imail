@@ -43,7 +43,7 @@ func BoxUserTotal(uid int64) (int64, int64) {
 	return 0, 0
 }
 
-//Get statistics under classification
+// Get statistics under classification
 func BoxUserMessageCountByClassName(uid int64, className string) (int64, int64) {
 	type Result struct {
 		Count int64

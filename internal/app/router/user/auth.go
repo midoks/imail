@@ -1,7 +1,7 @@
 package user
 
 import (
-	// "fmt"
+	"fmt"
 	"net/url"
 
 	"github.com/go-macaron/captcha"
@@ -97,6 +97,8 @@ func Login(c *context.Context) {
 
 func LoginPost(c *context.Context, f form.SignIn) {
 	c.Title("sign_in")
+
+	fmt.Println(f.UserName, f.Password)
 
 	loginBool, uid := db.LoginByUserPassword(f.UserName, f.Password)
 

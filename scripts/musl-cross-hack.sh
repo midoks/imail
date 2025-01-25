@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TMP_DIR=/usr/local/Cellar/musl-cross3/0.0.1/.brew
+TMP_DIR=/usr/local/Cellar/musl-cross3/0.9.9_1/.brew
 
 mkdir -p $TMP_DIR
 
