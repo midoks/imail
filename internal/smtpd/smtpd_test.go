@@ -205,7 +205,7 @@ func initDbMysql() {
 }
 
 // go test -run TestDnsQuery
-//DnsQuery Test
+// DnsQuery Test
 func TestDnsQuery(t *testing.T) {
 	d, err := DnsQuery("163.com")
 	// fmt.Println(d, err)

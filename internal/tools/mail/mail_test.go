@@ -15,7 +15,7 @@ var GetMailFromInContentData = []struct {
 	{"From: <midoks@163.com>", "midoks", true},
 }
 
-//go test -v ./internal/tools/mail -run TestGetMailFromInContent
+// go test -v ./internal/tools/mail -run TestGetMailFromInContent
 func TestGetMailFromInContent(t *testing.T) {
 
 	for _, test := range GetMailFromInContentData {
@@ -36,7 +36,7 @@ var GetMailSubjectData = []struct {
 	{"Subject: =?GBK?B?suLK1A==?=", "测试", true},
 }
 
-//go test -v ./internal/tools/mail -run TestGetMailSubject
+// go test -v ./internal/tools/mail -run TestGetMailSubject
 func TestGetMailSubject(t *testing.T) {
 
 	for _, test := range GetMailSubjectData {

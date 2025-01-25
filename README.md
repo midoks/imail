@@ -38,6 +38,11 @@ imail项目旨在打造一个以最简便的方式搭建简单、稳定的邮件
 * 优化一下提示。
 ```
 
+## 编译依赖
+```
+go install -a -v github.com/go-bindata/go-bindata/...@latest
+```
+
 ## Wiki
 
 - https://github.com/midoks/imail/wiki
