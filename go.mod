@@ -24,7 +24,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/unknwon/i18n v0.0.0-20210904045753-ff3a8617e361
 	github.com/urfave/cli v1.22.17
-	golang.org/x/crypto v0.45.0
+	golang.org/x/crypto v0.49.0
 	golang.org/x/text v0.35.0
 	gopkg.in/ini.v1 v1.67.0
 	gopkg.in/macaron.v1 v1.5.1
@@ -61,8 +61,8 @@ require (
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/unknwon/com v1.0.1 // indirect
 	golang.org/x/mod v0.33.0 // indirect
-	golang.org/x/net v0.47.0 // indirect
-	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/net v0.51.0 // indirect
+	golang.org/x/sys v0.42.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/libc v1.22.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
