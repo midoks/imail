@@ -12,7 +12,7 @@ require (
 	github.com/go-macaron/csrf v0.0.0-20200329073418-5d38f39de352
 	github.com/go-macaron/gzip v0.0.0-20200329073552-98214d7a897e
 	github.com/go-macaron/i18n v0.6.0
-	github.com/go-macaron/session v1.0.3
+	github.com/go-macaron/session v1.0.4
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/jarcoal/httpmock v1.4.1
 	github.com/json-iterator/go v1.1.12
